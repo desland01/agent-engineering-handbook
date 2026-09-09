@@ -67,7 +67,7 @@ def main():
             resolved = (page.parent / path).resolve()
             check(resolved.is_relative_to(PUBLIC.resolve()),
                   f'{page.relative_to(PUBLIC)}: link escapes public/: {target}')
-            check(resolved.exists(),
+            check(resolved.is_file() or (resolved.is_dir() and (resolved / "index.html").is_file()),
                   f'{page.relative_to(PUBLIC)}: unresolved link: {target}')
 
     # 3. Frame hashes vs the manifest.

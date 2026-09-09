@@ -3,7 +3,7 @@
 Practical guide for a developer on a team where the same mistake keeps coming back.
 Companion guides: [02](02-critical-journey-tests.md) · [03](03-preview-workspaces.md) ·
 [04](04-ci-feedback.md) · [05](05-knowledge-and-instructions.md) · [06](06-tool-adapters.md) ·
-[07](07-team-learning.md). Runnable companion: [examples/recurring-rule](../examples/recurring-rule/).
+[07](07-team-learning.md). Runnable companion: [examples/recurring-rule](../examples/recurring-rule/README.md).
 
 Source: [Theo's video](https://www.youtube.com/watch?v=xmGY276gEFY). Quotes below are from
 that video unless marked otherwise. Boris quotes are Boris as quoted by Theo in the video.
@@ -24,8 +24,7 @@ for themselves. He repeats the example of his file-upload service at
 Theo also names the accounting you should use at
 [t=749s](https://www.youtube.com/watch?v=xmGY276gEFY&t=749s): do not let your agents write
 your CLAUDE.md or AGENTS.md. This guide is the general form of that: *you* decide what the
-rule says; the agent drafts the mechanics. That principle is the user's settled decision here
-too, and it is a team practice, not a tool rule.
+rule says; the agent drafts the mechanics. That is a team ownership practice; a prompt alone does not enforce it.
 
 **Suggested (not demonstrated in the video):** the decision procedure, the cost test, and
 the acceptance steps below.
@@ -36,8 +35,9 @@ Write a rule when the expected savings justify the rule's cost. A repeated failu
 normal trigger, but the repeat count is a signal, not a prerequisite: one painful, expensive
 occurrence justifies a rule on its own, and an explicit request for a standing guard does
 not need to wait for a second occurrence at all.
-- The failure is detectable from text or logs, not only from runtime behavior. Runtime
-  failures belong in a journey test — see [guide 02](02-critical-journey-tests.md).
+
+- Choose a static rule for a statically detectable failure, or a focused behavioral test
+  for a runtime outcome. Use [guide 02](02-critical-journey-tests.md) for a complete user journey.
 - The cost of the rule is less than the cost of the next few manual fixes, including the
   agent's correction cost when it makes the mistake again (tokens, review time, waiting).
 
@@ -47,8 +47,9 @@ record the request and build the smallest one that satisfies it.
 
 ## Implementation
 
-1. **Collect the instances.** Find the two or more real occurrences: the files, the import
-   path, the call shape. Keep the actual examples; they become your test fixtures.
+1. **Collect the instances.** Keep the observed examples: the file, import
+   path or call shape. One consequential failure or an explicit guard request is enough
+   to start; preserve a permitted alternative alongside it.
 2. **Pick the mechanism that fits the constraint, preferring what already exists.** Start
    from the constraint's shape, not from a fixed cost ladder: an existing lint rule
    (for example ESLint's built-in
@@ -65,9 +66,9 @@ record the request and build the smallest one that satisfies it.
    executable checks; an instruction-only change is verified by wording review against the
    observed failure and, where loading matters, by confirming the instruction is actually
    loaded.
-4. **Enable the rule and fix the live violations (green).** The rule's first run will list
-   every existing instance. Fix them in the same change that lands the rule, so the rule
-   starts green for everyone else.
+4. **Enable the rule and fix the live violations (green).** Inspect the findings in the
+   intended scope and repair those violations. For wider adoption, choose an explicit
+   incremental rollout that preserves useful checks and keeps each changed scope usable.
 5. **Ship the rule with adequate fixture coverage**: at least one file that must fail and
    one that must pass. Reuse existing fixtures where they already cover the rule; add a
    pair only when none does. If the project runs checks in CI, cover the rule there so a
@@ -78,7 +79,7 @@ record the request and build the smallest one that satisfies it.
 
 A UI component importing the database client directly keeps reappearing. This repository
 contains a working demonstration in
-[examples/recurring-rule](../examples/recurring-rule/): ESLint's built-in
+[examples/recurring-rule](../examples/recurring-rule/README.md): ESLint's built-in
 `no-restricted-imports` configured for `src/ui/**`, an offending file
 (`src/ui/UserCard.js`), an approved file (`src/ui/UserList.js`, importing the API layer),
 a red configuration with the rule removed, and `run-demo.sh` which captures the red pass and
@@ -89,7 +90,8 @@ the green failure into `evidence/`. It uses no custom rule and needs no network 
 - Red run (rule absent): offending file passes, output preserved.
 - Green run (rule enabled): exactly the offending import is reported, by rule name, with a
   message that says what to do instead; approved imports produce no findings.
-- CI runs the rule on every PR, and a test fixture pair keeps the rule honest.
+- The project's actual check command runs the rule; wire it into existing CI where
+  applicable. Reused or new fixtures cover the prohibited and permitted cases.
 
 ## Failure modes and maintenance
 
