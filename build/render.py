@@ -43,7 +43,7 @@ COPY_FILES = [
 # Markdown rendered to HTML (the .md source is copied alongside each page).
 RENDER_MD = [
     'README.md', 'adoption.md', 'prompts.md', 'validation.md',
-    'CONTRIBUTING.md', 'ATTRIBUTION.md', 'DESIGN.md', 'INTERACTIONS.md',
+    'CONTRIBUTING.md', 'ATTRIBUTION.md',
     'github-inspection.md', 'matt-pocock-inspection.md', 'boris-cherny-inspection.md',
     'evidence/video-research.md', 'examples/recurring-rule/README.md',
 ] + sorted(f'guides/{p.name}' for p in (REPO / 'guides').glob('*.md'))
@@ -69,8 +69,6 @@ CONTEXT = {
     'examples/recurring-rule/README.md': ('Runnable companion to guide 01', '#guides'),
     'adoption.md': ('Adopting a guide or portable skill', '#skills'),
     'prompts.md': ('Task prompts for the guides', '#guides'),
-    'DESIGN.md': ('How this site is designed', ''),
-    'INTERACTIONS.md': ('How this site behaves', ''),
 }
 
 MD_EXTENSIONS = ['markdown.extensions.tables', 'markdown.extensions.fenced_code',

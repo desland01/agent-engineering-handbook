@@ -36,7 +36,7 @@ handbook's own text, adapted from the cited public sources and from the authors'
 inspection of them, with source-derived facts kept separate from author recommendation.
 See the provenance notes in each skill's frontmatter and
 [validation.md](validation.md). The site design is this edition's own and is recorded
-in [DESIGN.md](DESIGN.md); the earlier landing-page template,
+in [DESIGN.md](https://github.com/desland01/agent-engineering-handbook/blob/main/DESIGN.md); the earlier landing-page template,
 `build/workflows-source.html`, is retained in this repository for reference and is no
 longer used by the renderer.
 

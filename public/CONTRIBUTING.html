@@ -68,7 +68,7 @@ cd public &amp;&amp; python3 -m http.server 8000    # http://localhost:8000
 </tr>
 <tr>
 <td><code>DESIGN.md</code>, <code>INTERACTIONS.md</code></td>
-<td>The design system and the behaviour specification the generated pages follow</td>
+<td>Source-only design and behaviour guidance for contributors; never render or copy these into the website</td>
 </tr>
 <tr>
 <td><code>public/</code></td>
@@ -89,7 +89,7 @@ cd public &amp;&amp; python3 -m http.server 8000    # http://localhost:8000
   <code>build/home.json</code>; a new guide needs a shelf entry and a use-when line there, and
   <code>build/check.py</code> fails until the counts on the map match.</li>
 <li>Visual changes go through <code>build/assets/handbook.css</code> and are recorded in
-  <a href="DESIGN.html">DESIGN.md</a>; behaviour changes in <a href="INTERACTIONS.html">INTERACTIONS.md</a>.</li>
+  <a href="https://github.com/desland01/agent-engineering-handbook/blob/main/DESIGN.md">DESIGN.md</a>; behaviour changes in <a href="https://github.com/desland01/agent-engineering-handbook/blob/main/INTERACTIONS.md">INTERACTIONS.md</a>.</li>
 </ul>
 <p>Vercel regenerates and checks the site from these sources on every deployment. Edit the
 source, regenerate locally and commit both. <code>build/handbook-workflow.example.yml</code> provides
