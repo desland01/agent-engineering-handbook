@@ -31,7 +31,10 @@ cd public && python3 -m http.server 8000    # http://localhost:8000
 | `evidence/` | Frame manifest, extracted ideas, verifier comparison |
 | `screenshots/` | The 12 frames (do not replace without updating `evidence/frame-manifest.json`) |
 | `examples/recurring-rule/` | Runnable lint demonstration (`npm ci --ignore-scripts && npm run demo`) |
-| `build/` | Renderer, checker, pinned requirements, page template |
+| `build/` | Renderer, checker, pinned requirements |
+| `build/assets/handbook.css` | The one stylesheet every page loads (tokens at the top) |
+| `build/home.json` | Landing-page data not already in `README.md`: title, lead, source-grouped shelves, each guide's use-when line |
+| `DESIGN.md`, `INTERACTIONS.md` | The design system and the behaviour specification the generated pages follow |
 | `public/` | Generated site — committed, never edited by hand |
 
 ## Conventions
@@ -42,7 +45,12 @@ cd public && python3 -m http.server 8000    # http://localhost:8000
 - Screenshots are quoted excerpts from the source video; see
   [ATTRIBUTION.md](ATTRIBUTION.md). Do not add third-party code or longer excerpts.
 - New pages should be added to `RENDER_MD` in `build/render.py` and linked from
-  [README.md](README.md).
+  [README.md](README.md). The landing page is built from the README's own tables and
+  lists (problem table, guide list, investigations, skills, the 19 ideas) plus
+  `build/home.json`; a new guide needs a shelf entry and a use-when line there, and
+  `build/check.py` fails until the counts on the map match.
+- Visual changes go through `build/assets/handbook.css` and are recorded in
+  [DESIGN.md](DESIGN.md); behaviour changes in [INTERACTIONS.md](INTERACTIONS.md).
 
 Vercel regenerates and checks the site from these sources on every deployment. Edit the
 source, regenerate locally and commit both. `build/handbook-workflow.example.yml` provides

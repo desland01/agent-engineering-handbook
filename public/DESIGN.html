@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><link rel="icon" href="data:,"><title>Design system · Agent Engineering Handbook</title><link rel="stylesheet" href="assets/handbook.css"></head><body><a class="skip" href="#main">Skip to content</a><div class="wrap top"><a class="brand" href="index.html">Agent Engineering Handbook</a><a class="repo" href="https://github.com/desland01/agent-engineering-handbook">github.com/desland01/agent-engineering-handbook</a></div><nav class="wrap site-nav" aria-label="Handbook sections"><a href="index.html">Map</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><main id="main" class="wrap reader"><p class="context"><a href="index.html">How this site is designed</a></p><article><h1 id="design-system">Design system</h1>
+<p>How the Agent Engineering Handbook looks, and why. Every generated page — the map
+(<code>index.html</code>), the reader template behind the guides, investigations and other
+Markdown pages, the frame gallery (<code>evidence.html</code>) and the not-found page — loads one
+stylesheet, <code>build/assets/handbook.css</code>, whose first block holds the tokens listed here.
+Change a value there and every page follows. Behaviour (journeys, states, keyboard,
+responsive decisions) is in <a href="INTERACTIONS.html">INTERACTIONS.md</a>.</p>
+<h2 id="the-one-thing-to-remember">The one thing to remember</h2>
+<p><strong>A navigable map of evidence-backed engineering methods.</strong> The landing page is not a
+funnel or a sales page: it is the whole handbook laid out on one screen — thirteen guides
+grouped by the source each was adapted from, three investigations, four portable skills,
+nineteen timestamped ideas and twelve frames — so a reader can see the shape of the
+material and its provenance at a glance, then go straight to the one thing they need.
+Every choice below serves that: large numerals instead of icons, provenance in the shelf
+headings, real counts in the contents strip, and hairlines instead of decoration.</p>
+<h2 id="typography">Typography</h2>
+<ul>
+<li><strong>Family:</strong> the system sans (<code>system-ui, -apple-system, "Segoe UI", Roboto,
+  "Helvetica Neue", Arial, sans-serif</code>) for text; the system mono (<code>ui-monospace,
+  SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace</code>) for guide numerals,
+  timestamps, paths, hashes and code. No web font is loaded, because the handbook is
+  read on developer machines that already have good system faces, because a network font
+  would be the site's only network dependency, and because the material is text-heavy —
+  reading comfort matters more than a distinctive face.</li>
+<li><strong>Scale (tokens):</strong> <code>--text-xs</code> 0.8rem (directory lines, thumbnail captions),
+  <code>--text-sm</code> 0.92rem (use-when lines, table cells, notes), <code>--text-base</code> 1rem body,
+  <code>--text-lg</code> 1.15rem (leads), <code>--text-xl</code> 1.5rem (shelf and reader h2), <code>--text-2xl</code>
+  2.2rem (tile numerals). Titles: <code>--title-home</code> <code>clamp(2.4rem, 5.5vw, 4rem)</code> for the map's
+  h1 — the largest thing on the site, because the map is the one place that announces
+  the handbook — and <code>--title-page</code> <code>clamp(1.9rem, 4vw, 2.6rem)</code> for every other page,
+  where the content, not the title, should dominate.</li>
+<li><strong>Weights:</strong> 700 for headings, tile titles and the brand; 600 for problem-picker
+  questions, contents-strip labels and the current nav item; 400 for everything else.
+  Bold marks <em>what you can choose</em>; regular carries <em>what it says</em>.</li>
+<li><strong>Line height:</strong> 1.6 for body text, 1.2 for headings, 1.05 for the map's title.</li>
+<li><strong>Measure:</strong> reader pages are one column of <code>--measure</code> 48rem (about 72 characters at
+  16px). The map is wider (1240px) because it is a grid of short labels, not prose.</li>
+<li><strong>Letter-spacing:</strong> headings −0.02em, the map's title −0.035em. Familiar for a large
+  sans; it keeps the big title from looking loose.</li>
+</ul>
+<h2 id="colour">Colour</h2>
+<p>Dark ground, near-white text, one warm accent. This palette is inherited from the
+handbook's earlier pages and kept deliberately: readers arrive from a dark editor or a
+dark video player, and the orange marks <em>the way forward</em> (links, focus, the numbers in
+the contents strip) without competing with the frames.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Value</th>
+<th>Role</th>
+<th>Contrast on <code>--bg</code> / <code>--card</code> / <code>--muted</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--bg</code></td>
+<td><code>#0b0b0f</code></td>
+<td>page ground</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>--card</code></td>
+<td><code>#111114</code></td>
+<td>tiles, code blocks, blockquotes</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>--muted</code></td>
+<td><code>#18181b</code></td>
+<td>inline code, table header</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>--border</code></td>
+<td><code>#27272a</code></td>
+<td>hairlines</td>
+<td>decorative, no requirement</td>
+</tr>
+<tr>
+<td><code>--border-strong</code></td>
+<td><code>#8b8b95</code></td>
+<td>hovered or focused tile edge</td>
+<td>5.8 (non-text ≥ 3 ✓)</td>
+</tr>
+<tr>
+<td><code>--fg</code></td>
+<td><code>#fafafa</code></td>
+<td>headings, body text</td>
+<td>18.8 / 18.1 / 17.0</td>
+</tr>
+<tr>
+<td><code>--muted-fg</code></td>
+<td><code>#a1a1aa</code></td>
+<td>leads, use-when lines, captions, nav</td>
+<td>7.7 / 7.4 / 6.9</td>
+</tr>
+<tr>
+<td><code>--dim-fg</code></td>
+<td><code>#8b8b95</code></td>
+<td>attribution line, tile numerals, directory lines</td>
+<td>5.8 / 5.6 / 5.3</td>
+</tr>
+<tr>
+<td><code>--link</code></td>
+<td><code>#f08a55</code></td>
+<td>links</td>
+<td>7.9 / 7.6 / 7.2</td>
+</tr>
+<tr>
+<td><code>--primary</code></td>
+<td><code>#ea580c</code></td>
+<td>focus ring, contents-strip numbers, gallery timestamps, blockquote rule</td>
+<td>5.5 / 5.3 / 5.0</td>
+</tr>
+<tr>
+<td><code>--on-primary</code></td>
+<td><code>#0b0b0f</code></td>
+<td>text on an orange fill (the skip link)</td>
+<td>5.5 on <code>--primary</code> (the same pair as <code>--primary</code> on <code>--bg</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Ratios are WCAG 2.x, computed from the hex values. Two colours were corrected from the
+earlier pages because they failed AA for normal text: the dim grey was <code>#71717a</code>
+(4.1 / 3.9 / 3.7 — below 4.5) and is now <code>#8b8b95</code>; the skip link was white on orange
+(3.6) and is now the page ground on orange (5.5). The orange itself passes as small text
+on every surface, so the contents-strip numerals and gallery timestamps may use it; the
+lighter <code>--link</code> is kept for running links because underlined 16px text on a dark ground
+reads better a little lighter than the accent.</p>
+<p>The stylesheet uses <code>color-mix()</code> once, to fade link underlines to 45 % of the link
+colour; browsers without it show a full-strength underline.</p>
+<h2 id="density-and-spacing">Density and spacing</h2>
+<ul>
+<li><strong>Scale:</strong> 4, 8, 12, 16, 24, 32, 40, 64px (<code>--s-1</code> … <code>--s-8</code>). Tiles use 18/20px
+  padding and 14px gaps; shelves are 40px tall blocks separated by hairlines; the map's
+  header and closing section use 40–64px. Reader pages open 32px below the nav and close
+  56px above the footer.</li>
+<li><strong>Gutters:</strong> <code>--gutter</code> 24px, stepping to 18px at widths up to 400px. Blocks set
+  vertical padding with <code>padding-block</code> only, so no shorthand can override the gutter —
+  a regression that was found once and is guarded against by construction.</li>
+<li><strong>How dense it reads:</strong> the map is dense on purpose — thirteen tiles, eight problem
+  rows and nineteen ideas fit in a few screens — while reader pages are relaxed: one
+  column, generous heading spacing, hairlines above each h2. The contrast between the two
+  is the design: scan on the map, read in the page.</li>
+</ul>
+<h2 id="shape-depth-and-motion">Shape, depth and motion</h2>
+<ul>
+<li><strong>Radii:</strong> <code>--radius</code> 0.5rem for buttons-like things (frames, code blocks, the skip
+  link, guide-sequence cards) and <code>--radius-lg</code> 0.7rem for tiles. Familiar values; nothing
+  here needs to look sharp or pill-shaped.</li>
+<li><strong>Depth:</strong> hairline borders only. No shadows, no gradients, no glow. Hover or keyboard
+  focus on a tile lightens its border to <code>--border-strong</code>; that is the whole hover
+  vocabulary. Frames sit in a 1px border on a black fill so a still-loading image shows
+  a black 16:9 slot of the final size, not a jump.</li>
+<li><strong>Motion:</strong> one transition — tile and guide-card border colour, 120ms ease-out
+  (<code>--hover-ms</code>) — and smooth in-page scrolling for the contents strip and frame jumps.
+  Under <code>prefers-reduced-motion: reduce</code> the transition length becomes 0ms and scrolling
+  becomes instant. Nothing animates on load.</li>
+</ul>
+<h2 id="hierarchy-of-the-map">Hierarchy of the map</h2>
+<ol>
+<li>The title, then the lead (one sentence, muted).</li>
+<li>The contents strip — five real counts in orange mono, each a jump link. It is both
+   the table of contents and the promise of what the map contains; the counts are
+   generated from the same data as the shelves, and the build fails if they disagree.</li>
+<li>The problem picker, beside the title at 980px and above; below it on narrower
+   screens, after a two-line attribution. Both entry paths — <em>by problem</em> and <em>by
+   source</em> — are on the first screen at desktop widths.</li>
+<li>Four guide shelves grouped by source, each with a heading, a one-paragraph provenance
+   note (with the pinned revision hash where there is one) and a link to the investigation
+   that inspected the source. Then investigations, skills, the nineteen ideas, the twelve
+   frames.</li>
+<li>A closing pair: what was checked, and the full attribution.</li>
+</ol>
+<h2 id="components">Components</h2>
+<ul>
+<li><strong>Tile</strong> (<code>.tile</code>): card surface, hairline, large dim mono numeral for guides (a
+  guide number, never a metric), bold title that is the link, muted use-when line. The
+  whole tile is the click and tap target (stretched link); keyboard focus outlines the
+  whole tile. Investigation tiles show their source file name; skill tiles show their
+  directory, which links to the same directory on GitHub, while the title opens the
+  <code>SKILL.md</code> shipped with the site.</li>
+<li><strong>Problem picker</strong> (<code>.pick</code>): hairline rows; bold question, muted answer with one or
+  two links. No icons, no numbers — the question is the label.</li>
+<li><strong>Shelf head</strong> (<code>.shelf-head</code>): heading left, provenance paragraph right at 900px and
+  above. Paths and revision hashes are <code>code</code> and may wrap at any character.</li>
+<li><strong>Ideas list</strong> (<code>.ideas</code>): hairline rows with a mono timestamp column (links to the
+  video moment), the idea, and the implementing guide. Two columns at 900px and above.</li>
+<li><strong>Frame thumbnail</strong> (<code>.grid-frames figure</code>) and <strong>gallery frame</strong> (<code>.frame</code>): 16:9
+  image in a bordered black slot, mono timestamp, title; in the gallery the observation,
+  a link to the moment in the video, the full-size frame, and the guide that applies it.</li>
+<li><strong>Reader</strong> (<code>.reader</code>): a context line (guide number and source shelf, or the page's
+  place on the map), the article, a previous/next guide pair as two cards, a source
+  note with the editable Markdown and a way back to the map.</li>
+<li><strong>Tables and code</strong> in reader pages: tables sit in a bordered, horizontally scrollable
+  region that is keyboard-focusable and labelled; code blocks scroll horizontally inside
+  their border. The page itself never scrolls sideways: overflow is contained in the
+  region that produces it, never hidden on <code>html</code> or <code>body</code>, and that is checked on real
+  renders at 320, 390, 768 and 1440px.</li>
+<li><strong>Navigation:</strong> a top bar (brand → map, repository link) on every page; a wrapping
+  row of section links on reader pages and the gallery with the current page marked; no
+  navigation row on the map itself, whose contents strip and closing links do that job.</li>
+<li><strong>Not-found page:</strong> same top bar, one heading, one sentence, four ways back in.</li>
+<li><strong>Nothing decorative above headings:</strong> no eyebrow labels, overlines, small uppercase
+  kickers or duplicate labels, and no uppercase transforms. Field labels, the nav and
+  honest status text are fine.</li>
+<li><strong>Numbers beside words:</strong> a count, guide number or timestamp that sits before a label
+  (<code>13 guides</code>, <code>01 Convert…</code>, <code>04:07 A small test…</code>) is followed by a real space in the
+  markup, so screen readers hear two words; the margin on the number only tops the
+  space up to the intended visual gap.</li>
+</ul>
+<h2 id="familiar-versus-deliberate">Familiar versus deliberate</h2>
+<p>Familiar, and right here: the dark palette, system faces, 16px body, hairline borders,
+underlined links, a skip link, a wrapping text nav. None of these needs to be original;
+originality would cost reading comfort.</p>
+<p>Deliberate, and specific to this handbook: guides grouped by <em>source</em> rather than by
+topic or number, because provenance is the handbook's discipline; large numerals as the
+tile's visual anchor, because the guides really are numbered and readers refer to them
+by number; real counts as the table of contents; the map's title much larger than any
+page title; and the reader's "Guide 03 of 13 · From Theo's video" context line, which
+keeps the map's grouping visible while reading.</p>
+<h2 id="not-done-on-purpose">Not done, on purpose</h2>
+<ul>
+<li>No light theme. Adding one would manufacture difference rather than a better
+  hierarchy; the print stylesheet does flip to a light palette.</li>
+<li>No search or filter. The map is small enough to scan, and a filter would be the only
+  script on the site.</li>
+<li>No icons. The numerals, timestamps and words do the work.</li>
+</ul></article><p class="source-note"><a href="DESIGN.md">Editable Markdown source</a> · <a href="index.html">Back to the map</a> · Agent Engineering Handbook, September 9, 2026</p></main><footer class="wrap site-foot"><p>An independent public edition by Desmond Landry (@desland01), built from Theo&#x27;s video and direct inspection of three repositories. Theo, Matt Pocock and Boris Cherny do not endorse it. Frames are short excerpts from the video and remain © Theo / their original owners.</p><ul><li><a href="index.html">Map</a></li><li><a href="README.html">Handbook index</a></li><li><a href="ATTRIBUTION.html">Attribution</a></li><li><a href="CONTRIBUTING.html">Contributing</a></li><li><a href="https://github.com/desland01/agent-engineering-handbook">GitHub repository</a></li></ul></footer></body></html>

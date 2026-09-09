@@ -35,8 +35,10 @@ The guides, skills, examples and build tooling written for this edition are the
 handbook's own text, adapted from the cited public sources and from the authors' direct
 inspection of them, with source-derived facts kept separate from author recommendation.
 See the provenance notes in each skill's frontmatter and
-[validation.md](validation.md). The landing-page design is derived from
-`build/workflows-source.html`, included in this repository.
+[validation.md](validation.md). The site design is this edition's own and is recorded
+in [DESIGN.md](DESIGN.md); the earlier landing-page template,
+`build/workflows-source.html`, is retained in this repository for reference and is no
+longer used by the renderer.
 
 The renderer depends on [Python Markdown](https://github.com/Python-Markdown/markdown)
 3.10.3 (BSD license), used as an unmodified installed dependency; the lint example

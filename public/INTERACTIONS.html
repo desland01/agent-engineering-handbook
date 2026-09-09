@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><link rel="icon" href="data:,"><title>How the site behaves · Agent Engineering Handbook</title><link rel="stylesheet" href="assets/handbook.css"></head><body><a class="skip" href="#main">Skip to content</a><div class="wrap top"><a class="brand" href="index.html">Agent Engineering Handbook</a><a class="repo" href="https://github.com/desland01/agent-engineering-handbook">github.com/desland01/agent-engineering-handbook</a></div><nav class="wrap site-nav" aria-label="Handbook sections"><a href="index.html">Map</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><main id="main" class="wrap reader"><p class="context"><a href="index.html">How this site behaves</a></p><article><h1 id="how-the-site-behaves">How the site behaves</h1>
+<p>The behaviour specification for the generated pages: the reader's journey, what each
+screen puts first, the states that actually occur on a static site, and the responsive,
+keyboard, focus and touch decisions. The visual system is in <a href="DESIGN.html">DESIGN.md</a>.</p>
+<p>This is a static site with no scripts, no search, no accounts and no asynchronous data,
+so there are no loading skeletons, no error toasts and no empty result states to
+design. The states that do occur are: a page that does not exist, an image that has not
+loaded or cannot load, and content that is longer or wider than its container.</p>
+<h2 id="the-journey">The journey</h2>
+<p><strong>1. Arrive at the map</strong> (<code>index.html</code>), from the video, GitHub, a search result or a
+link. First thing seen: the title and lead. Second: the contents strip — five counts
+that say what is here and jump to it. Third, beside the title at 980px and above or
+just below it on a phone: the problem picker. The primary element is the title; the
+primary <em>action</em> is the picker or a shelf, and both are within the first two screens at
+every width.</p>
+<p><strong>2. Choose by problem or by source.</strong> The picker's eight rows name a situation and link
+to the guide (sometimes two) that addresses it. The shelves list every guide under the
+source it was adapted from, with a use-when line so the reader can pick without opening
+each one. A tile is one click or tap anywhere on its surface.</p>
+<p><strong>3. Read a guide.</strong> The context line at the top says "Guide 03 of 13" and names the
+shelf, linking back to it. The article is the guide's own Markdown, one column. Companion
+guides and the runnable example are linked from the guide's opening paragraph as the
+author wrote them; every internal link opens the generated page beside it.</p>
+<p><strong>4. Reach the source, a frame or a skill.</strong> Video timestamps in a guide open the video at
+that moment in the same tab (the reader chose to leave). Pinned repository links open the
+snapshot on GitHub. From the gallery, each frame offers the moment in the video, the
+full-size image and the guide that applies what the frame shows. Skill tiles open the
+<code>SKILL.md</code> shipped with the site; the directory line opens the same directory on GitHub.</p>
+<p><strong>5. Return.</strong> At the end of a guide, two cards: the previous and next guide (the first
+guide's "previous" is the guide shelf; the last guide's "next" is the investigations).
+Under them, the source note with "Back to the map". On every page the brand in the top
+bar returns to the map and the nav row reaches the handbook's other entry points.</p>
+<h2 id="hierarchy-by-screen">Hierarchy by screen</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Screen</th>
+<th>First</th>
+<th>Second</th>
+<th>Third</th>
+<th>Primary action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Map</td>
+<td>title</td>
+<td>contents strip</td>
+<td>problem picker</td>
+<td>pick a problem row or a tile</td>
+</tr>
+<tr>
+<td>Guide</td>
+<td>context line + title</td>
+<td>opening paragraph (muted, larger)</td>
+<td>headings in order</td>
+<td>read; next guide</td>
+</tr>
+<tr>
+<td>Investigation / other page</td>
+<td>context line + title</td>
+<td>opening paragraph</td>
+<td>headings</td>
+<td>read; nav row</td>
+</tr>
+<tr>
+<td>Gallery</td>
+<td>title + lead</td>
+<td>timestamp strip</td>
+<td>frames in a two-column grid</td>
+<td>open a frame's moment, full-size image or guide</td>
+</tr>
+<tr>
+<td>Not found</td>
+<td>heading</td>
+<td>one sentence</td>
+<td>four links</td>
+<td>the map</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="state-table">State table</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Screen</th>
+<th>State</th>
+<th>What is shown</th>
+<th>What the reader can do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Any page</td>
+<td>Missing page (404)</td>
+<td><code>404.html</code>: "That page is not in the handbook", one sentence, links to the map, the problem picker, the handbook index (<code>README.html</code>, which lists the guides rather than containing them) and the gallery. Root-absolute links, because it is served at any path.</td>
+<td>Go back in from any of the four links.</td>
+</tr>
+<tr>
+<td>Map, gallery</td>
+<td>Image not loaded yet</td>
+<td>A black 16:9 slot of the final size (width/height attributes plus <code>aspect-ratio</code>), bordered; the caption is already visible. Images are lazy-loaded.</td>
+<td>Scroll on; nothing shifts when the image lands.</td>
+</tr>
+<tr>
+<td>Map, gallery</td>
+<td>Image cannot load</td>
+<td>Alt text "Video frame at 06:23: A narrow upload skill." inside the black slot; the caption, timestamp, observation and links are unaffected.</td>
+<td>Use the caption's links; the full-size link fetches the original.</td>
+</tr>
+<tr>
+<td>Guide, report</td>
+<td>Wide table</td>
+<td>Bordered horizontally scrollable region, labelled "Scrollable table", keyboard-focusable. The page does not scroll sideways.</td>
+<td>Scroll the region with a trackpad, touch, or arrow keys after focusing it.</td>
+</tr>
+<tr>
+<td>Guide, report</td>
+<td>Wide code block</td>
+<td>Scrolls inside its own border.</td>
+<td>Scroll the block.</td>
+</tr>
+<tr>
+<td>Any</td>
+<td>Long unbreakable text (a 40-character hash, a long path)</td>
+<td>Wraps at any character inside <code>code</code>; grid and flex items have a zero minimum width so nothing widens the page.</td>
+<td>Read it; select it.</td>
+</tr>
+<tr>
+<td>Map</td>
+<td>A shelf with one guide</td>
+<td>Renders as a single tile in the grid; the shelf's heading and provenance stay. Honest about the count.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Gallery</td>
+<td>Arrival at <code>#frame-&lt;seconds&gt;</code></td>
+<td>The frame scrolls into view with 16px above it.</td>
+<td>Read the observation; jump to another timestamp from the strip.</td>
+</tr>
+<tr>
+<td>Skill file</td>
+<td>Opened <code>SKILL.md</code></td>
+<td>The browser shows or downloads the Markdown as served; there is no generated page for it.</td>
+<td>Browser back, or the GitHub link on the tile for a rendered view.</td>
+</tr>
+<tr>
+<td>Print</td>
+<td>Any page</td>
+<td>Light palette, nav and guide cards hidden, external link addresses printed after the link text, tables unconstrained, code wrapped.</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>Local preview note: <code>python3 -m http.server</code> does not serve <code>404.html</code> for missing paths;
+the hosting platform does. The page's links are root-absolute, so it works only when the
+site is served from a domain root.</p>
+<h2 id="responsive-decisions">Responsive decisions</h2>
+<p>Widths designed for: 320, 390, 768 and 1440px. Gutters are 24px, and 18px at 400px and
+below, so a 320px phone keeps 284px of content.</p>
+<ul>
+<li><strong>Map, 320–979px:</strong> one column. Title, lead, contents strip (wrapping), two-line
+  attribution, then the picker. Tiles: <code>auto-fill</code> at a 230px minimum, so one column at
+  320 and 390, two at 768. Ideas: one column. Frame thumbnails: two across, three from
+  640px. Shelf heading and its provenance paragraph stack.</li>
+<li><strong>Map, 980px and above:</strong> title block and picker side by side (1.1fr / 0.9fr). Shelf
+  heading and provenance side by side from 900px. Ideas in two columns from 900px. Frame
+  thumbnails six across from 1000px. Tiles: four or five per row at 1440.</li>
+<li><strong>Reader, all widths:</strong> one column of at most 48rem, centred. The nav row wraps onto
+  two or three lines at 320px; nothing is hidden behind a menu button because the row is
+  nine short words and needs no script. The previous/next cards stack below 640px.</li>
+<li><strong>Gallery:</strong> one column below 760px, two above. Each frame keeps its heading, image,
+  observation and links together.</li>
+<li><strong>Long titles:</strong> guide 11's title is 68 characters. It wraps inside a tile, inside the
+  guide-sequence card and in the reader heading; nothing truncates. Titles are never
+  ellipsised anywhere on the site.</li>
+</ul>
+<h2 id="keyboard-focus-and-screen-readers">Keyboard, focus and screen readers</h2>
+<ul>
+<li><strong>Skip link</strong> first in the tab order on every page; it appears at the top left when
+  focused and jumps to <code>&lt;main id="main"&gt;</code>.</li>
+<li><strong>Tab order</strong> follows the visual order: top bar (brand, repository), nav row, context
+  link, article links, guide-sequence cards, source note, footer. On the map: brand,
+  repository, contents strip, attribution link, picker rows, tiles shelf by shelf,
+  ideas, frames, closing links.</li>
+<li><strong>Focus ring:</strong> 2px orange outline, offset 3px, on every focusable element via
+  <code>:focus-visible</code>. On a tile the ring surrounds the whole tile, matching the click
+  target; the skill tile's directory link keeps its own ring.</li>
+<li><strong>Current page</strong> in the nav row carries <code>aria-current="page"</code> and an orange underline.</li>
+<li><strong>Lists</strong> that drop bullets (<code>list-style: none</code>) carry <code>role="list"</code> so VoiceOver still
+  announces them as lists with counts. Each shelf is a labelled region
+  (<code>aria-labelledby</code> its heading). Tile numerals are <code>aria-hidden</code>; the link text is
+  prefixed with a visually hidden "Guide 03:" so a screen reader hears the number with
+  the title.</li>
+<li><strong>Tables</strong> are wrapped in a region with <code>tabindex="0"</code> and the label "Scrollable
+  table" so keyboard users can reach and scroll them.</li>
+<li><strong>Images</strong> all have alt text. Frame alt text is "Video frame at 02:44: Sponsor CI
+  dashboard." — the identifying facts, not a paraphrase of the caption, which follows
+  as visible text.</li>
+<li><strong>Headings</strong> are in order on every page: one h1, then h2 sections; the build check
+  fails a page with zero or several h1s.</li>
+<li><strong>Reduced motion:</strong> honoured for the one transition and for smooth scrolling.</li>
+<li><strong>Language and colour scheme:</strong> <code>lang="en"</code> and <code>color-scheme: dark</code> are declared so
+  form controls and scrollbars match the page.</li>
+</ul>
+<h2 id="touch">Touch</h2>
+<ul>
+<li>Tiles and guide-sequence cards are large targets (whole surface).</li>
+<li>Contents-strip, timestamp-strip and nav links have 4–6px vertical padding, giving
+  roughly 32px-tall targets; picker answers and idea links are inline text links inside
+  their rows, as in any reading page.</li>
+<li>No hover-only information: hover only lightens a border or underlines a link.</li>
+</ul>
+<h2 id="resolved-decisions">Resolved decisions</h2>
+<ul>
+<li><strong>Skill links go to the shipped <code>SKILL.md</code>, not a generated page.</strong> The skill is the
+  file; a generated page would be a second copy that could drift. The GitHub directory
+  link on the same tile gives a rendered view. Known cost: the browser may show or
+  download the Markdown as plain text.</li>
+<li><strong>The nineteen ideas are on the map, not only linked.</strong> The map's promise is the whole
+  handbook on one page; leaving the ideas as a count that jumps to another page broke
+  that promise. They sit after the skills and before the frames, both video-derived.</li>
+<li><strong>Guides are grouped by source, not by number.</strong> The numbering is preserved on every
+  tile and in the guide sequence; the grouping is the map's argument about provenance.</li>
+<li><strong>Previous/next follow guide numbers, not shelves.</strong> A reader working through the
+  guides expects 08 to lead to 09 even though the source changes; the context line shows
+  the change of source.</li>
+<li><strong>External links open in the same tab.</strong> No <code>target="_blank"</code>; readers who want a new
+  tab have the modifier key, and the choice stays theirs.</li>
+<li><strong>The map has no nav row, at any width.</strong> Its contents strip and closing links already
+  reach every section and page; a nav row above the title would duplicate them. This
+  was re-judged on phone renders: at 390px the contents strip sits inside the first
+  screen, at 320px it starts at the bottom edge of the first screen, and the top bar
+  already takes three lines there (brand plus the wrapped repository address). A nav
+  row would push the title and the strip further down to reach pages the closing links
+  and the brand already reach; the strip is the map's section navigation.</li>
+<li><strong>No JavaScript.</strong> Every behaviour above is HTML and CSS. Nothing here needs a script,
+  and a script would be the site's only runtime dependency.</li>
+<li>
+<p><strong>Frame-to-guide links</strong> are an editorial mapping kept in the landing-page data file,
+  not inferred at build time, so they can be corrected as easily as any caption.</p>
+</li>
+<li>
+<p><strong>Numbers and labels are separate words.</strong> Every count, guide number and timestamp
+  that precedes a label is followed by a real space in the markup, so a screen reader
+  says "13 guides" and "04:07 A small test…" rather than one run-together token. The
+  visual gap is kept by a smaller margin on the number.</p>
+</li>
+</ul>
+<p>Open: nothing that blocks reading.</p></article><p class="source-note"><a href="INTERACTIONS.md">Editable Markdown source</a> · <a href="index.html">Back to the map</a> · Agent Engineering Handbook, September 9, 2026</p></main><footer class="wrap site-foot"><p>An independent public edition by Desmond Landry (@desland01), built from Theo&#x27;s video and direct inspection of three repositories. Theo, Matt Pocock and Boris Cherny do not endorse it. Frames are short excerpts from the video and remain © Theo / their original owners.</p><ul><li><a href="index.html">Map</a></li><li><a href="README.html">Handbook index</a></li><li><a href="ATTRIBUTION.html">Attribution</a></li><li><a href="CONTRIBUTING.html">Contributing</a></li><li><a href="https://github.com/desland01/agent-engineering-handbook">GitHub repository</a></li></ul></footer></body></html>

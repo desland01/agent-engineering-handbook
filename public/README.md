@@ -30,7 +30,7 @@ See [validation.md](validation.md) for exactly what was run and what was not.
 | Your project is becoming hard to navigate | [Domain language and APIs](guides/11-domain-language-and-agent-apis.md), [codebase navigation](guides/10-codebase-navigation-and-tooling.md) |
 | Long jobs repeat expensive work or accept bad output | [Artifact identity and recovery](guides/12-artifact-identity-and-recovery.md) |
 
-Read the [live handbook](https://agent-engineering-handbook.vercel.app/) or its [GitHub source](https://github.com/desland01/agent-engineering-handbook). The [visual workflow guide](https://agent-engineering-handbook.vercel.app/) is the shorter entry point. The
+Read the [live handbook](https://agent-engineering-handbook.vercel.app/) or its [GitHub source](https://github.com/desland01/agent-engineering-handbook). The [map](https://agent-engineering-handbook.vercel.app/) is the shorter entry point: every guide, investigation, skill, idea and frame on one page, grouped by source. The
 [screenshot gallery](https://agent-engineering-handbook.vercel.app/evidence.html) contains **12 ffmpeg frames** with timestamps,
 observations and full-size images. A post visible on screen is distinguished from a live
 demonstration; several examples are narrated only.

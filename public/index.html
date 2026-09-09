@@ -1,411 +1,47 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Build better coding environments for agents · Agent engineering</title><style>
-  :root {
-    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
-    --primary: #ea580c; --primary-fg: #ffffff;
-    --border: #27272a; --card: #111114; --radius: 0.5rem;
-    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
-  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
-  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
-  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
-  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
-  h3 { font-size: 1.4rem; margin: 0; }
-  h4 { font-size: 1.05rem; margin: 0 0 6px; }
-  p { margin: 0 0 12px; }
-  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
-  a:hover { border-bottom-color: var(--primary); }
-  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
-  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
-  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
-  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
-  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
-  .meta-row .v { color: var(--fg); font-weight: 600; }
-  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
-  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
-  .takeaways ul { margin: 0; padding-left: 20px; }
-  .takeaways li { margin: 6px 0; }
-  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
-  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
-  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
-  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
-  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
-  .prereq ul { margin: 0; padding-left: 20px; }
-  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
-  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
-  .step:first-child { border-top: none; padding-top: 0; }
-  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
-  .step-body { min-width: 0; }
-  .step-body p { margin: 6px 0; color: var(--fg); }
-  .ui { font-size: 0.88rem; color: var(--muted-fg); }
-  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
-  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
-  .shot { margin: 16px 0 4px; }
-  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
-  .shot-wrap img { display: block; width: 100%; height: auto; }
-  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
-  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
-  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
-  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
-  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
-  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
-  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
-  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
-  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
-  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
-  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
-  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
-  @media print {
-    body { background: white; color: black; }
-    .phase, .takeaways { border: 1px solid #ddd; background: white; }
-    a { color: black; border-bottom: 1px solid #ccc; }
-  }
-
-  a { text-decoration: underline; text-underline-offset: 3px; }
-  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
-  .site-nav a { color:var(--fg); }
-  p, li, td, th { overflow-wrap:anywhere; }
-  h3 { margin:28px 0 12px; }
-  .phase h3 { margin:0; }
-  h4 { margin:22px 0 8px; }
-  li { margin:6px 0; }
-  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
-  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
-  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
-  pre code { background:none; padding:0; overflow-wrap:normal; }
-  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
-  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
-  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
-  th { background:var(--muted); }
-  figure { margin:24px 0 40px; }
-  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
-  figcaption { margin-top:12px; color:var(--muted-fg); }
-  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
-  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
-  .quick-start ul { margin-bottom:0; }
-  @media(max-width:600px) {
-    main { padding:28px 18px 56px; }
-    h1 { font-size:2rem; }
-    h2 { font-size:1.45rem; margin-top:40px; }
-    .phase { padding:20px 16px; }
-    .step { grid-template-columns:32px 1fr; gap:10px; }
-    .takeaways { padding:20px; }
-    .site-nav { gap:8px 16px; }
-  }
-  @media print {
-    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
-    .site-nav { display:none; }
-    pre { white-space:pre-wrap; }
-    table { min-width:0; }
-  }
-</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav>
-  <header>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><link rel="icon" href="data:,"><title>Build better coding environments for agents · Agent Engineering Handbook</title><link rel="stylesheet" href="assets/handbook.css"></head><body><a class="skip" href="#main">Skip to content</a><div class="wrap top"><a class="brand" href="index.html">Agent Engineering Handbook</a><a class="repo" href="https://github.com/desland01/agent-engineering-handbook">github.com/desland01/agent-engineering-handbook</a></div>
+<main id="main">
+<header class="wrap opening">
+  <div>
     <h1>Build better coding environments for agents</h1>
-    <p class="lead">Start with a real failure or point of confusion. Build a small improvement that helps the next person or agent complete the same work with less correction.</p>
-    <div class="meta-row">
-      <div><span class="k">Difficulty</span><span class="v">advanced</span></div>
-      
-      <div><span class="k">For</span><span class="v">Developers improving agent reliability and the next contributor’s first experience</span></div>
-    </div>
-  </header><section class="quick-start"><p><strong>Explore the complete handbook</strong></p><ul><li><a href="README.html">All 13 guides, 19 video ideas and four portable skills</a></li><li><a href="evidence.html">12 timestamped screenshots</a></li><li><a href="github-inspection.html">Theo’s architecture and PRs</a> · <a href="matt-pocock-inspection.html">Matt’s course manager</a> · <a href="boris-cherny-inspection.html">Boris’s public code</a></li><li><a href="adoption.html">Adopt a skill or fold the methods into your own workflow</a></li></ul></section>
+    <p class="lead">Turn a repeated correction into an executable check, a confusing decision into discoverable knowledge, and a missing operation into a usable tool.</p>
+    <ul class="contents" role="list" aria-label="Contents"><li><a href="#guides"><span>13</span> guides</a></li><li><a href="#reports"><span>3</span> investigations</a></li><li><a href="#skills"><span>4</span> skills</a></li><li><a href="#ideas"><span>19</span> video ideas</a></li><li><a href="#frames"><span>12</span> frames</a></li></ul>
+    <p class="basis">An independent public edition by Desmond Landry (@desland01), built from Theo&#x27;s video and direct inspection of three repositories. Theo, Matt Pocock and Boris Cherny do not endorse it. <a href="#attribution">Full attribution</a> is at the end of the page.</p>
+  </div>
+  <div class="pick">
+    <h2 id="problems">Pick by the problem you have</h2>
+    <ol role="list" aria-labelledby="problems"><li><span class="q">You keep correcting the same mistake</span><span class="a"><a href="guides/01-recurring-failures.html">Recurring failures</a> and the <a href="examples/recurring-rule/README.html">runnable lint example</a></span></li><li><span class="q">Tests pass but the actual feature fails</span><span class="a"><a href="guides/02-critical-journey-tests.html">Critical journey tests</a> and <a href="guides/09-verification-contracts.html">verification contracts</a></span></li><li><span class="q">A new agent cannot run or inspect the app</span><span class="a"><a href="guides/03-preview-workspaces.html">Preview workspaces</a></span></li><li><span class="q">You relay CI errors by hand</span><span class="a"><a href="guides/04-ci-feedback.html">CI feedback</a></span></li><li><span class="q">Agents repeatedly miss project decisions</span><span class="a"><a href="guides/05-knowledge-and-instructions.html">Knowledge and instructions</a></span></li><li><span class="q">The agent cannot perform a required operation</span><span class="a"><a href="guides/06-tool-adapters.html">Tool adapters</a></span></li><li><span class="q">Your project is becoming hard to navigate</span><span class="a"><a href="guides/11-domain-language-and-agent-apis.html">Domain language and APIs</a>, <a href="guides/10-codebase-navigation-and-tooling.html">codebase navigation</a></span></li><li><span class="q">Long jobs repeat expensive work or accept bad output</span><span class="a"><a href="guides/12-artifact-identity-and-recovery.html">Artifact identity and recovery</a></span></li></ol>
+  </div>
+</header>
 
-  <section class="takeaways"><h3>What you'll have when you finish</h3><ul><li>Four standalone skills for recurring feedback, reproducible workspaces, context calibration and tool adapters.</li><li>Thirteen implementation guides, three repository investigations and a tested local lint example.</li><li>A timestamped evidence gallery separating visible demonstrations, narration and recommendations.</li></ul></section>
+<div id="guides"><section class="shelf" id="guides-video" aria-labelledby="guides-video-h"><div class="wrap"><div class="shelf-head"><h2 id="guides-video-h">From Theo&#x27;s video</h2><p>Eight guides adapted from the July 21, 2026 video. Quotes in these guides are from the video; Boris quotes are Boris as quoted by Theo. Investigation: <a href="github-inspection.html">Theo: T3 Code and Melee</a>.</p></div><ul class="tiles" role="list"><li class="tile guide"><span class="n" aria-hidden="true">01</span><a class="t" href="guides/01-recurring-failures.html"><span class="sr-only">Guide 01: </span>Convert recurring failures into permanent rules</a><p class="when">For a developer on a team where the same mistake keeps coming back.</p></li><li class="tile guide"><span class="n" aria-hidden="true">02</span><a class="t" href="guides/02-critical-journey-tests.html"><span class="sr-only">Guide 02: </span>One critical journey test beats broad shallow coverage</a><p class="when">For a team whose product has one path that must never silently break.</p></li><li class="tile guide"><span class="n" aria-hidden="true">03</span><a class="t" href="guides/03-preview-workspaces.html"><span class="sr-only">Guide 03: </span>Make previews usable from the agent&#x27;s environment</a><p class="when">When work happens in several worktrees or machines and a person or agent needs to inspect the actual change.</p></li><li class="tile guide"><span class="n" aria-hidden="true">04</span><a class="t" href="guides/04-ci-feedback.html"><span class="sr-only">Guide 04: </span>Let the agent read and resolve CI failures</a><p class="when">When you repeatedly carry CI errors from a web page back into an agent prompt.</p></li><li class="tile guide"><span class="n" aria-hidden="true">05</span><a class="t" href="guides/05-knowledge-and-instructions.html"><span class="sr-only">Guide 05: </span>Put project knowledge where the next task needs it</a><p class="when">When an agent or newcomer repeatedly misses a project decision, convention or non-obvious fact.</p></li><li class="tile guide"><span class="n" aria-hidden="true">06</span><a class="t" href="guides/06-tool-adapters.html"><span class="sr-only">Guide 06: </span>Build small tool adapters for capability gaps</a><p class="when">For closing a specific gap between what your agent needs to do and what its existing tools can do.</p></li><li class="tile guide"><span class="n" aria-hidden="true">07</span><a class="t" href="guides/07-team-learning.html"><span class="sr-only">Guide 07: </span>Turn newcomer questions into improvements</a><p class="when">When teammates or agents repeatedly get stuck on the same first task.</p></li><li class="tile guide"><span class="n" aria-hidden="true">08</span><a class="t" href="guides/08-compose-contracts.html"><span class="sr-only">Guide 08: </span>Keep contracts consistent across the application</a><p class="when">When agents repeatedly invent mismatched data shapes between storage, APIs and the interface.</p></li></ul></div></section><section class="shelf" id="guides-melee" aria-labelledby="guides-melee-h"><div class="wrap"><div class="shelf-head"><h2 id="guides-melee-h">From the Melee for Mac snapshot</h2><p>Two guides adapted from <code>tools/verify.py</code>, <code>docs/code-map.md</code> and related tooling in t3dotgg/melee4mac at head <code>a276aeb70f9879204d891d967f1c9442523568e1</code>. Investigation: <a href="github-inspection.html">Theo: T3 Code and Melee</a>.</p></div><ul class="tiles" role="list"><li class="tile guide"><span class="n" aria-hidden="true">09</span><a class="t" href="guides/09-verification-contracts.html"><span class="sr-only">Guide 09: </span>Verification contracts</a><p class="when">Make “done” mean a checked artifact, not a finished command.</p></li><li class="tile guide"><span class="n" aria-hidden="true">10</span><a class="t" href="guides/10-codebase-navigation-and-tooling.html"><span class="sr-only">Guide 10: </span>Codebase navigation and tooling</a><p class="when">Find where to change code in an unfamiliar codebase, and wrap external tools so their failures are safe.</p></li></ul></div></section><section class="shelf" id="guides-course-video-manager" aria-labelledby="guides-course-video-manager-h"><div class="wrap"><div class="shelf-head"><h2 id="guides-course-video-manager-h">From Course Video Manager</h2><p>Two guides adapted from Matt Pocock's course-video-manager snapshot <code>4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8</code>. Investigation: <a href="matt-pocock-inspection.html">Matt Pocock: Course Video Manager</a>.</p></div><ul class="tiles" role="list"><li class="tile guide"><span class="n" aria-hidden="true">11</span><a class="t" href="guides/11-domain-language-and-agent-apis.html"><span class="sr-only">Guide 11: </span>One domain language and one transport when an agent calls your API</a><p class="when">You are adding a command, route or agent verb to a codebase that already has a glossary and a deployed API.</p></li><li class="tile guide"><span class="n" aria-hidden="true">12</span><a class="t" href="guides/12-artifact-identity-and-recovery.html"><span class="sr-only">Guide 12: </span>Make pipeline artifacts reusable, resumable and honestly complete</a><p class="when">You run a pipeline with slow, expensive steps and want to reuse prior work, resume after crashes, and never accept a truncated artifact.</p></li></ul></div></section><section class="shelf" id="guides-boris-cherny" aria-labelledby="guides-boris-cherny-h"><div class="wrap"><div class="shelf-head"><h2 id="guides-boris-cherny-h">From Boris Cherny&#x27;s public work</h2><p>One guide generalised from the json-schema-to-typescript CI (fixtures, built-artifact smoke tests, fuzzing, a real-world corpus and conformance checks). Investigation: <a href="boris-cherny-inspection.html">Boris Cherny: public engineering work</a>.</p></div><ul class="tiles" role="list"><li class="tile guide"><span class="n" aria-hidden="true">13</span><a class="t" href="guides/13-layered-validation.html"><span class="sr-only">Guide 13: </span>Validate the output through several useful views</a><p class="when">When a generator, parser, migration, transformation or widely used library has failures that ordinary fixtures miss.</p></li></ul></div></section></div>
 
-  <h2>Procedure</h2>
-  
-      <section class="phase">
-        <header class="phase-head">
-          <h3>Convert repeat mistakes into feedback</h3>
-        </header>
-        <aside class="prereq"><strong>Before you start</strong><ul><li>A concrete rejected change or recurring failure; the existing lint/test setup</li></ul></aside>
-        <ol class="steps">
-      <li class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Record the failure and the valid alternative</h4>
-          <p>Save the smallest example that reproduces the error. State the rule, its scope and a permitted example before choosing a tool.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> Avoid encoding personal guesses or treating every one-off mistake as a new policy.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Use the simplest existing check</h4>
-          <p>Choose an existing lint rule for syntax and imports, a type or schema for data shape, or a focused test for runtime outcomes. Write a custom rule only for the missing behavior.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A short configuration can prevent the same mistake without another service to maintain.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Prove the check detects the mistake</h4>
-          <p>Run the prohibited example with the check absent, enable it, and confirm rejection. Also run a permitted example and the relevant repository command.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A passing suite alone does not show that the new check catches its intended failure.</p>
-          
-        </div>
-      </li></ol>
-      </section>
-      <section class="phase">
-        <header class="phase-head">
-          <h3>Test the critical result across two sessions</h3>
-        </header>
-        <aside class="prereq"><strong>Before you start</strong><ul><li>An isolated test environment with two test identities</li></ul></aside>
-        <ol class="steps">
-      <li class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Pick the outcome the product promises</h4>
-          <p>For messaging, user A sends a unique message and user B must see it rendered. For a lead system, submission must create a visible lead for the operator.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> The final visible result exercises more of the useful path than a button click assertion.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Separate the sender from the receiver</h4>
-          <p>Use independent authenticated browser contexts, isolated test records and unique content. Give the receiver a state-based assertion instead of a fixed sleep.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A shared session or stale message can produce a false pass.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Keep diagnostic evidence when it fails</h4>
-          <p>Retain screenshots, trace, logs and the tested revision. Check the evidence and distinguish a retry pass from a clean first-run pass.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A useful failure explains the problem and prevents repeated manual investigation.</p>
-          
-        </div>
-      </li></ol>
-      </section>
-      <section class="phase">
-        <header class="phase-head">
-          <h3>Give each agent a reproducible environment</h3>
-        </header>
-        <aside class="prereq"><strong>Before you start</strong><ul><li>An existing repository and its supported development commands</li></ul></aside>
-        <ol class="steps">
-      <li class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Make the first result reproducible</h4>
-          <p>Record runtime versions, locked dependency install, environment variable names, seed command, start command and one health check. Keep credential values in the existing loader.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> Cold-start agents need the same working prerequisites as a new teammate.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Bind the preview to the change</h4>
-          <p>Give concurrent changes isolated workspaces and test data. Record which revision built the preview and verify readiness before browser tests.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A green result on another revision cannot validate the proposed change.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Return useful evidence with the result</h4>
-          <p>Return the preview address, revision, scenario, outcome and artifact paths. Record gaps such as missing test authentication.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> The next person can understand and reproduce what was checked.</p>
-          
-        </div>
-      </li></ol>
-      </section>
-      <section class="phase">
-        <header class="phase-head">
-          <h3>Close the CI feedback loop</h3>
-        </header>
-        <aside class="prereq"><strong>Before you start</strong><ul><li>Access to the project’s existing CI logs</li></ul></aside>
-        <ol class="steps">
-      <li class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Retrieve the failing job directly</h4>
-          <p>Record the workflow run, attempt, commit and failing step. Read the failed logs with the project’s available CLI or API.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> Manual copying of errors into every prompt adds delay and loses context.</p>
-          
-      <figure class="shot">
-        <div class="shot-wrap">
-          <img src="screenshots/02-44-ci-feedback.jpg" alt="Example workflow history: connect the failed run, timing and revision. Sponsored product footage." loading="lazy" />
-          <svg class="ann" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            
-          </svg>
-        </div>
-        <figcaption>Example workflow history: connect the failed run, timing and revision. Sponsored product footage.</figcaption>
-      </figure>
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Choose a repair from the failure evidence</h4>
-          <p>Separate application defects, flaky assertions and environment failures. Reproduce the smallest relevant failure locally when possible, then rerun the authorized check.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> Repeatedly rerunning an unchanged failure provides little new information.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Track time to an accepted change</h4>
-          <p>Use observed queue time, run time, retries and correction effort to choose the next improvement. Keep vendor pricing and speed claims separate from measurements.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> The useful measure is reliable delivery, including repair work.</p>
-          
-        </div>
-      </li></ol>
-      </section>
-      <section class="phase">
-        <header class="phase-head">
-          <h3>Encode only the knowledge the task needs</h3>
-        </header>
-        <aside class="prereq"><strong>Before you start</strong><ul><li>An observed misunderstanding and the project’s current decisions</li></ul></aside>
-        <ol class="steps">
-      <li class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Observe a realistic task with normal context</h4>
-          <p>Use the actual task and existing instructions. Note what the agent could discover and where it made a wrong decision.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> There is no need to fill every context file before observing a real gap.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Put the missing knowledge in the right place</h4>
-          <p>Use comments for local rationale, tests for outcomes, types for shape, a skill for a conditional method and root instructions for broad project decisions.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> Knowledge is easier to maintain when it sits near its purpose.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Check the changed decision and keep human ownership</h4>
-          <p>Make the smallest authorized guidance change and inspect selected loading when affected. Preserve originals and later edits; retain uncertain expertise inactive during migration. Use a behavioral probe only when it resolves a real uncertainty.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> An agent can help draft instructions while the person retains project decisions.</p>
-          
-        </div>
-      </li></ol>
-      </section>
-      <section class="phase">
-        <header class="phase-head">
-          <h3>Bridge a proven tool gap</h3>
-        </header>
-        <aside class="prereq"><strong>Before you start</strong><ul><li>A concrete operation unavailable through existing tools</li></ul></aside>
-        <ol class="steps">
-      <li class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Confirm what the agent cannot do</h4>
-          <p>Try the existing supported interface and record its failure. Check available artifact storage or upload transports before adding a service.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A missing instruction is different from a missing capability.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Specify a small input and output contract</h4>
-          <p>For an upload adapter, name the file input, existing authentication source, accepted response format, resulting URL and explicit failure states. Keep secrets out of instructions.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A reusable command with predictable output is easier for an agent to operate.</p>
-          
-      <figure class="shot">
-        <div class="shot-wrap">
-          <img src="screenshots/06-23-upload-skill.jpg" alt="Example upload skill: input, authentication source, command and response-URL contract. The shown endpoint belongs to the presenter." loading="lazy" />
-          <svg class="ann" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            
-                <rect x="12.4" y="52" width="78" height="13" class="ann-box" />
-                <text x="51.4" y="50" class="ann-label" text-anchor="middle">Authentication and result</text>
-              
-                <rect x="12.4" y="79" width="60" height="12" class="ann-box" />
-                <text x="42.4" y="77" class="ann-label" text-anchor="middle">Command contract</text>
-              
-          </svg>
-        </div>
-        <figcaption>Example upload skill: input, authentication source, command and response-URL contract. The shown endpoint belongs to the presenter.</figcaption>
-      </figure>
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Verify through the actual agent route</h4>
-          <p>Test missing input, rejected authentication, server failure and successful output using local fixtures where possible. Verify authorized live delivery only at the requested boundary.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A curl example in a skill is not evidence that the agent can use the service.</p>
-          
-        </div>
-      </li></ol>
-      </section>
-      <section class="phase">
-        <header class="phase-head">
-          <h3>Turn newcomer confusion into improvements</h3>
-        </header>
-        <aside class="prereq"><strong>Before you start</strong><ul><li>A real onboarding question or repeated correction</li></ul></aside>
-        <ol class="steps">
-      <li class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Capture the first confusing moment</h4>
-          <p>Ask a newcomer or fresh agent to attempt a small real task. Record the question, the attempted action and the missing knowledge.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> A beginner notices assumptions that experienced maintainers no longer see.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Fix the shared obstacle</h4>
-          <p>Improve the error, command, example, documentation or architecture that caused the confusion. Use the smallest fitting change.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> The improvement should help the next contributor without requiring the same explanation.</p>
-          
-        </div>
-      </li>
-      <li class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Keep improvements that reduce correction effort</h4>
-          <p>Compare comparable tasks before and after the change using completion, repeated questions and repair effort. Keep the result and useful limitations with the method.</p>
-          
-          <p class="why"><span class="why-label">Why:</span> Team effectiveness gives a better direction than maximizing code or rule counts.</p>
-          
-        </div>
-      </li></ol>
-      </section>
+<section class="shelf" id="reports" aria-labelledby="reports-h"><div class="wrap">
+  <div class="shelf-head"><h2 id="reports-h">Three repository investigations</h2><p>Each report distinguishes inspected code, author-reported results, remote CI records and local execution, and links pinned snapshots wherever possible. Open PRs are separated from merged work.</p></div>
+  <ul class="tiles" role="list"><li class="tile report"><a class="t" href="github-inspection.html">Theo: T3 Code and Melee</a><p class="when">Architecture, custom lint, native skill dispatch, preview evidence, all 13 fork PRs, the linked verifier commit, and the source-completeness verifier repair.</p><span class="dir">github-inspection.md</span></li><li class="tile report"><a class="t" href="matt-pocock-inspection.html">Matt Pocock: Course Video Manager</a><p class="when">Domain vocabulary, one HTTP transport, static import boundaries, publication identity, resumable agent work, subprocess output draining and gaps between documentation and CI.</p><span class="dir">matt-pocock-inspection.md</span></li><li class="tile report"><a class="t" href="boris-cherny-inspection.html">Boris Cherny: public engineering work</a><p class="when">A staged compiler architecture, seeded fuzzing, generated-output validation, benchmarks, CLI compatibility, narrow tools and instruction-validator repairs.</p><span class="dir">boris-cherny-inspection.md</span></li></ul>
+</div></section>
 
-  
-  <h2>Tips</h2><ul class="insights-list"><li>Automate the repeated problem only after you can describe the failure and a valid alternative.</li><li>Treat instructions as guidance; use executable boundaries for requirements that must be enforced.</li><li>Share the improvement through the smallest relevant method instead of requiring every skill for every task.</li></ul>
-  <h2>Further reading</h2><ul class="resources-list"><li><a href="evidence.html" target="_blank" rel="noopener">Timestamped evidence and screenshot gallery</a> <span class="badge">doc</span></li><li><a href="adoption.html" target="_blank" rel="noopener">Adopting the methods</a> <span class="badge">doc</span></li></ul>
+<section class="shelf" id="skills" aria-labelledby="skills-h"><div class="wrap">
+  <div class="shelf-head"><h2 id="skills-h">Four portable skills</h2><p>Standalone directories for any agent setup that reads Markdown instructions: <code>SKILL.md</code>, two reference files and <code>agents/openai.yaml</code>. Each title opens the skill file as shipped here; each directory line opens it on GitHub. Adopt one for the failure you actually have — <a href="adoption.html">how to install or fold one into an existing skill</a>.</p></div>
+  <ul class="tiles" role="list"><li class="tile skill"><a class="t" href="skills/agent-feedback-engineering/SKILL.md">Agent feedback engineering</a><p class="when">Choose and prove a reusable response to an observed failure.</p><span class="dir"><a href="https://github.com/desland01/agent-engineering-handbook/tree/HEAD/skills/agent-feedback-engineering">skills/agent-feedback-engineering/</a></span></li><li class="tile skill"><a class="t" href="skills/agent-ready-workspaces/SKILL.md">Agent-ready workspaces</a><p class="when">Repair the setup, preview or outcome-check gap that blocks a fresh agent.</p><span class="dir"><a href="https://github.com/desland01/agent-engineering-handbook/tree/HEAD/skills/agent-ready-workspaces">skills/agent-ready-workspaces/</a></span></li><li class="tile skill"><a class="t" href="skills/agent-context-calibration/SKILL.md">Agent context calibration</a><p class="when">Diagnose missing project knowledge and select the right place for it.</p><span class="dir"><a href="https://github.com/desland01/agent-engineering-handbook/tree/HEAD/skills/agent-context-calibration">skills/agent-context-calibration/</a></span></li><li class="tile skill"><a class="t" href="skills/agent-tool-adapters/SKILL.md">Agent tool adapters</a><p class="when">Bridge a missing capability and verify the intended agent can use it.</p><span class="dir"><a href="https://github.com/desland01/agent-engineering-handbook/tree/HEAD/skills/agent-tool-adapters">skills/agent-tool-adapters/</a></span></li></ul>
+</div></section>
 
-  <footer class="source-strip">
-    Source: <a href="https://www.youtube.com/watch?v=xmGY276gEFY" target="_blank" rel="noopener">video · Claude Code’s creator has some really good advice</a>
-  </footer>
-</main></body></html>
+<section class="shelf" id="ideas" aria-labelledby="ideas-h"><div class="wrap">
+  <div class="shelf-head"><h2 id="ideas-h">Nineteen ideas from the video, in order</h2><p>Distinct takeaways, including qualified opinions. Each timestamp opens the video at that moment; each idea names the guide that implements it. Speaker attribution, evidence type and caveats are in the <a href="evidence/video-research.html">detailed extraction</a> and the <a href="evidence/video-tips.json">structured ideas file</a>.</p></div>
+  <ol class="ideas" role="list"><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=113s">01:53</a></span><p class="idea">Close the CI feedback loop: let the agent trigger CI and read failed logs itself</p><span class="to"><a href="guides/04-ci-feedback.html">Guide 04</a> — Let the agent read and resolve CI failures</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=226s">03:46</a></span><p class="idea">Design tiny two-actor end-to-end tests that catch whole classes of failure</p><span class="to"><a href="guides/02-critical-journey-tests.html">Guide 02</a> — One critical journey test beats broad shallow coverage</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=287s">04:47</a></span><p class="idea">Infra and DX automation now speeds up every agent, not just you</p><span class="to"><a href="guides/04-ci-feedback.html">Guide 04</a> — Let the agent read and resolve CI failures</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=306s">05:06</a></span><p class="idea">Preview environments matter more now that code is built outside your machine</p><span class="to"><a href="guides/03-preview-workspaces.html">Guide 03</a> — Make previews usable from the agent&#x27;s environment</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=352s">05:52</a></span><p class="idea">Build small tool adapters for things the CLI cannot do (video/asset uploads to PRs)</p><span class="to"><a href="guides/06-tool-adapters.html">Guide 06</a> — Build small tool adapters for capability gaps</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=390s">06:30</a></span><p class="idea">Authoring and testing a small skill has a tight, low-stakes feedback loop</p><span class="to"><a href="guides/06-tool-adapters.html">Guide 06</a> — Build small tool adapters for capability gaps</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=448s">07:28</a></span><p class="idea">Teams are now more willing to fund tooling time — use it</p><span class="to"><a href="guides/07-team-learning.html">Guide 07</a> — Turn newcomer questions into improvements</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=480s">08:00</a></span><p class="idea">Move recurring fixes from per-occurrence agent corrections into executable checks (lint rule, CI step, routine)</p><span class="to"><a href="guides/01-recurring-failures.html">Guide 01</a> — Convert recurring failures into permanent rules</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=510s">08:30</a></span><p class="idea">Custom lint rules became economical: agents lower the cost of the code and its tests</p><span class="to"><a href="guides/01-recurring-failures.html">Guide 01</a> — Convert recurring failures into permanent rules</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=596s">09:56</a></span><p class="idea">Encode domain knowledge as infrastructure so newcomers&#x27; agents get steered too</p><span class="to"><a href="guides/05-knowledge-and-instructions.html">Guide 05</a> — Put project knowledge where the next task needs it</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=674s">11:14</a></span><p class="idea">Treat newcomer questions as a signal for onboarding gaps (Theo&#x27;s dumb-questions practice)</p><span class="to"><a href="guides/07-team-learning.html">Guide 07</a> — Turn newcomer questions into improvements</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=749s">12:29</a></span><p class="idea">Write your CLAUDE.md / AGENTS.md yourself; watch agent behavior and adjust</p><span class="to"><a href="guides/05-knowledge-and-instructions.html">Guide 05</a> — Put project knowledge where the next task needs it</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=783s">13:03</a></span><p class="idea">Use steering files to make the agent say no (and to get fast feedback when things go wrong)</p><span class="to"><a href="guides/05-knowledge-and-instructions.html">Guide 05</a> — Put project knowledge where the next task needs it</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=831s">13:51</a></span><p class="idea">Compose layers so type safety runs end to end — and expect that click more often now</p><span class="to"><a href="guides/08-compose-contracts.html">Guide 08</a> — Keep contracts consistent across the application</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=873s">14:33</a></span><p class="idea">Write Claude.mds, review.mds, skills, and docs so agents work with zero prompting context</p><span class="to"><a href="guides/05-knowledge-and-instructions.html">Guide 05</a> — Put project knowledge where the next task needs it</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=962s">16:02</a></span><p class="idea">Calibrate from a cold start: run minimal prompts first, add context only where it fails</p><span class="to"><a href="guides/05-knowledge-and-instructions.html">Guide 05</a> — Put project knowledge where the next task needs it</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=998s">16:38</a></span><p class="idea">Instruction files should steer toward success, not list where things are</p><span class="to"><a href="guides/05-knowledge-and-instructions.html">Guide 05</a> — Put project knowledge where the next task needs it</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=1014s">16:54</a></span><p class="idea">Building environments where code lands well is a career-level skill (with a grain of salt)</p><span class="to"><a href="guides/07-team-learning.html">Guide 07</a> — Turn newcomer questions into improvements</span></li><li><span class="t"><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=1080s">18:00</a></span><p class="idea">Solo projects now exceed your own comprehension — build systems so you and your agents don&#x27;t get lost</p><span class="to"><a href="guides/10-codebase-navigation-and-tooling.html">Guide 10</a> — Codebase navigation and tooling</span></li></ol>
+</div></section>
+
+<section class="shelf" id="frames" aria-labelledby="frames-h"><div class="wrap">
+  <div class="shelf-head"><h2 id="frames-h">Twelve frames from the video</h2><p>Extracted with ffmpeg and captioned to separate what is visible from what is narrated. Each opens the <a href="evidence.html">gallery</a>, which has full-size images, observations and extraction hashes.</p></div>
+  <div class="grid-frames"><figure><a class="shot" href="evidence.html#frame-164"><img src="screenshots/02-44-ci-feedback.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 02:44: Sponsor CI dashboard."></a><figcaption><span class="t">02:44</span> Sponsor CI dashboard</figcaption></figure><figure><a class="shot" href="evidence.html#frame-214"><img src="screenshots/03-34-automation.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 03:34: Automate recurring work."></a><figcaption><span class="t">03:34</span> Automate recurring work</figcaption></figure><figure><a class="shot" href="evidence.html#frame-247"><img src="screenshots/04-07-critical-journey.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 04:07: A small test for a critical outcome."></a><figcaption><span class="t">04:07</span> A small test for a critical outcome</figcaption></figure><figure><a class="shot" href="evidence.html#frame-310"><img src="screenshots/05-10-fleet-speed.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 05:10: Shared automation helps every worker."></a><figcaption><span class="t">05:10</span> Shared automation helps every worker</figcaption></figure><figure><a class="shot" href="evidence.html#frame-343"><img src="screenshots/05-43-preview-testing.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 05:43: Make previews testable."></a><figcaption><span class="t">05:43</span> Make previews testable</figcaption></figure><figure><a class="shot" href="evidence.html#frame-383"><img src="screenshots/06-23-upload-skill.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 06:23: A narrow upload skill."></a><figcaption><span class="t">06:23</span> A narrow upload skill</figcaption></figure><figure><a class="shot" href="evidence.html#frame-403"><img src="screenshots/06-43-upload-contract.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 06:43: The tool contract in one screen."></a><figcaption><span class="t">06:43</span> The tool contract in one screen</figcaption></figure><figure><a class="shot" href="evidence.html#frame-494"><img src="screenshots/08-14-repeat-errors.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 08:14: Move repeated corrections into checks."></a><figcaption><span class="t">08:14</span> Move repeated corrections into checks</figcaption></figure><figure><a class="shot" href="evidence.html#frame-612"><img src="screenshots/10-12-domain-knowledge.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 10:12: Make domain knowledge discoverable."></a><figcaption><span class="t">10:12</span> Make domain knowledge discoverable</figcaption></figure><figure><a class="shot" href="evidence.html#frame-754"><img src="screenshots/12-34-instruction-ownership.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 12:34: Keep people responsible for instruction decisions."></a><figcaption><span class="t">12:34</span> Keep people responsible for instruction decisions</figcaption></figure><figure><a class="shot" href="evidence.html#frame-884"><img src="screenshots/14-44-shared-knowledge.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 14:44: Help the next contributor succeed."></a><figcaption><span class="t">14:44</span> Help the next contributor succeed</figcaption></figure><figure><a class="shot" href="evidence.html#frame-1021"><img src="screenshots/17-01-team-effectiveness.jpg" width="1920" height="1080" loading="lazy" alt="Video frame at 17:01: Improve the team’s ability to deliver."></a><figcaption><span class="t">17:01</span> Improve the team’s ability to deliver</figcaption></figure></div>
+</div></section>
+
+<section class="wrap closing" id="checked">
+  <div><h2>What was checked</h2><p>The local lint demonstration proves that the unwanted import passes without its restriction and is rejected with the restriction while the supported import passes. The Melee verifier's original nine tests and current fifteen tests pass; a separate synthetic comparison reproduces the completeness gap and the repair. These are verifier tests with mocked builds, not a real game build.</p><p>See <a href="validation.html">validation.md</a> for the exact scope, screenshot hashes and rendered-page checks. The public applications, upload service and private agent systems were not executed. Sponsor claims and universal career/productivity claims remain unverified.</p></div>
+  <div id="attribution"><h2>Attribution</h2><p>An independent, public handbook maintained by <strong>Desmond Landry (@desland01)</strong>, based on Theo's <a href="https://www.youtube.com/watch?v=xmGY276gEFY">video</a> (<em>Claude Code's creator has some really good advice</em>, July 21, 2026) and extended through direct inspection of Theo's T3 Code and Melee fork, Matt Pocock's Course Video Manager, and Boris Cherny's public engineering work. With attribution and thanks to <strong>Theo (@t3dotgg)</strong>, <strong>Matt Pocock (@mattpocock)</strong>, and <strong>Boris Cherny (@bcherny)</strong> — none of whom endorses this handbook. Research snapshot: <strong>September 9, 2026</strong>; later pull requests are identified as later evidence.</p>
+    <p>Frames are short excerpts from the video, reproduced for identification and commentary; they remain © Theo / their original owners. Full attribution in <a href="ATTRIBUTION.html">ATTRIBUTION.md</a>.</p>
+    <ul><li><a href="README.html">Handbook index</a></li><li><a href="adoption.html">Adoption</a></li><li><a href="prompts.html">Task prompts</a></li><li><a href="validation.html">Validation</a></li><li><a href="examples/recurring-rule/README.html">Runnable lint example</a></li><li><a href="CONTRIBUTING.html">Contributing</a></li><li><a href="https://github.com/desland01/agent-engineering-handbook">GitHub repository</a></li></ul>
+  </div>
+</section>
+</main>
+</body></html>
