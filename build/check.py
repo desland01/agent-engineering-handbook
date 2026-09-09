@@ -7,7 +7,7 @@ Run after `python3 build/render.py`:
 
 Checks (repository, not third-party application, behavior):
   1. public/ exists and contains exactly 13 guide pages, 4 skill entrypoints,
-     12 full-size frames, the root pages, the stylesheet and 404.html.
+     12 full-size frames, the root pages, the stylesheet, the script and 404.html.
   2. Every href/src in public/*.html resolves to a file inside public/ (no
      directory traversal, no missing target). Root-absolute links (used by
      404.html, which is served at any path) resolve against public/ itself.
@@ -95,7 +95,7 @@ def main():
     for page in ['index.html', 'README.html', 'adoption.html', 'prompts.html',
                  'validation.html', 'evidence.html', 'github-inspection.html',
                  'matt-pocock-inspection.html', 'boris-cherny-inspection.html',
-                 '404.html', 'assets/handbook.css']:
+                 '404.html', 'assets/handbook.css', 'assets/handbook.js']:
         check((PUBLIC / page).is_file(), f'public/{page} missing')
 
     # 2. href/src resolution, confined to public/.

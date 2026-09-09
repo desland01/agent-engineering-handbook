@@ -1,176 +1,178 @@
 # Design system
 
-How the Agent Engineering Handbook looks, and why. Every generated page — the map
-(`index.html`), the reader template behind the guides, investigations and other
-Markdown pages, the frame gallery (`evidence.html`) and the not-found page — loads one
-stylesheet, `build/assets/handbook.css`, whose first block holds the tokens listed here.
-Change a value there and every page follows. Behaviour (journeys, states, keyboard,
-responsive decisions) is in [INTERACTIONS.md](INTERACTIONS.md).
+Source-only guidance for contributors: how the Agent Engineering Handbook looks and why.
+It is never rendered or copied into `public/`. Every generated page — the map
+(`index.html`), the reader template behind the guides, investigations and other Markdown
+pages, the frame gallery (`evidence.html`) and the not-found page — loads one stylesheet,
+`build/assets/handbook.css`, whose first block holds the tokens listed here. Page
+structure lives in `build/render.py`. Behaviour (journeys, states, keyboard, responsive
+decisions) is in [INTERACTIONS.md](INTERACTIONS.md).
 
 ## The one thing to remember
 
-**A navigable map of evidence-backed engineering methods.** The landing page is not a
-funnel or a sales page: it is the whole handbook laid out on one screen — thirteen guides
-grouped by the source each was adapted from, three investigations, four portable skills,
-nineteen timestamped ideas and twelve frames — so a reader can see the shape of the
-material and its provenance at a glance, then go straight to the one thing they need.
-Every choice below serves that: large numerals instead of icons, provenance in the shelf
-headings, real counts in the contents strip, and hairlines instead of decoration.
+**A numbered, sourced field manual.** The handbook is thirteen numbered methods, each
+traceable to a video moment or a pinned repository revision. The map lays the whole
+manual out grouped by source; the reader keeps the number, the source and the page's
+sections in view while you read. Everything below serves that: serif titles that read as
+a manual rather than a dashboard, mono numerals and timestamps as the wayfinding
+vocabulary, warm surfaces with hairlines instead of floating cards, and a reader with a
+rail instead of a bare column of text.
 
 ## Typography
 
-- **Family:** the system sans (`system-ui, -apple-system, "Segoe UI", Roboto,
-  "Helvetica Neue", Arial, sans-serif`) for text; the system mono (`ui-monospace,
-  SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace`) for guide numerals,
-  timestamps, paths, hashes and code. No web font is loaded, because the handbook is
-  read on developer machines that already have good system faces, because a network font
-  would be the site's only network dependency, and because the material is text-heavy —
-  reading comfort matters more than a distinctive face.
-- **Scale (tokens):** `--text-xs` 0.8rem (directory lines, thumbnail captions),
-  `--text-sm` 0.92rem (use-when lines, table cells, notes), `--text-base` 1rem body,
-  `--text-lg` 1.15rem (leads), `--text-xl` 1.5rem (shelf and reader h2), `--text-2xl`
-  2.2rem (tile numerals). Titles: `--title-home` `clamp(2.4rem, 5.5vw, 4rem)` for the map's
-  h1 — the largest thing on the site, because the map is the one place that announces
-  the handbook — and `--title-page` `clamp(1.9rem, 4vw, 2.6rem)` for every other page,
-  where the content, not the title, should dominate.
-- **Weights:** 700 for headings, tile titles and the brand; 600 for problem-picker
-  questions, contents-strip labels and the current nav item; 400 for everything else.
-  Bold marks *what you can choose*; regular carries *what it says*.
-- **Line height:** 1.6 for body text, 1.2 for headings, 1.05 for the map's title.
-- **Measure:** reader pages are one column of `--measure` 48rem (about 72 characters at
-  16px). The map is wider (1240px) because it is a grid of short labels, not prose.
-- **Letter-spacing:** headings −0.02em, the map's title −0.035em. Familiar for a large
-  sans; it keeps the big title from looking loose.
+Three faces, each with one job, all from the reader's own system — no web font, so the
+site has no network dependency and reads at native quality on developer machines.
+
+- **Serif for titles and section headings** (`--font-serif`: Iowan Old Style, Charter,
+  Georgia, Palatino Linotype…): the map's title, shelf headings, the reader's h1 and h2,
+  investigation and skill titles, the brand. Weight 600, tracking −0.012em. This is the
+  handbook's voice; it is the one deliberate departure from the generic
+  system-sans-everywhere look the earlier edition had.
+- **Sans for reading and interface text** (`--font-sans`: system-ui…): body, use-when
+  lines, navigation, chips, labels. Weight 650 for guide titles on the map and for h3/h4.
+- **Mono for numbers and references** (`--font-mono`): guide numerals, counts,
+  timestamps, revision hashes, paths, code, the edition date.
+- **Scale (tokens):** `--text-xs` 0.8rem, `--text-sm` 0.9rem, `--text-base` 1rem,
+  `--text-read` 1.0625rem (the reader body from 760px), `--text-lg` 1.15rem, `--text-xl`
+  1.55rem (section headings), `--text-2xl` 2rem (shelf numerals). Titles:
+  `--title-home` `clamp(2.1rem, 1.2rem + 3vw, 3.4rem)` on the map, `--title-page`
+  `clamp(1.8rem, 1.1rem + 2.6vw, 2.75rem)` elsewhere. The map's title is no longer the
+  largest thing on the site by a wide margin; the problem panel beside it carries equal
+  weight.
+- **Measure:** the reader column is `--measure` 39rem — about 75 characters at 17px.
+  The map is 1200px wide because it is lists of short labels, not prose.
+- **Line height:** 1.6 body, 1.2 headings, 1.08 the map's title, 1.12 page titles.
 
 ## Colour
 
-Dark ground, near-white text, one warm accent. This palette is inherited from the
-handbook's earlier pages and kept deliberately: readers arrive from a dark editor or a
-dark video player, and the orange marks *the way forward* (links, focus, the numbers in
-the contents strip) without competing with the frames.
+A warm near-black ground, two lifted surfaces and one orange accent — the warm character
+of the earlier pages, shifted off pure neutral so the orange belongs to the ground rather
+than sitting on it.
 
-| Token | Value | Role | Contrast on `--bg` / `--card` / `--muted` |
+| Token | Value | Role | Contrast on `--bg` / `--surface` / `--surface-2` |
 |---|---|---|---|
-| `--bg` | `#0b0b0f` | page ground | — |
-| `--card` | `#111114` | tiles, code blocks, blockquotes | — |
-| `--muted` | `#18181b` | inline code, table header | — |
-| `--border` | `#27272a` | hairlines | decorative, no requirement |
-| `--border-strong` | `#8b8b95` | hovered or focused tile edge | 5.8 (non-text ≥ 3 ✓) |
-| `--fg` | `#fafafa` | headings, body text | 18.8 / 18.1 / 17.0 |
-| `--muted-fg` | `#a1a1aa` | leads, use-when lines, captions, nav | 7.7 / 7.4 / 6.9 |
-| `--dim-fg` | `#8b8b95` | attribution line, tile numerals, directory lines | 5.8 / 5.6 / 5.3 |
-| `--link` | `#f08a55` | links | 7.9 / 7.6 / 7.2 |
-| `--primary` | `#ea580c` | focus ring, contents-strip numbers, gallery timestamps, blockquote rule | 5.5 / 5.3 / 5.0 |
-| `--on-primary` | `#0b0b0f` | text on an orange fill (the skip link) | 5.5 on `--primary` (the same pair as `--primary` on `--bg`) |
+| `--bg` | `#100f0d` | page ground | — |
+| `--surface` | `#17150f` | panels, chapter lists, cards, code blocks, blockquotes, menu | — |
+| `--surface-2` | `#1f1c17` | chips, inline code, table header, hover fill | — |
+| `--border` | `#2c2822` | hairlines | decorative |
+| `--border-strong` | `#6f675c` | hovered card or chip edge | 3.4 / 3.3 / 3.0 (non-text ≥ 3 ✓) |
+| `--fg` | `#f2ece2` | headings, body, titles | 16.3 / 15.5 / 14.5 |
+| `--muted-fg` | `#aca69b` | leads, use-when lines, captions, nav, rail text | 7.9 / 7.5 / 7.0 |
+| `--dim-fg` | `#8d867b` | edition line, directory lines, rail labels | 5.3 / 5.1 / 4.7 |
+| `--link` | `#f29764` | running links in prose | 8.6 / 8.2 / 7.6 |
+| `--accent-text` | `#f37a3b` | numerals, timestamps, counts, chip numbers, "Guide 02" | 7.0 / 6.7 / 6.2 |
+| `--primary` | `#ea580c` | focus ring, brand mark, current-section marker, blockquote rule, skip link fill | 5.4 / 5.1 / 4.8 |
+| `--on-primary` | `#100f0d` | text on the orange skip link | 5.4 on `--primary` |
 
-Ratios are WCAG 2.x, computed from the hex values. Two colours were corrected from the
-earlier pages because they failed AA for normal text: the dim grey was `#71717a`
-(4.1 / 3.9 / 3.7 — below 4.5) and is now `#8b8b95`; the skip link was white on orange
-(3.6) and is now the page ground on orange (5.5). The orange itself passes as small text
-on every surface, so the contents-strip numerals and gallery timestamps may use it; the
-lighter `--link` is kept for running links because underlined 16px text on a dark ground
-reads better a little lighter than the accent.
-
-The stylesheet uses `color-mix()` once, to fade link underlines to 45 % of the link
-colour; browsers without it show a full-strength underline.
+Ratios are WCAG 2.x, computed from the hex values; every text colour passes AA for
+normal text on every surface it is used on. `--accent-text` exists because the raw
+accent at small mono sizes on the warm ground read slightly dull; the lighter tint keeps
+the same hue with more contrast. Link underlines fade to 40 % of the link colour with
+`color-mix()`; browsers without it show a full-strength underline.
 
 ## Density and spacing
 
-- **Scale:** 4, 8, 12, 16, 24, 32, 40, 64px (`--s-1` … `--s-8`). Tiles use 18/20px
-  padding and 14px gaps; shelves are 40px tall blocks separated by hairlines; the map's
-  header and closing section use 40–64px. Reader pages open 32px below the nav and close
-  56px above the footer.
-- **Gutters:** `--gutter` 24px, stepping to 18px at widths up to 400px. Blocks set
-  vertical padding with `padding-block` only, so no shorthand can override the gutter —
-  a regression that was found once and is guarded against by construction.
-- **How dense it reads:** the map is dense on purpose — thirteen tiles, eight problem
-  rows and nineteen ideas fit in a few screens — while reader pages are relaxed: one
-  column, generous heading spacing, hairlines above each h2. The contrast between the two
-  is the design: scan on the map, read in the page.
+- **Scale:** 4, 8, 12, 16, 24, 32, 40, 64, 96px (`--s-1` … `--s-9`). Gutters 24px, 16px
+  at 400px and below. Blocks set vertical padding with `padding-block` only so nothing
+  overrides the gutter.
+- **Map:** the opening block is 64/72px tall at desktop, 40/48 on phones; shelves are
+  44px blocks (52px for the full-width ones) separated by hairlines; chapter rows have
+  16/18px padding; cards 20px.
+- **Reader:** 48px above the page head at desktop (32 on phones), 28px between page
+  head, section disclosure and article; 40px above previous/next; 20px above the source
+  line. Section headings sit 2em below the previous section with a hairline and 1em of
+  padding above the text.
+- **How dense it reads:** the map is dense on purpose — the problem panel, a chapter list
+  of eight guides and the counts fit in the first two screens — while the reader is one
+  relaxed column with the rail doing the orientation work.
 
 ## Shape, depth and motion
 
-- **Radii:** `--radius` 0.5rem for buttons-like things (frames, code blocks, the skip
-  link, guide-sequence cards) and `--radius-lg` 0.7rem for tiles. Familiar values; nothing
-  here needs to look sharp or pill-shaped.
-- **Depth:** hairline borders only. No shadows, no gradients, no glow. Hover or keyboard
-  focus on a tile lightens its border to `--border-strong`; that is the whole hover
-  vocabulary. Frames sit in a 1px border on a black fill so a still-loading image shows
-  a black 16:9 slot of the final size, not a jump.
-- **Motion:** one transition — tile and guide-card border colour, 120ms ease-out
-  (`--hover-ms`) — and smooth in-page scrolling for the contents strip and frame jumps.
-  Under `prefers-reduced-motion: reduce` the transition length becomes 0ms and scrolling
-  becomes instant. Nothing animates on load.
+- **Radii:** `--radius-sm` 6px (thumbnails, buttons, small blocks), `--radius` 10px
+  (code, tables, blockquotes, previous/next, the menu panel, the section disclosure),
+  `--radius-lg` 14px (the problem panel, chapter lists, cards); chips and count pills are
+  fully round.
+- **Depth:** hairlines and surface steps. The only shadow is under the open header menu,
+  because it floats over content. Frames sit on black inside a hairline so a lazy image
+  shows a correctly sized 16:9 slot before it lands.
+- **Motion:** border and background colour on hover, `--hover-ms` 140ms ease-out; smooth
+  in-page scrolling. Under `prefers-reduced-motion: reduce` both become instant. Nothing
+  animates on load; the current-section marker in the rail changes without transition.
 
 ## Hierarchy of the map
 
-1. The title, then the lead (one sentence, muted).
-2. The contents strip — five real counts in orange mono, each a jump link. It is both
-   the table of contents and the promise of what the map contains; the counts are
-   generated from the same data as the shelves, and the build fails if they disagree.
-3. The problem picker, beside the title at 980px and above; below it on narrower
-   screens, after a two-line attribution. Both entry paths — *by problem* and *by
-   source* — are on the first screen at desktop widths.
-4. Four guide shelves grouped by source, each with a heading, a one-paragraph provenance
-   note (with the pinned revision hash where there is one) and a link to the investigation
-   that inspected the source. Then investigations, skills, the nineteen ideas, the twelve
-   frames.
-5. A closing pair: what was checked, and the full attribution.
+1. **Header** — brand with the orange mark, four section links (Guides, Investigations,
+   Skills, Frames), a "More" menu listing every page, and "GitHub". Never the full
+   repository address.
+2. **Opening, two columns from 980px** — left: the title, one-sentence lead, the counts
+   strip as five pills (each a jump link; the counts are generated from the same data as
+   the shelves and the build fails if they disagree), the edition line with the
+   attribution sentence. Right: the problem panel, a surface with eight rows — bold
+   situation on the left, numbered chips on the right naming the guide(s) that answer it.
+   Both entry paths, *by problem* and *by source*, are on the first screen at desktop.
+3. **Four guide shelves grouped by source.** From 900px each shelf is a sticky heading
+   column (serif heading, provenance paragraph with the pinned revision, investigation
+   link, "Guides 01–08" in mono) beside a **chapter list**: one bordered surface, two
+   columns from 720px, hairlines between rows, a large accent numeral, the title and the
+   use-when line. Rows, not cards: the guides are numbered chapters and read as a
+   contents page.
+4. **Investigations and skills** as cards (serif title, purpose line, mono file or
+   directory), full width with the heading row above so four skills fit in one row.
+5. **Nineteen ideas** as a timeline: accent timestamp, the idea, a chip naming the
+   implementing guide; two columns from 900px.
+6. **Twelve frames** as a filmstrip, four across from 1000px, three from 640, two below.
+7. **Closing:** what was checked, and attribution with chip links to the index pages.
+
+## The reader
+
+- **Page head:** a context line (`Guide 02` · of 13 · shelf link, or the page's place on
+  the map) and the serif title. Guide titles come from the README's canonical list so the
+  reader and the map agree; the Markdown file's own h1 is not rendered a second time.
+- **Article:** first paragraph as a muted, slightly larger deck; serif h2 with a hairline;
+  sans h3; code, tables and blockquotes on `--surface` inside `--radius`; tables in a
+  focusable scroll region.
+- **Rail (from 1100px), sticky:** *On this page* (h2/h3 anchors, current one marked with
+  an orange edge), *This guide* (number, shelf, use-when), *Sequence* (previous/next),
+  *Evidence from the video* (up to two frames applied in this guide, linking into the
+  gallery) and *Source* (the Markdown beside the page, and on GitHub).
+- **Below 1100px:** the rail is gone; a native "On this page" disclosure sits under the
+  title, and the applied frames follow the article. Previous/next cards and the source
+  line close every guide at every width.
 
 ## Components
 
-- **Tile** (`.tile`): card surface, hairline, large dim mono numeral for guides (a
-  guide number, never a metric), bold title that is the link, muted use-when line. The
-  whole tile is the click and tap target (stretched link); keyboard focus outlines the
-  whole tile. Investigation tiles show their source file name; skill tiles show their
-  directory, which links to the same directory on GitHub, while the title opens the
-  `SKILL.md` shipped with the site.
-- **Problem picker** (`.pick`): hairline rows; bold question, muted answer with one or
-  two links. No icons, no numbers — the question is the label.
-- **Shelf head** (`.shelf-head`): heading left, provenance paragraph right at 900px and
-  above. Paths and revision hashes are `code` and may wrap at any character.
-- **Ideas list** (`.ideas`): hairline rows with a mono timestamp column (links to the
-  video moment), the idea, and the implementing guide. Two columns at 900px and above.
-- **Frame thumbnail** (`.grid-frames figure`) and **gallery frame** (`.frame`): 16:9
-  image in a bordered black slot, mono timestamp, title; in the gallery the observation,
-  a link to the moment in the video, the full-size frame, and the guide that applies it.
-- **Reader** (`.reader`): a context line (guide number and source shelf, or the page's
-  place on the map), the article, a previous/next guide pair as two cards, a source
-  note with the editable Markdown and a way back to the map.
-- **Tables and code** in reader pages: tables sit in a bordered, horizontally scrollable
-  region that is keyboard-focusable and labelled; code blocks scroll horizontally inside
-  their border. The page itself never scrolls sideways: overflow is contained in the
-  region that produces it, never hidden on `html` or `body`, and that is checked on real
-  renders at 320, 390, 768 and 1440px.
-- **Navigation:** a top bar (brand → map, repository link) on every page; a wrapping
-  row of section links on reader pages and the gallery with the current page marked; no
-  navigation row on the map itself, whose contents strip and closing links do that job.
-- **Not-found page:** same top bar, one heading, one sentence, four ways back in.
-- **Nothing decorative above headings:** no eyebrow labels, overlines, small uppercase
-  kickers or duplicate labels, and no uppercase transforms. Field labels, the nav and
-  honest status text are fine.
-- **Numbers beside words:** a count, guide number or timestamp that sits before a label
-  (`13 guides`, `01 Convert…`, `04:07 A small test…`) is followed by a real space in the
-  markup, so screen readers hear two words; the margin on the number only tops the
-  space up to the intended visual gap.
+- **Chip** (`.chip`): pill, `--surface-2`, hairline, mono accent number then label. Used
+  for problem answers, idea → guide links and the closing links. Whole pill is the target.
+- **Chapter row** (`.tiles.guides .tile`): numeral column + title/use-when; stretched
+  link; hover fills the row; focus ring drawn inside the row.
+- **Card** (`.tiles.cards .tile`): serif title, purpose line, mono path pinned to the
+  bottom; stretched link with the ring around the card; the directory link keeps its own.
+- **Header menu** (`details.menu`): a native disclosure, the panel absolutely positioned
+  under its button; the four primary links are hidden inside it from 760px.
+- **Section disclosure** (`details.toc-mobile`) and **rail** (`aside.rail`): the same
+  section list markup in two places, shown at complementary widths.
+- **Frame thumbnail**, **gallery frame**, **table region**, **not-found page**: as
+  before, restyled with the tokens above.
+- **No decoration above headings:** no eyebrow labels, overlines, uppercase kickers or
+  duplicate labels. Rail labels ("On this page", "Sequence") are sidebar section labels,
+  set small and sans, not kickers over a main heading. Numbers before words are followed
+  by a real space in the markup so screen readers hear two words.
 
 ## Familiar versus deliberate
 
-Familiar, and right here: the dark palette, system faces, 16px body, hairline borders,
-underlined links, a skip link, a wrapping text nav. None of these needs to be original;
-originality would cost reading comfort.
+Familiar, and right here: dark ground, 16/17px body, hairlines, underlined links, a skip
+link, a sticky rail with a section list, previous/next at the end of a chapter.
 
-Deliberate, and specific to this handbook: guides grouped by *source* rather than by
-topic or number, because provenance is the handbook's discipline; large numerals as the
-tile's visual anchor, because the guides really are numbered and readers refer to them
-by number; real counts as the table of contents; the map's title much larger than any
-page title; and the reader's "Guide 03 of 13 · From Theo's video" context line, which
-keeps the map's grouping visible while reading.
+Deliberate: the serif voice on a technical site; numerals, timestamps and counts as the
+only "icons"; chapter lists instead of card grids for the guides; the problem panel as
+the map's co-headline rather than a text list under the title; evidence frames placed
+beside the guide they support; a warm rather than neutral ground.
 
 ## Not done, on purpose
 
-- No light theme. Adding one would manufacture difference rather than a better
-  hierarchy; the print stylesheet does flip to a light palette.
-- No search or filter. The map is small enough to scan, and a filter would be the only
-  script on the site.
-- No icons. The numerals, timestamps and words do the work.
+- No light theme (the print stylesheet flips to a light palette).
+- No search or filter; the map is small enough to scan and the header menu reaches every
+  page.
+- No icons or illustration; the frames are the only imagery and they are evidence.
+- No web font, framework or build dependency beyond the pinned Markdown package. The one
+  script is optional and every control works without it.

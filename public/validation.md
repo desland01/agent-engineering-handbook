@@ -98,7 +98,7 @@ applications. See [CONTRIBUTING.md](CONTRIBUTING.md) to rerun them.
 
 ## Published handbook checks
 
-The [public site](https://agent-engineering-handbook.vercel.app/) was deployed from this
+The initial [public site](https://agent-engineering-handbook.vercel.app/) was deployed from this
 repository on September 9, 2026. Vercel installed the pinned Markdown dependency,
 regenerated the site and ran the package check. Anonymous HTTP requests returned 200 and
 byte-identical content for the landing page, handbook, gallery, critical-journey guide,
@@ -106,6 +106,15 @@ feedback skill and all 12 screenshots. Desktop (1280×720) and mobile (390×844)
 found no page-width overflow; the live gallery had no failed loaded images and the guide
 produced no console warnings or errors. Off-screen lazy images were verified separately
 by their downloaded bytes.
+
+The September 9 layout revision was inspected locally at desktop (1440px) and narrow
+(390px and 320px) widths. The inspected pages had no horizontal overflow. The mobile
+menu opened and closed with Escape, returning focus to its control; the guide contents
+links reached their sections, and the desktop rail marked the selected section. The
+guide produced no console warnings or errors. The gallery had no failed loaded images.
+The integrated output matched the inspected build before this validation note was added.
+The existing package check passed all 27 HTML pages. Design and interaction instructions
+remain contributor source files and are excluded from the published output.
 
 GitHub Actions is enabled on the repository, but the publishing token lacks its workflow
 permission. An optional freshness workflow is retained under
