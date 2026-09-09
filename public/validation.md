@@ -88,10 +88,26 @@ applications. See [CONTRIBUTING.md](CONTRIBUTING.md) to rerun them.
 
 - No full transcript or copy of the video is redistributed, and no third-party repository
   is cloned into this repository.
-- No deployed site, service or upload was exercised. The expected public URLs are recorded
-  in the delivery notes only until confirmed.
+- The handbook itself was deployed and checked as described below. The inspected third-party
+  applications and upload service were not exercised.
 - Sponsor claims and universal career/productivity claims remain unverified.
 - Qualifications in the guides (for example, that a skill shown on screen does not prove a
   real upload succeeded) are carried through to the [detailed
   extraction](evidence/video-research.md) and the structured
   [ideas file](evidence/video-tips.json).
+
+## Published handbook checks
+
+The [public site](https://agent-engineering-handbook.vercel.app/) was deployed from this
+repository on September 9, 2026. Vercel installed the pinned Markdown dependency,
+regenerated the site and ran the package check. Anonymous HTTP requests returned 200 and
+byte-identical content for the landing page, handbook, gallery, critical-journey guide,
+feedback skill and all 12 screenshots. Desktop (1280×720) and mobile (390×844) inspection
+found no page-width overflow; the live gallery had no failed loaded images and the guide
+produced no console warnings or errors. Off-screen lazy images were verified separately
+by their downloaded bytes.
+
+GitHub Actions is enabled on the repository, but the publishing token lacks its workflow
+permission. An optional freshness workflow is retained under
+`build/handbook-workflow.example.yml`; it is not an installed CI check. Vercel runs the
+renderer and package check on deployment.

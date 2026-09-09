@@ -207,11 +207,24 @@ applications. See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> to rerun them.
 <ul>
 <li>No full transcript or copy of the video is redistributed, and no third-party repository
   is cloned into this repository.</li>
-<li>No deployed site, service or upload was exercised. The expected public URLs are recorded
-  in the delivery notes only until confirmed.</li>
+<li>The handbook itself was deployed and checked as described below. The inspected third-party
+  applications and upload service were not exercised.</li>
 <li>Sponsor claims and universal career/productivity claims remain unverified.</li>
 <li>Qualifications in the guides (for example, that a skill shown on screen does not prove a
   real upload succeeded) are carried through to the <a href="evidence/video-research.html">detailed
   extraction</a> and the structured
   <a href="evidence/video-tips.json">ideas file</a>.</li>
-</ul><p class="source-note"><a href="validation.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>
+</ul>
+<h2 id="published-handbook-checks">Published handbook checks</h2>
+<p>The <a href="https://agent-engineering-handbook.vercel.app/">public site</a> was deployed from this
+repository on September 9, 2026. Vercel installed the pinned Markdown dependency,
+regenerated the site and ran the package check. Anonymous HTTP requests returned 200 and
+byte-identical content for the landing page, handbook, gallery, critical-journey guide,
+feedback skill and all 12 screenshots. Desktop (1280×720) and mobile (390×844) inspection
+found no page-width overflow; the live gallery had no failed loaded images and the guide
+produced no console warnings or errors. Off-screen lazy images were verified separately
+by their downloaded bytes.</p>
+<p>GitHub Actions is enabled on the repository, but the publishing token lacks its workflow
+permission. An optional freshness workflow is retained under
+<code>build/handbook-workflow.example.yml</code>; it is not an installed CI check. Vercel runs the
+renderer and package check on deployment.</p><p class="source-note"><a href="validation.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>
