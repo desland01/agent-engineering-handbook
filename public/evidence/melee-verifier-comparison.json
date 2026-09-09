@@ -1,0 +1,18 @@
+{
+  "scenario": "Matching synthetic artifact hash and successful mocked build/diff, but incomplete source report",
+  "scope": "Local verifier behavior only; subprocess build and diff mocked; no Nintendo data or real game build used",
+  "results": [
+    {
+      "version": "initial",
+      "result": "accepted",
+      "error": null,
+      "stdout": "Verified build/GALE01/main.dol: SHA-1 814f1f0bdb3c8ff24734d25c1d0ed52e542228f3\nNinja diff passed. Build report: build/GALE01/report.json\n"
+    },
+    {
+      "version": "current",
+      "result": "rejected",
+      "error": "<temporary-fixture>/build/GALE01/report.json: complete_code is 0, expected 1.",
+      "stdout": ""
+    }
+  ]
+}

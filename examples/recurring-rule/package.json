@@ -1,0 +1,15 @@
+{
+  "name": "recurring-rule-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Demonstrates rejecting direct database imports in UI files with ESLint's built-in no-restricted-imports rule. No custom rule, no services.",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:red": "eslint --config eslint.config.red.js src",
+    "demo": "bash run-demo.sh"
+  },
+  "devDependencies": {
+    "eslint": "10.10.0"
+  }
+}

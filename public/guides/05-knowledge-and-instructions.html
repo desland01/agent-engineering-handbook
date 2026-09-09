@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>05 — Put project knowledge where the next task needs it · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="05-put-project-knowledge-where-the-next-task-needs-it">05 — Put project knowledge where the next task needs it</h1>
+<p>Use this when an agent or newcomer repeatedly misses a project decision, convention or non-obvious fact. Start from the missed decision and choose its home: a comment, public type, executable check, scoped guide, skill or root instruction.</p>
+<p>Boris's post, read by Theo around <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=596s">09:56</a>, describes encoding domain knowledge in the repository. Theo adds two useful constraints: observe what fails before adding instruction machinery (<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=962s">16:02</a>), and retain human ownership of root instructions (<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=749s">12:29</a>). These are related ideas with different emphases, not a single agreed prescription.</p>
+<h2 id="diagnose-before-expanding-context">Diagnose before expanding context</h2>
+<p>Inspect actual tasks, repeated review corrections and newcomer questions. When the cause is unclear, try a representative task with little <strong>extra</strong> explanation beyond the standing instructions and configured tools. Keep the task's authority, selected methods and runtime safeguards intact. A low-context probe diagnoses missing project knowledge; it does not require stripping the operating environment.</p>
+<p>Classify what was missing:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Missing knowledge</th>
+<th>Useful home</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A local reason that the code cannot express</td>
+<td>Comment beside the decision</td>
+<td>Why this import direction avoids a dependency cycle</td>
+</tr>
+<tr>
+<td>A shape or invariant the compiler can express</td>
+<td>Public type or schema</td>
+<td>Exhaustive variants for job outcomes</td>
+</tr>
+<tr>
+<td>A recurring syntactic error</td>
+<td>Existing lint rule or a focused custom rule</td>
+<td>Reject a database import from the UI layer</td>
+</tr>
+<tr>
+<td>A repeatable procedure with judgment</td>
+<td>Scoped guide or skill</td>
+<td>How to capture evidence for a failed preview</td>
+</tr>
+<tr>
+<td>A durable cross-project preference</td>
+<td>Root instruction</td>
+<td>Use the existing secret mechanism; record evidence at the actual revision</td>
+</tr>
+<tr>
+<td>A domain concept and its accepted name</td>
+<td>Domain glossary, with ADR links</td>
+<td>Distinguish the render recipe's identity from output-byte identity</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="write-the-decision-and-its-reason">Write the decision and its reason</h2>
+<p>A useful instruction tells the agent what to do, when it applies and why. A directory list alone rarely supplies that judgment. A concise task-to-entry map can still help: “For upload reuse, start at the reuse planner; it separates destination identity from content equality.” Keep volatile implementation detail close to the implementation.</p>
+<p>For example, if direct <code>fetch()</code> calls in this project's components repeatedly bypass its authentication and caching layer, state the project-specific rule and link to the supported entry. If it is mechanically expressible, prefer the existing lint system to repeated prose reminders. Do not ban direct fetch in every project based on this one example.</p>
+<p>Theo also suggests encoding reasons to decline features the project deliberately excludes (<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=800s">13:20</a>). Record an actual owner decision and its rationale. An agent should not invent a product prohibition because it dislikes a request, or treat an old instruction as overriding a later authorized change.</p>
+<h2 id="preserve-ownership-and-existing-expertise">Preserve ownership and existing expertise</h2>
+<p>Human ownership means the owner decides the project's direction. It does not forbid authorized agent drafting or require another approval for an already agreed edit. Here, your request authorizes new guide and skill drafts. Apply bounded instruction edits when the task already authorizes them; raise only consequential decisions that remain unresolved.</p>
+<p>When rules conflict, recover their sources, scope and dates before choosing which applies. Preserve exact originals and provenance. Keep uncertain expertise inactive if a migration requires replacement; do not erase it because one probe failed to show an effect. When your project keeps versioned instruction files, use its existing change journal or migration convention so the original stays recoverable.</p>
+<p>For instruction-only changes, compare the wording against the user's requirements and inspect what the actual launcher loads when that path changes. Do not create phrase-presence tests, sentence snapshots or a probe quota. Use behavioral checks separately when executable code or configuration changes. A file on disk does not prove the agent's runtime actually loaded it.</p>
+<h2 id="keep-the-material-current-when-its-subject-changes">Keep the material current when its subject changes</h2>
+<p>Update the relevant rule or ADR when an authorized architecture change makes it stale. Split scoped material when that helps discovery. Preserve why an old decision changed; a scheduled purge of unexplained sentences can destroy useful knowledge.</p>
+<p>Matt's <a href="https://github.com/mattpocock/course-video-manager/pull/1591">open PR #1591</a> provides a concrete proposal: retain domain nouns and decisions in the glossary while relocating implementation details beside their code. It was still open at inspection, so this is a proposed change, not the current repository state. See <a href="../matt-pocock-inspection.html">the Matt inspection</a> and <a href="11-domain-language-and-agent-apis.html">guide 11</a>.</p>
+<p>A useful outcome identifies the observed miss, the chosen carrier, the authorized wording or implementation change, and its actual status (drafted, applied, or verified as loaded where that was checked). Use <a href="07-team-learning.html">guide 07</a> to gather the next useful observation from teammates.</p><p class="source-note"><a href="05-knowledge-and-instructions.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

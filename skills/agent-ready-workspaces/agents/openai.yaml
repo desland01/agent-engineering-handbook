@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent-Ready Workspaces"
+  short_description: "Make setup, previews and outcome checks usable"
+  default_prompt: "Use $agent-ready-workspaces to identify and repair the setup or preview gap that prevents a fresh agent from verifying this project."
+policy:
+  allow_implicit_invocation: true

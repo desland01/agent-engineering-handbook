@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>How to keep one domain language and one transport when an agent calls your API · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="how-to-keep-one-domain-language-and-one-transport-when-an-agent-calls-your-api">How to keep one domain language and one transport when an agent calls your API</h1>
+<p><strong>Document type:</strong> How-to. <strong>Reader:</strong> you are adding a command, route or agent
+verb to a codebase that already has a glossary and a deployed API, and you want
+the new surface to be usable by an unattended agent without forking the language
+or the transport. Source: course-video-manager snapshot <code>4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8</code>.</p>
+<h2 id="step-1-use-the-glossarys-nouns-not-your-own-paraphrases">Step 1 — Use the glossary's nouns, not your own paraphrases</h2>
+<p>Before naming anything, read the repo's <code>CONTEXT.md</code> and <code>docs/adr/</code> for the
+area you are touching. Then use the terms as defined — Course, Course Version,
+Section, Lesson, Video, Clip, Beat, Pitch, Deliverable, Publish, Bundle,
+Exported Video, Export Hash, Byte Hash, Schema Version, Remote Box — and do not
+drift into synonyms the glossary avoids. In this codebase a Lesson and a Section
+are two nouns to an agent but deliberately one service
+(<code>LessonSectionOperationsService</code>); keep that mapping stable in issue titles,
+test names and route groups.</p>
+<p>If the concept you need is absent from the glossary, inspect the relevant code, tests and decisions for its established meaning. Record a real gap when you find one. Ask only when a consequential ambiguity remains after that inspection. If your change contradicts an accepted ADR, surface the conflict
+explicitly instead of silently overriding it.</p>
+<h2 id="step-2-separate-durable-decisions-from-transient-implementation">Step 2 — Separate durable decisions from transient implementation</h2>
+<p>An ADR is durable; the code that happens to implement it today is not. When you
+write a guide, issue or agent prompt, cite the decision, not the line number:</p>
+<ul>
+<li><strong>Durable:</strong> one HTTP transport for every caller including the author's
+  (ADR 0025); migrations additive-only and applied by hand (ADR 0026, which
+  supersedes ADR 0025's "no <code>db:migrate</code>" line only); the Byte Hash decides the
+  send, the Export Hash keeps the address (ADR 0027).</li>
+<li><strong>Transient:</strong> which package runs <code>db:migrate</code>, where a route file lives, the
+  exact exit-code numbers. A reference that hard-codes a transient detail rots
+  on the next refactor.</li>
+</ul>
+<p><strong>Marked generalized:</strong> treat every ADR this way, not just these three.</p>
+<h2 id="step-3-split-the-boundary-along-needs-the-machine-not-is-nearby">Step 3 — Split the boundary along "needs the machine", not "is nearby"</h2>
+<p>Decide what belongs behind the API by asking what each capability physically
+needs. Here the renderer, the recording studio, the Video Files and finished
+videos directories, and ffmpeg cannot leave the author's machine, while every
+piece of SQL can. So <code>packages/core</code> holds all data access, <code>apps/remote</code> is the
+deployed transport, and <code>apps/local</code> keeps the machine-bound commands — which
+are <strong>refused</strong> remotely, not ported.</p>
+<p>Two cautions from this source that are easy to over-read:</p>
+<ul>
+<li>A <code>LocalOnly</code> declaration (<code>CVM_LOCAL_MACHINE</code>) is an <strong>environment
+  suitability signal</strong>, not a security boundary. It says "this box cannot do
+  this work"; it does not constrain what an untrusted process can do.</li>
+<li>The dependency-cruiser rule <code>core-is-filesystem-free</code> checks <strong>enumerated
+  static imports</strong> at build time. It is a real, enforced build failure for the
+  listed modules — and it is not a process sandbox. Do not describe either as
+  one. <em>(source)</em></li>
+</ul>
+<h2 id="step-4-give-humans-and-agents-the-same-transport">Step 4 — Give humans and agents the same transport</h2>
+<p>The load-bearing decision (ADR 0025): no second in-process path "just for
+local use". A path used only by the author's own machine is the one least
+exercised, on the machine least watched — every argument-serialization bug and
+lost error tag would be found by the agent alone, at 3am. The cost is accepted:
+the CLI stops working when the deployed app is down.</p>
+<p><strong>Marked generalized:</strong> if you add a second convenience transport, you are
+choosing which path your agents debug alone. Prefer deriving the client from
+the deployed app's types so a renamed route is a compile error rather than a
+404 nobody sees <em>(pattern in <code>rpc-layer.ts</code>, source; the rule is generalized)</em>.</p>
+<h2 id="step-5-make-the-public-contract-typed-errors-plus-runtime-validation">Step 5 — Make the public contract typed errors plus runtime validation</h2>
+<p>Type checking is the first half of the contract only. The type system checks the client and service shapes (<code>satisfies RemoteService&lt;T&gt;</code> in <code>rpc-layer.ts</code>); it does not parse values at runtime. Validate untrusted boundary data separately with the actual schema. Illustrative generic contract:</p>
+<pre><code class="language-ts">// One transport, one client type derived from the deployed route table.
+type Job = { id: string; state: &quot;queued&quot; | &quot;complete&quot; };
+type Result&lt;T, E&gt; = { ok: true; value: T } | { ok: false; error: E };
+export interface JobService {
+  getJob(id: string): Promise&lt;Result&lt;Job, JobError&gt;&gt;;
+}
+type JobError =
+  | { _tag: &quot;NotFound&quot; }            // stop
+  | { _tag: &quot;NeedsMachine&quot;; reason: string } // stop, report
+  | { _tag: &quot;VersionDrift&quot;; expected: number; actual: number }; // fix, retry
+</code></pre>
+<p>Then validate anything read back from disk, a manifest or a previous release
+before trusting it — the source's <code>isManifestVideo</code> and <code>parseDigest</code> treat an
+unparseable or stale value as <em>absent</em> (reuse less, upload instead), never as a
+crash. <em>(source pattern, generalized)</em></p>
+<p>Make refusals <strong>name the reason and run first</strong>, before argument validation or
+any write, so an agent reading "this needs the finished videos directory" stops
+and reports instead of retrying an <code>ENOENT</code> it cannot fix. Distinct failure
+classes that map to distinct actions (new credential, pull, stop) are the whole
+point; in this codebase they surface as exit codes 5, 6 and 7.</p>
+<h2 id="step-6-test-the-interface-not-the-file-count">Step 6 — Test the interface, not the file count</h2>
+<p>The CLI test suites here are the transport's test suite: a Hono app is a
+<code>fetch</code> handler, so tests call it with no server and no port, asserting
+authentication, expiry, the version gate and error mapping as an exit code and
+a line of stderr. Prefer that shape — exercising the public seam — over
+splitting logic into many tiny files so each has "its own test". Deep modules
+with one seam are easier to keep honest than shallow ones with many.</p>
+<p><strong>Evidence limits.</strong> We did not execute this application's tests;
+the described test behavior is read from source and ADR prose. The repo's
+testing docs claim exhaustive CI, but PR #1601 explicitly omitted
+<code>.github/workflows/test.yml</code> and repository inspection confirmed it absent at this
+snapshot — do not assert full CI coverage exists.</p>
+<h2 id="verify">Verify</h2>
+<p>Add a command end to end: route, one client line, one <code>satisfies</code> check. Then
+confirm (a) a renamed route fails to compile, (b) the machine-gate refusal fires
+before any write and names its reason, (c) an unparseable previous artifact
+degrades to "upload" rather than a failure.</p>
+<p>Related: PR #1591 (open, <strong>not merged</strong> at snapshot); #1542 + #1550 (one
+transport, then fixing deploy-time migration behavior); ADRs 0025–0027.</p>
+<h2 id="sources-immutable-at-commit-4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8">Sources (immutable at commit <code>4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8</code>)</h2>
+<ul>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/adr/0025-local-remote-split-one-http-transport.md">ADR 0025</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/adr/0026-migrations-applied-by-hand.md">ADR 0026</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/agents/domain.md">domain doc</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/cli/local-only.ts">machine gate</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/cli/rpc-layer.ts">RPC layer</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/packages/core/.dependency-cruiser.cjs">boundary rule</a></li>
+</ul><p class="source-note"><a href="11-domain-language-and-agent-apis.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

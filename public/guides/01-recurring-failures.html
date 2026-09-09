@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>01 — Convert recurring failures into permanent rules · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="01-convert-recurring-failures-into-permanent-rules">01 — Convert recurring failures into permanent rules</h1>
+<p>Practical guide for a developer on a team where the same mistake keeps coming back.
+Companion guides: <a href="02-critical-journey-tests.html">02</a> · <a href="03-preview-workspaces.html">03</a> ·
+<a href="04-ci-feedback.html">04</a> · <a href="05-knowledge-and-instructions.html">05</a> · <a href="06-tool-adapters.html">06</a> ·
+<a href="07-team-learning.html">07</a>. Runnable companion: <a href="../examples/recurring-rule/">examples/recurring-rule</a>.</p>
+<p>Source: <a href="https://www.youtube.com/watch?v=xmGY276gEFY">Theo's video</a>. Quotes below are from
+that video unless marked otherwise. Boris quotes are Boris as quoted by Theo in the video.</p>
+<h2 id="the-idea-and-where-it-comes-from">The idea and where it comes from</h2>
+<p>Boris's post, as Theo reads it at <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=482s">t=482s</a>:
+an agent could fix the same issue every time it appears, but that costs tokens and misses
+cases; if the agent instead writes a lint rule, CI step, or routine, the whole class of issue
+is automated permanently. Theo agrees at <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=496s">t=496s</a>
+and adds the economics at
+<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=510s">t=510s</a>: a custom lint rule that needs
+400 lines to check something odd was never worth writing by hand, because code review caught
+it more cheaply. Now that the code and its tests are cheap to produce, rules like that pay
+for themselves. He repeats the example of his file-upload service at
+<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=545s">t=545s</a>.</p>
+<p>Theo also names the accounting you should use at
+<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=749s">t=749s</a>: do not let your agents write
+your CLAUDE.md or AGENTS.md. This guide is the general form of that: <em>you</em> decide what the
+rule says; the agent drafts the mechanics. That principle is the user's settled decision here
+too, and it is a team practice, not a tool rule.</p>
+<p><strong>Suggested (not demonstrated in the video):</strong> the decision procedure, the cost test, and
+the acceptance steps below.</p>
+<h2 id="when-to-apply">When to apply</h2>
+<p>Write a rule when the expected savings justify the rule's cost. A repeated failure is the
+normal trigger, but the repeat count is a signal, not a prerequisite: one painful, expensive
+occurrence justifies a rule on its own, and an explicit request for a standing guard does
+not need to wait for a second occurrence at all.
+- The failure is detectable from text or logs, not only from runtime behavior. Runtime
+  failures belong in a journey test — see <a href="02-critical-journey-tests.html">guide 02</a>.
+- The cost of the rule is less than the cost of the next few manual fixes, including the
+  agent's correction cost when it makes the mistake again (tokens, review time, waiting).</p>
+<p>For a mistake seen once and cheap to fix, note it and wait for a repeat before spending
+rule-building effort — unless the user has explicitly asked for a guard, in which case
+record the request and build the smallest one that satisfies it.</p>
+<h2 id="implementation">Implementation</h2>
+<ol>
+<li><strong>Collect the instances.</strong> Find the two or more real occurrences: the files, the import
+   path, the call shape. Keep the actual examples; they become your test fixtures.</li>
+<li><strong>Pick the mechanism that fits the constraint, preferring what already exists.</strong> Start
+   from the constraint's shape, not from a fixed cost ladder: an existing lint rule
+   (for example ESLint's built-in
+   <a href="https://eslint.org/docs/latest/rules/no-restricted-imports"><code>no-restricted-imports</code></a>),
+   a type or schema constraint, an existing test, lint or CI configuration, or a
+   conditional method can each carry it; move up to a custom lint rule
+   (<a href="https://eslint.org/docs/latest/extend/custom-rules">writing guide</a>,
+   <a href="https://eslint.org/docs/latest/extend/custom-rule-tutorial">tutorial</a>) only when no
+   existing mechanism can express the constraint. Extend an existing rule before adding a
+   second mechanism that can drift from the first.</li>
+<li><strong>Prove the failure first (red), for executable enforcement.</strong> Run the check with the
+   rule absent or disabled and confirm the bad code passes. Keep that output. Without it you
+   cannot later show the rule changed anything. This before/after proof applies to
+   executable checks; an instruction-only change is verified by wording review against the
+   observed failure and, where loading matters, by confirming the instruction is actually
+   loaded.</li>
+<li><strong>Enable the rule and fix the live violations (green).</strong> The rule's first run will list
+   every existing instance. Fix them in the same change that lands the rule, so the rule
+   starts green for everyone else.</li>
+<li><strong>Ship the rule with adequate fixture coverage</strong>: at least one file that must fail and
+   one that must pass. Reuse existing fixtures where they already cover the rule; add a
+   pair only when none does. If the project runs checks in CI, cover the rule there so a
+   future linter upgrade that changes behavior breaks visibly instead of silently; an
+   instruction-only change needs no new fixtures or CI wiring.</li>
+</ol>
+<h2 id="concrete-example">Concrete example</h2>
+<p>A UI component importing the database client directly keeps reappearing. This repository
+contains a working demonstration in
+<a href="../examples/recurring-rule/">examples/recurring-rule</a>: ESLint's built-in
+<code>no-restricted-imports</code> configured for <code>src/ui/**</code>, an offending file
+(<code>src/ui/UserCard.js</code>), an approved file (<code>src/ui/UserList.js</code>, importing the API layer),
+a red configuration with the rule removed, and <code>run-demo.sh</code> which captures the red pass and
+the green failure into <code>evidence/</code>. It uses no custom rule and needs no network at run time.</p>
+<h2 id="acceptance">Acceptance</h2>
+<ul>
+<li>Red run (rule absent): offending file passes, output preserved.</li>
+<li>Green run (rule enabled): exactly the offending import is reported, by rule name, with a
+  message that says what to do instead; approved imports produce no findings.</li>
+<li>CI runs the rule on every PR, and a test fixture pair keeps the rule honest.</li>
+</ul>
+<h2 id="failure-modes-and-maintenance">Failure modes and maintenance</h2>
+<ul>
+<li><strong>Rules nobody remembers.</strong> The error message is the documentation. It must name the
+  approved path, as the demo's message does.</li>
+<li><strong>Silent rule rot.</strong> Linter major versions change behavior. The fixture pair turns that
+  into a visible CI failure.</li>
+<li><strong>Rule sprawl.</strong> Review a rule that fires almost never or covers almost nothing on its
+  merits: retire it when it is redundant, obsolete, or provably wrong, and keep it when it
+  still prevents a real, costly failure. A rare but expensive catch justifies a rule that
+  almost never fires; "delete what rarely fires" is not a maintenance rule on its own.</li>
+<li><strong>Boundary honesty.</strong> Static linting is a guardrail, not a security boundary. It cannot
+  prove every bypass impossible (dynamic imports, build-time codegen). Say so in the rule
+  message or README rather than overselling it.</li>
+<li><strong>Escalation order.</strong> If the same class of failure keeps slipping past lint, it may be a
+  runtime property — move it to a test, not to a bigger regex.</li>
+</ul><p class="source-note"><a href="01-recurring-failures.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

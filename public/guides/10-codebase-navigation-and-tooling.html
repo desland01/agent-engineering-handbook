@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>10: Codebase navigation and tooling · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="10-codebase-navigation-and-tooling">10: Codebase navigation and tooling</h1>
+<p>How-to: find where to change code in an unfamiliar codebase, and wrap external tools so
+their failures are safe. Adapted from <code>docs/code-map.md</code>, <code>tools/dep_graph.py</code>,
+<code>tools/decompctx.py</code>, and <code>tools/download_tool.py</code> in the Melee for Mac snapshot
+(<code>t3dotgg/melee4mac</code>, head <code>a276aeb70f9879204d891d967f1c9442523568e1</code>). Companion guide:
+<a href="09-verification-contracts.html">09-verification-contracts.md</a>.</p>
+<h2 id="part-a-finding-the-right-code">Part A — finding the right code</h2>
+<ol>
+<li><strong>Start from behavior, not from files.</strong> Melee's code map is a table of tasks →
+   entry file → named functions → deeper guide (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/docs/code-map.md">docs/code-map.md</a>). Before
+   grepping, write one sentence describing the behavior you need to touch; if you
+   cannot, you are not ready to edit.</li>
+<li><strong>Read the types before guessing names.</strong> Melee keeps structure definitions in
+   <code>types.h</code> per module and treats offset-named or address-named identifiers as clues,
+   not placeholders to rename on a hunch: a matching executable does not establish that a newly chosen source name describes the behavior correctly
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/docs/code-map.md">docs/code-map.md</a>). In any codebase: confirm a field's meaning from its
+   reads and writes, not its name.</li>
+<li><strong>Build a dependency view from real artifacts when source navigation is incomplete.</strong> For callback-
+   or table-driven code, a source grep misses connections. Melee compiles all units
+   (<code>ninja all_source</code>), then derives file-level dependencies from object symbols with
+   <code>tools/dep_graph.py --deps/--rdeps/--cycles/--chain</code>, cross-checking unit lists
+   between <code>configure.py</code> and the generated build config and erroring on any mismatch
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/dep_graph.py">tools/dep_graph.py</a>; usage in <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/docs/code-map.md">docs/code-map.md</a>). The
+   equivalent in most projects: <code>nm</code>, <code>objdump</code>, an LSP's references, or
+   <code>compile_commands.json</code> for include paths.</li>
+<li><strong>Generate a self-contained context for one unit of work.</strong> <code>tools/decompctx.py</code>
+   expands one source file plus its headers into a single context file with a
+   dependency sidecar, so an agent or reviewer sees everything relevant without the
+   whole tree (<code>tools/decompctx.py</code>; Ninja wires it per file in
+   <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/docs/code/context-generation.md">docs/code/context-generation.md</a>). For your task: assemble the one file plus
+   its headers/config, and record what you excluded.</li>
+<li><strong>Know what your navigation output does not tell you.</strong> Melee documents that its
+   object graph is not a call graph and says nothing about callback timing
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/docs/code-map.md">docs/code-map.md</a>), and that its context expander does not evaluate <code>#if</code>
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/docs/code/context-generation.md">docs/code/context-generation.md</a>). State the equivalent limits of whatever
+   view you produced.</li>
+<li><strong>Write the map down for the next reader.</strong> After resolving an unfamiliar area, add
+   the entry: task → file → function → guide, as <code>docs/code-map.md</code> does. Ownership is
+   documentation plus explicit scopes — Melee gives each parallel agent a worktree and
+   an owned-file list (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/AGENTS.md">AGENTS.md</a>).</li>
+</ol>
+<h2 id="part-b-safe-external-tool-adapters">Part B — safe external-tool adapters</h2>
+<ol>
+<li><strong>One module per tool, with a URL/source table.</strong> <code>tools/download_tool.py</code> maps six
+   tool names to small per-tool URL functions handling OS/arch naming
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/download_tool.py">tools/download_tool.py</a>). Keep per-tool quirks in one place.</li>
+<li><strong>Download to a temp file in the destination directory, then atomic-replace.</strong> The
+   staged file is chmod'ed, size-checked against <code>Content-Length</code>, and swapped in with
+   <code>Path.replace</code>; a <code>finally</code> unlink removes residue
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/download_tool.py">tools/download_tool.py</a>). An interrupted download leaves the previous
+   working tool intact — tested for both a short response and a mid-copy exception
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/tests/test_download_tool.py">tools/tests/test_download_tool.py</a>).</li>
+<li><strong>Detect truncation explicitly.</strong> Sized HTTP reads can reach EOF without an
+   <code>IncompleteRead</code> error, so compare received bytes to <code>Content-Length</code> and raise with
+   both numbers (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/download_tool.py">tools/download_tool.py</a>, note at
+   <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/tests/test_download_tool.py">tools/tests/test_download_tool.py</a>). The same applies to any partial file
+   your tools produce: check the expected size or a footer before accepting it.</li>
+<li><strong>Handle the environment failure you actually have, narrowly.</strong> The certificate
+   retry fires only on <code>CERTIFICATE_VERIFY_FAILED</code> and exits 1 with an install hint
+   when the fallback package is missing (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/download_tool.py">tools/download_tool.py</a>).</li>
+<li><strong>Discover tool binaries through a fallback chain.</strong> <code>find_nm_tool</code> prefers the
+   project's bundled binary, then cross-toolchain, devkit, LLVM, and system <code>nm</code>, and
+   raises a message naming the options (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/dep_graph.py">tools/dep_graph.py</a>). Pin what you pin;
+   fall back where fallback is safe.</li>
+<li><strong>Test the failure cases, not just the happy path.</strong> The download suite asserts the
+   old tool survives each failure and that no temp files remain
+   (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/tests/test_download_tool.py">tools/tests/test_download_tool.py</a>). Your adapter is done when its worst day
+   is a clean nonzero exit and unchanged state.</li>
+</ol>
+<h2 id="acceptance-evidence">Acceptance evidence</h2>
+<ul>
+<li>For navigation: you can name the file and function you will change, the callers and relationships inspected, and what your view cannot show.</li>
+<li>For adapters: a test run showing a failed download leaves the previous tool byte-
+  identical and the directory free of temp files. Note that Melee's guarantee covers
+  single-file downloads only; its zip path extracts in place
+  (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/download_tool.py">tools/download_tool.py</a>) — a boundary worth checking in any adapter you copy.</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If a navigation tool reports nothing, build its inputs first — <code>dep_graph.py</code> stops
+with "Run ninja all_source" when objects are missing (<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/dep_graph.py">tools/dep_graph.py</a>).
+If a context or generated file is stale after a failure, Melee clears per-run state at
+the start of each invocation and writes output atomically
+(<a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/decompctx.py">tools/decompctx.py</a>); copy that order. If a check keeps passing when
+it should fail, see guide 09 step 7: report what the environment could actually verify.</p><p class="source-note"><a href="10-codebase-navigation-and-tooling.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

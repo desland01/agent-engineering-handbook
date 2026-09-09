@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>13 — Validate the output through several useful views · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="13-validate-the-output-through-several-useful-views">13 — Validate the output through several useful views</h1>
+<p>Use this when a generator, parser, migration, transformation or widely used library has failures that ordinary fixtures miss. Start with the smallest relevant check. Add a new kind of evidence only when it detects a failure the existing checks cannot.</p>
+<p>Boris Cherny’s <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/.github/workflows/ci.yml">json-schema-to-typescript CI</a> combines fixtures, built-artifact smoke tests, fuzzing, a real-world corpus and conformance checks. The following procedure generalizes that approach; it does not require this whole stack for every change.</p>
+<h2 id="define-the-accepted-result-before-choosing-more-tests">Define the accepted result before choosing more tests</h2>
+<p>Write the contract in the consumer’s terms. A generated declaration must compile in the supported TypeScript version and express the intended schema behavior. A migrated record must preserve its required relationships. An exported video must contain the expected sequence and be playable. A process exiting successfully is one signal, not the whole contract.</p>
+<p>Separate properties that need different observations:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Question</th>
+<th>A fitting check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Does this known bug recur?</td>
+<td>One small regression fixture through the public interface</td>
+</tr>
+<tr>
+<td>Does the published artifact work?</td>
+<td>Install/build the actual distribution and exercise a representative consumer</td>
+</tr>
+<tr>
+<td>Does the advertised minimum runtime work?</td>
+<td>A smoke run on that exact minimum, separate from a latest-version matrix</td>
+</tr>
+<tr>
+<td>Do realistic input combinations break it?</td>
+<td>A small representative corpus and reproducible generated cases</td>
+</tr>
+<tr>
+<td>Is the supported behavior changing?</td>
+<td>A reviewed conformance baseline showing each changed group</td>
+</tr>
+<tr>
+<td>Did the optimization help?</td>
+<td>Comparable repeated measurements with output equivalence checked</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="turn-an-unexpected-failure-into-a-reproducible-case">Turn an unexpected failure into a reproducible case</h2>
+<p>Capture the seed, generator version, options, revision and environment. Reduce a failing input until it still produces the same failure with less unrelated content. Add the useful reduced case to the existing regression suite. Keep the original reproduction record when shrinking loses relevant environmental details.</p>
+<p>The <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/test/fuzz/README.md">fuzz harness</a> demonstrates this with seeded schemas and recorded findings. Its limits and generator distribution define the explored space. Do not report a passing generated sample as exhaustive correctness, and do not copy its numeric limits into unrelated workloads.</p>
+<p>When an existing defect cannot be fixed in the current scope, tie any accepted exception to its tracked issue and exact reproducing cases. Confirm that a new case with a similar error still fails. Remove the exception after the defect is fixed; do not grow a broad suppression bucket.</p>
+<h2 id="keep-baseline-changes-meaningful">Keep baseline changes meaningful</h2>
+<p>A baseline records behavior, including known limitations. It is not a replacement for a specification. Classify each difference as an improvement, regression, intentional compatibility change or unresolved discrepancy. For generated types, accepting invalid inputs and rejecting valid inputs are different errors; count them separately.</p>
+<p>Update an expected result only when its new behavior is understood and authorized. Preserve the previous result and rationale in the normal change history. A tool suggesting <code>--update</code> is not permission to erase a regression. Instruction-only prose changes do not need snapshot tests.</p>
+<h2 id="measure-the-same-work-before-and-after">Measure the same work before and after</h2>
+<p>Use the same inputs, options, machine and runtime; separate warm-up from timed repetitions. Keep raw timings and a robust summary such as a median. Measure cold startup separately when it matters. Record the revision and verify that a performance-only change still produces the intended result.</p>
+<p>Boris’s <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/bench/README.md">benchmark guide</a> separates formatting cost from compilation and documents runtime-specific memory measures. Follow the measurement principle, not its exact corpus or run count. Avoid running competing benchmarks concurrently on the same machine. If noise is comparable to the improvement, report the uncertainty instead of selecting the fastest run.</p>
+<h2 id="check-the-real-gate">Check the real gate</h2>
+<p>Trace the command a developer runs to the configuration it loads and the result the merge/deploy gate actually requires. A job named “all checks” may not aggregate every child. A passing test-runner process can contain skipped checks. A latest-runtime run does not prove the minimum-version promise.</p>
+<p>Prove the gate rejects the relevant bad result in a disposable fixture or existing behavioral test. For configuration changes, include the actual selected path in the evidence. This is the same principle as the <a href="09-verification-contracts.html">Melee verification contract</a> and <a href="../examples/recurring-rule/README.html">recurring-rule demo</a>.</p>
+<h2 id="completion-evidence">Completion evidence</h2>
+<p>Report the output/revision, the checks actually executed and their results, the behavioral differences accepted, and remaining unsupported cases. Source inspection, remote CI, a local fixture and a full end-to-end run should remain separately identifiable. Stop adding checks when the changed behavior is adequately proved; additional coverage is useful only when it resolves a specific remaining question.</p><p class="source-note"><a href="13-layered-validation.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

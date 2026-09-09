@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Video evidence · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><h1>The video, with visible evidence</h1><p class="lead">12 frames extracted with ffmpeg and inspected at full resolution. Each caption distinguishes what is visible from what Theo only describes.</p><p><a href="evidence/frame-manifest.json">Extraction commands and SHA-256 hashes</a> · <a href="evidence/video-research.html">Full extraction notes</a></p><ul><li><a href="#frame-164">02:44 — Sponsor CI dashboard</a></li><li><a href="#frame-214">03:34 — Automate recurring work</a></li><li><a href="#frame-247">04:07 — A small test for a critical outcome</a></li><li><a href="#frame-310">05:10 — Shared automation helps every worker</a></li><li><a href="#frame-343">05:43 — Make previews testable</a></li><li><a href="#frame-383">06:23 — A narrow upload skill</a></li><li><a href="#frame-403">06:43 — The tool contract in one screen</a></li><li><a href="#frame-494">08:14 — Move repeated corrections into checks</a></li><li><a href="#frame-612">10:12 — Make domain knowledge discoverable</a></li><li><a href="#frame-754">12:34 — Keep people responsible for instruction decisions</a></li><li><a href="#frame-884">14:44 — Help the next contributor succeed</a></li><li><a href="#frame-1021">17:01 — Improve the team’s ability to deliver</a></li></ul><section id="frame-164"><h2>02:44 — Sponsor CI dashboard</h2><figure><a href="screenshots/02-44-ci-feedback.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/02-44-ci-feedback.jpg" alt="Sponsor CI dashboard at 02:44"></a><figcaption>Visible workflow history, timing, failures and utilization. This is sponsored product footage; no advertised speed or savings verified. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=164s">Watch this moment</a> · <a href="screenshots/02-44-ci-feedback.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-214"><h2>03:34 — Automate recurring work</h2><figure><a href="screenshots/03-34-automation.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/03-34-automation.jpg" alt="Automate recurring work at 03:34"></a><figcaption>Boris’s post names editor automation, lint rules and end-to-end tests. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=214s">Watch this moment</a> · <a href="screenshots/03-34-automation.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-247"><h2>04:07 — A small test for a critical outcome</h2><figure><a href="screenshots/04-07-critical-journey.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/04-07-critical-journey.jpg" alt="A small test for a critical outcome at 04:07"></a><figcaption>The screen still shows Boris’s post. The two-browser chat test is described in narration, not demonstrated here. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=247s">Watch this moment</a> · <a href="screenshots/04-07-critical-journey.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-310"><h2>05:10 — Shared automation helps every worker</h2><figure><a href="screenshots/05-10-fleet-speed.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/05-10-fleet-speed.jpg" alt="Shared automation helps every worker at 05:10"></a><figcaption>The post highlights the argument that infrastructure improvements help multiple agents. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=310s">Watch this moment</a> · <a href="screenshots/05-10-fleet-speed.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-343"><h2>05:43 — Make previews testable</h2><figure><a href="screenshots/05-43-preview-testing.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/05-43-preview-testing.jpg" alt="Make previews testable at 05:43"></a><figcaption>The screen still shows the post. Preview deployments and test recordings are discussed in narration, not demonstrated. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=343s">Watch this moment</a> · <a href="screenshots/05-43-preview-testing.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-383"><h2>06:23 — A narrow upload skill</h2><figure><a href="screenshots/06-23-upload-skill.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/06-23-upload-skill.jpg" alt="A narrow upload skill at 06:23"></a><figcaption>Visible name and task trigger, environment variable name, HTTP PUT command and returned-URL contract. No token value is shown. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=383s">Watch this moment</a> · <a href="screenshots/06-23-upload-skill.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-403"><h2>06:43 — The tool contract in one screen</h2><figure><a href="screenshots/06-43-upload-contract.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/06-43-upload-contract.jpg" alt="The tool contract in one screen at 06:43"></a><figcaption>A second captured moment of the same upload skill. It does not show the service source, an actual upload result or a PR attachment. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=403s">Watch this moment</a> · <a href="screenshots/06-43-upload-contract.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-494"><h2>08:14 — Move repeated corrections into checks</h2><figure><a href="screenshots/08-14-repeat-errors.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/08-14-repeat-errors.jpg" alt="Move repeated corrections into checks at 08:14"></a><figcaption>Boris’s post recommends lint rules, CI steps and routines for recurring problems. Its forever claim is treated as rhetoric. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=494s">Watch this moment</a> · <a href="screenshots/08-14-repeat-errors.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-612"><h2>10:12 — Make domain knowledge discoverable</h2><figure><a href="screenshots/10-12-domain-knowledge.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/10-12-domain-knowledge.jpg" alt="Make domain knowledge discoverable at 10:12"></a><figcaption>The post names comments, skills, root instructions and memory as knowledge carriers. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=612s">Watch this moment</a> · <a href="screenshots/10-12-domain-knowledge.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-754"><h2>12:34 — Keep people responsible for instruction decisions</h2><figure><a href="screenshots/12-34-instruction-ownership.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/12-34-instruction-ownership.jpg" alt="Keep people responsible for instruction decisions at 12:34"></a><figcaption>The screen highlights a claim about non-engineers. Instruction ownership is Theo’s narration here; it is not an instruction-file demonstration. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=754s">Watch this moment</a> · <a href="screenshots/12-34-instruction-ownership.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-884"><h2>14:44 — Help the next contributor succeed</h2><figure><a href="screenshots/14-44-shared-knowledge.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/14-44-shared-knowledge.jpg" alt="Help the next contributor succeed at 14:44"></a><figcaption>The closing paragraph links shared knowledge to implementation, review and onboarding. The visible post date is July 15, 2026. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=884s">Watch this moment</a> · <a href="screenshots/14-44-shared-knowledge.jpg">Full-size frame</a></figcaption></figure></section><section id="frame-1021"><h2>17:01 — Improve the team’s ability to deliver</h2><figure><a href="screenshots/17-01-team-effectiveness.jpg"><img loading="lazy" width="1920" height="1080" src="screenshots/17-01-team-effectiveness.jpg" alt="Improve the team’s ability to deliver at 17:01"></a><figcaption>A slide introduces the career argument. This is opinion, not evidence of promotion outcomes. <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=1021s">Watch this moment</a> · <a href="screenshots/17-01-team-effectiveness.jpg">Full-size frame</a></figcaption></figure></section></main></body></html>

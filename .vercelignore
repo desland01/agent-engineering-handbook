@@ -1,0 +1,11 @@
+# Send only public handbook sources and generated assets; omit local state.
+/node_modules/
+/.venv/
+/.vercel/
+/.git/
+/.github/
+/.DS_Store
+/.env*
+/.build-deps/
+**/__pycache__/
+**/*.pyc

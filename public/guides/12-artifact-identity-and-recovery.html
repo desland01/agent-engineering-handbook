@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>How to make pipeline artifacts reusable, resumable and honestly complete · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="how-to-make-pipeline-artifacts-reusable-resumable-and-honestly-complete">How to make pipeline artifacts reusable, resumable and honestly complete</h1>
+<p><strong>Document type:</strong> How-to. <strong>Reader:</strong> you run a pipeline with slow, expensive
+steps (encodes, uploads, agent runs) and want to reuse prior work, resume after
+crashes, and never accept a truncated artifact. Source: course-video-manager
+snapshot <code>4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8</code>.</p>
+<h2 id="step-1-separate-the-recipe-hash-from-the-actual-byte-hash">Step 1 — Separate the recipe hash from the actual-byte hash</h2>
+<p>When a destination must be known before rendering, separate recipe identity from output identity (ADR 0027). The <strong>recipe hash</strong> (here, the Export
+Hash) names what the renderer was <em>told to do</em> — inputs, order, format — and is
+knowable before any work starts, so it addresses the destination and lets work
+overlap. The <strong>actual-byte hash</strong> (Byte Hash) is the digest of what was
+<em>produced</em>, knowable only after the run, and is the only thing that can say
+whether this run's output is byte-identical to something you already shipped.</p>
+<p>Illustrative generic contract:</p>
+<pre><code class="language-ts">type RecipeHash = string;
+type ByteHash = string;
+type Address = { recipeHash: RecipeHash }; // known before the work
+type Artifact = { recipeHash: RecipeHash; byteHash: ByteHash; bytes: number };
+type PriorLocation = { url: string };
+type ReusePlan = ReadonlyMap&lt;ByteHash, PriorLocation&gt;;
+// In this design, address by recipe; reuse only after comparing actual bytes.
+</code></pre>
+<p>The source also records why an export-generation counter was rejected: a
+counter records that somebody deleted a file; only the bytes record what the
+file contains. <em>(source)</em> Indexing the reuse plan by byte hash additionally
+means identical outputs can copy from <em>any</em> prior location, not just their own
+old address.</p>
+<p><strong>Reproducibility caution.</strong> ADR 0027's measurement was short <strong>synthetic</strong>
+footage on one machine, one ffmpeg/driver combination, including six concurrent
+encodes agreeing with a serial run. That is evidence the copy saving is
+plausible on that setup — <strong>not</strong> proof of bit-for-bit determinism across
+ffmpeg or driver upgrades. Do not lift its encoder flags or concurrency as best
+practice; measure your own toolchain, and re-measure after any upgrade. The
+symptom of losing reproducibility is benign (a full re-upload), not a wrong
+release — size your tolerance accordingly.</p>
+<h2 id="step-2-check-durationcompleteness-before-acceptance">Step 2 — Check duration/completeness before acceptance</h2>
+<p>Accept an artifact on measured properties, not on "the tool exited zero". In
+the source, three of 93 exports were silently short (by 9.6s, 34.3s, 71.3s) and
+one was live; the fix is a pure rule: compare the measured duration to the
+summed clip durations, refuse only a shortfall <strong>greater than</strong> a tolerance (1s
+there), always accept overruns, and refuse a file with no playable duration at
+all. Choose your tolerance from your own product's data — do not copy 1s.</p>
+<p>Cache the measurement so it costs once per artifact lifetime: a sidecar beside
+the artifact holding the byte hash, size, and measured duration, validated
+against the file's current size on every read; an unparseable sidecar or a size mismatch is treated as <em>absent</em> and re-derived. This is not a complete freshness check: replacing an artifact with different bytes of the same size can leave this cached digest stale. Invalidate it with the artifact generation, or recompute the digest when outside modifications are possible. <em>(source: <code>export-sha256-sidecar.ts</code>)</em></p>
+<h2 id="step-3-give-resumable-work-stable-identities">Step 3 — Give resumable work stable identities</h2>
+<p>Give resumable stages identities that survive the process. The recipe hash can locate an intended artifact, but a corrected renderer can produce different bytes at the same recipe address. Replace the artifact, its sidecar and its publication receipt consistently; the address alone cannot prove freshness.</p>
+<p>For agent runs, capture the <strong>session id</strong> at each stage. The source resumes the session whose extraction failed so the correction retains that context. If the identity is missing, report the recovery limit and inspect persisted outputs before choosing an authorized restart. Do not silently repeat side effects.</p>
+<h2 id="step-4-snapshot-immutable-state-before-asynchronous-work">Step 4 — Snapshot immutable state before asynchronous work</h2>
+<p>Decide reuse from an immutable snapshot taken up front, never from state that
+the running pipeline is mutating. The source draws its reuse plan from the
+previous release's committed receipt plus a storage listing, and never from
+older releases; a missing, unparseable, or archived-away receipt simply yields
+a smaller plan (everything uploads), never an error. The snapshot must be taken
+before the pool drains: which outputs will be copyable is unknown until each
+one lands, so (a) snapshot first, (b) decide the copy batch once, at the
+earliest moment the full set is known, and (c) fall back to upload if the batch
+is refused.</p>
+<h2 id="step-5-repair-output-serialization-separately-from-repeating-side-effects">Step 5 — Repair output serialization separately from repeating side effects</h2>
+<p>When an agent both does side-effectful work and must emit rigid structured
+output, split the phases: run the work <strong>without</strong> the output schema (so a
+malformed JSON never aborts the work), keep its session id and its commits as
+the source of truth, then resume that session with an extraction prompt and the
+schema, retrying in-context against the failed extraction's own session. The intended repair changes only serialization, preserving the producer's completed work. This requires verification; the prompt alone cannot guarantee that side effects are never repeated. <em>(source:
+<code>run-with-extraction.ts</code>, <code>run-with-retry.ts</code>)</em></p>
+<p><strong>Cautions the source docstrings overstate:</strong></p>
+<ul>
+<li>A comment saying the extraction pass does not commit is <strong>not mechanically
+  enforced</strong>. The retry wrapper spreads the produce options through, so the
+  extraction run inherits the same tool options. Advise: where the host offers
+  an admitted read-only mode for receipt extraction, use it; otherwise treat
+  "extraction does no work" as an invariant to verify, not a guarantee.</li>
+<li>Do <strong>not</strong> copy this repo's default retry cap (3), its fleet counts, or its
+  model strings as best practices. Use actual host limits, classified failures and evidence of progress; do not introduce arbitrary counts into your own fleet.</li>
+</ul>
+<h2 id="verify">Verify</h2>
+<ul>
+<li>Reuse: hash an actual artifact, confirm the plan matches only on the
+  <strong>actual-byte</strong> hash, and confirm a re-run with changed inputs lands at a new
+  address and uploads. Verification means comparing <strong>actual output hashes</strong> —
+  do not blindly hash every output to prior bytes; choose checks and tolerances
+  appropriate to your product.</li>
+<li>Truncation: feed the acceptance rule a short file and confirm refusal, an overrun and confirm the product's chosen policy, and an unreadable file and
+  confirm refusal.</li>
+<li>Recovery: crash between produce and extract; resume must reuse the session
+  and produce no duplicate commits.</li>
+</ul>
+<p>Related PRs: #1591 (<strong>open, not merged</strong>); #1542 + #1550 (one transport, then
+fixing deploy-time migration behavior); #1564 (byte hashes); #1501 (pipelined
+publish); #1557 (the live truncated export). <strong>CI limitation:</strong> PR #1601 omitted
+<code>.github/workflows/test.yml</code>; it is absent at this snapshot, so none of the
+above behavior is asserted as covered by CI.</p>
+<h2 id="sources-immutable-at-commit-4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8">Sources (immutable at commit <code>4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8</code>)</h2>
+<ul>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/adr/0027-byte-hash-decides-the-send.md">ADR 0027</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/services/course-publish-reuse-plan.ts">reuse plan</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/services/export-duration-check.ts">duration rule</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/services/export-sha256-sidecar.ts">digest sidecar</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.sandcastle/run-with-extraction.ts">produce/extract split</a></li>
+<li><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.sandcastle/run-with-retry.ts">retry wrapper</a></li>
+</ul><p class="source-note"><a href="12-artifact-identity-and-recovery.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

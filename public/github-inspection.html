@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>How Theo’s systems are actually made · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><h1 id="how-theos-systems-are-actually-made">How Theo’s systems are actually made</h1>
+<p>Theo’s public account is <a href="https://github.com/t3dotgg">t3dotgg</a>. Two repositories give useful, different views: <a href="https://github.com/pingdotgg/t3code">T3 Code</a> is a multi-client coding-agent application; <a href="https://github.com/t3dotgg/melee4mac">Melee for Mac</a> is a fork that its owner explicitly labels an automated experiment. The latter is particularly strong evidence of the workflow you are interested in: preserve a hard invariant, make verification executable, improve navigation and tooling, then integrate bounded batches with recorded results.</p>
+<p>This report combines direct source inspection, GitHub PR and check-run metadata, and a small local execution of the Melee verifier tests. It does not claim that we rebuilt either application or reproduced their gameplay/performance results. The video was published <strong>July 21, 2026</strong>. Melee’s inspected changes are <strong>September 8</strong>, and many T3 improvements below are August or September; they show later applications of the ideas, not proof they were the exact implementation used during filming.</p>
+<h2 id="the-strongest-direct-connections">The strongest direct connections</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Video idea</th>
+<th>Concrete public evidence</th>
+<th>What this establishes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Replace repeated corrections with code</td>
+<td>T3 has a real custom Oxlint plugin; a tooltip regression became a configured lint error in <a href="https://github.com/pingdotgg/t3code/pull/7209">PR #7209</a>.</td>
+<td>Rule implementation, valid/invalid fixtures, config integration, and successful PR Check/Test runs are observable.</td>
+</tr>
+<tr>
+<td>Agents need usable previews and artifacts</td>
+<td><a href="https://github.com/pingdotgg/t3code/pull/10501">PR #10501</a> repairs unusable browser snapshot output; <a href="https://github.com/pingdotgg/t3code/pull/10572">#10572</a> transfers recordings to the environment where the agent can read them.</td>
+<td>A tool returning data or a path is insufficient if the consumer cannot use it.</td>
+</tr>
+<tr>
+<td>A small upload skill closes an integration gap</td>
+<td>Video frames show <code>files.tslop.org</code>; <a href="https://github.com/t3dotgg/melee4mac/pull/13">Melee PR #13</a> embeds before/after stage screenshots from that exact host.</td>
+<td>Direct evidence that the public host is used for PR evidence. The upload service’s server code and this PR’s invocation logs were not found.</td>
+</tr>
+<tr>
+<td>Teach shared project knowledge</td>
+<td>Both repos have root guidance and task-specific docs; T3 has an isolated-app-testing skill, Melee has ownership and source-navigation guides.</td>
+<td>These are concrete knowledge assets; their existence alone does not prove every agent loaded them.</td>
+</tr>
+<tr>
+<td>Protect the actual outcome</td>
+<td>Melee’s verifier requires a matching executable <strong>and</strong> complete source reports.</td>
+<td>Local synthetic tests reproduce the difference between hash-only success and complete-source verification.</td>
+</tr>
+<tr>
+<td>Reduce repeated setup friction</td>
+<td>T3 sanitizes inherited launcher environment; Melee automates the tested Mac compiler wrapper and preserves installed tools on failed downloads.</td>
+<td>Durable tooling changes replace per-agent workarounds.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="t3-code-boundaries-that-make-agent-work-tractable">T3 Code: boundaries that make agent work tractable</h2>
+<p>Read the <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/docs/internals/overview.md">architecture overview</a> alongside the <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/packages/contracts/src/rpc.ts">RPC contracts</a>. The server owns workspace files, Git, terminals, and provider processes. Web, desktop, and mobile clients control that environment through authenticated RPC. Shared client connection/domain state lives in <code>packages/client-runtime</code>; provider differences live behind adapters. This localizes changes and makes ownership explicit. Authentication and per-method authorization remain distinct.</p>
+<p>The event path is concrete in <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/apps/server/src/orchestration/Layers/OrchestrationEngine.ts">OrchestrationEngine.ts</a>: a command reaches the decider; generated events, projections, and a durable command receipt commit in one SQL transaction; in-memory state and event publication follow commit. Reactors perform later external work. An acknowledgement therefore proves recorded intent, not finished work. Apply that distinction to a job queue, deployment, or import before considering whether your system needs event sourcing at all.</p>
+<p>Tests have a separate completion mechanism. <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/packages/shared/src/DrainableWorker.ts">DrainableWorker.ts</a> tracks outstanding work across enqueue and completion so <code>drain</code> waits for the current item as well as queued items. <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/apps/server/src/orchestration/Layers/RuntimeReceiptBus.ts">RuntimeReceiptBus.ts</a> provides test milestones; its production implementation is intentionally a no-op. Do not mistake those runtime receipts for durable command receipts or use a test-only bus as production truth.</p>
+<h3 id="their-lint-rules-are-working-policy-with-explicit-limits">Their lint rules are working policy, with explicit limits</h3>
+<p>The <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/oxlint-plugin-t3code/index.ts">plugin index</a> registers six rules. <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/vite.config.ts">vite.config.ts</a> loads the plugin and selects severities/scopes. Examples:</p>
+<ul>
+<li><a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/oxlint-plugin-t3code/rules/no-inline-schema-compile.ts"><code>no-inline-schema-compile</code></a> identifies selected immediately invoked Schema compiler calls inside functions, where recompilation is avoidable. <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/oxlint-plugin-t3code/rules/no-inline-schema-compile.test.ts">Fixtures</a> distinguish hoisted decoders and dynamic factory cases. It is configured as a <strong>warning</strong>, so the rule’s presence alone does not establish a blocking CI gate.</li>
+<li><a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/oxlint-plugin-t3code/rules/no-native-title-tooltip.ts"><code>no-native-title-tooltip</code></a> visits JSX intrinsic elements and flags direct <code>title</code> attributes while allowing specific accessibility uses. It is an <strong>error</strong>. Custom-component props and spread attributes are outside this narrow check; it does not prove that every possible native tooltip is prevented.</li>
+<li><a href="https://github.com/pingdotgg/t3code/pull/9300">PR #9300</a> moves exception policy into configuration, updates stale per-file ceilings, and enables unused-disable reporting in the command CI actually runs. A rule with an obsolete exception budget can silently allow new regressions.</li>
+</ul>
+<p><strong>Apply:</strong> start with the <a href="examples/recurring-rule/README.html">runnable built-in-rule example</a>. Introduce a custom AST rule only when an existing rule cannot express the failure. Test the forbidden case, legitimate exceptions, and the exact editor/CI entrypoint. Use diagnostics that identify the approved replacement.</p>
+<h3 id="environment-setup-must-be-exercised-not-merely-documented">Environment setup must be exercised, not merely documented</h3>
+<p>The <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/.agents/skills/test-t3-app/SKILL.md">test-t3-app skill</a> describes per-worktree test state, the dev runner’s actual origin, and pairing/recovery. <a href="https://github.com/pingdotgg/t3code/pull/5586">PR #5586</a>, merged August 7, ties repeated agent setup failures to inherited service-launcher variables and contradictory instructions. The code now removes the misleading variables before starting a development server; the skill and root instructions agree on the intended workflow. Its session counts and timing range are the PR author’s audit, not measurements repeated here.</p>
+<p><a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/t3.json"><code>t3.json</code></a> contains a worktree setup recipe. However, PR #10501 records that this recipe had not been imported for a particular saved project. A checked-in setup recipe was therefore insufficient to prove setup would run. Its <code>.env</code> symlinks are repository-specific; use your project’s existing scoped credential mechanism when adapting this pattern.</p>
+<p><strong>Apply:</strong> launch from a fresh worktree, verify the resulting origin and state directory, and test the actual configured entry point the agent will use. Keep the user’s working app and data distinct from the test instance. Record what is configured versus still manual.</p>
+<h3 id="tool-adapters-must-preserve-the-intended-operation">Tool adapters must preserve the intended operation</h3>
+<p><a href="https://github.com/pingdotgg/t3code/pull/9128">PR #9128</a>, merged September 2, fixes a skill picker whose output worked differently across providers. The Claude adapter translates the selected skill into the CLI’s native invocation shape and handles user-only/disabled discovery semantics. Inspect <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/apps/server/src/provider/Drivers/ClaudeSkillDispatch.ts">ClaudeSkillDispatch.ts</a> and its neighboring tests. The PR reports behavior tested against a specific Claude Code version; do not treat that parser behavior as a timeless cross-provider standard.</p>
+<p><a href="https://github.com/pingdotgg/t3code/pull/10501">PR #10501</a>, merged September 8, addresses three real consumer failures: enormous snapshot text lost useful locators to truncation, non-object evaluation results broke structured output, and screenshots lacked a saved artifact path. The implementation bounds text, wraps evaluation results, and can save PNGs. Configuration can still be wrong even after the code fix.</p>
+<p><a href="https://github.com/pingdotgg/t3code/pull/10572">PR #10572</a>, also merged September 8, repairs a different ownership problem: a desktop-local recording path was unreadable by a remote agent. <a href="https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/apps/web/src/browser/browserRecordingUpload.ts">browserRecordingUpload.ts</a> transfers the finalized file through the existing attachment path; the broker claims it in the agent environment. The PR reports a real transfer with matching hashes. I inspected that code and evidence claim, but did not repeat the transfer.</p>
+<p><strong>Apply:</strong> validate the operation from the consumer’s environment. A skill name appearing in a menu is not invocation proof; a returned local filename is not artifact-delivery proof. Keep useful structured detail and bounded readable output, and expose the resulting file to the intended recipient.</p>
+<h2 id="pr-history-changes-dates-and-evidence">PR history: changes, dates, and evidence</h2>
+<p>The inspected T3 snapshot is <a href="https://github.com/pingdotgg/t3code/commit/6c583620ff7ad3235b135af7107c0543467eecfa"><code>6c583620ff7a</code></a>. The latest commit at the end of the video’s publication day is <a href="https://github.com/pingdotgg/t3code/commit/23c18fda7a969634a30888e36b2da45f6d66a83b"><code>23c18fda7a96</code></a>; this is a day-level cutoff, not the exact recording time.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Merged</th>
+<th>Useful finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/137">#137</a></td>
+<td>March 2</td>
+<td>Corrects root instructions from Zod to the actual Effect Schema contract layer. Documentation can send agents toward the wrong implementation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/1032">#1032</a></td>
+<td>March 17</td>
+<td>Sends selected terminal output into chat, with screenshot and video attachment links in the PR. This is observed evidence packaging, not the later upload skill’s source.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/2928">#2928</a></td>
+<td>June 4</td>
+<td>Prebundles a dependency that was reloading browser-test sessions mid-run. Fixes the environment-induced failure rather than increasing retries.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/5586">#5586</a></td>
+<td>August 7</td>
+<td>Replaces recurring setup workarounds with environment sanitization and consistent instructions.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/7209">#7209</a></td>
+<td>August 16</td>
+<td>Converts repeated tooltip regressions into a lint error and fixes existing occurrences.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/8250">#8250</a></td>
+<td>August 26</td>
+<td>Removes a duplicate web build and unnecessary release-job dependencies; the author reports an audit of 60 release runs. The measured saving is not independently reproduced here.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/8243">#8243</a></td>
+<td>August 27</td>
+<td>Makes authorized preview builds downloadable on headless devices; separates PR-code execution from the privileged artifact-publish job.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/9128">#9128</a></td>
+<td>September 2</td>
+<td>Verifies provider-native skill dispatch rather than assuming a UI mention invokes the requested skill.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/9300">#9300</a></td>
+<td>September 3</td>
+<td>Repairs drifting lint exemptions and checks the CI entrypoint.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/pingdotgg/t3code/pull/10572">#10572</a>, <a href="https://github.com/pingdotgg/t3code/pull/10501">#10501</a></td>
+<td>September 8</td>
+<td>Makes browser evidence readable and accessible to the agent that needs it.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Four custom rules already appear in the <a href="https://github.com/pingdotgg/t3code/blob/23c18fda7a969634a30888e36b2da45f6d66a83b/oxlint-plugin-t3code/index.ts">July 21 plugin</a>; the tooltip and mobile-theme rules are later additions. Both the July 21 and September 9 web package configurations select a <code>unit</code> test project. PR #2928 proves historical browser-test work; it does <strong>not</strong> establish that a dedicated browser-test job is still wired into today’s CI. The current application-testing skill describes integrated browser checks. The specific Twitch two-account sentinel described in the video was not located in these inspected public sources.</p>
+<h2 id="melee-the-verification-command-you-linked">Melee: the verification command you linked</h2>
+<p>Your <a href="https://github.com/doldecomp/melee/compare/master...t3dotgg:melee4mac:master">comparison</a> contains <strong>123 commits and 207 changed files</strong> at inspection. The fork is 123 commits ahead and 12 behind the compared upstream; its common ancestor is <code>05a1394faea2aac458e4bdd030621d8a5631ae62</code>. These are moving-branch counts; the inspected fork head is <a href="https://github.com/t3dotgg/melee4mac/commit/a276aeb70f9879204d891d967f1c9442523568e1"><code>a276aeb70f98</code></a>.</p>
+<p>The <a href="https://github.com/doldecomp/melee/commit/035d9711623a32fbe891cffdcf44a91a550c1947">September 8 commit you linked</a> adds a 75-line verifier and nine focused tests. It explicitly builds the final executable and report, runs the existing diff target, checks that required artifacts exist, and compares the output to the expected manifest hash. Failed commands stop success reporting even if an old artifact exists. This makes a precise outcome callable through one command.</p>
+<p>The <a href="https://github.com/t3dotgg/melee4mac/commit/74e73873038b821bbc46b0a18434e6b7cb556c0e">follow-up commit</a> closes another false-success path: a matching executable can still link original objects where source work is incomplete. Its <code>verify_report</code> requires matching and complete code/data counts, matching functions, complete units, positive totals, and per-unit completion. The manifest is the fixed reference for this project, not something an agent should rewrite to obtain green.</p>
+<p>The commit being accessible under <code>doldecomp/melee</code> does not establish an upstream merge. It is present in the fork comparison. The visible integration record is <a href="https://github.com/t3dotgg/melee4mac/pull/1">fork PR #1</a>, which combines the verifier with matching-preserving cleanup and explicit documentation of what public CI cannot check.</p>
+<h3 id="what-i-executed-locally">What I executed locally</h3>
+<ul>
+<li>The original verifier’s <strong>9 tests passed</strong>.</li>
+<li>The inspected current verifier’s <strong>15 tests passed</strong>.</li>
+<li>A <a href="evidence/melee-verifier-comparison.json">synthetic comparison</a> gave both implementations a matching fixture hash and successful mocked build/diff commands, with incomplete source measures. The initial verifier accepted it; the current verifier rejected it before printing success.</li>
+</ul>
+<p>These runs validate the Python verifier behavior. Build commands were mocked and the fixture bytes were synthetic. They do not certify a real Melee executable, native application, gameplay, or performance. <a href="guides/09-verification-contracts.html">Guide 09</a> turns this into a general method for defining a completion contract.</p>
+<h2 id="melees-implementation-path-and-supporting-tools">Melee’s implementation path and supporting tools</h2>
+<p>The <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/native/macos/README.md">native runtime overview</a> and <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/native/macos/build.py">build script</a> show the actual path: produce and verify the GameCube executable, translate it and the disc loader into C with pinned recompilation dependencies, then compile ARM64 code against a Dolphin-derived compatibility runtime. This is static recompilation, not simply compiling the decompiled game C against native macOS APIs. Original memory-layout assumptions remain in guest memory. Strict native mode rejects uncovered CPU execution rather than silently falling back to a PowerPC interpreter or JIT.</p>
+<p>Keep the invariants separate. A matching input GameCube executable does not prove that later rendering hooks preserve every native behavior. <a href="https://github.com/t3dotgg/melee4mac/pull/12">PR #12</a> adds predicted rendering between 60 Hz simulation updates and optional textures; its author explicitly leaves physical 120 Hz display validation open. <a href="https://github.com/t3dotgg/melee4mac/pull/13">PR #13</a> is <strong>open</strong> at inspection, and its lighting changes are not part of the inspected master snapshot. Its screenshot pairs and stated test conditions are evidence to assess, not proof we ran the game.</p>
+<p>The earlier PRs provide a useful sequence of infrastructure improvements:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Fork PR</th>
+<th>Mechanism worth studying</th>
+<th>Limit recorded in the evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/t3dotgg/melee4mac/pull/3">#3</a></td>
+<td>Automates the tested Mac compiler wrapper; retains explicit override; documents queue and allocator ownership.</td>
+<td>The PR’s matching build is a reported local result.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/t3dotgg/melee4mac/pull/5">#5</a></td>
+<td>Repairs symbol parsing and strong/weak provider selection using real build objects.</td>
+<td>A dependency graph is not a call graph or final linker resolution.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/t3dotgg/melee4mac/pull/6">#6</a></td>
+<td>Makes context generation fail on unreadable input and preserve previous output on failure.</td>
+<td>Textual include expansion does not evaluate conditional compilation.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/t3dotgg/melee4mac/pull/7">#7</a></td>
+<td>Corrects dependency direction and matching-leaf selection, with small graph fixtures.</td>
+<td>Analysis tooling can be confidently wrong until checked against concrete cases.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/t3dotgg/melee4mac/pull/10">#10</a></td>
+<td>Integrates an explicit upstream revision and verifies the combined tree.</td>
+<td>Earlier passing batches are not evidence for a new integration.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/t3dotgg/melee4mac/pull/11">#11</a></td>
+<td>Adds the pinned native pipeline, separate saves, strict execution checks, and scenario-specific measurements.</td>
+<td>Timings apply to the stated machine and workload; software controller tests do not verify Bluetooth hardware.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/t3dotgg/melee4mac/pull/12">#12</a></td>
+<td>Adds extraction, texture-quality checks, rendering changes, and explicit measurement limits.</td>
+<td>Public code excludes generated private artwork; a physical 120 Hz display still needs checking.</td>
+</tr>
+</tbody>
+</table></div>
+<p>GitHub’s check-run API reports successful Linux/macOS/Windows tool tests, style checks, and a native-library build on the inspected heads of Melee PRs #12 and #13. Those public checks have no original game data and cannot establish a matching game build. For T3 #7209 and #10501, the relevant Check/Test runs succeeded; several preview jobs were skipped. Skipped preview jobs are not preview-validation evidence. Compact check snapshots were kept in the research workspace and are summarized here rather than reproduced.</p>
+<h2 id="what-to-take-away">What to take away</h2>
+<ol>
+<li><strong>A completion contract:</strong> name the actual output, the source/input completeness requirement, and the consumer-visible outcome. Reject a plausible proxy result when it leaves the requirement unproved.</li>
+<li><strong>Small executable feedback:</strong> encode recurring mistakes in existing lint/type/test/build boundaries, then prove both rejection and legitimate success.</li>
+<li><strong>Explicit ownership:</strong> isolate agent writes and test state; put provider quirks behind adapters; verify remote artifact accessibility where it matters.</li>
+<li><strong>Calibrated knowledge:</strong> keep durable decisions and surprising constraints close to their relevant code. Use source maps as entry points and generated dependency data as evidence with known limits.</li>
+<li><strong>Evidence with provenance:</strong> distinguish local execution, remote CI, PR-author reports, and untested hardware. Keep source and native-output invariants separate.</li>
+</ol>
+<p>These extend the four companion skills and the <a href="README.html">implementation guides</a>. They do not justify a mandatory event-sourcing rewrite, copying Theo’s stack, or adopting another repository’s authority rules. Choose the smallest mechanism that fixes a recurring failure in your actual system.</p><p class="source-note"><a href="github-inspection.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

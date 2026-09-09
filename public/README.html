@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Agent Engineering Handbook · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><h1 id="agent-engineering-handbook">Agent Engineering Handbook</h1>
+<p>Build better coding environments for agents: turn a repeated correction into an
+executable check, a confusing decision into discoverable knowledge, and a missing
+operation into a usable tool.</p>
+<p>An independent, public handbook maintained by <strong>Desmond Landry (@desland01)</strong>, based on
+Theo's <a href="https://www.youtube.com/watch?v=xmGY276gEFY">video</a> (<em>Claude Code's creator has
+some really good advice</em>, July 21, 2026) and extended through direct inspection of
+Theo's T3 Code and Melee fork, Matt Pocock's Course Video Manager, and Boris Cherny's
+public engineering work. With attribution and thanks to <strong>Theo (@t3dotgg)</strong>,
+<strong>Matt Pocock (@mattpocock)</strong>, and <strong>Boris Cherny (@bcherny)</strong> — none of whom endorses
+this handbook. Research snapshot: <strong>September 9, 2026</strong>; later pull requests are
+identified as later evidence.</p>
+<p>The source-derived facts (what the video says, what the inspected repositories contain)
+are kept separate from author recommendations and from this edition's own local checks.
+See <a href="validation.html">validation.md</a> for exactly what was run and what was not.</p>
+<h2 id="start-with-the-problem-you-have">Start with the problem you have</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Current problem</th>
+<th>Start here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>You keep correcting the same mistake</td>
+<td><a href="guides/01-recurring-failures.html">Recurring failures</a> and the <a href="examples/recurring-rule/README.html">runnable lint example</a></td>
+</tr>
+<tr>
+<td>Tests pass but the actual feature fails</td>
+<td><a href="guides/02-critical-journey-tests.html">Critical journey tests</a> and <a href="guides/09-verification-contracts.html">verification contracts</a></td>
+</tr>
+<tr>
+<td>A new agent cannot run or inspect the app</td>
+<td><a href="guides/03-preview-workspaces.html">Preview workspaces</a></td>
+</tr>
+<tr>
+<td>You relay CI errors by hand</td>
+<td><a href="guides/04-ci-feedback.html">CI feedback</a></td>
+</tr>
+<tr>
+<td>Agents repeatedly miss project decisions</td>
+<td><a href="guides/05-knowledge-and-instructions.html">Knowledge and instructions</a></td>
+</tr>
+<tr>
+<td>The agent cannot perform a required operation</td>
+<td><a href="guides/06-tool-adapters.html">Tool adapters</a></td>
+</tr>
+<tr>
+<td>Your project is becoming hard to navigate</td>
+<td><a href="guides/11-domain-language-and-agent-apis.html">Domain language and APIs</a>, <a href="guides/10-codebase-navigation-and-tooling.html">codebase navigation</a></td>
+</tr>
+<tr>
+<td>Long jobs repeat expensive work or accept bad output</td>
+<td><a href="guides/12-artifact-identity-and-recovery.html">Artifact identity and recovery</a></td>
+</tr>
+</tbody>
+</table></div>
+<p>Read the <a href="https://agent-engineering-handbook.vercel.app/">live handbook</a> or its <a href="https://github.com/desland01/agent-engineering-handbook">GitHub source</a>. The <a href="https://agent-engineering-handbook.vercel.app/">visual workflow guide</a> is the shorter entry point. The
+<a href="https://agent-engineering-handbook.vercel.app/evidence.html">screenshot gallery</a> contains <strong>12 ffmpeg frames</strong> with timestamps,
+observations and full-size images. A post visible on screen is distinguished from a live
+demonstration; several examples are narrated only.</p>
+<h2 id="all-13-implementation-guides">All 13 implementation guides</h2>
+<ol>
+<li><a href="guides/01-recurring-failures.html">01 — Convert recurring failures into permanent rules</a></li>
+<li><a href="guides/02-critical-journey-tests.html">02 — One critical journey test beats broad shallow coverage</a></li>
+<li><a href="guides/03-preview-workspaces.html">03 — Make previews usable from the agent's environment</a></li>
+<li><a href="guides/04-ci-feedback.html">04 — Let the agent read and resolve CI failures</a></li>
+<li><a href="guides/05-knowledge-and-instructions.html">05 — Put project knowledge where the next task needs it</a></li>
+<li><a href="guides/06-tool-adapters.html">06 — Build small tool adapters for capability gaps</a></li>
+<li><a href="guides/07-team-learning.html">07 — Turn newcomer questions into improvements</a></li>
+<li><a href="guides/08-compose-contracts.html">08 — Keep contracts consistent across the application</a></li>
+<li><a href="guides/09-verification-contracts.html">09 — Verification contracts</a></li>
+<li><a href="guides/10-codebase-navigation-and-tooling.html">10 — Codebase navigation and tooling</a></li>
+<li><a href="guides/11-domain-language-and-agent-apis.html">11 — One domain language and one transport when an agent calls your API</a></li>
+<li><a href="guides/12-artifact-identity-and-recovery.html">12 — Make pipeline artifacts reusable, resumable and honestly complete</a></li>
+<li><a href="guides/13-layered-validation.html">13 — Validate the output through several useful views</a></li>
+</ol>
+<p>Each guide gives a concrete method, fitting use cases and verification limits. Code
+sketches are labeled as illustrative; the bundled lint example is separately runnable
+and tested (see <a href="examples/recurring-rule/README.html">examples/recurring-rule</a> for the
+<code>npm</code> demo).</p>
+<h2 id="what-the-repository-investigations-add">What the repository investigations add</h2>
+<ul>
+<li><a href="github-inspection.html">Theo: T3 Code and Melee</a> — architecture, custom lint, native
+  skill dispatch, preview evidence, all 13 fork PRs, the linked verifier commit, and
+  the source-completeness verifier repair.</li>
+<li><a href="matt-pocock-inspection.html">Matt Pocock: Course Video Manager</a> — domain vocabulary,
+  one HTTP transport, static import boundaries, publication identity, resumable agent
+  work, subprocess output draining and gaps between documentation and CI.</li>
+<li><a href="boris-cherny-inspection.html">Boris Cherny: public engineering work</a> — a staged
+  compiler architecture, seeded fuzzing, generated-output validation, benchmarks, CLI
+  compatibility, narrow tools and instruction-validator repairs.</li>
+</ul>
+<p>The reports distinguish inspected code, author-reported results, remote CI records and
+local execution. They link to pinned source snapshots wherever possible. Finding code
+under an account does not mean the account owner personally authored every change; open
+PRs are separated from merged work.</p>
+<h2 id="four-portable-skills">Four portable skills</h2>
+<p>Standalone, portable skill directories you can adopt into any agent setup that reads
+Markdown instructions. Each keeps its reusable expertise and its owner-authorization
+boundaries, and ships scoped references plus OpenAI-compatible interface metadata.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Use it for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="skills/agent-feedback-engineering/SKILL.md">Agent feedback engineering</a></td>
+<td>Choose and prove a reusable response to an observed failure</td>
+</tr>
+<tr>
+<td><a href="skills/agent-ready-workspaces/SKILL.md">Agent-ready workspaces</a></td>
+<td>Repair the setup, preview or outcome-check gap that blocks a fresh agent</td>
+</tr>
+<tr>
+<td><a href="skills/agent-context-calibration/SKILL.md">Agent context calibration</a></td>
+<td>Diagnose missing project knowledge and select the right place for it</td>
+</tr>
+<tr>
+<td><a href="skills/agent-tool-adapters/SKILL.md">Agent tool adapters</a></td>
+<td>Bridge a missing capability and verify the intended agent can use it</td>
+</tr>
+</tbody>
+</table></div>
+<p>Each directory includes <code>SKILL.md</code>, <code>references/implementation.md</code>,
+<code>references/source-patterns.md</code>, and <code>agents/openai.yaml</code> interface metadata whose
+default prompt references the skill's own <code>$skill-name</code>. See
+<a href="adoption.html">adoption.md</a> for how to install one or combine it into an existing skill.
+Do not load all four for every task.</p>
+<p>Use the relevant guide with your existing workflow today. <a href="prompts.html">Task prompts</a>
+make the input and expected evidence concrete.</p>
+<h2 id="the-19-useful-video-ideas-in-order">The 19 useful video ideas, in order</h2>
+<p>These are distinct takeaways, including qualified opinions. The table maps each to
+implementation guidance. See <a href="evidence/video-research.html">detailed extraction</a> and
+<a href="evidence/video-tips.json">structured ideas</a> for speaker attribution, evidence type and
+caveats.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Video</th>
+<th>Idea</th>
+<th>Implement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=113s">01:53</a></td>
+<td>Close the CI feedback loop: let the agent trigger CI and read failed logs itself</td>
+<td><a href="guides/04-ci-feedback.html">Guide 04</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=226s">03:46</a></td>
+<td>Design tiny two-actor end-to-end tests that catch whole classes of failure</td>
+<td><a href="guides/02-critical-journey-tests.html">Guide 02</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=287s">04:47</a></td>
+<td>Infra and DX automation now speeds up every agent, not just you</td>
+<td><a href="guides/04-ci-feedback.html">Guide 04</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=306s">05:06</a></td>
+<td>Preview environments matter more now that code is built outside your machine</td>
+<td><a href="guides/03-preview-workspaces.html">Guide 03</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=352s">05:52</a></td>
+<td>Build small tool adapters for things the CLI cannot do (video/asset uploads to PRs)</td>
+<td><a href="guides/06-tool-adapters.html">Guide 06</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=390s">06:30</a></td>
+<td>Authoring and testing a small skill has a tight, low-stakes feedback loop</td>
+<td><a href="guides/06-tool-adapters.html">Guide 06</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=448s">07:28</a></td>
+<td>Teams are now more willing to fund tooling time — use it</td>
+<td><a href="guides/07-team-learning.html">Guide 07</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=480s">08:00</a></td>
+<td>Move recurring fixes from per-occurrence agent corrections into executable checks (lint rule, CI step, routine)</td>
+<td><a href="guides/01-recurring-failures.html">Guide 01</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=510s">08:30</a></td>
+<td>Custom lint rules became economical: agents lower the cost of the code and its tests</td>
+<td><a href="guides/01-recurring-failures.html">Guide 01</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=596s">09:56</a></td>
+<td>Encode domain knowledge as infrastructure so newcomers' agents get steered too</td>
+<td><a href="guides/05-knowledge-and-instructions.html">Guide 05</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=674s">11:14</a></td>
+<td>Treat newcomer questions as a signal for onboarding gaps (Theo's dumb-questions practice)</td>
+<td><a href="guides/07-team-learning.html">Guide 07</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=749s">12:29</a></td>
+<td>Write your CLAUDE.md / AGENTS.md yourself; watch agent behavior and adjust</td>
+<td><a href="guides/05-knowledge-and-instructions.html">Guide 05</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=783s">13:03</a></td>
+<td>Use steering files to make the agent say no (and to get fast feedback when things go wrong)</td>
+<td><a href="guides/05-knowledge-and-instructions.html">Guide 05</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=831s">13:51</a></td>
+<td>Compose layers so type safety runs end to end — and expect that click more often now</td>
+<td><a href="guides/08-compose-contracts.html">Guide 08</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=873s">14:33</a></td>
+<td>Write Claude.mds, review.mds, skills, and docs so agents work with zero prompting context</td>
+<td><a href="guides/05-knowledge-and-instructions.html">Guide 05</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=962s">16:02</a></td>
+<td>Calibrate from a cold start: run minimal prompts first, add context only where it fails</td>
+<td><a href="guides/05-knowledge-and-instructions.html">Guide 05</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=998s">16:38</a></td>
+<td>Instruction files should steer toward success, not list where things are</td>
+<td><a href="guides/05-knowledge-and-instructions.html">Guide 05</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=1014s">16:54</a></td>
+<td>Building environments where code lands well is a career-level skill (with a grain of salt)</td>
+<td><a href="guides/07-team-learning.html">Guide 07</a></td>
+</tr>
+<tr>
+<td><a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=1080s">18:00</a></td>
+<td>Solo projects now exceed your own comprehension — build systems so you and your agents don't get lost</td>
+<td><a href="guides/10-codebase-navigation-and-tooling.html">Guide 10</a></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="what-was-checked">What was checked</h2>
+<p>The local lint demonstration proves that the unwanted import passes without its
+restriction and is rejected with the restriction while the supported import passes. The
+Melee verifier's original nine tests and current fifteen tests pass; a separate
+synthetic comparison reproduces the completeness gap and the repair. These are verifier
+tests with mocked builds, not a real game build.</p>
+<p>See <a href="validation.html">validation.md</a> for the exact scope, screenshot hashes and
+rendered-page checks. The public applications, upload service and private agent systems
+were not executed. Sponsor claims and universal career/productivity claims remain
+unverified.</p>
+<h2 id="build-and-preview-locally">Build and preview locally</h2>
+<p>The site is static HTML generated from the Markdown in this repository; the generated
+<code>public/</code> directory is committed for local reading. Vercel rebuilds it from the
+editable sources and checks the result on each deployment.</p>
+<pre><code class="language-sh"># Regenerate public/ from the editable sources (idempotent):
+python3 -m pip install -r build/requirements.txt   # Markdown==3.10.3
+python3 build/render.py
+python3 build/check.py                             # links, counts, hashes
+
+# Preview locally (any static file server works):
+cd public &amp;&amp; python3 -m http.server 8000
+# open http://localhost:8000
+</code></pre>
+<p><code>build/render.py</code> reads only the editable Markdown, assets and JSON — never <code>public/</code>
+— and rewrites <code>public/</code> from scratch, so rerunning cannot feed on its own output.</p>
+<p>Run the lint demo:</p>
+<pre><code class="language-sh">cd examples/recurring-rule
+npm ci --ignore-scripts
+npm run demo        # detects the bad import; accepts the supported import
+</code></pre>
+<h2 id="keep-or-rebuild-this-handbook">Keep or rebuild this handbook</h2>
+<p>The Markdown, images, JSON evidence and four skill directories are the editable
+sources; everything in <code>public/</code> is generated. <code>build/render.py</code> regenerates the pages
+and gallery using Python Markdown 3.10.3 (<code>build/requirements.txt</code> pins that
+dependency). See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> for the update flow and
+<a href="ATTRIBUTION.html">ATTRIBUTION.md</a> for source attribution. The original long-form video
+is not redistributed here and no complete transcript or repository clone is bundled.</p><p class="source-note"><a href="README.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

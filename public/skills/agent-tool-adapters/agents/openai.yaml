@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Tool Adapters"
+  short_description: "Bridge a missing capability with a tested interface"
+  default_prompt: "Use $agent-tool-adapters to provide this requested capability through the smallest supported interface and verify it through the intended agent route."
+policy:
+  allow_implicit_invocation: true

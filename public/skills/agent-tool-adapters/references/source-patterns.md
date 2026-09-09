@@ -1,0 +1,9 @@
+# Repository examples: operation, transport and recovery
+
+- **The video's host appears in real PR evidence:** [Melee PR #13](https://github.com/t3dotgg/melee4mac/pull/13), open at inspection, embeds six before/after images from `files.tslop.org`. This corroborates use of the same public host seen in the video. It does not expose server implementation or prove which upload command generated those files.
+- **Consumer-readable tool output:** T3 [PR #10501](https://github.com/pingdotgg/t3code/pull/10501) bounds overwhelming browser text, wraps non-object evaluation results and saves screenshots to an artifact path. Preserve complete evidence outside the immediate response when needed.
+- **One transport for humans and agents:** Matt's [RPC layer](https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/cli/rpc-layer.ts) derives client endpoints from server types and checks domain service signatures. Runtime parsing, authentication and environment suitability remain separate concerns.
+- **Do work once; repair the receipt:** Matt's [run-with-extraction.ts](https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.sandcastle/run-with-extraction.ts) separates productive work from structured extraction. Its companion retry wrapper preserves session context but inherits tool options; do not claim extraction is mechanically read-only.
+- **Narrow the operation:** Boris's [merged PR #16549](https://github.com/anthropics/claude-code/pull/16549) replaces broad GitHub API access with a bounded commenting script. It illustrates explicit operation design, not authorization to post comments in this task.
+
+These are implementation patterns observed in public source. No upload service, foreign fleet or external commenting workflow was run here.

@@ -1,0 +1,6 @@
+
+src/ui/UserCard.js
+  3:1  error  '../db/client.js' import is restricted from being used by a pattern. UI code must not import the database directly. Use the API layer in src/api instead  no-restricted-imports
+
+✖ 1 problem (1 error, 0 warnings)
+

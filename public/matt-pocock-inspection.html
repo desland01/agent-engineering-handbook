@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Matt Pocock’s Course Video Manager: methods visible in the PRs · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><h1 id="matt-pococks-course-video-manager-methods-visible-in-the-prs">Matt Pocock’s Course Video Manager: methods visible in the PRs</h1>
+<p>The <a href="https://github.com/mattpocock/course-video-manager/pulls">PR page you linked</a> adds a useful third case study. I inspected the latest 100 PR records across states, selected detailed diffs, and the repository at <a href="https://github.com/mattpocock/course-video-manager/commit/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8"><code>4c1f3f5d4941</code></a> on September 9, 2026. This is a focused source inspection, not a claim to have reviewed every historical change or run the app.</p>
+<p>The strongest pattern is <strong>turning domain decisions into interfaces, executable rules, and recoverable workflows</strong>. The project also makes its own gaps visible: an open documentation cleanup, a missing CI workflow described as present in guidance, and follow-up repairs after major changes. Read those alongside the successful designs.</p>
+<h2 id="a-concrete-map-of-the-architecture">A concrete map of the architecture</h2>
+<p>The current <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/CLAUDE.md">root guidance</a> and package manifests describe a Turborepo with two applications and shared packages:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Responsibility</th>
+<th>Why it matters to agent work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/local</code></td>
+<td>Editing UI, CLI, local media/OBS/ffmpeg and publishing operations</td>
+<td>Hardware and local-file work stays on the machine that owns it.</td>
+</tr>
+<tr>
+<td><code>apps/remote</code></td>
+<td>Authenticated Hono RPC API</td>
+<td>Remote agents access domain operations through a supported interface.</td>
+</tr>
+<tr>
+<td><code>packages/core</code></td>
+<td>Database schema, operations and shared pure domain logic</td>
+<td>The remote API can consume the domain without importing desktop-only machinery.</td>
+</tr>
+<tr>
+<td><code>packages/lucide-icons</code></td>
+<td>Shared icon data and transformation entrypoints</td>
+<td>Shared consumers reuse one bounded package.</td>
+</tr>
+<tr>
+<td><code>packages/overlay-renderer</code></td>
+<td>Standalone media renderer</td>
+<td>The local app invokes its built executable; root Turbo filters exclude it, so its checks must be considered separately.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/packages/core/.dependency-cruiser.cjs">core dependency rules</a> reject enumerated filesystem-bound imports, imports back into applications, and cycles. This is stronger than simply asking agents to keep the core portable. It remains static dependency checking, not a process sandbox or proof against every indirect runtime capability.</p>
+<p>The <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/cli/rpc-layer.ts">CLI RPC layer</a> derives endpoints from the remote application’s route type, checks implementations against domain service signatures, and forwards argument tuples through a common helper. Most CLI domain operations use the same HTTP path for the author and remote agents. Machine-local commands have explicit entry guards in <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/cli/local-only.ts">local-only.ts</a>. That guard explains why a command cannot run on a remote machine before work begins; its environment flag is a suitability signal, not an unforgeable security boundary. Token authentication and server-side access control are separate.</p>
+<h2 id="useful-prs-and-what-to-carry-forward">Useful PRs and what to carry forward</h2>
+<h3 id="keep-vocabulary-and-decisions-durable">Keep vocabulary and decisions durable</h3>
+<p><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/CONTEXT.md">CONTEXT.md</a> defines domain nouns, their relationships and terms to avoid. For example, a Course, CourseVersion, Draft, Pending and Published Version have distinct meanings. Agents can use the same nouns in command help, tests and implementation instead of rediscovering the model through synonyms. <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/agents/domain.md">Domain-document guidance</a> points to relevant ADRs without demanding that nonexistent documents be created before useful work can start.</p>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1591">PR #1591</a>, <strong>still open</strong>, proposes removing changing implementation details from that glossary while retaining fields, invariants, refusals and vocabulary. It relocates missing rationale beside the code that owns it. This is a good template for preserving knowledge during a cleanup, but the proposal must not be described as the state already merged into main.</p>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1608">PR #1608</a>, merged September 4, shows why domain language must affect the implementation. A move planner wrote an ordering-derived path into a section title. Removing numbered path prefixes eliminated the renumbering machinery that kept corrupting the actual identity field. The useful lesson is to simplify the model when redundant derived state creates bugs, rather than adding more synchronization around it.</p>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1611">PR #1611</a>, merged September 6, links Beats to Learning Goals and adds warnings. Its title sounds absolute, but the implementation deliberately keeps those warnings out of publication blockers. A planning preference and a release invariant need different consequences. Preserve that distinction when writing a skill.</p>
+<h3 id="prove-one-real-end-to-end-path-before-expanding-a-platform">Prove one real end-to-end path before expanding a platform</h3>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1542">PR #1542</a>, merged August 11, organizes the local/remote split around sub-issues, including a tracer bullet: mint a token and execute one CLI search remotely. Shared domain operations then expand behind that verified transport, with typed failures and schema-version handling. Existing CLI tests become the transport test surface instead of being replaced by tests of private internals.</p>
+<p>The follow-up <a href="https://github.com/mattpocock/course-video-manager/pull/1550">PR #1550</a>, merged later that day, removes automatic migrations from preview builds. The current <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/remote/package.json">remote package</a> builds core code during deployment without invoking migration. <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/adr/0026-migrations-applied-by-hand.md">ADR 0026</a> records the correction. The original split’s description and some root guidance still mention deploy-owned migrations; consult current executable configuration and the later decision before copying those instructions.</p>
+<p><strong>Apply:</strong> choose one vertical slice that crosses the actual boundary, validate it from the caller’s environment, and only then scale the pattern. A successful local shortcut does not validate remote execution.</p>
+<h3 id="reuse-actual-output-bytes-not-just-the-requested-recipe">Reuse actual output bytes, not just the requested recipe</h3>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1501">PR #1501</a>, merged August 4, overlaps exports and uploads, makes progress visible per video, and plans for interrupted work. It moves the immutable submission boundary before media work so later writes cannot alter what is being published.</p>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1564">PR #1564</a>, merged August 21, repairs an incorrect reuse decision. The render recipe identifies where an output belongs, but only the produced bytes can establish whether a previous output is identical. A corrected render at the same recipe address must reach the destination. Inspect <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/services/course-publish-dropbox.ts">the reuse decision</a> and <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/adr/0027-byte-hash-decides-the-send.md">ADR 0027</a>.</p>
+<p>The <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/services/export-duration-check.ts">duration check</a> rejects nonpositive duration and excessive shortfall against the expected clip duration. Its one-second tolerance and acceptance of overruns are deliberate rules for this application, not general validation of all video defects. The <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/services/export-sha256-sidecar.ts">digest sidecar</a> caches hashes and size; it is not an independent guarantee against an arbitrary same-size file replacement outside the managed workflow. Recompute or strengthen cache invalidation when your system allows that kind of mutation.</p>
+<p>This complements Melee’s verifier: a hash can be the correct invariant for exact binary preservation, while a recipe hash is an insufficient invariant for media reuse. State what each identifier proves before designing the cache.</p>
+<h3 id="keep-process-supervision-alive-when-progress-reporting-fails">Keep process supervision alive when progress reporting fails</h3>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1551">PR #1551</a>, merged August 19, investigates an ffmpeg hang associated with progress-pipe drainage. A callback exception could stop consuming output while the child process continued writing. The change isolates callback failures per chunk, drains stdout and stderr concurrently, and keeps useful stderr evidence. The PR describes the production cause as highly likely, so I do not upgrade that diagnosis to an independently reproduced incident.</p>
+<p><strong>Apply:</strong> treat telemetry delivery and child-process lifetime as separate responsibilities. An observer disconnecting should not silently stop the drain that lets a process finish. Test a throwing progress callback and enough output to exercise backpressure.</p>
+<h3 id="preserve-completed-work-while-repairing-result-formatting">Preserve completed work while repairing result formatting</h3>
+<p><a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.sandcastle/run-with-extraction.ts">run-with-extraction.ts</a> runs production work first and then resumes the same session to extract structured output. <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.sandcastle/run-with-retry.ts">run-with-retry.ts</a> retries a structured-output failure with feedback instead of blindly rerunning the original assignment. Callers include review, update-branch, implement-PR and architecture-review drivers; <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.sandcastle/run-with-extraction.test.ts">tests</a> cover session preservation and failure cases.</p>
+<p>This avoids repeating commits or other effects merely because the result summary was malformed. However, the extraction call inherits execution options; the comment that extraction should not commit is not a mechanical read-only boundary. In your own setup, preserve execution receipts and keep any separate extraction/recovery step inside the scope already authorized. Do not copy the source’s model strings, scheduling, credential names, or retry counts as universal policy.</p>
+<h3 id="place-stable-prompt-material-before-changing-material">Place stable prompt material before changing material</h3>
+<p><a href="https://github.com/mattpocock/course-video-manager/pull/1506">PR #1506</a>, merged August 5, restructures an article writer’s prompt for caching. Stable instructions and source material precede changing related fields and the current document; the tool definitions stay stable across draft/edit phases. The useful method is to measure actual cache usage and avoid needless prefix changes. Cache limits, retention windows and pricing are provider/version-specific, and a provider switch must follow the owner’s configured route. This report does not repeat the PR’s savings as measurements from our environment.</p>
+<h2 id="what-the-automation-files-doand-what-their-presence-does-not-prove">What the automation files do—and what their presence does not prove</h2>
+<p>The repository has GitHub workflows for implementation, review, PRD expansion and architecture proposals. The <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.github/workflows/agent-implement.yml">implementation workflow</a> reacts to labels, checks issue shape and existing PRs, and passes work to a driver. The <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.github/workflows/architecture-review.yml">architecture workflow</a> contains a weekday schedule; the <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/.claude/skills/improve-codebase-architecture-project/SKILL.md">project skill</a> seeks deep-module improvements, checks prior proposals, and hands structured output to the driver.</p>
+<p>These are concrete orchestration assets, but source inspection alone does not show whether their secrets, permissions or scheduled runs are currently healthy. We have not started them or copied their automatic publishing behavior into this handbook. The project’s approximate per-file token check is a local heuristic, not evidence that every smaller module is deeper or easier to maintain.</p>
+<p>The most revealing gap is <a href="https://github.com/mattpocock/course-video-manager/pull/1601">PR #1601</a>, merged September 3. It introduces guidance saying to target tests locally and rely on exhaustive CI. Its body explicitly says <code>.github/workflows/test.yml</code> was omitted because the credential could not publish workflow files. The file is still absent from the inspected Git tree, while <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/agents/testing.md">testing.md</a> says it runs on every PR. The root <code>test</code> script also excludes the standalone overlay renderer. Therefore “everything is checked in CI” is not established by the checked-in implementation. A successful isolated retry also does not by itself prove a failure was only resource contention, despite the stronger wording in those testing notes.</p>
+<p><strong>Apply:</strong> inspect the actual command, configuration, selected environment and result before trusting a documented gate. Keep a required manual step visibly incomplete until readback proves it happened. Do not make local testing depend on a safety net that is only described in prose.</p>
+<h2 id="how-this-changes-our-guides">How this changes our guides</h2>
+<p><a href="guides/11-domain-language-and-agent-apis.html">Guide 11</a> covers domain vocabulary, durable decisions, bounded modules and callable agent APIs. <a href="guides/12-artifact-identity-and-recovery.html">Guide 12</a> covers output identity, resumable work and result-format recovery. The four companion skills include these methods as references rather than as separate overlapping workflows.</p>
+<p>Across Matt’s project, Theo’s T3 Code and Melee, the most transferable habit is to make a desired outcome easy to invoke and hard to misreport: precise domain operations, small checks with known coverage, explicit execution ownership, and evidence tied to the artifact actually produced.</p><p class="source-note"><a href="matt-pocock-inspection.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

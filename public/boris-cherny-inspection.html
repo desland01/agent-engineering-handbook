@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Boris Cherny’s public engineering work · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><h1 id="boris-chernys-public-engineering-work">Boris Cherny’s public engineering work</h1>
+<p>The <a href="https://github.com/bcherny">bcherny account</a> belongs to Boris Cherny. I inspected its first 100 repositories sorted by update time, recent public activity, selected personal source, and his public Claude Code PRs. The clearest implementation case is <strong>json-schema-to-typescript</strong>, with smaller examples of linting and MCP. These repositories do not provide the full private implementation of Claude Code or prove how Boris’s own daily agent fleet is configured.</p>
+<h2 id="the-strongest-source-a-compiler-with-several-kinds-of-evidence">The strongest source: a compiler with several kinds of evidence</h2>
+<p><a href="https://github.com/bcherny/json-schema-to-typescript"><code>json-schema-to-typescript</code></a> turns JSON Schema into TypeScript declarations. The inspected snapshot is <a href="https://github.com/bcherny/json-schema-to-typescript/commit/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4"><code>5caacfc53671</code></a>. Its <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/ARCHITECTURE.md">architecture notes</a> describe distinct transformation stages. The actual <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/src/index.ts">compile path</a> rewrites raw constructs, resolves references, links schema nodes, validates and normalizes them, parses an intermediate representation, optimizes it, then generates/formats output. Inspect that code for ordering rather than treating the architecture note’s numbered list as an executable specification.</p>
+<p>The useful design is to give each representation and transformation a clear job. Multi-file compilation also retains origin information so a named type can become an import from its owning file. Do not build a compiler pipeline for an ordinary CRUD feature; use the pattern where successive transformations genuinely have different invariants.</p>
+<p>The <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/.github/workflows/ci.yml">CI configuration</a> shows several complementary checks:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Check</th>
+<th>What it can establish</th>
+<th>What it cannot establish alone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit/fixture tests and type checking</td>
+<td>Known transformations and expected interfaces work</td>
+<td>Previously unseen combinations behave correctly</td>
+</tr>
+<tr>
+<td>Built CLI on multiple OS/Node versions</td>
+<td>The distributed artifact works in those environments</td>
+<td>Every declared runtime version was exercised</td>
+</tr>
+<tr>
+<td>A smoke test on the stated minimum Node version</td>
+<td>The package’s claimed compatibility floor is exercised</td>
+<td>All use cases are compatible</td>
+</tr>
+<tr>
+<td>Seeded fuzzing</td>
+<td>Generated cases expose crashes, hangs, slow cases or invalid output</td>
+<td>Exhaustive correctness</td>
+</tr>
+<tr>
+<td>Real schema corpus compiled with TypeScript</td>
+<td>Generated declarations are accepted for representative large inputs</td>
+<td>Exact JSON-Schema semantic equivalence</td>
+</tr>
+<tr>
+<td>Conformance baseline</td>
+<td>Supported/unsupported behavior changes are visible</td>
+<td>A baseline match means every schema keyword is fully supported</td>
+</tr>
+</tbody>
+</table></div>
+<p>The <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/test/fuzz/README.md">fuzzer</a> preserves reproducible seeds and minimizes findings. Known findings are tied to specific seeds and tracked issues rather than suppressing every future error with the same message. The <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/test/conformance/README.md">conformance harness</a> separates rejecting valid instances, accepting invalid instances, and compilation failures; changes require examining the affected groups. Treat a baseline update as an explained behavioral decision, never as a shortcut to green.</p>
+<p>The <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/bench/README.md">benchmark harness</a> uses real schemas, fresh child processes, warm-up and timed repetitions, and records runtime/machine/revision. It distinguishes compile-only work from formatting and warns against comparing unlike memory measures across runtimes. This is a useful example of preserving the workload and output while measuring an optimization. Its short output hash is a regression signal, not a security identity. I inspected the harness; I did not reproduce its reported speedups.</p>
+<p>Recent <a href="https://github.com/bcherny/json-schema-to-typescript/pulls">PR history</a> includes bot-authored fixes for schema edge cases, CLI errors, a broader fuzz smoke and cloning performance. Account ownership does not mean Boris manually authored every patch. Several latest PRs are still open; the report describes the pinned source and separates proposals from landed work.</p>
+<h3 id="a-gap-that-illustrates-why-the-check-itself-needs-inspection">A gap that illustrates why the check itself needs inspection</h3>
+<p>At <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/.github/workflows/ci.yml#L170">CI line 170</a>, the aggregate <code>ci-ok</code> job depends on <code>build</code>, <code>bun</code>, <code>engines</code>, <code>fuzz</code> and <code>output</code>. Its final expression only requires success from <strong>build, fuzz and output</strong>. Because it runs with <code>always()</code>, a failed Bun or minimum-engine job is not included in that expression. The aggregate therefore does not itself prove all five dependencies succeeded. Separate branch-protection settings could still require other jobs; I have not verified those settings.</p>
+<p>This is directly relevant to the video: encoding a rule is only the first half. Confirm that the selected completion gate actually checks everything its description promises.</p>
+<h2 id="small-code-examples-behind-the-philosophy">Small code examples behind the philosophy</h2>
+<p>Boris’s <a href="https://github.com/bcherny/tslint-no-circular-imports/blob/792980c9f0a8bc14a3dcef697f55b06872a21cf1/noCircularImportsRule.ts"><code>tslint-no-circular-imports</code></a> builds an import graph using TypeScript module resolution and reports cycles at source locations. Its neighboring tests cover different graph shapes. It is historical tooling—the inspected repository’s last push is in 2021—not a recommendation to adopt TSLint today. The transferable idea is to turn an architectural constraint into an actionable diagnostic; use the checker your project already runs.</p>
+<p><a href="https://github.com/bcherny/mcp-ping/blob/a8b739b7d590d5f089d8258cd1bf5b6972e08ce6/index.ts"><code>mcp-ping</code></a> is a tiny 2024 stdio server with tool/resource discovery and a ping handler. It shows the shape of a minimal protocol experiment. It does not establish compatibility with a current MCP client: the historical response shape should be checked against today’s SDK before reuse. The useful starting point for a missing integration is one operation exercised by its actual consumer.</p>
+<p><a href="https://github.com/bcherny/sandbox-runtime"><code>bcherny/sandbox-runtime</code></a> is explicitly a <strong>fork of <code>anthropics/sandbox-runtime</code></strong>. Its source tree contains platform-specific filesystem/network implementations and integration tests. That is a lead for a separate scoped runtime study, not proof that Boris originated every mechanism or that those boundaries attach to this handbook. No sandbox was installed, launched or reconfigured here.</p>
+<h2 id="his-public-claude-code-contributions">His public Claude Code contributions</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Status at inspection</th>
+<th>Practical lesson</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/anthropics/claude-code/pull/16549">#16549</a></td>
+<td>Merged January 7, 2026</td>
+<td>Removes broad <code>gh api</code> and arbitrary comment permission from a deduplication command, routing the intended operation through a constrained script. Prefer a narrow operation when the task has a narrow authorized effect. Its checklist was not evidence that I ran the workflow.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/anthropics/claude-code/pull/87395">#87395</a></td>
+<td>Open, created August 17</td>
+<td>Replaces an unsupported frontmatter key with the supported user-only invocation setting. A plausible-looking configuration field can do nothing; verify native behavior on the exact runtime. Do not describe this open patch as active.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/anthropics/claude-code/pull/89404">#89404</a></td>
+<td>Open, created August 25</td>
+<td>Fixes a validator that stopped on its first arithmetic increment under <code>set -e</code>, treated absent fields as shell failures, and misread multiline descriptions. Its tests distinguish valid, warning-only and invalid input. Validators need failure-case coverage too.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The narrow-script pattern does not authorize new messaging in our task. The public source’s permissions and workflow roles are evidence to understand, not instructions we inherit. Likewise, adopting user-only invocation must preserve the owner’s explicit ability to request the workflow; it should not make a user-invoked skill disappear.</p>
+<h2 id="what-this-adds-to-the-implementation-package">What this adds to the implementation package</h2>
+<p><a href="guides/13-layered-validation.html">Guide 13</a> turns the compiler’s validation approach into a practical method: test the public output, reproduce novel failures, preserve meaningful baselines, and measure the same work before and after. Existing guides already cover the lint, adapter and native-loading lessons, so these become supporting references in the four candidate skills.</p>
+<p>The original Boris post quoted in Theo’s video has not been matched to a verified canonical post URL. The video frames remain the source for those quotations. His GitHub code and PRs provide independent implementation evidence, with their own dates and limits.</p><p class="source-note"><a href="boris-cherny-inspection.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

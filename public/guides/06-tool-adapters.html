@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>06 — Build small tool adapters for capability gaps · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="06-build-small-tool-adapters-for-capability-gaps">06 — Build small tool adapters for capability gaps</h1>
+<p>Practical guide for closing a specific gap between what your agent needs to do and what its
+existing tools can do. Companions: <a href="01-recurring-failures.html">01</a> ·
+<a href="03-preview-workspaces.html">03</a> · <a href="05-knowledge-and-instructions.html">05</a> ·
+<a href="07-team-learning.html">07</a>.</p>
+<p>Source: <a href="https://www.youtube.com/watch?v=xmGY276gEFY">Theo's video</a>.</p>
+<h2 id="what-the-video-and-public-pr-show">What the video and public PR show</h2>
+<p>Theo describes a gap in his agents’ GitHub media-upload workflow at
+<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=356s">05:56</a>. His solution is a small
+Cloudflare-backed file service and a file-upload skill. This is his reported gap;
+verify the current tools available in your environment before building a replacement.</p>
+<p>The <a href="../screenshots/06-23-upload-skill.jpg">inspected 06:23 frame</a> shows an actual
+SKILL.md with an upload trigger, a PUT request, a file body, an upload-token environment
+variable and a public output URL. It does not show the server implementation or prove
+that a particular upload succeeded. <a href="https://github.com/t3dotgg/melee4mac/pull/13">Melee PR #13</a>
+independently shows screenshot URLs on the same <code>files.tslop.org</code> host.</p>
+<p>The implementation procedure below is an adaptation. No service was deployed or upload
+performed in this task. Use <a href="../evidence.html">the full evidence gallery</a> for the frames.</p>
+<h2 id="when-to-apply">When to apply</h2>
+<p>Build an adapter when all three hold:</p>
+<ul>
+<li>An agent fails at an important step for lack of a tool (not lack of knowledge — lack of
+  knowledge belongs in <a href="05-knowledge-and-instructions.html">guide 05</a>).</li>
+<li>No existing tool covers it after a real search.</li>
+<li>The adapter is smaller than the recurring workaround it replaces.</li>
+</ul>
+<h2 id="implementation">Implementation</h2>
+<ol>
+<li><strong>Write the gap as one sentence.</strong> "Agents cannot attach a video to a PR they created."
+   Keep the intended operation precise enough to verify.</li>
+<li><strong>Search for reuse before building.</strong> Check the CLI and API surface first — check what your selected tools actually expose. Prefer an
+   existing integration; build only the missing piece.</li>
+<li><strong>Choose the smallest service shape.</strong> A local wrapper may suffice. For an authorized shared uploader, reuse existing authentication and storage, expose only the needed operation, and return the result in a predictable shape.</li>
+<li><strong>Write the skill so the agent can use it unaided</strong>: when to use it, the exact call, the existing credential-loader name (no secret values), actual size limits, and a result example.</li>
+<li><strong>Protect the key.</strong> Distribute per-machine, scope it to upload-only, allow rotation, and
+   never put it in the repository or the skill text.</li>
+<li><strong>Test inside the agent.</strong> Run the blocked operation through the actual selected agent tool route. The acceptance test is the agent
+   completing the step end to end without a hint.</li>
+<li><strong>Set a deletion plan.</strong> A one-off service with an auth key is a liability the day the
+   workflow changes. Note who owns it and when it should be retired.</li>
+</ol>
+<h2 id="concrete-example">Concrete example</h2>
+<p>Illustrative skill frontmatter and body shape (written for this guide, <strong>not executed
+against any real service</strong>; the video's service URL and key are Theo's, and none of this
+describes a deployed system here):</p>
+<pre><code class="language-markdown">---
+name: pr-media-upload
+description: Upload a video or image so it can be linked in a PR description. Use when an
+  agent must attach media evidence to a pull request and no CLI route exists.
+---
+
+Upload with: curl --fail-with-body --data-binary &quot;@artifact.png&quot; \
+  -H &quot;Authorization: Bearer $MEDIA_UPLOAD_KEY&quot; \
+  &quot;https://your-authorized-host.example/upload&quot;
+The response is {&quot;url&quot;: &quot;...&quot;}. Return the URL; attach it to a PR only within the requested publishing scope.
+Limit: document the actual configured limit. Never upload files containing secrets.
+</code></pre>
+<h2 id="acceptance">Acceptance</h2>
+<ul>
+<li>An agent, given only the skill, completes the blocked step with no extra hints.</li>
+<li>The service rejects unauthenticated and oversized uploads, and the key rotates without
+  client code changes.</li>
+<li>The workflow it replaces no longer needs a human.</li>
+<li>A runbook exists for rebuilding the service from its repository.</li>
+</ul>
+<h2 id="failure-modes-and-maintenance">Failure modes and maintenance</h2>
+<ul>
+<li><strong>Shadow infrastructure.</strong> One-off services outlive their purpose. Track them in a list
+  with owners and review dates, like any other service.</li>
+<li><strong>Key leakage.</strong> An upload endpoint with a widely copied key is an abuse magnet. Rate
+  limit, scope to upload-only, and monitor volume.</li>
+<li><strong>Skill rot.</strong> When a native route replaces it, migrate callers, verify results, and retire the adapter through the existing recovery process.</li>
+<li><strong>Over-building.</strong> Reassess extra state and endpoints against the actual capability gap; endpoint count alone does not determine quality.</li>
+<li><strong>Boundary honesty.</strong> Build-versus-reuse applies inside your authorization: this pattern
+  is for capability gaps in your own workflow, evaluated on evidence, with no vendor switch
+  by default and nothing adopted from a sponsor segment.</li>
+</ul><p class="source-note"><a href="06-tool-adapters.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

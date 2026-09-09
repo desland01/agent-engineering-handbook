@@ -1,0 +1,8 @@
+# Repository examples: vocabulary and native instruction delivery
+
+- **Durable domain language:** Matt's [CONTEXT.md](https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/CONTEXT.md) defines domain nouns and relationships. [PR #1591](https://github.com/mattpocock/course-video-manager/pull/1591), open at inspection, proposes moving volatile implementation details beside the code while preserving domain language and ADR rationale. It is a proposal, not the merged state.
+- **Instructions can be stale:** [PR #1601](https://github.com/mattpocock/course-video-manager/pull/1601) describes targeted local checks backed by exhaustive CI but explicitly omits the test workflow from the change. The claimed workflow is absent at the inspected head. Written guidance must be checked against actual invocation.
+- **Preserve user invocation:** T3 [PR #9128](https://github.com/pingdotgg/t3code/pull/9128) repairs provider-native skill dispatch. Boris's [open PR #87395](https://github.com/anthropics/claude-code/pull/87395) proposes the supported metadata key for keeping a skill manually invocable while excluding model invocation. Both concern specific runtime versions; neither establishes how any particular agent runtime loads skills.
+- **Keep the concept semantic:** Matt's [PR #1608](https://github.com/mattpocock/course-video-manager/pull/1608) removes a derived numeric prefix that had contaminated a title and created renumbering work. Sometimes the durable fix is simplifying the domain model rather than teaching agents to synchronize redundant state.
+
+The inspected Matt head is `4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8`; source and PR states were collected on September 9, 2026.

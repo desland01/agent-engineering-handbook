@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>02 — One critical journey test beats broad shallow coverage · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="02-one-critical-journey-test-beats-broad-shallow-coverage">02 — One critical journey test beats broad shallow coverage</h1>
+<p>Practical guide for a team whose product has one path that must never silently break.
+Companions: <a href="01-recurring-failures.html">01</a> · <a href="03-preview-workspaces.html">03</a> ·
+<a href="04-ci-feedback.html">04</a> · <a href="05-knowledge-and-instructions.html">05</a> ·
+<a href="06-tool-adapters.html">06</a> · <a href="07-team-learning.html">07</a>.</p>
+<p>Source: <a href="https://www.youtube.com/watch?v=xmGY276gEFY">Theo's video</a>. Quotes are from that
+video; Boris quotes are Boris as quoted by Theo.</p>
+<h2 id="the-idea-and-where-it-comes-from">The idea and where it comes from</h2>
+<p>Theo tells his Twitch story at
+<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=239s">t=239s</a>: an end-to-end test where two
+bots in separate Playwright browsers, both signed in with stored cookies, joined a random
+live channel. One sent a chat message; the other asserted the message actually appeared and
+rendered for the recipient. He calls it super simple and says it caught failures before
+almost anything else did. The design points worth copying:</p>
+<ul>
+<li><strong>Two independent clients.</strong> Sender and receiver are separate browser instances, so the
+  test exercises the full delivery path, not one client's local state.</li>
+<li><strong>Assertion at the recipient's visible render</strong>, not at the send API's 200 response.</li>
+<li><strong>Critical outcome over coverage count.</strong> One test protecting the revenue or trust path
+  is worth more than broad shallow checks.</li>
+</ul>
+<p><strong>Not part of the Twitch story.</strong> The deterministic run-unique message data is this guide's
+own adaptation, not something Theo described; it is recommended here so an assertion can
+only match what the current run sent.</p>
+<p><strong>Suggested (not demonstrated in the video):</strong> everything below — the deterministic-data
+adaptation, the retry/visibility settings, the selection procedure, the acceptance list.</p>
+<h2 id="when-to-apply">When to apply</h2>
+<p>Apply when the product has journeys where breakage means lost money, lost messages, or
+lost trust — send-and-receive, checkout, publish, login. Risk chooses scope, not a count:
+cover as few or as many journeys as the cost of their breakage justifies.</p>
+<h2 id="implementation">Implementation</h2>
+<ol>
+<li><strong>Name the outcome in one sentence.</strong> "A message sent by user A renders in user B's
+   window." If you cannot, you have chosen a feature, not a journey.</li>
+<li><strong>Set up two isolated contexts.</strong> Two Playwright browser contexts (not tabs), each with
+   its own account. Full isolation avoids cookie bleed between sender and receiver.</li>
+<li><strong>Make the data deterministic.</strong> Generate a run-unique marker, for example
+   <code>e2e-${Date.now()}-${process.pid}</code>. Assert on the marker only. (This guide's
+   adaptation, not from the video.)</li>
+<li><strong>Assert at the receiver's rendered output.</strong> Wait on the marker appearing in the
+   receiving context's DOM, not on the send response.</li>
+<li><strong>Make flakiness visible instead of retried into invisibility.</strong> Playwright distinguishes
+   <code>passed</code>, <code>flaky</code>, and <code>failed</code> outcomes
+   (<a href="https://playwright.dev/docs/test-retries">test retries</a>). A flaky result means the
+   test failed on a first attempt; treat <code>flaky</code> as an alert, not a pass. Note that
+   <code>retries: 0</code> (the default) makes every first-attempt failure surface as <code>failed</code>;
+   enabling retries is how you get the distinct <code>flaky</code> signal
+   (<a href="https://playwright.dev/docs/test-retries">docs</a>).</li>
+<li><strong>Record evidence.</strong> Configure <code>video: "retain-on-failure"</code> and
+   <code>trace: "retain-on-failure"</code> in
+   <a href="https://playwright.dev/docs/test-configuration"><code>use</code></a>. Per the
+   <a href="https://playwright.dev/docs/videos">video docs</a>, <code>retain-on-failure</code> records every run
+   and removes successful ones, and video is saved on context close; per the
+   <a href="https://playwright.dev/docs/trace-viewer">trace docs</a>, <code>retain-on-failure</code> does not
+   require retries, while <code>on-first-retry</code> does.</li>
+<li><strong>Run it in CI, and on a schedule only where that is already authorized.</strong> Production-like
+   scheduled runs against a real environment need existing authorization for that access;
+   this guide does not create a new recurring start.</li>
+</ol>
+<p>Sketch (illustrative shape; selectors, URL, and auth state are placeholders and nothing
+here was executed against a real product). Because this sketch creates contexts manually
+with <code>browser.newContext()</code>, it does <strong>not</strong> inherit the Playwright Test <code>baseURL</code>,
+<code>trace</code>, or <code>video</code> options from config — those apply to contexts the test runner creates
+for you. So it supplies <code>baseURL</code> explicitly, records and stops a trace for each participant, and closes
+both contexts in <code>finally</code>. Artifacts go to <code>testInfo.outputPath()</code>. Note the policy
+difference: this sketch records traces and videos on <strong>every</strong> run; the production fixture policy
+described in step 6 is <code>retain-on-failure</code>, which discards artifacts from passing runs:</p>
+<pre><code class="language-ts">import { test, expect, type BrowserContext } from &quot;@playwright/test&quot;;
+
+test(&quot;message from A renders for B&quot;, async ({ browser }, testInfo) =&gt; {
+  const marker = `e2e-${crypto.randomUUID()}`;
+  const contexts: BrowserContext[] = [];
+  try {
+    for (const account of [&quot;a&quot;, &quot;b&quot;]) {
+      const context = await browser.newContext({
+        baseURL: &quot;https://staging.example.com&quot;, // replace with your test app
+        storageState: `auth/${account}.json`,
+        recordVideo: { dir: testInfo.outputPath(`video-${account}`) },
+      });
+      contexts.push(context);
+      await context.tracing.start({ screenshots: true, snapshots: true });
+    }
+    const [sender, receiver] = contexts;
+    const pageB = await receiver.newPage();
+    await pageB.goto(&quot;/channel/dev-room&quot;);
+    const pageA = await sender.newPage();
+    await pageA.goto(&quot;/channel/dev-room&quot;);
+    await pageA.getByRole(&quot;textbox&quot;).fill(marker);
+    await pageA.getByRole(&quot;button&quot;, { name: &quot;Send&quot; }).click();
+    await expect(pageB.getByText(marker, { exact: true })).toBeVisible();
+  } finally {
+    // Close every created context even if capture or the assertion fails.
+    const cleanup = await Promise.allSettled(contexts.map(async (context, i) =&gt; {
+      try {
+        await context.tracing.stop({ path: testInfo.outputPath(`trace-${i}.zip`) });
+      } finally {
+        await context.close(); // flushes its recorded videos
+      }
+    }));
+    for (const result of cleanup) {
+      if (result.status === &quot;rejected&quot;) console.error(&quot;Capture cleanup:&quot;, result.reason);
+    }
+  }
+});
+</code></pre>
+<h2 id="acceptance">Acceptance</h2>
+<ul>
+<li>The test fails when delivery is broken, and the failure is observable in a saved video
+  and trace without re-running anything.</li>
+<li>Marker uniqueness verified: the same assertion cannot pass from stale data.</li>
+<li>The flaky/passed/failed distinction is preserved in your CI reporting, and a <code>flaky</code>
+  result triggers a task rather than being counted as green.</li>
+<li>The journey it protects is named in the test title.</li>
+</ul>
+<h2 id="failure-modes-and-maintenance">Failure modes and maintenance</h2>
+<ul>
+<li><strong>Brittleness from selectors.</strong> Prefer roles and text over CSS chains; assert the stable user outcome while the implementation changes.</li>
+<li><strong>Retries hiding real breakage.</strong> Retries are a measurement tool. If a test goes flaky
+  weekly, fix the cause; do not raise the retry count.</li>
+<li><strong>Test-data pollution.</strong> Clean up created messages/accounts, or the test starts asserting
+  against its own history.</li>
+<li><strong>Coverage theater.</strong> Adding twenty more shallow tests does not replace this one. Keep it
+  the first test you fix when it breaks.</li>
+<li><strong>Credential hygiene.</strong> Stored <code>storageState</code> files are session credentials. Keep them in
+  a secret store, never in the repository.</li>
+</ul><p class="source-note"><a href="02-critical-journey-tests.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

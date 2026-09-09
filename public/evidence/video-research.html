@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Video extraction: Claude Code’s creator has some really good advice · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="../index.html">Start here</a><a href="../README.html">Handbook</a><a href="../prompts.html">Prompts</a><a href="../evidence.html">Frames</a><a href="../github-inspection.html">Theo</a><a href="../matt-pocock-inspection.html">Matt</a><a href="../boris-cherny-inspection.html">Boris</a><a href="../adoption.html">Adoption</a><a href="../validation.html">Validation</a></nav><h1 id="video-extraction-claude-codes-creator-has-some-really-good-advice">Video extraction: Claude Code’s creator has some really good advice</h1>
+<p>Source: <a href="https://www.youtube.com/watch?v=xmGY276gEFY">Theo’s video</a>. The full 595-line caption transcript was read from the local research workspace. Segment boundaries are approximate caption timestamps, not frame-accurate edit points. This is the integrated, corrected extraction.</p>
+<h2 id="source-map-chronological">Source map (chronological)</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Time (s)</th>
+<th>Speaker / type</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–112</td>
+<td>Theo, intro</td>
+<td>Nostalgia for editor/environment customization (VS Code, Atom, Sublime, T3 stack days); two audiences: passionate devs who miss that, and people already converted who can help friends. Intro runs 00:00–01:52.</td>
+</tr>
+<tr>
+<td>113–194</td>
+<td>Sponsor (Blacksmith), read by Theo</td>
+<td>Sponsor begins 01:53. CI-wait pain loop: agent PR → CI random failure → human copies log → agent fixes → wait again. Pitch: their CLI lets agents trigger CI, get logs, fix; faster-and-cheaper claim; Theo's company runs ~3,000 jobs/7 days, failure rates falling due to analytics. <strong>Sponsor performance claims unverified.</strong></td>
+</tr>
+<tr>
+<td>195–203</td>
+<td>Theo</td>
+<td>Transition to Boris's post; Theo likes how it catches his core points.</td>
+</tr>
+<tr>
+<td>204–226</td>
+<td>Boris (as quoted by Theo)</td>
+<td>03:24–03:46. The best engineers automated their work: editor automations, lint rules for repeat issues, end-to-end test suites so no manual smoke testing; these were the highest-leverage activities because they multiplied output.</td>
+</tr>
+<tr>
+<td>226–275</td>
+<td>Theo anecdote</td>
+<td>Twitch two-bot chat E2E test (two Playwright browser instances, pre-signed cookies; one sends a chat message, the other verifies it renders). Caught failures earlier than almost anything else.</td>
+</tr>
+<tr>
+<td>275–287</td>
+<td>Theo, commentary</td>
+<td>04:35–04:47. Theo's own take: he loves clever minimal problem-solving — assuring success of complex systems in the simplest ways — and thinks that mindset is what is valuable now and why some people enjoy this shift more than others. (Not Boris.)</td>
+</tr>
+<tr>
+<td>287–306</td>
+<td>Boris (as quoted by Theo), Theo agrees</td>
+<td>Infra/DX automation speeds you up and every agent you run; more automation → more output per unit time.</td>
+</tr>
+<tr>
+<td>306–352</td>
+<td>Theo</td>
+<td>Former pushback on preview environments; now code is built by agents anywhere (cloud, background tab, worktree, other machines), so previews + agent-tested previews + posting results matter.</td>
+</tr>
+<tr>
+<td>352–390</td>
+<td>Theo anecdote</td>
+<td>Agents couldn't attach videos to PRs (UI drag-drop only); built custom upload skill + Cloudflare service (files.tslop.org) with a key across his machines; machines upload and post the link in the PR. The file-upload SKILL.md is visible on screen at 06:23; contents confirmed by full-resolution visual inspection of the frame.</td>
+</tr>
+<tr>
+<td>390–418</td>
+<td>Theo</td>
+<td>Building one-off tools and skills is unexpectedly fun; tight feedback loop, cheap failures vs team env setup.</td>
+</tr>
+<tr>
+<td>418–448</td>
+<td>Theo (on Ryan Carniato, SolidJS creator)</td>
+<td>Ryan historically uninterested in env refinement; AI makes it feel worthwhile (he dislikes managing moving pieces).</td>
+</tr>
+<tr>
+<td>448–480</td>
+<td>Theo</td>
+<td>Teams more willing to fund this time now; 3 days on a Vim config used to be frowned on; he encourages his team to spend time on it.</td>
+</tr>
+<tr>
+<td>480–502</td>
+<td>Boris (as quoted by Theo)</td>
+<td>From 08:02. Moving things to code improves efficiency: fixing each occurrence costs tokens and misses cases; a lint rule, CI step, or routine automates the whole class of issue. This is what people mean by loops: automating types of busywork rather than one-off fixes.</td>
+</tr>
+<tr>
+<td>502–508</td>
+<td>Theo</td>
+<td>Notes this is not a new idea; engineers have done it a long time.</td>
+</tr>
+<tr>
+<td>508–566</td>
+<td>Theo elaboration</td>
+<td>From 08:30. Custom lint economics: a rule needing ~400 lines to check very specific oddities was never worth hand-writing, so those checks stayed manual code review. Cheaper code plus cheaper verification tests make per-project automations rational; agents now hit these problems far more often.</td>
+</tr>
+<tr>
+<td>566–596</td>
+<td>Boris (as quoted by Theo)</td>
+<td>Automation lets others contribute day one; claim that non-engineers contribute as effectively as engineers.</td>
+</tr>
+<tr>
+<td>596–631</td>
+<td>Boris (as quoted by Theo), Theo partially</td>
+<td>Domain knowledge in heads is the blocker; agents let it be encoded as infra beyond lint/types/tests — comments, skills, Claude.md rules, memories. A rejected PR is framed by Boris as a failure of automation. Theo likes the core, says Boris goes further than he would.</td>
+</tr>
+<tr>
+<td>631–674</td>
+<td>Theo</td>
+<td>Engineer's role: build systems (lint rules, structures, architectures, markdown files) so the codebase stays good and other people's agents get steered too.</td>
+</tr>
+<tr>
+<td>674–709</td>
+<td>Theo practice</td>
+<td>Dumb questions practice: new teammates asked to ask at least one dumb question per day; questions reveal what's unclear to newcomers; you're a beginner in a codebase only once. Described by Theo, not adopted here as a mandated quota.</td>
+</tr>
+<tr>
+<td>709–749</td>
+<td>Theo</td>
+<td>Approachable codebases let teams ship faster (motivation for T3 stack).</td>
+</tr>
+<tr>
+<td>749–783</td>
+<td>Theo advice</td>
+<td>Don't let agents write your Claude.md/agents.md — that's where human effort pays; watch agent behavior and adjust files/tooling/setup. Mentions planned T3 Code overhaul. Goal: feedback when things go wrong, not omniscient context.</td>
+</tr>
+<tr>
+<td>783–829</td>
+<td>Theo practice</td>
+<td>Steering files can encode pushback (if a recurring out-of-scope request comes in, stop and decline); chaining these makes outputs more consistent and reliable.</td>
+</tr>
+<tr>
+<td>831–869</td>
+<td>Theo analogy</td>
+<td>T3 composition: Prisma typed functions → tRPC → end-to-end type safety into UI hooks/components; that click used to happen every few years, now almost daily.</td>
+</tr>
+<tr>
+<td>869–925</td>
+<td>Boris (as quoted by Theo), Theo</td>
+<td>From ~14:33. Teams should write Claude.mds, review.mds, skills, docs enabling zero-additional-context agent work; convert domain knowledge to infra. Theo joke: his preferences are public, so naming Theo or Matt Pocock works.</td>
+</tr>
+<tr>
+<td>925–962</td>
+<td>Theo anecdote</td>
+<td>Talented developer (Ben) dumping favorite-book context into agent.md to steer model tone; small file changes meaningfully affect behavior.</td>
+</tr>
+<tr>
+<td>962–998</td>
+<td>Theo advice</td>
+<td>Don't pre-install every skill/plugin; use defaults, fix problems when found; don't touch instruction files before the first prompts; send minimal-context prompts to test what's needed.</td>
+</tr>
+<tr>
+<td>998–1008</td>
+<td>Theo advice</td>
+<td>A Claude.md/agents.md that's just a file map is a bad guide; steer toward success, not specific lines of code.</td>
+</tr>
+<tr>
+<td>1014–1080</td>
+<td>Theo (self-flagged speculation)</td>
+<td>These skills are how you become a senior developer; team-elevating work defines the next level; learnable solo or at a company; making environments where code lands well is a bigger skill than landing code — but that was always the staff path.</td>
+</tr>
+<tr>
+<td>1080–1116</td>
+<td>Theo</td>
+<td>Solo projects now exceed his own comprehension; builds systems so his agents (and his ADHD) don't get lost.</td>
+</tr>
+<tr>
+<td>1116–1151</td>
+<td>Theo outro</td>
+<td>Encouragement; enjoying building more than ever.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="read-log">Read-log</h2>
+<ul>
+<li>Read: <code>inputs/transcript.txt</code> in full (595 lines, 00:00–19:11). Coverage: complete; no sections skipped.</li>
+<li>Read during extraction: checked references ( ESLint custom rules, <code>gh run view</code> failed-log commands, Playwright config/video/trace/retries docs; notes no performance claims verified, sponsor is Blacksmith, no adoption recommendation from the ad).</li>
+<li>Not available during extraction: the Boris post URL (the post's content is known only through Theo's quotations).</li>
+<li>Visual evidence: the upload SKILL shown at 06:23 was inspected at full resolution. It names <code>FILE_HOST_TOKEN</code>, uses <code>curl --fail-with-body</code> over HTTP PUT, and specifies the public URL from the response body. This describes the skill file's contents only; it does not prove any real upload succeeded.</li>
+</ul>
+<h2 id="synthesis">Synthesis</h2>
+<p>The video is one argument in three layers. (1) Boris's post (quoted by Theo) says the classic highest-leverage engineer behaviors — automating your own work, encoding knowledge so others can contribute — are amplified by agents: automation now multiplies every agent, moving a fix class into code is better than per-occurrence fixes, and teams should write the instruction files, skills, and docs that let agents work with zero prompting context. (2) Theo agrees with the core and adds his own evidence and practices: the two-browser Twitch E2E test, preview environments for agent-built code, the custom file-upload tool adapter, custom lint economics, the dumb-questions practice, hand-authoring instruction files from observed agent behavior, steering-file pushback, minimal-context cold-start calibration, and steer-don't-map. (3) Theo explicitly demarcates where he thinks Boris overreaches: non-engineers contributing as effectively as engineers is, in his view, a reach, and knowledge-as-automation goes further than Theo would; the career claim is self-flagged as possibly a reach.</p>
+<p>The sponsor segment sits between the intro and the argument. Its durable, non-promotional content is the shape of the CI feedback loop (agent triggers CI, reads failed logs, fixes, re-runs — no human copy-paste hop) and the observation that loop latency, not model quality, is often the bottleneck in agent PR workflows.</p>
+<h2 id="high-value-distinctions">High-value distinctions</h2>
+<ul>
+<li><strong>Theo vs Boris-as-quoted-by-Theo vs sponsor.</strong> Boris's post is known only through Theo's reading; Theo editorializes it (agreeing, qualifying, joking about his own celebrity). The Blacksmith segment is an ad; its performance and cost claims and the ~3,000-jobs figure are sponsor claims, unverified. Speaker/type is recorded per segment in the source map.</li>
+<li><strong>Fix-class vs fix-each-time (480–510s) vs custom lint economics (508–566s).</strong> Boris's operational point, stated from 08:02: per-occurrence agent fixes spend tokens and miss cases; a rule/CI step/routine automates the <em>class</em>. Theo's separate economic addition, from 08:30: agents lower both the writing cost and the testing cost of custom rules, so problems formerly left to manual review become worth automating. These are two adjacent but distinct points and are separate entries in <code>tips.json</code>.</li>
+<li><strong>Enforcement vs steering (783–829s).</strong> Steering-file rules nudge behavior; lint rules, types, and CI enforce it. Theo's stated goal is feedback on wrong behavior, not omniscient context.</li>
+<li><strong>Inventory vs judgment in instruction files (998–1008s).</strong> A file map wastes the budget; behavioral guidance uses it.</li>
+<li><strong>Cold-start calibration vs speculative customization (962–998s).</strong> Run defaults with minimal context, observe failures, then add the minimum — the inverse of pre-installing skill/plugin collections.</li>
+<li><strong>Human-owned instructions vs agent-assisted authoring (749–783s).</strong> Theo's advice about not letting agents write his instruction files governs instruction ownership in his context. It is source material, not workspace authority; agent-assisted skill writing remains governed by this workspace's own rules, and this video does not override current user instructions.</li>
+<li><strong>Solo context loss (1080–1116s).</strong> Agent-generated solo codebases now exceed one person's recall, so the make-it-onboardable discipline that used to be a team concern applies to solo work too.</li>
+</ul>
+<h2 id="claims-not-to-treat-as-universal">Claims not to treat as universal</h2>
+<ol>
+<li><strong>Sponsor performance/cost claims</strong> (113–194s): Blacksmith faster/cheaper/better monitoring, ~3,000 jobs in 7 days, falling failure rates — unverified ad claims; do not adopt the vendor from the ad.</li>
+<li><strong>Non-engineers contributing as effectively as engineers</strong> (566–596s): Boris's claim; Theo calls it a reach and says not as effectively.</li>
+<li><strong>All domain knowledge can be encoded as infra; a rejected PR is a failure of automation</strong> (596–631s): Boris's framing; Theo says it goes further than he would.</li>
+<li><strong>Career causation</strong> (1014–1080s): that these skills are how you become senior, and a bigger skill than landing the code — Theo self-flags as speculative; employer recognition varies.</li>
+<li><strong>Now I get T3-like clicks almost daily</strong> (831–869s) and team-attitude claims (448–480s): anecdotal, no measurement.</li>
+<li><strong>The Twitch test, the upload skill, and the planned T3 Code overhaul</strong> (226–275s, 352–390s, 749–783s): Theo's specific implementations. The upload SKILL.md's on-screen contents at 06:23 (<code>FILE_HOST_TOKEN</code>, <code>curl --fail-with-body</code>, HTTP PUT, specifies the public URL from the response body) come from full-resolution visual inspection; that inspection does not prove a real upload succeeded. No claims about its endpoints or security model beyond that. Any fleet-wide key distribution would need its own credential review.</li>
+<li><strong>Public-preference name-dropping / book-context dumping</strong> (925–962s): works because of Theo's and Ben's specific situations; illustrative, not a recommended general technique.</li>
+<li><strong>The dumb-questions practice</strong> (674–709s): a cultural practice Theo describes for his teams; it is not adopted here as a daily quota or workspace rule.</li>
+</ol><p class="source-note"><a href="video-research.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>

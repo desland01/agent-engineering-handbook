@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Build better coding environments for agents · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav>
+  <header>
+    <h1>Build better coding environments for agents</h1>
+    <p class="lead">Start with a real failure or point of confusion. Build a small improvement that helps the next person or agent complete the same work with less correction.</p>
+    <div class="meta-row">
+      <div><span class="k">Difficulty</span><span class="v">advanced</span></div>
+      
+      <div><span class="k">For</span><span class="v">Developers improving agent reliability and the next contributor’s first experience</span></div>
+    </div>
+  </header><section class="quick-start"><p><strong>Explore the complete handbook</strong></p><ul><li><a href="README.html">All 13 guides, 19 video ideas and four portable skills</a></li><li><a href="evidence.html">12 timestamped screenshots</a></li><li><a href="github-inspection.html">Theo’s architecture and PRs</a> · <a href="matt-pocock-inspection.html">Matt’s course manager</a> · <a href="boris-cherny-inspection.html">Boris’s public code</a></li><li><a href="adoption.html">Adopt a skill or fold the methods into your own workflow</a></li></ul></section>
+
+  <section class="takeaways"><h3>What you'll have when you finish</h3><ul><li>Four standalone skills for recurring feedback, reproducible workspaces, context calibration and tool adapters.</li><li>Thirteen implementation guides, three repository investigations and a tested local lint example.</li><li>A timestamped evidence gallery separating visible demonstrations, narration and recommendations.</li></ul></section>
+
+  <h2>Procedure</h2>
+  
+      <section class="phase">
+        <header class="phase-head">
+          <h3>Convert repeat mistakes into feedback</h3>
+        </header>
+        <aside class="prereq"><strong>Before you start</strong><ul><li>A concrete rejected change or recurring failure; the existing lint/test setup</li></ul></aside>
+        <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Record the failure and the valid alternative</h4>
+          <p>Save the smallest example that reproduces the error. State the rule, its scope and a permitted example before choosing a tool.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> Avoid encoding personal guesses or treating every one-off mistake as a new policy.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Use the simplest existing check</h4>
+          <p>Choose an existing lint rule for syntax and imports, a type or schema for data shape, or a focused test for runtime outcomes. Write a custom rule only for the missing behavior.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A short configuration can prevent the same mistake without another service to maintain.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Prove the check detects the mistake</h4>
+          <p>Run the prohibited example with the check absent, enable it, and confirm rejection. Also run a permitted example and the relevant repository command.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A passing suite alone does not show that the new check catches its intended failure.</p>
+          
+        </div>
+      </li></ol>
+      </section>
+      <section class="phase">
+        <header class="phase-head">
+          <h3>Test the critical result across two sessions</h3>
+        </header>
+        <aside class="prereq"><strong>Before you start</strong><ul><li>An isolated test environment with two test identities</li></ul></aside>
+        <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Pick the outcome the product promises</h4>
+          <p>For messaging, user A sends a unique message and user B must see it rendered. For a lead system, submission must create a visible lead for the operator.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> The final visible result exercises more of the useful path than a button click assertion.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Separate the sender from the receiver</h4>
+          <p>Use independent authenticated browser contexts, isolated test records and unique content. Give the receiver a state-based assertion instead of a fixed sleep.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A shared session or stale message can produce a false pass.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Keep diagnostic evidence when it fails</h4>
+          <p>Retain screenshots, trace, logs and the tested revision. Check the evidence and distinguish a retry pass from a clean first-run pass.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A useful failure explains the problem and prevents repeated manual investigation.</p>
+          
+        </div>
+      </li></ol>
+      </section>
+      <section class="phase">
+        <header class="phase-head">
+          <h3>Give each agent a reproducible environment</h3>
+        </header>
+        <aside class="prereq"><strong>Before you start</strong><ul><li>An existing repository and its supported development commands</li></ul></aside>
+        <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Make the first result reproducible</h4>
+          <p>Record runtime versions, locked dependency install, environment variable names, seed command, start command and one health check. Keep credential values in the existing loader.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> Cold-start agents need the same working prerequisites as a new teammate.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Bind the preview to the change</h4>
+          <p>Give concurrent changes isolated workspaces and test data. Record which revision built the preview and verify readiness before browser tests.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A green result on another revision cannot validate the proposed change.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Return useful evidence with the result</h4>
+          <p>Return the preview address, revision, scenario, outcome and artifact paths. Record gaps such as missing test authentication.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> The next person can understand and reproduce what was checked.</p>
+          
+        </div>
+      </li></ol>
+      </section>
+      <section class="phase">
+        <header class="phase-head">
+          <h3>Close the CI feedback loop</h3>
+        </header>
+        <aside class="prereq"><strong>Before you start</strong><ul><li>Access to the project’s existing CI logs</li></ul></aside>
+        <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Retrieve the failing job directly</h4>
+          <p>Record the workflow run, attempt, commit and failing step. Read the failed logs with the project’s available CLI or API.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> Manual copying of errors into every prompt adds delay and loses context.</p>
+          
+      <figure class="shot">
+        <div class="shot-wrap">
+          <img src="screenshots/02-44-ci-feedback.jpg" alt="Example workflow history: connect the failed run, timing and revision. Sponsored product footage." loading="lazy" />
+          <svg class="ann" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            
+          </svg>
+        </div>
+        <figcaption>Example workflow history: connect the failed run, timing and revision. Sponsored product footage.</figcaption>
+      </figure>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Choose a repair from the failure evidence</h4>
+          <p>Separate application defects, flaky assertions and environment failures. Reproduce the smallest relevant failure locally when possible, then rerun the authorized check.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> Repeatedly rerunning an unchanged failure provides little new information.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Track time to an accepted change</h4>
+          <p>Use observed queue time, run time, retries and correction effort to choose the next improvement. Keep vendor pricing and speed claims separate from measurements.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> The useful measure is reliable delivery, including repair work.</p>
+          
+        </div>
+      </li></ol>
+      </section>
+      <section class="phase">
+        <header class="phase-head">
+          <h3>Encode only the knowledge the task needs</h3>
+        </header>
+        <aside class="prereq"><strong>Before you start</strong><ul><li>An observed misunderstanding and the project’s current decisions</li></ul></aside>
+        <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Observe a realistic task with normal context</h4>
+          <p>Use the actual task and existing instructions. Note what the agent could discover and where it made a wrong decision.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> There is no need to fill every context file before observing a real gap.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Put the missing knowledge in the right place</h4>
+          <p>Use comments for local rationale, tests for outcomes, types for shape, a skill for a conditional method and root instructions for broad project decisions.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> Knowledge is easier to maintain when it sits near its purpose.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Check the changed decision and keep human ownership</h4>
+          <p>Make the smallest authorized guidance change and inspect selected loading when affected. Preserve originals and later edits; retain uncertain expertise inactive during migration. Use a behavioral probe only when it resolves a real uncertainty.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> An agent can help draft instructions while the person retains project decisions.</p>
+          
+        </div>
+      </li></ol>
+      </section>
+      <section class="phase">
+        <header class="phase-head">
+          <h3>Bridge a proven tool gap</h3>
+        </header>
+        <aside class="prereq"><strong>Before you start</strong><ul><li>A concrete operation unavailable through existing tools</li></ul></aside>
+        <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Confirm what the agent cannot do</h4>
+          <p>Try the existing supported interface and record its failure. Check available artifact storage or upload transports before adding a service.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A missing instruction is different from a missing capability.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Specify a small input and output contract</h4>
+          <p>For an upload adapter, name the file input, existing authentication source, accepted response format, resulting URL and explicit failure states. Keep secrets out of instructions.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A reusable command with predictable output is easier for an agent to operate.</p>
+          
+      <figure class="shot">
+        <div class="shot-wrap">
+          <img src="screenshots/06-23-upload-skill.jpg" alt="Example upload skill: input, authentication source, command and response-URL contract. The shown endpoint belongs to the presenter." loading="lazy" />
+          <svg class="ann" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            
+                <rect x="12.4" y="52" width="78" height="13" class="ann-box" />
+                <text x="51.4" y="50" class="ann-label" text-anchor="middle">Authentication and result</text>
+              
+                <rect x="12.4" y="79" width="60" height="12" class="ann-box" />
+                <text x="42.4" y="77" class="ann-label" text-anchor="middle">Command contract</text>
+              
+          </svg>
+        </div>
+        <figcaption>Example upload skill: input, authentication source, command and response-URL contract. The shown endpoint belongs to the presenter.</figcaption>
+      </figure>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Verify through the actual agent route</h4>
+          <p>Test missing input, rejected authentication, server failure and successful output using local fixtures where possible. Verify authorized live delivery only at the requested boundary.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A curl example in a skill is not evidence that the agent can use the service.</p>
+          
+        </div>
+      </li></ol>
+      </section>
+      <section class="phase">
+        <header class="phase-head">
+          <h3>Turn newcomer confusion into improvements</h3>
+        </header>
+        <aside class="prereq"><strong>Before you start</strong><ul><li>A real onboarding question or repeated correction</li></ul></aside>
+        <ol class="steps">
+      <li class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Capture the first confusing moment</h4>
+          <p>Ask a newcomer or fresh agent to attempt a small real task. Record the question, the attempted action and the missing knowledge.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> A beginner notices assumptions that experienced maintainers no longer see.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Fix the shared obstacle</h4>
+          <p>Improve the error, command, example, documentation or architecture that caused the confusion. Use the smallest fitting change.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> The improvement should help the next contributor without requiring the same explanation.</p>
+          
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Keep improvements that reduce correction effort</h4>
+          <p>Compare comparable tasks before and after the change using completion, repeated questions and repair effort. Keep the result and useful limitations with the method.</p>
+          
+          <p class="why"><span class="why-label">Why:</span> Team effectiveness gives a better direction than maximizing code or rule counts.</p>
+          
+        </div>
+      </li></ol>
+      </section>
+
+  
+  <h2>Tips</h2><ul class="insights-list"><li>Automate the repeated problem only after you can describe the failure and a valid alternative.</li><li>Treat instructions as guidance; use executable boundaries for requirements that must be enforced.</li><li>Share the improvement through the smallest relevant method instead of requiring every skill for every task.</li></ul>
+  <h2>Further reading</h2><ul class="resources-list"><li><a href="evidence.html" target="_blank" rel="noopener">Timestamped evidence and screenshot gallery</a> <span class="badge">doc</span></li><li><a href="adoption.html" target="_blank" rel="noopener">Adopting the methods</a> <span class="badge">doc</span></li></ul>
+
+  <footer class="source-strip">
+    Source: <a href="https://www.youtube.com/watch?v=xmGY276gEFY" target="_blank" rel="noopener">video · Claude Code’s creator has some really good advice</a>
+  </footer>
+</main></body></html>

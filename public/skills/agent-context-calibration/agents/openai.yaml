@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Context Calibration"
+  short_description: "Place missing project knowledge where tasks need it"
+  default_prompt: "Use $agent-context-calibration to diagnose this observed context failure and improve the appropriate instruction, comment or guide."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Feedback Engineering"
+  short_description: "Turn recurring mistakes into checks with useful proof"
+  default_prompt: "Use $agent-feedback-engineering to turn this observed failure into the smallest reusable check and verify the bad and good cases."
+policy:
+  allow_implicit_invocation: true

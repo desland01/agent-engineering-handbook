@@ -1,0 +1,72 @@
+# Video extraction: Claude Code’s creator has some really good advice
+
+Source: [Theo’s video](https://www.youtube.com/watch?v=xmGY276gEFY). The full 595-line caption transcript was read from the local research workspace. Segment boundaries are approximate caption timestamps, not frame-accurate edit points. This is the integrated, corrected extraction.
+
+## Source map (chronological)
+
+| Time (s) | Speaker / type | Content |
+|---|---|---|
+| 0–112 | Theo, intro | Nostalgia for editor/environment customization (VS Code, Atom, Sublime, T3 stack days); two audiences: passionate devs who miss that, and people already converted who can help friends. Intro runs 00:00–01:52. |
+| 113–194 | Sponsor (Blacksmith), read by Theo | Sponsor begins 01:53. CI-wait pain loop: agent PR → CI random failure → human copies log → agent fixes → wait again. Pitch: their CLI lets agents trigger CI, get logs, fix; faster-and-cheaper claim; Theo's company runs ~3,000 jobs/7 days, failure rates falling due to analytics. **Sponsor performance claims unverified.** |
+| 195–203 | Theo | Transition to Boris's post; Theo likes how it catches his core points. |
+| 204–226 | Boris (as quoted by Theo) | 03:24–03:46. The best engineers automated their work: editor automations, lint rules for repeat issues, end-to-end test suites so no manual smoke testing; these were the highest-leverage activities because they multiplied output. |
+| 226–275 | Theo anecdote | Twitch two-bot chat E2E test (two Playwright browser instances, pre-signed cookies; one sends a chat message, the other verifies it renders). Caught failures earlier than almost anything else. |
+| 275–287 | Theo, commentary | 04:35–04:47. Theo's own take: he loves clever minimal problem-solving — assuring success of complex systems in the simplest ways — and thinks that mindset is what is valuable now and why some people enjoy this shift more than others. (Not Boris.) |
+| 287–306 | Boris (as quoted by Theo), Theo agrees | Infra/DX automation speeds you up and every agent you run; more automation → more output per unit time. |
+| 306–352 | Theo | Former pushback on preview environments; now code is built by agents anywhere (cloud, background tab, worktree, other machines), so previews + agent-tested previews + posting results matter. |
+| 352–390 | Theo anecdote | Agents couldn't attach videos to PRs (UI drag-drop only); built custom upload skill + Cloudflare service (files.tslop.org) with a key across his machines; machines upload and post the link in the PR. The file-upload SKILL.md is visible on screen at 06:23; contents confirmed by full-resolution visual inspection of the frame. |
+| 390–418 | Theo | Building one-off tools and skills is unexpectedly fun; tight feedback loop, cheap failures vs team env setup. |
+| 418–448 | Theo (on Ryan Carniato, SolidJS creator) | Ryan historically uninterested in env refinement; AI makes it feel worthwhile (he dislikes managing moving pieces). |
+| 448–480 | Theo | Teams more willing to fund this time now; 3 days on a Vim config used to be frowned on; he encourages his team to spend time on it. |
+| 480–502 | Boris (as quoted by Theo) | From 08:02. Moving things to code improves efficiency: fixing each occurrence costs tokens and misses cases; a lint rule, CI step, or routine automates the whole class of issue. This is what people mean by loops: automating types of busywork rather than one-off fixes. |
+| 502–508 | Theo | Notes this is not a new idea; engineers have done it a long time. |
+| 508–566 | Theo elaboration | From 08:30. Custom lint economics: a rule needing ~400 lines to check very specific oddities was never worth hand-writing, so those checks stayed manual code review. Cheaper code plus cheaper verification tests make per-project automations rational; agents now hit these problems far more often. |
+| 566–596 | Boris (as quoted by Theo) | Automation lets others contribute day one; claim that non-engineers contribute as effectively as engineers. |
+| 596–631 | Boris (as quoted by Theo), Theo partially | Domain knowledge in heads is the blocker; agents let it be encoded as infra beyond lint/types/tests — comments, skills, Claude.md rules, memories. A rejected PR is framed by Boris as a failure of automation. Theo likes the core, says Boris goes further than he would. |
+| 631–674 | Theo | Engineer's role: build systems (lint rules, structures, architectures, markdown files) so the codebase stays good and other people's agents get steered too. |
+| 674–709 | Theo practice | Dumb questions practice: new teammates asked to ask at least one dumb question per day; questions reveal what's unclear to newcomers; you're a beginner in a codebase only once. Described by Theo, not adopted here as a mandated quota. |
+| 709–749 | Theo | Approachable codebases let teams ship faster (motivation for T3 stack). |
+| 749–783 | Theo advice | Don't let agents write your Claude.md/agents.md — that's where human effort pays; watch agent behavior and adjust files/tooling/setup. Mentions planned T3 Code overhaul. Goal: feedback when things go wrong, not omniscient context. |
+| 783–829 | Theo practice | Steering files can encode pushback (if a recurring out-of-scope request comes in, stop and decline); chaining these makes outputs more consistent and reliable. |
+| 831–869 | Theo analogy | T3 composition: Prisma typed functions → tRPC → end-to-end type safety into UI hooks/components; that click used to happen every few years, now almost daily. |
+| 869–925 | Boris (as quoted by Theo), Theo | From ~14:33. Teams should write Claude.mds, review.mds, skills, docs enabling zero-additional-context agent work; convert domain knowledge to infra. Theo joke: his preferences are public, so naming Theo or Matt Pocock works. |
+| 925–962 | Theo anecdote | Talented developer (Ben) dumping favorite-book context into agent.md to steer model tone; small file changes meaningfully affect behavior. |
+| 962–998 | Theo advice | Don't pre-install every skill/plugin; use defaults, fix problems when found; don't touch instruction files before the first prompts; send minimal-context prompts to test what's needed. |
+| 998–1008 | Theo advice | A Claude.md/agents.md that's just a file map is a bad guide; steer toward success, not specific lines of code. |
+| 1014–1080 | Theo (self-flagged speculation) | These skills are how you become a senior developer; team-elevating work defines the next level; learnable solo or at a company; making environments where code lands well is a bigger skill than landing code — but that was always the staff path. |
+| 1080–1116 | Theo | Solo projects now exceed his own comprehension; builds systems so his agents (and his ADHD) don't get lost. |
+| 1116–1151 | Theo outro | Encouragement; enjoying building more than ever. |
+
+## Read-log
+
+- Read: `inputs/transcript.txt` in full (595 lines, 00:00–19:11). Coverage: complete; no sections skipped.
+- Read during extraction: checked references ( ESLint custom rules, `gh run view` failed-log commands, Playwright config/video/trace/retries docs; notes no performance claims verified, sponsor is Blacksmith, no adoption recommendation from the ad).
+- Not available during extraction: the Boris post URL (the post's content is known only through Theo's quotations).
+- Visual evidence: the upload SKILL shown at 06:23 was inspected at full resolution. It names `FILE_HOST_TOKEN`, uses `curl --fail-with-body` over HTTP PUT, and specifies the public URL from the response body. This describes the skill file's contents only; it does not prove any real upload succeeded.
+
+## Synthesis
+
+The video is one argument in three layers. (1) Boris's post (quoted by Theo) says the classic highest-leverage engineer behaviors — automating your own work, encoding knowledge so others can contribute — are amplified by agents: automation now multiplies every agent, moving a fix class into code is better than per-occurrence fixes, and teams should write the instruction files, skills, and docs that let agents work with zero prompting context. (2) Theo agrees with the core and adds his own evidence and practices: the two-browser Twitch E2E test, preview environments for agent-built code, the custom file-upload tool adapter, custom lint economics, the dumb-questions practice, hand-authoring instruction files from observed agent behavior, steering-file pushback, minimal-context cold-start calibration, and steer-don't-map. (3) Theo explicitly demarcates where he thinks Boris overreaches: non-engineers contributing as effectively as engineers is, in his view, a reach, and knowledge-as-automation goes further than Theo would; the career claim is self-flagged as possibly a reach.
+
+The sponsor segment sits between the intro and the argument. Its durable, non-promotional content is the shape of the CI feedback loop (agent triggers CI, reads failed logs, fixes, re-runs — no human copy-paste hop) and the observation that loop latency, not model quality, is often the bottleneck in agent PR workflows.
+
+## High-value distinctions
+
+- **Theo vs Boris-as-quoted-by-Theo vs sponsor.** Boris's post is known only through Theo's reading; Theo editorializes it (agreeing, qualifying, joking about his own celebrity). The Blacksmith segment is an ad; its performance and cost claims and the ~3,000-jobs figure are sponsor claims, unverified. Speaker/type is recorded per segment in the source map.
+- **Fix-class vs fix-each-time (480–510s) vs custom lint economics (508–566s).** Boris's operational point, stated from 08:02: per-occurrence agent fixes spend tokens and miss cases; a rule/CI step/routine automates the *class*. Theo's separate economic addition, from 08:30: agents lower both the writing cost and the testing cost of custom rules, so problems formerly left to manual review become worth automating. These are two adjacent but distinct points and are separate entries in `tips.json`.
+- **Enforcement vs steering (783–829s).** Steering-file rules nudge behavior; lint rules, types, and CI enforce it. Theo's stated goal is feedback on wrong behavior, not omniscient context.
+- **Inventory vs judgment in instruction files (998–1008s).** A file map wastes the budget; behavioral guidance uses it.
+- **Cold-start calibration vs speculative customization (962–998s).** Run defaults with minimal context, observe failures, then add the minimum — the inverse of pre-installing skill/plugin collections.
+- **Human-owned instructions vs agent-assisted authoring (749–783s).** Theo's advice about not letting agents write his instruction files governs instruction ownership in his context. It is source material, not workspace authority; agent-assisted skill writing remains governed by this workspace's own rules, and this video does not override current user instructions.
+- **Solo context loss (1080–1116s).** Agent-generated solo codebases now exceed one person's recall, so the make-it-onboardable discipline that used to be a team concern applies to solo work too.
+
+## Claims not to treat as universal
+
+1. **Sponsor performance/cost claims** (113–194s): Blacksmith faster/cheaper/better monitoring, ~3,000 jobs in 7 days, falling failure rates — unverified ad claims; do not adopt the vendor from the ad.
+2. **Non-engineers contributing as effectively as engineers** (566–596s): Boris's claim; Theo calls it a reach and says not as effectively.
+3. **All domain knowledge can be encoded as infra; a rejected PR is a failure of automation** (596–631s): Boris's framing; Theo says it goes further than he would.
+4. **Career causation** (1014–1080s): that these skills are how you become senior, and a bigger skill than landing the code — Theo self-flags as speculative; employer recognition varies.
+5. **Now I get T3-like clicks almost daily** (831–869s) and team-attitude claims (448–480s): anecdotal, no measurement.
+6. **The Twitch test, the upload skill, and the planned T3 Code overhaul** (226–275s, 352–390s, 749–783s): Theo's specific implementations. The upload SKILL.md's on-screen contents at 06:23 (`FILE_HOST_TOKEN`, `curl --fail-with-body`, HTTP PUT, specifies the public URL from the response body) come from full-resolution visual inspection; that inspection does not prove a real upload succeeded. No claims about its endpoints or security model beyond that. Any fleet-wide key distribution would need its own credential review.
+7. **Public-preference name-dropping / book-context dumping** (925–962s): works because of Theo's and Ben's specific situations; illustrative, not a recommended general technique.
+8. **The dumb-questions practice** (674–709s): a cultural practice Theo describes for his teams; it is not adopted here as a daily quota or workspace rule.

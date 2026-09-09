@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>Validation and provenance · Agent engineering</title><style>
+  :root {
+    --bg: #0b0b0f; --fg: #fafafa; --muted: #18181b; --muted-fg: #a1a1aa;
+    --primary: #ea580c; --primary-fg: #ffffff;
+    --border: #27272a; --card: #111114; --radius: 0.5rem;
+    --font-sans: Inter, system-ui, sans-serif; --font-display: Inter, system-ui, sans-serif; --font-mono: ui-monospace, SFMono-Regular, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); line-height: 1.65; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  main { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--fg); }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); margin: 0 0 16px; }
+  h2 { font-size: 1.65rem; margin: 64px 0 20px; }
+  h3 { font-size: 1.4rem; margin: 0; }
+  h4 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--primary); text-decoration: none; border-bottom: 1px solid transparent; }
+  a:hover { border-bottom-color: var(--primary); }
+  .eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-fg); margin-bottom: 12px; }
+  .lead { color: var(--muted-fg); font-size: 1.15rem; max-width: 68ch; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px; padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .meta-row > div { display: flex; flex-direction: column; gap: 2px; }
+  .meta-row .k { color: var(--muted-fg); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .meta-row .v { color: var(--fg); font-weight: 600; }
+  .takeaways { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 40px 0 0; }
+  .takeaways h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-fg); margin-bottom: 10px; }
+  .takeaways ul { margin: 0; padding-left: 20px; }
+  .takeaways li { margin: 6px 0; }
+  .phase { margin: 40px 0; background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) * 1.4); padding: 32px; }
+  .phase-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+  .phase-index { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
+  .prereq { background: color-mix(in oklab, var(--primary) 8%, var(--muted)); border-left: 3px solid var(--primary); padding: 14px 18px; margin: 16px 0 20px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.92rem; }
+  .prereq strong { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; color: var(--primary); }
+  .prereq ul { margin: 0; padding-left: 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+  .step { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 0; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; padding-top: 0; }
+  .step-num { grid-column: 1; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: var(--primary-fg); font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-top: 2px; }
+  .step-body { min-width: 0; }
+  .step-body p { margin: 6px 0; color: var(--fg); }
+  .ui { font-size: 0.88rem; color: var(--muted-fg); }
+  .ui-label, .why-label { font-weight: 600; color: var(--fg); margin-right: 4px; }
+  .why { margin: 10px 0 0; font-size: 0.92rem; padding: 10px 14px; background: var(--muted); border-radius: var(--radius); color: var(--muted-fg); }
+  .shot { margin: 16px 0 4px; }
+  .shot-wrap { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: #000; }
+  .shot-wrap img { display: block; width: 100%; height: auto; }
+  .shot-wrap .ann { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .ann-box { fill: none; stroke: #ea580c; stroke-width: 0.5; stroke-dasharray: 0; filter: drop-shadow(0 0 4px color-mix(in oklab, #ea580c 60%, transparent)); }
+  .ann-label { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 2.2px; font-weight: 600; fill: #ffffff; paint-order: stroke; stroke: #ea580c; stroke-width: 0.9; stroke-linejoin: round; }
+  .shot figcaption { font-size: 0.85rem; color: var(--muted-fg); margin-top: 8px; }
+  .tools-list, .resources-list, .insights-list { list-style: none; padding: 0; }
+  .tools-list > li, .resources-list > li { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .tools-list > li strong { display: block; margin-bottom: 2px; font-size: 1rem; }
+  .tools-list > li a { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted-fg); }
+  .insights-list > li { padding: 10px 0 10px 22px; position: relative; border-bottom: 1px solid var(--border); color: var(--fg); }
+  .insights-list > li::before { content: "→"; position: absolute; left: 0; top: 10px; color: var(--primary); font-weight: 700; }
+  .badge { display: inline-block; background: var(--muted); color: var(--muted-fg); padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.03em; margin-left: 6px; }
+  .source-strip { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted-fg); }
+  .source-strip a { color: var(--muted-fg); border-bottom: 1px dotted var(--muted-fg); }
+  @media print {
+    body { background: white; color: black; }
+    .phase, .takeaways { border: 1px solid #ddd; background: white; }
+    a { color: black; border-bottom: 1px solid #ccc; }
+  }
+
+  a { text-decoration: underline; text-underline-offset: 3px; }
+  .site-nav { display:flex; flex-wrap:wrap; gap:10px 20px; margin:0 0 32px; padding:0 0 18px; border-bottom:1px solid var(--border); font-size:.94rem; }
+  .site-nav a { color:var(--fg); }
+  p, li, td, th { overflow-wrap:anywhere; }
+  h3 { margin:28px 0 12px; }
+  .phase h3 { margin:0; }
+  h4 { margin:22px 0 8px; }
+  li { margin:6px 0; }
+  blockquote { margin:20px 0; padding:12px 20px; border-left:3px solid var(--primary); background:var(--card); }
+  code { font-family:var(--font-mono); font-size:.87em; background:var(--muted); padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; }
+  pre { padding:18px; border:1px solid var(--border); border-radius:8px; background:var(--card); overflow-x:auto; max-width:100%; }
+  pre code { background:none; padding:0; overflow-wrap:normal; }
+  .table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 28px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; min-width:580px; }
+  th,td { padding:12px; border:1px solid var(--border); text-align:left; vertical-align:top; }
+  th { background:var(--muted); }
+  figure { margin:24px 0 40px; }
+  figure img { display:block; width:100%; height:auto; border:1px solid var(--border); border-radius:8px; }
+  figcaption { margin-top:12px; color:var(--muted-fg); }
+  .source-note { margin-top:48px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted-fg); font-size:.9rem; }
+  .quick-start { padding:20px 24px; border:1px solid var(--border); border-radius:8px; margin:24px 0; }
+  .quick-start ul { margin-bottom:0; }
+  @media(max-width:600px) {
+    main { padding:28px 18px 56px; }
+    h1 { font-size:2rem; }
+    h2 { font-size:1.45rem; margin-top:40px; }
+    .phase { padding:20px 16px; }
+    .step { grid-template-columns:32px 1fr; gap:10px; }
+    .takeaways { padding:20px; }
+    .site-nav { gap:8px 16px; }
+  }
+  @media print {
+    :root { --fg:#111; --muted-fg:#444; --card:#fff; --muted:#eee; --border:#ccc; }
+    .site-nav { display:none; }
+    pre { white-space:pre-wrap; }
+    table { min-width:0; }
+  }
+</style></head><body><main><nav class="site-nav" aria-label="Handbook"><a href="index.html">Start here</a><a href="README.html">Handbook</a><a href="prompts.html">Prompts</a><a href="evidence.html">Frames</a><a href="github-inspection.html">Theo</a><a href="matt-pocock-inspection.html">Matt</a><a href="boris-cherny-inspection.html">Boris</a><a href="adoption.html">Adoption</a><a href="validation.html">Validation</a></nav><h1 id="validation-and-provenance">Validation and provenance</h1>
+<p>Research performed September 9, 2026. This page identifies what was actually checked and
+where an implementation claim remains limited.</p>
+<h2 id="sources-and-collection">Sources and collection</h2>
+<p>The source video is <a href="https://www.youtube.com/watch?v=xmGY276gEFY">xmGY276gEFY</a>, titled
+<em>Claude Code's creator has some really good advice</em>, published July 21, 2026 by Theo. Its
+duration is approximately 19 minutes 12 seconds. The complete captions were read; useful
+ideas were extracted and reconciled against timestamps and visible frames. Segment
+boundaries are approximate caption timestamps, not frame-accurate edit points.</p>
+<p>The downloaded 1920×1080 video has SHA-256
+<code>d81e3d3c29a6e02c9798e6fe37d362589e00d72ee4dcb95ab624f43e1a400944</code>. The video itself is
+not redistributed in this repository.</p>
+<p>For each frame, ffmpeg performed a timestamp seek and exported one JPEG:</p>
+<pre><code class="language-bash">ffmpeg -hide_banner -loglevel error -ss 383 \
+  -i source/xmGY276gEFY.mp4 \
+  -frames:v 1 -q:v 2 screenshots/06-23-upload-skill.jpg
+</code></pre>
+<p>(Paths above are relative; the extraction used a local copy of the video retained outside
+this repository.) All 12 frames were visually inspected at full resolution. <a href="evidence/frame-manifest.json">The frame
+manifest</a> records each command, timestamp, output hash and
+observation. The upload-skill screen at 06:23 is visible evidence of instructions, not
+proof that an upload succeeded.</p>
+<h2 id="repository-snapshots">Repository snapshots</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Inspected revision</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T3 Code</td>
+<td><code>6c583620ff7ad3235b135af7107c0543467eecfa</code></td>
+<td>Selected architecture, custom rules, launcher, tool adapters and PR evidence</td>
+</tr>
+<tr>
+<td>T3 Code at end of publication day</td>
+<td><code>23c18fda7a969634a30888e36b2da45f6d66a83b</code></td>
+<td>Historical instruction, lint and test configuration comparison</td>
+</tr>
+<tr>
+<td>Theo's Melee fork</td>
+<td><code>a276aeb70f9879204d891d967f1c9442523568e1</code></td>
+<td>Fork comparison, all 13 PR records, selected tools/native architecture and verifier execution</td>
+</tr>
+<tr>
+<td>Original Melee verifier</td>
+<td><code>035d9711623a32fbe891cffdcf44a91a550c1947</code></td>
+<td>Exact linked commit and its nine verifier tests</td>
+</tr>
+<tr>
+<td>Matt's Course Video Manager</td>
+<td><code>4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8</code></td>
+<td>Latest 100 PR records, selected diffs and source; no application execution</td>
+</tr>
+<tr>
+<td>Boris's json-schema-to-typescript</td>
+<td><code>5caacfc53671f9c891bb4e2a78bccc6190ed3ef4</code></td>
+<td>Compiler stages, validation, benchmarks, CI and selected PRs; no compiler test execution</td>
+</tr>
+</tbody>
+</table></div>
+<p>Moving PR/branch pages can change after this snapshot. Large PR file lists can be paginated
+or truncated; the reports do not claim complete line-by-line review of every change. PR
+performance figures remain author-reported measurements.</p>
+<h2 id="executed-behavioral-checks">Executed behavioral checks</h2>
+<p><strong>Lint demonstration.</strong> Node 22.22.3, ESLint 10.10.0. <code>npm run demo</code> succeeded after
+installing the lockfile dependencies. Without the restriction, the offending import passes
+with exit 0. With it, ESLint exits 1 and reports exactly the forbidden UI-to-database
+import; the approved API import produces no finding. The driver treats an execution/config
+error as failure. <a href="examples/recurring-rule/evidence/red.txt">Red evidence</a>, <a href="examples/recurring-rule/evidence/green.txt">green
+evidence</a>,
+<a href="examples/recurring-rule/README.html">reproduction instructions</a>.</p>
+<p><strong>Melee verifier.</strong> <code>python3 -m unittest discover -s tools/tests -p test_verify.py -v</code>
+passed at the original verifier snapshot (9 tests) and current fork (15 tests). A separate
+fixture gave both verifiers matching synthetic bytes and successful mocked build/diff
+commands, but incomplete source metrics. The initial version accepted it; the current
+version rejected it. <a href="evidence/melee-verifier-comparison.json">Comparison result</a>.</p>
+<p>The Melee build/diff subprocesses were mocked. No Nintendo assets were downloaded and no
+game, native renderer or performance benchmark was executed. These results establish
+verifier behavior only. The public applications, upload service and any private agent
+systems were not executed.</p>
+<h2 id="static-package-checks">Static package checks</h2>
+<p>The final edition checks, run locally against this repository:</p>
+<ul>
+<li>All Markdown links and image targets inside the rendered pages resolve to files that
+  exist; no link escapes the repository or, in <code>public/</code>, the generated root.</li>
+<li>Exactly 13 guide pages, 4 skill entrypoints and 12 full-size frames are present, with
+  all screenshot SHA-256 hashes matching the extraction manifest.</li>
+<li>The renderer (<code>build/render.py</code>, Markdown pinned to 3.10.3 in
+  <code>build/requirements.txt</code>) runs without network access and
+  produces byte-identical <code>public/</code> output on a second run (checked by directory
+  checksum before and after).</li>
+<li>The four <code>SKILL.md</code> files have valid Agent Skills frontmatter, and the
+  <code>agents/openai.yaml</code> files parse with a display name, short description and a default
+  prompt that references their own <code>$skill-name</code>.</li>
+</ul>
+<p>These are repository and renderer checks, not tests of the inspected third-party
+applications. See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> to rerun them.</p>
+<h2 id="what-is-not-claimed">What is not claimed</h2>
+<ul>
+<li>No full transcript or copy of the video is redistributed, and no third-party repository
+  is cloned into this repository.</li>
+<li>No deployed site, service or upload was exercised. The expected public URLs are recorded
+  in the delivery notes only until confirmed.</li>
+<li>Sponsor claims and universal career/productivity claims remain unverified.</li>
+<li>Qualifications in the guides (for example, that a skill shown on screen does not prove a
+  real upload succeeded) are carried through to the <a href="evidence/video-research.html">detailed
+  extraction</a> and the structured
+  <a href="evidence/video-tips.json">ideas file</a>.</li>
+</ul><p class="source-note"><a href="validation.md">Editable Markdown source</a> · Agent Engineering Handbook, September 9, 2026</p></main></body></html>
