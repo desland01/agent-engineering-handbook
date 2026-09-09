@@ -42,3 +42,35 @@ Update the relevant rule or ADR when an authorized architecture change makes it 
 Matt's [open PR #1591](https://github.com/mattpocock/course-video-manager/pull/1591) provides a concrete proposal: retain domain nouns and decisions in the glossary while relocating implementation details beside their code. It was still open at inspection, so this is a proposed change, not the current repository state. See [the Matt inspection](../matt-pocock-inspection.md) and [guide 11](11-domain-language-and-agent-apis.md).
 
 A useful outcome identifies the observed miss, the chosen carrier, the authorized wording or implementation change, and its actual status (drafted, applied, or verified as loaded where that was checked). Use [guide 07](07-team-learning.md) to gather the next useful observation from teammates.
+
+## Keep important files current from their sources
+
+Treat a recurring stale-file correction like another recurring engineering failure.
+First decide whether the file contains facts that can be derived or decisions that need
+human judgment. Automate the facts at the point where their sources change.
+
+| Important file | Source of truth | Fitting maintenance |
+|---|---|---|
+| Skill inventory and descriptions | Declared membership and each skill's frontmatter | Regenerate the inventory during publication |
+| API reference | The real schema or typed interface | Generate reference pages during the build |
+| Setup instructions | Supported launcher and package scripts | Link to those commands; exercise the first working result |
+| Architecture decisions | Accepted decisions and the code they explain | Update the affected explanation when that decision changes |
+| A published handbook | Editable Markdown and assets | Render and check links on deployment |
+
+For a mixed document, mark the generated section explicitly and preserve the surrounding
+human prose. Give the generator a fixed output list, deterministic inputs and one
+implementation shared by its write and check commands. Refuse malformed markers rather
+than overwriting a document whose ownership is unclear.
+
+The publication step should generate current output in an isolated copy and preserve the
+proposal. A release check should recompute the expected output and reject a stale finished
+artifact. Prove this with a known source change, the newly generated fact, a deliberately
+stale artifact that fails, and an unchanged second run. This checks the actual failure;
+it does not require tests asserting that policy sentences contain particular words.
+
+This handbook uses the same pattern: Vercel runs `build/render.py` and `build/check.py`
+from the editable sources on deployment. The optional GitHub workflow in
+`build/handbook-workflow.example.yml` detects stale committed pages, but is not installed
+in this research snapshot because the publishing token lacks workflow permission.
+Human ownership of meaning remains explicit; a scheduled language-model rewrite is not
+needed to keep generated facts current.
