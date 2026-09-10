@@ -86,6 +86,10 @@ actually dispatched. Check them while building, and let the pilot prove them:
   argument.
 - A relocated or edited plan needs a new plan id. Reusing the id after the first run blocks
   with `plan_changed_since_first_run`.
+- Read the release digest from the release the plan is bound to, never from the `current`
+  symlink. `current` moves; a capsule stamped with the newly selected release is refused by
+  the plan's own release as `release_bound: false`, and the refusal names the constant, not
+  the symlink that moved under you.
 - A checker reads only its own workspace. Copies are single files and each must be a declared
   artifact, so a worker's output *tree* can never reach the check. Give the worker one
   declared artifact carrying everything the check needs, and keep the static reference copy
