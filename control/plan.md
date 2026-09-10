@@ -182,6 +182,16 @@ Nothing in a row above waits on the row below. Everything visual passes the gate
 3. Guides' and skills' shared section headings: keep as document templates, or rewrite.
 4. Go on the runtime work (D1) and the `copy` authoring run (D2).
 5. The Higgsfield placement once the first set renders.
+6. **Final-review route for the Chart corrections.** The owner asked for an Opus subagent; no
+   Opus route exists in the fleet and native subagents are disabled. The review is running on
+   gpt-6-astra as the different route. Add an Opus route and rerun, or accept astra's review.
+7. **Publish the corrected Charts.** Two GLM workers' corrections land as proposals; they reach
+   workers only through `skill-publish` into a new release. Go, or hold.
+8. **Pilot First: combination or distinct Chart.** Core is at its cap of 50. The proposal folds
+   the method into `long-running-harness` at the point of dispatch. A distinct Chart means
+   naming the Core skill it replaces.
+9. **The domain.** `agent-engineering-handbook.dev` is the site address in every page now;
+   attaching it to the Vercel project and deploying is a production change awaiting go.
 
 ## 7. Risks, named
 
