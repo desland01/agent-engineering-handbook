@@ -167,10 +167,25 @@ banned "up to eight words", the limit the rule itself teaches.
 checker and its test suite, the coverage aid and the generator, so the deliverable outlives
 the release it was produced in.
 
-## Publication
+## The corrected Charts are selected
 
+September 10, 2026, resumed handoff. GLM reconciled the 17 changed files against the newer
+selected release, preserving its additional skills and all unrelated bytes. Every recorded
+before-line matched once; there were no conflicts. Native reconciliation run
+`238a6250-f6c4-48f2-9ef0-149415e78198` passed the fleet's model, plugin-inventory and exact
+Precise/Create Skill delivery checks. Authoring run
+`4bb1d360-8589-4214-9a93-eb358a098acd` produced the required byte-bound attestation.
 
+The existing publication mechanism admitted `handbook-heading-corrections`, with Core 50
+and domain 26 unchanged. Its digest is
+`b8816152a65afe9cdd1fbd9db6566bb85a115afc3bb332a48d3ad35a64708437`.
+Activation used the expected predecessor and exact candidate digest, and selected that
+release. The previous `skill-packs-20260910d` release remains intact for recovery.
 
-Corrected files are proposals. They reach workers only through `skill-publish --proposal DIR
---destination DIR` into a new release with this record as evidence; that step is the
-owner's call (plan.md §6).
+Native readback run `1e3234a3-bc51-4dfc-8eef-fd9fa1861c5a` successfully invoked the selected
+Explainer and quoted its corrected heading test. The runtime recorded the exact context
+hash and `normalized-arguments` delivery. The older fleet helper reports its byte-only
+Explainer comparison false because native invocation expands `$ARGUMENTS` to an empty string;
+inspection found that single expected substitution and no other body difference. Precise
+delivery, model identity and plugin inventory passed. This establishes selected native
+delivery for the sampled skill, not semantic application of every Chart.

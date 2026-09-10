@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+python3 build/check.test.py
 python3 build/check.py
 
 if command -v node >/dev/null 2>&1 && NODE_PATH=build/node_modules node -e "require.resolve('puppeteer')" >/dev/null 2>&1; then

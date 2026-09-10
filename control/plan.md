@@ -1,5 +1,25 @@
 # Getting the premium-tech design system going — plan of record, 2026-09-10
 
+## Resumed execution on September 10
+
+The instruction to read and execute the handoff resumed the ready work. Current delivery:
+
+| Work | Observed state |
+|---|---|
+| Domain and deployment | Live at `https://agent-engineering-handbook.dev`; Vercel production is READY. Desktop and mobile inspected, with no overflow or console/page errors. See `reviews/deployment.md`. |
+| Corrected Charts | Published and selected as `handbook-heading-corrections`; 17 files match the exact 28 reviewed line replacements. Prior release retained. Native Explainer delivery read back; see `reviews/chart-headings.md`. |
+| D3 local agent files | Ignored by Git and excluded from deployments; preserved on disk. |
+| Local preview | Running at `http://localhost:8000/`, serving this repository's `public/`. |
+| B3/B5 composition and motion | Fable run `b0df5bab-ecd7-470c-9784-99142faea53a` is active in the retained `skill-packs-20260910d` runtime, workspace `var/workspaces/fable-handbook-design`. No patch accepted or integrated yet. Connector timed out after 300 seconds; the retained run continued producing events, so no duplicate was launched. |
+| B4 graphic | Three prompts × two GPT Image 2.5 variants generated. All six have alpha transparency. Candidates and provider receipts are in session scratch `.scratch/handbook-graphic/`; placement and rendered review remain. |
+| B9 headings and upload copy | Astra run `d3718553-c2e5-40e0-99e6-ba1b104f5fe4` ended blocked: HTTP 429, all credentials for the requested route cooling down. No source changes or substitute route. |
+| C4 blind comparison | Still unrun; its requested Astra reviewer is currently unavailable with the same provider cooldown. |
+| D1 product runtime | The named shared runtime source still has 5,460 dirty entries; the handoff's clear-tree prerequisite is unmet. No patch applied there. |
+
+The remaining role-first drafts, Pilot First combination and whole-copy readoption have not
+been published by this resumed execution. Their existing proposals remain preserved below;
+the active Chart release above contains only the already reviewed heading corrections.
+
 Written 2026-09-10 from the day's feedback, in the order it arrived: the hubs were
 thin; the whole page was blocky; nineteen was homework; the type had no hierarchy; the
 scrollbars; the copy; the Higgsfield graphic never landed; the schema labels shipped as
