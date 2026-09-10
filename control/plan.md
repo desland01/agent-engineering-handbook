@@ -10,15 +10,18 @@ The instruction to read and execute the handoff resumed the ready work. Current 
 | Corrected Charts | Published and selected as `handbook-heading-corrections`; 17 files match the exact 28 reviewed line replacements. Prior release retained. Native Explainer delivery read back; see `reviews/chart-headings.md`. |
 | D3 local agent files | Ignored by Git and excluded from deployments; preserved on disk. |
 | Local preview | Running at `http://localhost:8000/`, serving this repository's `public/`. |
-| B3/B5 composition and motion | Fable run `b0df5bab-ecd7-470c-9784-99142faea53a` is active in the retained `skill-packs-20260910d` runtime, workspace `var/workspaces/fable-handbook-design`. No patch accepted or integrated yet. Connector timed out after 300 seconds; the retained run continued producing events, so no duplicate was launched. |
-| B4 graphic | Three prompts × two GPT Image 2.5 variants generated. All six have alpha transparency. Candidates and provider receipts are in session scratch `.scratch/handbook-graphic/`; placement and rendered review remain. |
+| B3/B5 composition and motion | Fable refinement `d8f5d038-e27c-4d8b-b4ce-36d51dbc1540` reviewed and integrated. Real build and 72 rendered checks pass, including the mobile report regression; final desktop/mobile renders and three study scroll reveals inspected. Native motion selected; no GSAP or pin. See `reviews/home-composition.md`. |
+| B4 graphic | Concurrent commit `67f3bd8` landed the 40,298-byte problem drawing and scroll reveal. Preserved during composition integration. This run also generated six transparent candidates, retained unused in `.scratch/handbook-graphic/`. |
 | B9 headings and upload copy | Astra run `d3718553-c2e5-40e0-99e6-ba1b104f5fe4` ended blocked: HTTP 429, all credentials for the requested route cooling down. No source changes or substitute route. |
 | C4 blind comparison | Still unrun; its requested Astra reviewer is currently unavailable with the same provider cooldown. |
 | D1 product runtime | The named shared runtime source still has 5,460 dirty entries; the handoff's clear-tree prerequisite is unmet. No patch applied there. |
 
-The remaining role-first drafts, Pilot First combination and whole-copy readoption have not
-been published by this resumed execution. Their existing proposals remain preserved below;
-the active Chart release above contains only the already reviewed heading corrections.
+The three method additions (Precise, Create Skill and Pilot First combined into Long-running
+Harness) completed native authoring, but publication refused `skill_content_library_bytes`.
+The selected library occupies 2,096,342 of 2,097,152 bytes; the proposal adds 11,063 bytes
+and exceeds the limit by 10,253. No allowance was raised or existing expertise removed.
+See `reviews/method-publication.md`. The role-first drafts and whole-copy readoption also
+remain staged. The active release contains only the reviewed heading corrections.
 
 Written 2026-09-10 from the day's feedback, in the order it arrived: the hubs were
 thin; the whole page was blocky; nineteen was homework; the type had no hierarchy; the

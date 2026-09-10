@@ -71,6 +71,18 @@ function serve(root) {
 // Runs in the page: returns overflow/scrollbar findings for one document.
 function inspectPage() {
   const problems = [];
+  const reports = document.querySelector('#reports');
+  if (reports) {
+    // A navigation class once hid the leading report on mobile. Test the
+    // reader's three destinations, independently of their layout classes.
+    for (const href of ['github-inspection.html', 'matt-pocock-inspection.html', 'boris-cherny-inspection.html']) {
+      const link = reports.querySelector('a[href="' + href + '"]');
+      const box = link && link.getBoundingClientRect();
+      if (!box || box.width === 0 || box.height === 0) {
+        problems.push('investigation destination hidden or missing — ' + href);
+      }
+    }
+  }
   const doc = document.documentElement;
   if (doc.scrollWidth > window.innerWidth) {
     problems.push(

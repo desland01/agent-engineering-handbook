@@ -520,20 +520,67 @@ def report_tile(r, prefix=''):
             f'<p class="when">{escape(r["blurb"])}</p><span class="dir">{escape(r["path"])}</span></li>')
 
 
-def report_row(r, n, prefix=''):
-    """One investigation on the home page as a routing row, in the form of the
-    guide shelf rows: a mono range, the title, and one line from the README."""
+def report_facts(idx, home):
+    """What the page can prove about each report: how many guides the home
+    shelves trace to it and how many words it runs to. Shared by the home
+    page's file cards and the investigations page's studies so the two never
+    disagree. Keyed by the report's Markdown path."""
+    guides_from = {}
+    for s in home['shelves']:
+        guides_from.setdefault(s['investigation'], []).extend(s['guides'])
+    facts = {}
+    for n, r in enumerate(idx['reports'], 1):
+        rel = r['path']
+        words = len((REPO / rel).read_text().split())
+        nguides = len(guides_from.get(rel, []))
+        facts[rel] = {
+            'n': n, 'guides': nguides, 'words': words,
+            'meta': (f'REPORT {n:02d} · {nguides} GUIDE{"S" if nguides != 1 else ""} CAME FROM THIS · '
+                     f'{words:,} WORD{"S" if words != 1 else ""}'),
+        }
+    return facts
+
+
+def report_card(r, facts, primary=False, prefix=''):
+    """One investigation on the home page as a wired file card: the authored
+    diagram at a size that reads, the title, one line from the README, and the
+    mono metadata the renderer computed. The report most of the guides came
+    from takes the primary card (the whole top row on wide screens, twice a
+    companion's width), so 10 / 2 / 1 is visible as space rather than implied
+    by three equal boxes. The modifier is report-specific, `file-primary`:
+    the header's section navigation owns the bare `primary` class, which is
+    hidden on narrow screens and set as mono labels, and sharing it hid the
+    leading report on phones and set its title as navigation on desktop."""
     kicker = r['blurb'].split(' — ')[0].split(',')[0].rstrip('.').strip()
-    return (f'<li><a href="{escape(prefix + r["path"][:-3] + ".html")}">'
-            f'<span class="range">Report {n:02d}</span>'
+    return (f'<li class="file{" file-primary" if primary else ""}"><a href="{escape(prefix + r["path"][:-3] + ".html")}">'
+            f'<span class="art" aria-hidden="true">{INVESTIGATIONS[r["path"]]}</span>'
             f'<span class="t">{escape(r["title"])}</span>'
-            f'<span class="k">{escape(kicker[0].lower() + kicker[1:])}</span></a></li>')
+            f'<span class="k">{escape(kicker[0].lower() + kicker[1:])}</span>'
+            f'<span class="meta">{escape(facts["meta"])}</span></a></li>')
 
 
-def band_head(label, heading_id, heading, description):
+def shelf_row(s_, report, prefix=''):
+    """One source shelf on the home page as a directory row inside the
+    contracted lane: the guide range, the shelf's title with its count and
+    investigation, and one accent stage mark per guide, so 8 / 2 / 2 / 1 is
+    read as length rather than as four equal rows."""
+    ns = s_['guides']
+    span = f'Guide {ns[0]}' if len(ns) == 1 else f'Guides {ns[0]}–{ns[-1]}'
+    marks = ''.join('<i></i>' for _ in ns)
+    return (f'<li><a href="{escape(prefix)}guides.html#{escape(s_["id"])}">'
+            f'<span class="range">{span}</span>'
+            f'<span class="body"><span class="t">{escape(s_["title"])}</span>'
+            f'<span class="k">{len(ns)} {"guide" if len(ns) == 1 else "guides"} · {escape(report["title"])}</span></span>'
+            f'<span class="marks" aria-hidden="true">{marks}</span></a></li>')
+
+
+def band_head(label, heading_id, heading, description, form=''):
     # No eyebrow above the heading (owner rule, 2026-09-10): the label that used
     # to sit in a mono pill here is dropped; the heading carries the section.
-    return (f'<div class="band-head">'
+    # `form` varies the head's reading axis: 'split' puts the description
+    # across from the heading on the same line; 'centered' centres both.
+    cls = ' ' + form if form else ''
+    return (f'<div class="band-head{cls}">'
             f'<h2 id="{heading_id}">{escape(heading)}</h2><p>{inline(description)}</p></div>')
 
 
@@ -570,13 +617,12 @@ def landing(idx, home, frames):
     row = ''.join(idea_tile(i) for i in idx['ideas'])
     skills = ''.join(skill_tile(sk) for sk in idx['skills'])
     report_by_path = {r['path']: r for r in idx['reports']}
-    shelves = ''.join(
-        f'<li><a href="guides.html#{escape(s_["id"])}"><span class="range">'
-        f'{"Guide " + s_["guides"][0] if len(s_["guides"]) == 1 else "Guides " + s_["guides"][0] + "–" + s_["guides"][-1]}</span>'
-        f'<span class="t">{escape(s_["title"])}</span>'
-        f'<span class="k">{len(s_["guides"])} {"guide" if len(s_["guides"]) == 1 else "guides"} · {escape(report_by_path[s_["investigation"]]["title"])}</span></a></li>'
-        for s_ in home['shelves'])
-    reports = ''.join(report_row(r, n) for n, r in enumerate(idx['reports'], 1))
+    shelves = ''.join(shelf_row(s_, report_by_path[s_['investigation']]) for s_ in home['shelves'])
+    # The report most of the guides trace to takes the primary card; the
+    # renderer decides from the shelves, not from a hand-picked index.
+    facts = report_facts(idx, home)
+    lead_report = max(idx['reports'], key=lambda r: facts[r['path']]['guides'])
+    reports = ''.join(report_card(r, facts[r['path']], primary=(r is lead_report)) for r in idx['reports'])
     frames_line = ''.join(f'<li><a href="evidence.html#frame-{f["seconds"]}">{escape(f["timestamp"])}</a></li>' for f in frames)
 
     closing_links = [('README.md', 'Handbook index'), ('adoption.md', 'Adopting a skill'), ('prompts.md', 'Task prompts'),
@@ -616,27 +662,29 @@ def landing(idx, home, frames):
 
 <section class="band" id="ideas" aria-labelledby="ideas-h"><div class="wrap">
   {band_head('The nineteen ideas', 'ideas-h', home['ideas_heading'], home['ideas_band'])}
+</div><div class="bleed">
   <div class="ideas-row" data-row="of" tabindex="0" role="region" aria-label="The nineteen ideas, in order">
     <ol class="ideas track" role="list">{row}</ol>
   </div>
+</div><div class="wrap">
   <p class="route">{more('ideas.html', f'All {counts["ideas"]}, sorted by what is behind them')}</p>
 </div></section>
 
 <section class="band" id="skills" aria-labelledby="skills-h"><div class="wrap">
-  {band_head('Portable skills', 'skills-h', home['skills_heading'], home['skills_description'])}
-  <ul class="tiles cards skills" role="list">{skills}</ul>
+  {band_head('Portable skills', 'skills-h', home['skills_heading'], home['skills_description'], 'split')}
+  <ul class="lanes skills" role="list">{skills}</ul>
 </div></section>
 
-<section class="band" id="guides" aria-labelledby="guides-h"><div class="wrap">
+<section class="band" id="guides" aria-labelledby="guides-h"><div class="wrap"><div class="lane">
   {band_head('Implementation', 'guides-h', 'Find a guide for your next change', 'Thirteen guides grouped by source, each with a method, fitting use cases and verification limits.')}
-  <ul class="shelves" role="list">{shelves}</ul>
+  <ul class="directory" role="list">{shelves}</ul>
   <p class="route">{more('guides.html', f'All {counts["guides"]} guides')}</p>
-</div></section>
+</div></div></section>
 
 <section class="band" id="reports" aria-labelledby="reports-h"><div class="wrap">
-  {band_head('Evidence', 'reports-h', home['reports_heading'], home['reports_description'])}
-  <ul class="shelves reports" role="list">{reports}</ul>
-  <p class="route">{more('investigations.html', f'All {counts["reports"]} investigations')}</p>
+  {band_head('Evidence', 'reports-h', home['reports_heading'], home['reports_description'], 'centered')}
+  <ol class="files" role="list">{reports}</ol>
+  <p class="route centered">{more('investigations.html', f'All {counts["reports"]} investigations')}</p>
 </div></section>
 
 <section class="band" id="frames" aria-labelledby="frames-h"><div class="wrap">
@@ -750,19 +798,12 @@ def investigations_index(idx, home):
     full write-up. Findings copy lives in home.json so it stays editable."""
     hub = home['hubs']['investigations']
     findings = hub['findings']
-    # Guides per report: the union of the home-page shelves that name it.
-    guides_from = {}
-    for s in home['shelves']:
-        guides_from.setdefault(s['investigation'], []).extend(s['guides'])
+    facts = report_facts(idx, home)
 
     studies = []
     for n, r in enumerate(idx['reports'], 1):
         rel = r['path']
-        text = (REPO / rel).read_text()
-        words = len(text.split())
-        nguides = len(guides_from.get(rel, []))
-        meta = (f'REPORT {n:02d} · {nguides} GUIDE{"S" if nguides != 1 else ""} CAME FROM THIS · '
-                f'{words:,} WORD{"S" if words != 1 else ""}')
+        meta = facts[rel]['meta']
         items = ''.join(f'<li><span class="ix" aria-hidden="true">[{i:02d}]</span>{escape(t)}</li>'
                         for i, t in enumerate(findings[rel], 1))
         studies.append(

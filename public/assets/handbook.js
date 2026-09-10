@@ -177,8 +177,12 @@
   // A card inside a horizontal row can sit off screen sideways for ever, so a
   // vertical observer would never reveal it; the row reveals as one unit and
   // its cards are excluded.
+  // The home page's skill lanes, guide directory rows and report file cards
+  // reveal one by one like the tiles they replaced; the scroll-driven marks
+  // and wire inside them are CSS and need nothing from here.
   var REVEAL = '.band-head, .section-head, .tiles > li, .ideas:not(.track) > li, .shelves > li, .study, .tier, ' +
                '.hub-next, .pick li, .gallery .frame, .guide-seq, .study .findings > li, .ledger li, ' +
+               '.lanes > li, .directory > li, .files > li, ' +
                '.ideas-row, .track-row';
   function reveals() {
     if ((reduced && reduced.matches) || !('IntersectionObserver' in window)) { return; }

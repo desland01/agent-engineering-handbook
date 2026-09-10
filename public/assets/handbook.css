@@ -253,7 +253,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .pick ol { list-style: none; position: relative; padding-left: 46px; }
 .pick ol::before, .pick ol::after { content: ""; position: absolute; left: 15px; top: 4px; bottom: 4px; width: 1px; }
 .pick ol::before { background: repeating-linear-gradient(var(--border) 0 4px, transparent 4px 9px); }
-.pick ol::after { background: var(--primary); transform: scaleY(0); transform-origin: top; opacity: 0.85; }
+.pick ol::after { background: var(--primary); transform-origin: top; opacity: 0.85; }
 
 .pick li { display: grid; gap: 8px; padding: 13px 0; border-top: 1px solid var(--border); position: relative; }
 .pick li:first-child { border-top: 0; padding-top: 4px; }
@@ -275,7 +275,10 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
    animations get the finished drawing, which is the same picture at rest. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .pick ol::after { animation: pick-trace linear both; animation-timeline: view(); animation-range: entry 60% cover 55%; }
+    /* The trace's zero state lives here, with the animation that fills it,
+       so a browser without scroll-driven animations shows the finished trace
+       rather than none. */
+    .pick ol::after { transform: scaleY(0); animation: pick-trace linear both; animation-timeline: view(); animation-range: entry 60% cover 55%; }
     .pick ol::before { animation: pick-dash 3.2s linear infinite; }
     .pick .ix { animation: pick-mark linear both; animation-timeline: view(); animation-range: entry 65% cover 60%; }
     /* The drawing is a raster, so it cannot stroke itself; a soft-edged mask sweeping
@@ -312,8 +315,139 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .band:last-of-type::after { display: none; }
 .band-seam-top { border-top: 1px solid var(--border); }
 .band-head { margin-bottom: 28px; }
-.band-head h2 { font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.05rem); letter-spacing: -0.028em; }
+.band-head h2 { font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.05rem); letter-spacing: -0.028em; text-wrap: balance; }
 .band-head > p { color: var(--muted-fg); max-width: 66ch; margin-top: 10px; font-size: var(--text-sm); }
+/* Two other reading axes for a band head. Split: the heading starts at the
+   left and its premise starts past the centre on the same line, so the band
+   opens as one composition rather than a stacked title. Centred: heading and
+   premise centred, the axis change that separates the guides' left-aligned
+   lane from the investigations below it. */
+@media (min-width: 900px) {
+  .band-head.split { display: grid; grid-template-columns: minmax(0, 46%) minmax(0, 40%); justify-content: space-between; align-items: start; margin-bottom: 34px; }
+  .band-head.split > p { margin-top: 0.55em; }
+}
+.band-head.centered { text-align: center; }
+.band-head.centered > p { margin-inline: auto; }
+.route.centered { text-align: center; }
+
+/* The ideas row bleeds to the right edge of the screen. Its left edge stays on
+   the page's reading edge (the wrap's content edge, computed from the band's
+   own width so a scrollbar cannot push the page wider); the right edge is the
+   viewport, so the nineteenth card is out along the row rather than boxed in
+   the wrap, and the last card crops at the screen edge under the fade. The
+   script-added controls sit inside the same block and inherit the left edge. */
+.bleed { padding-left: max(var(--gutter), calc((100% - var(--page-max)) / 2 + var(--gutter))); }
+/* The fade at the screen edge is wider here than a rail's 28px: it has to
+   dissolve body text, not a hairline, so the cut card reads as further along
+   rather than clipped mid-word. The shared fade rule reads this value. */
+.bleed .ideas-row { padding-right: var(--gutter); scroll-padding-right: var(--gutter); --fade: clamp(64px, 10vw, 144px); }
+
+/* Four skills as fixed lanes: explanation in the left lane, the drawing in a
+   fixed right lane, rows adjoining on hairlines with no box around any row.
+   Repetition here is the point: four comparable things read as one
+   comparison because the division between the lanes never moves. */
+.lanes { list-style: none; border-top: 1px solid var(--border); }
+.lanes .tile.skill { position: relative; display: grid; gap: 10px 56px; padding: 24px 0 22px; border-bottom: 1px solid var(--border); }
+.lanes .tile.skill > .art { position: relative; display: grid; place-items: center; height: 192px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--accent-text); transition: border-color var(--hover-ms) ease-out; }
+.lanes .tile.skill > .art svg { width: 136px; height: 136px; }
+.lanes .tile.skill > .art .cap { position: absolute; left: 14px; bottom: 12px; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); }
+.lanes .tile.skill:hover > .art, .lanes .tile.skill:focus-within > .art { border-color: var(--border-strong); }
+.lanes .tile.skill a.t { font-size: 1.45rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.025em; color: var(--fg); text-decoration: none; }
+.lanes .tile.skill a.t::after { content: ""; position: absolute; inset: 0; }
+.lanes .tile.skill a.t:hover { color: var(--link); }
+.lanes .tile.skill .when { color: var(--muted-fg); font-size: var(--text-base); line-height: 1.5; max-width: 46ch; margin: 0; }
+.lanes .tile.skill .fed { color: var(--dim-fg); font-size: var(--text-xs); margin: 0; }
+.lanes .tile.skill .fed .n { font-family: var(--font-mono); color: var(--accent-text); font-weight: 600; }
+.lanes .tile.skill .routes { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; padding-top: 6px; }
+.lanes .tile.skill .routes .dir { font-family: var(--font-mono); font-size: var(--label-size); color: var(--dim-fg); word-break: break-all; }
+.lanes .tile.skill .routes .dir a { position: relative; z-index: 1; color: var(--dim-fg); }
+@media (min-width: 760px) {
+  /* The text lane is centred against the drawing: the empty first and last
+     rows share whatever height the drawing's box has beyond the text, so a
+     row is as tall as its drawing with no hollow under its text. If the text
+     is the taller of the two the drawing centres against it instead. */
+  .lanes .tile.skill { grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: 1fr auto auto auto auto 1fr; align-items: start; }
+  .lanes .tile.skill > :not(.art) { grid-column: 1; }
+  .lanes .tile.skill > a.t { grid-row: 2; }
+  .lanes .tile.skill > .when { grid-row: 3; }
+  .lanes .tile.skill > .fed { grid-row: 4; }
+  .lanes .tile.skill > .routes { grid-row: 5; }
+  .lanes .tile.skill > .art { grid-column: 2; grid-row: 1 / -1; align-self: center; }
+}
+@media (max-width: 759px) { .lanes .tile.skill > .art { height: 180px; } .lanes .tile.skill > .art svg { width: 120px; height: 120px; } }
+
+/* Thirteen guides in a contracted reading lane: the band narrows to 0.82 of
+   the page and reads left-aligned inside that, so the directory does not
+   inherit the wide bands' container. Each source is one row; the accent
+   stage marks are one per guide, so 8 / 2 / 2 / 1 is read as length. */
+.lane { max-width: calc(var(--page-max) * 0.82); margin-inline: auto; }
+.directory { list-style: none; border-top: 1px solid var(--border); }
+.directory li { border-bottom: 1px solid var(--border); }
+.directory a { display: grid; gap: 6px 28px; padding: 18px 0; color: var(--fg); text-decoration: none; transition: background-color var(--hover-ms) ease-out; }
+.directory a:hover .t { color: var(--link); }
+.directory .range { font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--accent-text); white-space: nowrap; padding-top: 3px; }
+.directory .body { display: grid; gap: 4px; min-width: 0; }
+.directory .t { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.015em; line-height: 1.3; }
+.directory .k { font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: 0.01em; color: var(--dim-fg); line-height: 1.5; }
+.directory .marks { display: flex; gap: 4px; align-self: center; justify-self: start; transform-origin: left center; }
+.directory .marks i { display: block; width: 14px; height: 3px; background: var(--primary); }
+@media (min-width: 720px) { .directory a { grid-template-columns: 124px minmax(0, 1fr) 140px; align-items: start; } .directory .marks { align-self: start; margin-top: 8px; } }
+
+/* Three investigations as wired file cards. The card most of the guides came
+   from is the primary. On wide screens it takes the whole top row as a
+   landscape card and the two companions share the row beneath, so 10 / 2 / 1
+   is visible as space (2 : 1 : 1 by width) while all three diagrams are drawn
+   at one size, one that reads: the drawings are 160 units wide with labels of
+   about 3 units, so a label is 9px only from 480px of width, which a third of
+   the page cannot give. The wire is one hairline bus between the rows with a
+   stem into each card: the primary hangs above it, the companions below.
+   Stacked, under 900px, the wire is the rail above the stack and each card
+   hangs from the one before it. The metadata line is mono and computed; it
+   sits under the title, not over it. The modifier is report-specific
+   (file-primary): `.primary` is the header's section navigation, hidden on
+   narrow screens and set as mono labels, and sharing its name once hid the
+   leading report on phones and set its title as navigation on desktop. */
+.files { list-style: none; display: grid; gap: 22px; position: relative; padding-top: 22px; margin-top: 6px; }
+.files::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--border-strong); transform-origin: left center; }
+.file { position: relative; min-width: 0; }
+.file::before { content: ""; position: absolute; left: 28px; top: -22px; height: 22px; border-left: 1px solid var(--border-strong); }
+.file > a { display: grid; gap: 10px; align-content: start; height: 100%; padding: 22px 24px 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--fg); text-decoration: none; transition: border-color var(--hover-ms) ease-out, background-color var(--hover-ms) ease-out; }
+.file > a:hover { border-color: var(--border-strong); background: var(--surface); }
+.file .art { display: block; width: 100%; max-width: 480px; color: var(--accent-text); margin-bottom: 6px; }
+.file .art svg { display: block; width: 100%; height: auto; }
+.file .t { font-weight: 600; font-size: 1.1rem; line-height: 1.28; letter-spacing: -0.02em; }
+.file-primary .t { font-size: 1.4rem; font-weight: 500; letter-spacing: -0.025em; }
+.file .k { color: var(--muted-fg); font-size: var(--text-sm); line-height: 1.5; }
+.file .meta { margin-top: auto; padding-top: 10px; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg); }
+@media (min-width: 900px) {
+  /* 45px between the rows: the bus sits 22px under the primary and the
+     companions' 22px stems rise to meet it. */
+  .files { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 45px 24px; padding-top: 0; margin-top: 10px; }
+  .files::before { display: none; }
+  .file .art { max-width: none; margin-bottom: 8px; }
+  .file-primary { grid-column: 1 / -1; }
+  .file-primary::before { top: auto; bottom: -22px; }
+  .file-primary::after { content: ""; position: absolute; left: 0; right: 0; bottom: -23px; height: 1px; background: var(--border-strong); transform-origin: left center; }
+  /* Landscape: the diagram in the left lane, the title, line and metadata as
+     one block centred against it on the right. */
+  .file-primary > a { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); grid-template-rows: 1fr auto auto auto 1fr; gap: 0 40px; align-items: center; padding: 22px 28px 22px 24px; }
+  .file-primary .art { grid-column: 1; grid-row: 1 / -1; margin-bottom: 0; }
+  .file-primary .t { grid-column: 2; grid-row: 2; font-size: 1.55rem; }
+  .file-primary .k { grid-column: 2; grid-row: 3; margin-top: 10px; }
+  .file-primary .meta { grid-column: 2; grid-row: 4; margin-top: 0; padding-top: 16px; }
+}
+
+/* Scroll-drawn quantities and wiring, driven by each element's own passage
+   through the viewport, guarded like the panel trace: only where the
+   browser has scroll-driven animations and the reader has not asked for
+   reduced motion. Everywhere else the finished drawing is simply there. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .directory .marks { transform: scaleX(0); animation: grow-x linear both; animation-timeline: view(); animation-range: entry 45% cover 40%; }
+    .files::before, .file-primary::after { transform: scaleX(0); animation: grow-x linear both; animation-timeline: view(); animation-range: entry 30% cover 45%; }
+  }
+}
+@keyframes grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* The nineteen ideas: icon tiles on dashed guides, each with its [nn] marker. */
 /* No container border: each tile paints its own hairline, so a tier of seven
@@ -598,7 +732,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .rail { --fade: 28px; }
 .rail.is-overflowing { -webkit-mask-image: linear-gradient(#000 calc(100% - var(--fade)), transparent); mask-image: linear-gradient(#000 calc(100% - var(--fade)), transparent); }
 .rail.is-at-end { -webkit-mask-image: none; mask-image: none; }
-.ideas-row.is-overflowing { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+.ideas-row.is-overflowing { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--fade, 40px)), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - var(--fade, 40px)), transparent); }
 .ideas-row.is-at-end { -webkit-mask-image: none; mask-image: none; }
 .rail::-webkit-scrollbar-track,
 .table-scroll::-webkit-scrollbar-track,
@@ -753,6 +887,25 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .study { min-height: 100svh; display: grid; align-content: center; padding-block: 64px; border-top: 1px solid var(--border); }
 .study-figure { margin: 0; }
 .study-figure svg { display: block; width: 100%; height: auto; color: var(--accent-text); }
+/* B5. The diagram is revealed by a left-to-right sweep scrubbed by the
+   figure's own passage through the viewport, following the order the drawing
+   is read in (repositories, fork, verifier; glossary, transport, artifact;
+   schema, five layers, types). No pin and no library: pinning would add
+   scroll length without adding information, and this is 0 KB. The drawing
+   itself is untouched, so the check that the exact figure appears still
+   holds. Without scroll-driven animations, or under reduced motion, the
+   diagram is simply complete. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .study-figure svg {
+      -webkit-mask-image: linear-gradient(90deg, #000 84%, transparent 100%); mask-image: linear-gradient(90deg, #000 84%, transparent 100%);
+      -webkit-mask-size: 200% 100%; mask-size: 200% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+      -webkit-mask-position: 200% 0; mask-position: 200% 0;
+      animation: study-sweep linear both; animation-timeline: view(); animation-range: entry 20% cover 55%;
+    }
+  }
+}
+@keyframes study-sweep { from { -webkit-mask-position: 200% 0; mask-position: 200% 0; } to { -webkit-mask-position: 0% 0; mask-position: 0% 0; } }
 .study-meta { margin: 0 0 14px; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg); }
 .study h2 { margin: 0 0 18px; }
 .study .claim { margin: 0 0 24px; font-size: var(--text-lg); line-height: 1.5; color: var(--fg); max-width: 32ch; }
@@ -811,11 +964,11 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
    flashes. Under reduced motion the page is simply there. */
 .js .reveal-pending { opacity: 0; transform: translateY(14px); }
 .js .reveal-in { opacity: 1; transform: none; transition: opacity 560ms cubic-bezier(.2,.7,.2,1), transform 560ms cubic-bezier(.2,.7,.2,1); }
-.tiles > li, .shelves > li > a, .hub-next li > a, .stage, .ledger li { transition: transform var(--hover-ms) ease-out, background-color var(--hover-ms) ease-out, border-color var(--hover-ms) ease-out; }
-.tiles > li:hover, .shelves > li > a:hover, .hub-next li > a:hover, .stage:hover { transform: translateY(-2px); }
+.tiles > li, .shelves > li > a, .hub-next li > a, .stage, .ledger li, .file > a { transition: transform var(--hover-ms) ease-out, background-color var(--hover-ms) ease-out, border-color var(--hover-ms) ease-out; }
+.tiles > li:hover, .shelves > li > a:hover, .hub-next li > a:hover, .stage:hover, .file > a:hover { transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce) {
   .js .reveal-pending, .js .reveal-in { opacity: 1; transform: none; transition: none; }
-  .tiles > li:hover, .shelves > li > a:hover, .hub-next li > a:hover, .stage:hover { transform: none; }
+  .tiles > li:hover, .shelves > li > a:hover, .hub-next li > a:hover, .stage:hover, .file > a:hover { transform: none; }
 }
 
 
