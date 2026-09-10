@@ -21,5 +21,11 @@ the successful deployment includes those source assets and passes the cloud buil
 hash checks. Local agent installations, environment files, scratch files and control records
 are excluded from deployment. Agent installations remain on disk and are ignored by Git.
 
-This deployment contains the already reviewed site. The new composition, graphic, motion and
-reader-heading work remain separate until their required reviews pass.
+The subsequent composition release is commit `15d5cad`, pushed to `origin/main` after the
+mechanical push checks passed (the optional model leg was skipped). Production deployment
+`dpl_3pQDnkWp5cxXv93UxKviATKvnpyc` reached READY and was aliased to the same domain.
+The live home HTML, CSS, JavaScript and problem graphic all returned HTTP 200 and matched
+the reviewed local build byte-for-byte. Live Stagehand captures of the report section at
+1440×1100 and 390×850 were opened: no overflow, console errors or page errors. Evidence is
+in `~/ephemera/handbook-live-composition/`. Composition, graphic and native scroll motion are
+now live; reader-heading work remains blocked on the requested Astra route.
