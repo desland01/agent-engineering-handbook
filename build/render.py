@@ -607,6 +607,9 @@ def landing(idx, home, frames):
   <div class="pick">
     <h2 id="problems">Start with the problem you have</h2>
     <p>Each row names a situation and the guide that addresses it.</p>
+    <figure class="pick-figure" aria-hidden="true">
+      <img src="assets/problem-loop.webp" width="1600" height="644" alt="" decoding="async">
+    </figure>
     <ol role="list" aria-labelledby="problems">{pick}</ol>
   </div>
 </div></header>
@@ -1184,6 +1187,9 @@ def main():
     (OUT / 'assets').mkdir()
     shutil.copy2(ASSETS / 'handbook.css', OUT / 'assets/handbook.css')
     shutil.copy2(ASSETS / 'handbook.js', OUT / 'assets/handbook.js')
+    # The problem panel's drawing: authored through the Higgsfield route on the owner's
+    # instruction, transparent, and the one generated raster the design language allows.
+    shutil.copy2(ASSETS / 'problem-loop.webp', OUT / 'assets/problem-loop.webp')
 
     idx = enrich(read_index(REPO / 'README.md'))
     home = json.loads(HOME.read_text())

@@ -53,6 +53,9 @@ def check(condition, message):
         failures.append(message)
 
 
+VOID = {'img', 'br', 'hr', 'input', 'meta', 'link', 'source', 'area', 'col', 'embed', 'track', 'wbr'}
+
+
 class PageScan(HTMLParser):
     """Counts and ids for one page: h1s, images without alt, ids, anchors, externals."""
 
@@ -60,17 +63,28 @@ class PageScan(HTMLParser):
         super().__init__()
         self.h1 = 0
         self.imgs_without_alt = 0
+        self.hidden_depth = 0   # open elements marked aria-hidden="true"
         self.ids = []
         self.anchors = []
         self.skip = False
         self.main = False
         self.network = []
 
+    def handle_endtag(self, tag):
+        if self.hidden_depth and tag not in VOID:
+            self.hidden_depth = max(0, self.hidden_depth - 1)
+
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         if tag == 'h1':
             self.h1 += 1
-        if tag == 'img' and not (a.get('alt') or '').strip():
+        # A decorative image takes alt="" and is hidden from the accessibility tree;
+        # announcing it would only repeat what the surrounding text already says. Any
+        # other image still needs real alt text.
+        if a.get('aria-hidden') == 'true' and tag not in VOID:
+            self.hidden_depth += 1
+        decorative = a.get('aria-hidden') == 'true' or self.hidden_depth > 0
+        if tag == 'img' and not (a.get('alt') or '').strip() and not (decorative and 'alt' in a):
             self.imgs_without_alt += 1
         if a.get('id'):
             self.ids.append(a['id'])
@@ -145,7 +159,22 @@ def layout():
                     check(len(rel.parts) == 3, f'{rel}: reviews/ holds one record per subject, no nesting')
 
 
+def selftest_page_scan():
+    """The decorative-image allowance must not become a hole: an image with no alt
+    outside an aria-hidden scope, and one inside it that omits alt entirely, both fail."""
+    def scan(html):
+        s = PageScan()
+        s.feed(html)
+        return s.imgs_without_alt
+    assert scan('<figure aria-hidden="true"><img src="a.webp" alt=""></figure>') == 0
+    assert scan('<img src="a.webp" alt="" aria-hidden="true">') == 0
+    assert scan('<figure aria-hidden="true"><img src="a.webp"></figure>') == 1
+    assert scan('<img src="a.webp" alt="">') == 1
+    assert scan('<figure aria-hidden="true"><img src="a.webp" alt=""></figure><img src="b.webp" alt="">') == 1
+
+
 def main():
+    selftest_page_scan()
     layout()
     if '--layout' in sys.argv:
         if failures:
