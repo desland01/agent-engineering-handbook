@@ -40,11 +40,23 @@ review and a host-authored quality receipt. Owner state and results are appended
 
 ## Final review route
 
-The owner asked for an Opus subagent. No Opus route exists in the fleet (routes:
-glm-5.3-flash, gpt-6-astra, claude-fable-5-1, grok-4.5), native subagents are disabled in
-this session, and inventing a model identifier is forbidden. The final review therefore runs
-on gpt-6-astra, the route that owns unresolved quality judgment, with the pilot already
-reviewed by Fable. If an Opus route is added, the same review capsule reruns on it.
+The owner asked for an Opus subagent. Native subagents (Agent/Task) are disabled in this
+profile, so there is no subagent to dispatch; the parent session itself moved to Opus 5
+mid-run, which is a different route from the makers (glm-5.3-flash). The final review is
+therefore Opus 5's own, reading every change against its file, with gpt-6-astra running the
+same review capsule in parallel as the second route (the design-review rule's two reviewers
+where cheap). No Opus route exists in the worker fleet (routes: glm-5.3-flash, gpt-6-astra,
+claude-fable-5-1, grok-4.5), so an Opus *worker* remains unavailable and no model identifier
+was invented to fake one.
+
+## Blocker met and cleared
+
+`tickets-start` reserved both attempts, then every attempt refused with
+`workspace_overlaps_installation_home`: the harness had been built under
+`~/.nautilus/architect/workspace/`, inside the installation home the runtime protects. The
+whole harness was relocated to `<release>/var/workspaces/chart-headings/` and re-prepared;
+the packet, checker and originals stay outside every worker's write scope. The first owner
+(`294ce001`) holds the two refused attempts and is superseded by the relocated plan.
 
 ## Publication
 
