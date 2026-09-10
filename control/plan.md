@@ -1,4 +1,4 @@
-# Getting the premium-tech design system going
+# Getting the premium-tech design system going — plan of record, 2026-09-10
 
 Written 2026-09-10 from the day's feedback, in the order it arrived: the hubs were
 thin; the whole page was blocky; nineteen was homework; the type had no hierarchy; the
@@ -83,7 +83,7 @@ The handbook is the proving ground: every change below runs through the gate.
    read alone means the reverse of its section). Rule in `ARCHITECT.md`: a heading states
    the section's claim in a plain-verb clause, up to eight words; instruct for a claim,
    never for a subject. Done for the 76 idea headings (astra rewrite, 72 changed,
-   `control/review-headings-20260910.md`). The eval: a different route reads the headings
+   `control/reviews/headings.md`). The eval: a different route reads the headings
    with bodies withheld and writes what each must claim; mismatches are rewritten before
    the page lands. Applies to every heading the site writes from here on, including B3.
 7. **Front-facing copy carries no jargon** (owner: "understand exactly what we're saying in
@@ -92,7 +92,7 @@ The handbook is the proving ground: every change below runs through the gate.
    tiers. Green after the two guide shelves were rewritten in words.
 8. **Composition patterns from the references** (owner: "scan those examples and find
    mechanical patterns that break the AI out of the slop"). Delivered:
-   `control/patterns-20260910.md` — 29 patterns from two parallel astra scans of the six
+   `control/patterns.md` — 29 patterns from two parallel astra scans of the six
    references, each with the mechanism, the default it breaks, a checkable property and
    its transfer to the handbook. Both scans' first picks converge on the same move: give
    the content families genuinely different widths and reading axes (contracted reading
@@ -126,7 +126,7 @@ makers or fail to. Non-blocking decisions batch at closeout; silence authorizes 
    the report format (page@width, what, evidence, rule, proposed fix). Astra and GLM run it
    in parallel from the same inputs.
 2. **The maker's answer file** next to the report: applied / overruled with reason, per
-   finding. `control/design-qa-20260910.md` is the first one.
+   finding. `control/reviews/design-qa.md` is the first one.
 3. **`check-render.js` grows** to catch what reviewers found today so it cannot come back:
    headline line count ≤3 at 390 and 1440; no article heading repeated across pages; no
    scroll capture over horizontal regions; balanced last lines. `check.sh` is the gate.
@@ -139,7 +139,7 @@ makers or fail to. Non-blocking decisions batch at closeout; silence authorizes 
 ### D — The runtime
 
 1. Apply the product-skills patch, run the preparer, publish, switch — the steps in
-   `control/nautilus-product-skills/README.md`. Then the Higgsfield skills are governed,
+   `control/runtime/product-skills/README.md`. Then the Higgsfield skills are governed,
    verbatim, and delivered to workers.
 2. Readopt `copy` whole: authoring run for evidence, then `skill-publish`.
 3. Commit or ignore `.agents/`, `.claude/`, `skills-lock.json` in this repo.
@@ -168,7 +168,7 @@ Nothing in a row above waits on the row below. Everything visual passes the gate
   list from today.
 - `check.sh` green: structure, rendered, headings, sentences, scroll, jargon.
 - Every new heading passes the heading-only read by a different route.
-- The skill question is answered by evidence, not assertion: `control/skill-evals-20260910.md` carries the run records and the C4 result.
+- The skill question is answered by evidence, not assertion: `control/skill-evals.md` carries the run records and the C4 result.
 - The controlled comparison shows the rewritten skills beating no-skill and current-skill
   output on the blind review; if they do not, the skills are wrong and we say so.
 - The owner would send the link to Theo, Matt Pocock and Boris Cherny.

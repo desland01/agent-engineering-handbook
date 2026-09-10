@@ -620,7 +620,7 @@ digest at the moment of dispatch, in the same step as the launch.
 PNGs as evidence) died on `run_stdout_limit` after 12 requests and 23 Reads with nothing
 delivered: reading large images is what fills the stdout budget. Split into two runs. The
 QA-only run (8 JPEGs at 800px wide) completed in 17 requests and delivered
-`control/design-qa-20260910.md`; four of its eight images still failed the route's image
+`control/reviews/design-qa.md`; four of its eight images still failed the route's image
 reader because full-page captures are 5,000-9,000px tall and the reader refuses anything
 over 2000px on either axis — tile evidence to ≤2000px both ways. Its three findings were
 confirmed by measurement at the parent; two mobile concerns were checked and are not
@@ -640,7 +640,7 @@ own `HEAD` — never a hash from another repository.
 never-edited category for skills published by the maker of a paid product; first set the
 eight Higgsfield skills. Implemented test-first in an isolated snapshot of the runtime
 source (the real tree was another session's, 5,465 files dirty): see
-`control/nautilus-product-skills/README.md` for the change, the verification and the
+`control/runtime/product-skills/README.md` for the change, the verification and the
 shipping boundary. The `copy` skill is staged for whole readoption as a domain skill; it
 needs an authoring run for evidence before `skill-publish` will admit it.
 

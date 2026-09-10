@@ -1,4 +1,4 @@
-# Design-system tickets
+# Design-system tickets — 2026-09-10
 
 ## Scope, sources and dispatch contract
 
@@ -48,8 +48,8 @@ A6 is a rolling publication work unit, not a dependency that forces all eleven r
 ### C2 — Maker response artifact and disposition contract
 - **NOT READY:** report paths, finding identifiers and proposed answer/report adjacency are not supplied.
 - Route: `gpt-6-astra` — defining the written response contract is documentation, not visual making.
-- Inputs: common manifest; supplied by the parent: existing `control/design-qa-20260910.md`, reviewer reports with stable findings, C1 template and exact report/answer locations.
-- Outputs: `RESULT.md` defining the response contract; `deliverable.patch` only for the supplied `control/design-qa-20260910.md` target, preserving its existing evidence.
+- Inputs: common manifest; supplied by the parent: existing `control/reviews/design-qa.md`, reviewer reports with stable findings, C1 template and exact report/answer locations.
+- Outputs: `RESULT.md` defining the response contract; `deliverable.patch` only for the supplied `control/reviews/design-qa.md` target, preserving its existing evidence.
 - Acceptance: one maker-authored applied or overruled-with-reason disposition per finding, answer beside report, explicit revision/evidence references; the template writer must not fabricate maker answers.
 - Review gate: `glm-5.3-flash` reconciles finding IDs against the written contract and existing first example; each actual maker owns its later answers.
 - Dependencies: C1 draft; owner first: none beyond any gate resolution in C1.
@@ -358,7 +358,7 @@ For A3 and A4a–A4h, “standard acceptance” means S's role → defaults → 
 ### D1 — Apply, prepare, publish and switch product-skills runtime
 - **NOT READY:** live runtime mutation/publication/switch exceeds this boundary; source/README/patch/tests/preparer and a clear-tree handoff are absent.
 - Route: `glm-5.3-flash` — P describes implementation with a supplied patch and fixed procedure, not unresolved architecture.
-- Inputs: common manifest; supplied by the parent: full `control/nautilus-product-skills/` including `README.md`, patch/tests/preparer, exact owned runtime checkout/base, authorized procedure, approved target release and recovery path preserving other edits.
+- Inputs: common manifest; supplied by the parent: full `control/runtime/product-skills/` including `README.md`, patch/tests/preparer, exact owned runtime checkout/base, authorized procedure, approved target release and recovery path preserving other edits.
 - Outputs: `RESULT.md` with each observed apply/preparer/publish/switch state and evidence; `deliverable.patch` only for authorized local staging; generated runtime/publication file names await the README.
 - Acceptance: follow supplied README steps without inventing commands; preserve eight manufacturer skill bodies verbatim; relevant tests pass; publication, switch and actual governed skill delivery are separately evidenced; do not treat installed CLI or staged patch as delivered runtime support.
 - Review gate: `gpt-6-astra` reviews patch/tests, actual preparer/publish/switch records and worker-delivery evidence; executable enforcement claims require permitted/blocked behavioral probes, not a configuration-only pass.

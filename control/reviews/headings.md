@@ -87,7 +87,7 @@ Headings with the most uncertainty:
 
 ## The heading-only read — glm-5.3-flash, bodies withheld (2026-09-10)
 
-A different route was given only the 76 headings (`control/review-headings-20260910-reader.json` is its output: one line per heading of what the section must claim, plus a confidence). Fable compared each line with the section.
+A different route was given only the 76 headings (`control/reviews/headings.reader.json` is its output: one line per heading of what the section must claim, plus a confidence). Fable compared each line with the section.
 
 - 74 headings read as clear, 2 as ambiguous (tip-09 fit, tip-04 fit).
 - Contradicts or misses the section: **1** — tip-04 fit, "Deployment needs separate authorization" (a heading astra kept), read as being about authorization; the section says previews are argued for, not measured. Rewritten: "Previews are argued for, not measured".

@@ -16,8 +16,8 @@ width is given.
   `bash build/check.sh` runs both checkers and needs `cd build && npm install` once for the
   rendered one. The Vercel build is unchanged and never needs node.
 - The design review, decisions and delegation record: `control/design-notes.md`. The
-  astra design QA and what was applied from it: `control/design-qa-20260910.md`. Every copy
-  string before/after: `control/copy-rewrite-20260910.md`.
+  astra design QA and what was applied from it: `control/reviews/design-qa.md`. Every copy
+  string before/after: `control/reviews/copy-rewrite.md`.
 
 ## Defects found in the owner's QA so far
 
@@ -173,13 +173,13 @@ efc8820 Fix the three design QA findings
   `check-render.js` (see the commit after this update).
 - **Item 2 (the problem panel / Higgsfield)** — still open. Higgsfield is now set up: CLI
   1.1.24, signed in, eight product skills installed as a governed third category. The
-  generation plan is workstream B4 in `control/premium-tech-design-plan.md`.
+  generation plan is workstream B4 in `control/plan.md`.
 - **Idea pages** — rewritten: 76 sections under subject headings, three-plus sentences,
   written by astra and reviewed by a second route; `check.py` refuses schema labels.
 - **Investigation diagrams** — redrawn with captions inside the artwork; rendered review by
   astra pending on a working release (the skill-packs line reports Charts unavailable).
 - **New rules in `ARCHITECT.md`:** product skills (third category), design skills open
   with a role, the instruction is not the output, design is reviewed before it lands.
-- **Runtime deliverable:** `control/nautilus-product-skills/` — patch, tests, preparer;
+- **Runtime deliverable:** `control/runtime/product-skills/` — patch, tests, preparer;
   not applied to the live runtime. `copy` staged for whole readoption.
-- **The plan:** `control/premium-tech-design-plan.md`. Five decisions are the owner's.
+- **The plan:** `control/plan.md`. Five decisions are the owner's.

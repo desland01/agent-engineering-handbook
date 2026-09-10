@@ -48,11 +48,11 @@ someone other than its maker, and the measurement held up.
   three reproduced at the parent in headless Chrome (`.rail h2` at 29.6px; 577px and 864px
   of bordered blank in the guide shelves; a 642/115px orphaned headline) and the fourth
   item was correctly reported as *not a defect* (a 230px badge that fits at 390). Record:
-  `control/design-qa-20260910.md`. The 76 idea sections were checked sentence by sentence
+  `control/reviews/design-qa.md`. The 76 idea sections were checked sentence by sentence
   (230 sentences) for names, numbers and references not in the source record: none
-  invented. Record: `control/review-idea-pages-20260910.md`.
+  invented. Record: `control/reviews/idea-pages.md`.
 - **simple (copy).** The copy rewrite's before/after table is
-  `control/copy-rewrite-20260910.md`; the front-facing copy now passes the jargon rule in
+  `control/reviews/copy-rewrite.md`; the front-facing copy now passes the jargon rule in
   `check-render.js` (no code spans, hashes or file paths in leads, band heads, tiles,
   shelves, studies, tiers) at 390 and 1440.
 - **technical-seo-aeo + ux-copy (parent).** Their outputs became checks in
@@ -76,11 +76,11 @@ someone other than its maker, and the measurement held up.
 
 | Eval | What it measures | Result | Where |
 | --- | --- | --- | --- |
-| Design QA reproduction | Do a reviewer's findings hold under measurement at the parent? | 3 of 3 confirmed, 1 correctly cleared | `control/design-qa-20260910.md` |
-| Idea-page grounding | Sentences with unsupported names/numbers/references | 0 of 230 | `control/review-idea-pages-20260910.md` |
-| Diagram legibility | Can a reviewer say what each drawing shows without the prose? | per-study verdicts and maker's answers | `control/review-diagrams-20260910.md` |
+| Design QA reproduction | Do a reviewer's findings hold under measurement at the parent? | 3 of 3 confirmed, 1 correctly cleared | `control/reviews/design-qa.md` |
+| Idea-page grounding | Sentences with unsupported names/numbers/references | 0 of 230 | `control/reviews/idea-pages.md` |
+| Diagram legibility | Can a reviewer say what each drawing shows without the prose? | per-study verdicts and maker's answers | `control/reviews/diagrams.md` |
 | Rendered checks | 72 checks × 2 viewports: overflow, scrollbars, reveals, scroll capture, slop rules, jargon | PASS, and each rule was proved to bite on a known-bad page before it was trusted | `build/check-render.js`, commit messages |
-| **Heading-only reading** (new today) | A different route reads the 76 headings with bodies withheld and states what each section must claim; compared with the sections | 74 clear, 2 ambiguous; 1 heading contradicted its section and was rewritten, 2 simplified; 76/76 after | `control/review-headings-20260910.md` |
+| **Heading-only reading** (new today) | A different route reads the 76 headings with bodies withheld and states what each section must claim; compared with the sections | 74 clear, 2 ambiguous; 1 heading contradicted its section and was rewritten, 2 simplified; 76/76 after | `control/reviews/headings.md` |
 | **Controlled comparison (C4)** | No skill vs current vs rewritten, two makers, blind review | **not run** | plan §3 C4; tickets C4a–C4h |
 
 What can be shared now: the run-record table in §1 (raw JSON is in each `tmp-run.log`),

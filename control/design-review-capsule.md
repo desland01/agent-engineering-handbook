@@ -40,7 +40,7 @@ One row per finding: **applied** (with the revision) or **overruled** (with the 
 No finding closes by silence. The answer names the render or measurement that shows the
 fix. When a proposal is wrong — as astra's rail-label fix was, restyling mono labels to
 sans — the diagnosis is taken and the fix is not; the row says so. Example:
-`control/design-qa-20260910.md`, `control/review-diagrams-20260910.md`.
+`control/reviews/design-qa.md`, `control/reviews/diagrams.md`.
 
 ## As a ticket acceptance target
 
