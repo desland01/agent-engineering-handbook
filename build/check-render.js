@@ -169,6 +169,21 @@ async function main() {
         }
 
         checks++;
+        // Scroll capture: a vertical wheel over a horizontal region must still
+        // move the page. Measured 0px on four regions before the per-axis fix.
+        for (const sel of ['.ideas-row', '.track-row', '.table-scroll', '.reader pre']) {
+          const box = await page.evaluate((s) => {
+            const el = document.querySelector(s); if (!el) return null;
+            document.documentElement.style.scrollBehavior = 'auto';
+            const r = el.getBoundingClientRect(); window.scrollTo(0, Math.max(0, r.top + window.scrollY - 200));
+            const q = el.getBoundingClientRect(); return {x: q.left + q.width / 2, y: q.top + q.height / 2, before: window.scrollY};
+          }, sel);
+          if (!box) continue;
+          await page.mouse.move(box.x, box.y); await page.mouse.wheel({deltaY: 300});
+          await new Promise((r) => setTimeout(r, 200));
+          const after = await page.evaluate(() => window.scrollY);
+          if (after - box.before < 50) failures.push(pagePath + ' @' + vp.width + ': scroll capture — ' + sel + ' swallows the vertical wheel (page moved ' + (after - box.before) + 'px)');
+        }
         // Reveal: after scrolling the whole page, nothing may remain hidden.
         const stuck = await page.evaluate(async () => {
           // The site scrolls smoothly; a harness must not depend on where an

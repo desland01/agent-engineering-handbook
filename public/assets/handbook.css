@@ -537,8 +537,15 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
    rather than the browser's default slab. The rail scrolls vertically, code
    blocks and wide tables horizontally; the behaviour should not differ between
    them just because the axis does. */
+/* Containment is per axis. The rail scrolls vertically, so it contains both
+   axes. A region that only scrolls sideways contains only the x axis: with
+   both axes contained it sits at its vertical boundary already, swallows the
+   wheel, and the page stops scrolling whenever the cursor is over it - the
+   owner's QA finding of 2026-09-10, measured as 0px of page scroll over the
+   ideas row, the track, a wide table and a code block. */
+.rail { overscroll-behavior: contain; }
+.table-scroll, .reader pre, .ideas-row, .track-row { overscroll-behavior-x: contain; overscroll-behavior-y: auto; }
 .rail, .table-scroll, .reader pre, .ideas-row {
-  overscroll-behavior: contain;
   scrollbar-width: none;          /* Firefox */
   -ms-overflow-style: none;       /* old Edge */
 }
@@ -756,7 +763,7 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .stage a.t:hover { color: var(--link); }
 .stage a.t .n { display: block; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); margin-bottom: 6px; }
 .stage .when { color: var(--dim-fg); font-size: var(--text-sm); line-height: 1.45; margin-top: 8px; }
-.track-row { overscroll-behavior: contain; scrollbar-width: none; }
+.track-row { scrollbar-width: none; }
 .track-row::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .track-row.is-overflowing { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
 .track-row.is-at-end { -webkit-mask-image: none; mask-image: none; }
