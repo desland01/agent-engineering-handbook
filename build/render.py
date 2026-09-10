@@ -9,6 +9,7 @@ Inputs:
   README.md and the other Markdown pages     -> reader pages (one shared template)
   README.md tables and lists + build/home.json -> the landing-page map (index.html)
   evidence/frame-manifest.json               -> the frame gallery (evidence.html)
+  build/icons.py                             -> the 39 authored drawings, inlined
   build/assets/handbook.css, handbook.js     -> public/assets/
   screenshots/, skills/, examples/, evidence/*.json -> copied verbatim
 
@@ -23,7 +24,12 @@ from html import escape, unescape
 import json
 import re
 import shutil
+import sys
+
 import markdown
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from icons import IDEAS, SKILLS, GUIDES, INVESTIGATIONS
 
 REPO = Path(__file__).resolve().parent.parent
 OUT = REPO / 'public'
@@ -292,7 +298,29 @@ def guide_chip(label, path, prefix=''):
     return f'<a class="chip" href="{escape(prefix + path)}">{n}{escape(label[0].upper() + label[1:])}</a>'
 
 
+EVIDENCE_LABEL = {
+    'sponsor-ad-framing (sponsor performance claims unverified)': 'Sponsor segment',
+    'theo-anecdote': 'Theo, anecdote',
+    'theo-opinion': 'Theo, opinion',
+    'theo-practice': 'Theo, practice',
+    'theo-directive': 'Theo, directive',
+    'quoted-post-via-theo': "Boris's post, read by Theo",
+}
+
+
+def marker(label):
+    """A section marker: a mono label in a bordered pill with a rule running from it."""
+    return f'<span class="marker"><span class="pill">{escape(label)}</span></span>'
+
+
 def landing(idx, home, frames):
+    """The landing page, in the premium tech design language.
+
+    One accent, hairline structure, monospace for every secondary line, and the
+    39 authored drawings carrying the illustration. No hub-and-spoke diagram and
+    no video stills: the twelve frames appear here as file cards that open the
+    gallery, where the full-size images live.
+    """
     guide_by_n = {g['n']: g for g in idx['guides']}
     counts = {'guides': len(idx['guides']), 'reports': len(idx['reports']),
               'skills': len(idx['skills']), 'ideas': len(idx['ideas']), 'frames': len(frames)}
@@ -300,10 +328,26 @@ def landing(idx, home, frames):
     if sorted(shelf_guides) != sorted(guide_by_n):
         raise SystemExit(f'build/home.json shelves list {shelf_guides}; README lists {sorted(guide_by_n)}')
 
+    tips = json.loads((REPO / 'evidence/video-tips.json').read_text())
+    tip_by_start = {t['start_seconds']: t for t in tips}
+    skill_by_name = {sk['path'].split('/')[1]: sk for sk in idx['skills']}
+    for sk in idx['skills']:
+        sk['name'] = sk['path'].split('/')[1]
+        sk['dir'] = sk['path'].rsplit('/', 1)[0]
+        sk['fed_by'] = 0
+    for i in idx['ideas']:
+        seconds = int(re.search(r't=(\d+)s', i['url']).group(1))
+        tip = tip_by_start[seconds]
+        i['tip'] = tip
+        i['skill'] = skill_by_name[tip['suggested_skill']]
+        i['skill']['fed_by'] += 1
+        i['evidence'] = EVIDENCE_LABEL[tip['evidence_type']]
+
+    # Contents: mono badges. The markup shape is what build/check.py counts.
     contents = ''.join(
         f'<li><a href="#{anchor}"><span>{counts[key]}</span> {label}</a></li>'
-        for key, label, anchor in [('guides', 'guides', 'guides'), ('reports', 'investigations', 'reports'),
-                                   ('skills', 'skills', 'skills'), ('ideas', 'video ideas', 'ideas'),
+        for key, label, anchor in [('ideas', 'ideas', 'ideas'), ('guides', 'guides', 'guides'),
+                                   ('skills', 'skills', 'skills'), ('reports', 'investigations', 'reports'),
                                    ('frames', 'frames', 'frames')])
 
     pick = ''.join(
@@ -311,44 +355,61 @@ def landing(idx, home, frames):
         f'<span class="a">{"".join(guide_chip(label, path) for label, path in links)}</span></li>'
         for q, links in idx['problems'])
 
+    # The nineteen ideas: icon tiles on dashed guides, each with its [nn] marker.
+    ideas = ''.join(
+        f'<li><article class="tile idea" id="idea-{n:02d}">'
+        f'<span class="ix" aria-hidden="true">[{n:02d}]</span>'
+        f'<span class="art" aria-hidden="true">{IDEAS[f"{n:02d}"]}</span>'
+        f'<h3>{escape(i["idea"])}</h3>'
+        f'<p class="who">{escape(i["tip"]["speaker"])}</p>'
+        f'<p class="when">{escape(i["tip"]["when_useful"])}</p>'
+        f'<p class="meta"><a class="ts" href="{escape(i["url"])}">Watch at {escape(i["ts"])} <span aria-hidden="true">&#8599;</span></a>'
+        f'<span class="badge">{escape(i["evidence"])}</span></p>'
+        f'<span class="to">{guide_chip(guide_by_n[GUIDE_N.search(i["guide_path"]).group(1)]["title"], i["guide_path"])}'
+        f'<a class="chip" href="{escape(i["skill"]["path"])}">{escape(i["skill"]["title"])}</a></span>'
+        f'</article></li>'
+        for n, i in enumerate(idx['ideas'], 1))
+
+    # Four skills: a hairline grid, each cell led by its drawing.
+    skills = ''.join(
+        f'<li class="tile skill"><span class="art" aria-hidden="true">{SKILLS[sk["name"]]}</span>'
+        f'<a class="t" href="{escape(sk["path"])}">{escape(sk["title"])}</a>'
+        f'<p class="when">{escape(sk["use"])}</p>'
+        f'<p class="fed"><span class="n">{sk["fed_by"]}</span> {"idea" if sk["fed_by"] == 1 else "ideas"} feed it</p>'
+        f'<span class="dir"><a href="{GITHUB}/tree/HEAD/{escape(sk["dir"])}">{escape(sk["dir"])}/</a></span></li>'
+        for sk in idx['skills'])
+
+    # Thirteen guides: icon tiles grouped under mono shelf labels.
     report_by_path = {r['path']: r for r in idx['reports']}
     shelves = ''
-    for s in home['shelves']:
-        ns = s['guides']
+    for s_ in home['shelves']:
+        ns = s_['guides']
         span = f'Guide {ns[0]}' if len(ns) == 1 else f'Guides {ns[0]}–{ns[-1]}'
         tiles = ''.join(
-            f'<li class="tile guide"><span class="n" aria-hidden="true">{g["n"]}</span>'
-            f'<div><a class="t" href="{escape(g["path"])}"><span class="sr-only">Guide {g["n"]}: </span>{escape(g["title"])}</a>'
+            f'<li class="tile guide"><span class="glyph-box" aria-hidden="true">{GUIDES[g["n"]]}</span>'
+            f'<div><a class="t" href="{escape(g["path"])}"><span class="n" aria-hidden="true">{g["n"]}</span>'
+            f'<span class="sr-only">Guide {g["n"]}: </span>{escape(g["title"])}</a>'
             f'<p class="when">{escape(home["use_when"][g["n"]])}</p></div></li>'
             for g in (guide_by_n[n] for n in ns))
-        report = report_by_path[s['investigation']]
-        shelves += (f'<section class="shelf" id="{escape(s["id"])}" aria-labelledby="{escape(s["id"])}-h"><div class="wrap">'
-                    f'<div class="shelf-head"><h2 id="{escape(s["id"])}-h">{escape(s["title"])}</h2>'
-                    f'<p>{inline(s["description"])} Investigation: <a href="{escape(report["path"])}">{escape(report["title"])}</a>.</p>'
+        report = report_by_path[s_['investigation']]
+        shelves += (f'<section class="shelf" id="{escape(s_["id"])}" aria-labelledby="{escape(s_["id"])}-h"><div class="wrap">'
+                    f'<div class="shelf-head"><h3 id="{escape(s_["id"])}-h">+ {escape(s_["title"])}</h3>'
+                    f'<p>{inline(s_["description"])} Investigation: <a href="{escape(report["path"])}">{escape(report["title"])}</a>.</p>'
                     f'<span class="count">{span}</span></div>'
                     f'<ul class="tiles guides" role="list">{tiles}</ul></div></section>')
 
     reports = ''.join(
-        f'<li class="tile report"><a class="t" href="{escape(r["path"])}">{escape(r["title"])}</a>'
+        f'<li class="tile report"><span class="art" aria-hidden="true">{INVESTIGATIONS[r["path"]]}</span>'
+        f'<a class="t" href="{escape(r["path"])}">{escape(r["title"])}</a>'
         f'<p class="when">{escape(r["blurb"])}</p><span class="dir">{escape(r["path"])}</span></li>'
         for r in idx['reports'])
 
-    skills = ''.join(
-        f'<li class="tile skill"><a class="t" href="{escape(sk["path"])}">{escape(sk["title"])}</a>'
-        f'<p class="when">{escape(sk["use"])}</p>'
-        f'<span class="dir"><a href="{GITHUB}/tree/HEAD/{escape(sk["path"].rsplit("/", 1)[0])}">{escape(sk["path"].rsplit("/", 1)[0])}/</a></span></li>'
-        for sk in idx['skills'])
-
-    ideas = ''.join(
-        f'<li><span class="t"><a href="{escape(i["url"])}">{escape(i["ts"])}</a></span>'
-        f'<p class="idea">{escape(i["idea"])}</p>'
-        f'<span class="to">{guide_chip(guide_by_n[GUIDE_N.search(i["guide_path"]).group(1)]["title"], i["guide_path"])}</span></li>'
-        for i in idx['ideas'])
-
+    # Twelve frames as file cards. The images themselves stay in the gallery.
     frame_tiles = ''.join(
-        f'<figure><a class="shot" href="evidence.html#frame-{f["seconds"]}">'
-        f'<img src="screenshots/{escape(f["file"])}" width="1920" height="1080" loading="lazy" alt="{escape(frame_alt(f))}"></a>'
-        f'<figcaption><span class="t">{escape(f["timestamp"])}</span> {escape(f["title"])}</figcaption></figure>'
+        f'<figure><a href="evidence.html#frame-{f["seconds"]}">'
+        f'<span class="t">{escape(f["timestamp"])}</span>'
+        f'<figcaption>{escape(f["title"])}</figcaption>'
+        f'<span class="open">open <span aria-hidden="true">&#8594;</span></span></a></figure>'
         for f in frames)
 
     checked = ''.join(f'<p>{p}</p>' for p in idx['checked'])
@@ -356,12 +417,15 @@ def landing(idx, home, frames):
                      ('validation.md', 'Validation'), ('examples/recurring-rule/README.md', 'Runnable lint example'),
                      ('CONTRIBUTING.md', 'Contributing'), (GITHUB, 'GitHub repository')]
 
+    title_html = escape(home['title']).replace('agents', '<em>agents</em>', 1)
+
     body = f'''{site_head('', 'index.html')}
 <main id="main">
-<header class="wrap opening">
-  <div>
-    <h1>{escape(home['title'])}</h1>
+<header class="opening"><div class="wrap">
+  <div class="opening-copy">
+    <h1>{title_html}</h1>
     <p class="lead">{escape(home['lead'])}</p>
+    <div class="actions"><a class="btn primary" href="#ideas">Browse the nineteen ideas</a><a class="btn" href="#guides">All 13 guides</a></div>
     <ul class="contents" role="list" aria-label="Contents">{contents}</ul>
     <p class="edition"><span class="num">Edition of {EDITION_DATE}.</span> {escape(home['basis_short'])} <a href="#attribution">Full attribution</a> is at the end of the page.</p>
   </div>
@@ -370,27 +434,35 @@ def landing(idx, home, frames):
     <p>Each row names a situation and the guide that addresses it.</p>
     <ol role="list" aria-labelledby="problems">{pick}</ol>
   </div>
-</header>
+</div></header>
 
-<div id="guides">{shelves}</div>
-
-<section class="shelf wide" id="reports" aria-labelledby="reports-h"><div class="wrap">
-  <div class="shelf-head"><h2 id="reports-h">{escape(home['reports_heading'])}</h2><p>{inline(home['reports_description'])}</p></div>
-  <ul class="tiles cards" role="list">{reports}</ul>
-</div></section>
-
-<section class="shelf wide" id="skills" aria-labelledby="skills-h"><div class="wrap">
-  <div class="shelf-head"><h2 id="skills-h">{escape(home['skills_heading'])}</h2><p>{inline(home['skills_description'])}</p></div>
-  <ul class="tiles cards" role="list">{skills}</ul>
-</div></section>
-
-<section class="shelf wide" id="ideas" aria-labelledby="ideas-h"><div class="wrap">
-  <div class="shelf-head"><h2 id="ideas-h">{escape(home['ideas_heading'])}</h2><p>{inline(home['ideas_description'])}</p></div>
+<section class="band" id="ideas" aria-labelledby="ideas-h"><div class="wrap">
+  <div class="band-head">{marker('The nineteen ideas')}
+    <h2 id="ideas-h">{escape(home['ideas_heading'])}</h2><p>{inline(home['ideas_description'])}</p></div>
   <ol class="ideas" role="list">{ideas}</ol>
 </div></section>
 
-<section class="shelf wide" id="frames" aria-labelledby="frames-h"><div class="wrap">
-  <div class="shelf-head"><h2 id="frames-h">{escape(home['frames_heading'])}</h2><p>{inline(home['frames_description'])}</p></div>
+<section class="band" id="skills" aria-labelledby="skills-h"><div class="wrap">
+  <div class="band-head">{marker('Portable skills')}
+    <h2 id="skills-h">{escape(home['skills_heading'])}</h2><p>{inline(home['skills_description'])}</p></div>
+  <ul class="tiles cards skills" role="list">{skills}</ul>
+</div></section>
+
+<section class="band" id="guides" aria-labelledby="guides-h"><div class="wrap">
+  <div class="band-head">{marker('Implementation')}
+    <h2 id="guides-h">All 13 implementation guides</h2>
+    <p>Each guide gives a concrete method, fitting use cases and verification limits, grouped by the source it was adapted from.</p></div>
+</div>{shelves}</section>
+
+<section class="band" id="reports" aria-labelledby="reports-h"><div class="wrap">
+  <div class="band-head">{marker('Evidence')}
+    <h2 id="reports-h">{escape(home['reports_heading'])}</h2><p>{inline(home['reports_description'])}</p></div>
+  <ul class="tiles cards" role="list">{reports}</ul>
+</div></section>
+
+<section class="band" id="frames" aria-labelledby="frames-h"><div class="wrap">
+  <div class="band-head">{marker('Frames')}
+    <h2 id="frames-h">{escape(home['frames_heading'])}</h2><p>{inline(home['frames_description'])}</p></div>
   <div class="grid-frames">{frame_tiles}</div>
 </div></section>
 

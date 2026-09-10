@@ -10,24 +10,34 @@ decisions) is in [INTERACTIONS.md](INTERACTIONS.md).
 
 ## The one thing to remember
 
-**A numbered, sourced field manual.** The handbook is thirteen numbered methods, each
-traceable to a video moment or a pinned repository revision. The map lays the whole
-manual out grouped by source; the reader keeps the number, the source and the page's
-sections in view while you read. Everything below serves that: serif titles that read as
-a manual rather than a dashboard, mono numerals and timestamps as the wayfinding
-vocabulary, warm surfaces with hairlines instead of floating cards, and a reader with a
-rail instead of a bare column of text.
+**A numbered, sourced field manual, drawn like an instrument panel.** The handbook is
+thirteen numbered methods and nineteen sourced ideas, each traceable to a video moment or
+a pinned repository revision. The map lays the whole manual out; the reader keeps the
+number, the source and the page's sections in view while you read.
+
+The visual language is the premium-tech genre: a near-black ground, structure drawn with
+hairlines rather than shadows, one accent, and **monospace carrying every secondary line**
+— labels, metadata, numbering, timestamps and paths — so a single sans headline is the
+only display voice. It was learned from six public references (Augment Code and Qodo
+primary; Sourcegraph, Codecademy, UX Pilot secondary) and is recorded, with the evidence
+behind each value, in the `premium-tech-design-language` method outside this repository.
 
 ## Typography
 
 Three faces, each with one job, all from the reader's own system — no web font, so the
 site has no network dependency and reads at native quality on developer machines.
 
-- **Serif for titles and section headings** (`--font-serif`: Iowan Old Style, Charter,
-  Georgia, Palatino Linotype…): the map's title, shelf headings, the reader's h1 and h2,
-  investigation and skill titles, the brand. Weight 600, tracking −0.012em. This is the
-  handbook's voice; it is the one deliberate departure from the generic
-  system-sans-everywhere look the earlier edition had.
+- **Sans for every heading and for body text** (`--font-sans`: system-ui and its
+  platform equivalents): the map's title, section and shelf headings, the reader's h1 and
+  h2, investigation and skill titles, the brand. Weight 500, tracking −0.028em on
+  headings. The serif voice of the earlier edition was retired when the page moved to
+  this genre; `--font-serif` remains defined as an alias of `--font-sans` so no rule
+  breaks.
+- **The mono label** is the genre's signature and the reason the page reads as an
+  instrument rather than a document: 11px (`--label-size`), uppercase, letter-spacing
+  0.14em (`--label-track`), at the muted step. It carries the header navigation, the
+  section markers, the count badges, the `[01]`…`[19]` idea numbers, evidence badges,
+  "Watch at 05:06", frame timestamps, shelf ranges and directory paths.
 - **Sans for reading and interface text** (`--font-sans`: system-ui…): body, use-when
   lines, navigation, chips, labels. Weight 650 for guide titles on the map and for h3/h4.
 - **Mono for numbers and references** (`--font-mono`): guide numerals, counts,
@@ -45,27 +55,29 @@ site has no network dependency and reads at native quality on developer machines
 
 ## Colour
 
-A warm near-black ground, two lifted surfaces and one orange accent — the warm character
-of the earlier pages, shifted off pure neutral so the orange belongs to the ground rather
-than sitting on it.
+A near-black ground, two lifted surfaces, one hairline value and one orange accent. The
+ground moved off the earlier warm black to the genre's neutral near-black; the accent
+stayed, because one restrained accent is exactly what the language asks for and orange is
+already the handbook's.
 
 | Token | Value | Role | Contrast on `--bg` / `--surface` / `--surface-2` |
 |---|---|---|---|
-| `--bg` | `#100f0d` | page ground | — |
-| `--surface` | `#17150f` | panels, chapter lists, cards, code blocks, blockquotes, menu | — |
-| `--surface-2` | `#1f1c17` | chips, inline code, table header, hover fill | — |
-| `--border` | `#2c2822` | hairlines | decorative |
-| `--border-strong` | `#6f675c` | hovered card or chip edge | 3.4 / 3.3 / 3.0 (non-text ≥ 3 ✓) |
-| `--fg` | `#f2ece2` | headings, body, titles | 16.3 / 15.5 / 14.5 |
-| `--muted-fg` | `#aca69b` | leads, use-when lines, captions, nav, rail text | 7.9 / 7.5 / 7.0 |
-| `--dim-fg` | `#8d867b` | edition line, directory lines, rail labels | 5.3 / 5.1 / 4.7 |
-| `--link` | `#f29764` | running links in prose | 8.6 / 8.2 / 7.6 |
-| `--accent-text` | `#f37a3b` | numerals, timestamps, counts, chip numbers, "Guide 02" | 7.0 / 6.7 / 6.2 |
-| `--primary` | `#ea580c` | focus ring, brand mark, current-section marker, blockquote rule, skip link fill | 5.4 / 5.1 / 4.8 |
-| `--on-primary` | `#100f0d` | text on the orange skip link | 5.4 on `--primary` |
+| `--bg` | `#0b0b0c` | page ground | — |
+| `--surface` | `#141416` | hovered tiles, code blocks, blockquotes, menu | — |
+| `--surface-2` | `#1b1b1f` | inline code, table header, hover fill | — |
+| `--border` | `rgba(247,243,239,.11)` | every hairline: grids, tiles, rules, badges | decorative |
+| `--border-strong` | `rgba(247,243,239,.26)` | secondary button, marker pill, hovered edge | 3.3 on `--bg` (non-text ≥ 3 ✓) |
+| `--fg` | `#f7f3ef` | headings, body, titles | 17.6 / 16.6 / 15.4 |
+| `--muted-fg` | `#b4afa8` | leads, use-when lines, captions, nav, rail text | 9.4 / 8.9 / 8.2 |
+| `--dim-fg` | `#948f89` | edition line, directory lines, speaker lines, rail labels | 6.9 / 6.5 / 6.0 |
+| `--link` | `#f29764` | running links in prose | 8.9 / 8.4 / 7.8 |
+| `--accent-text` | `#f37a3b` | the italic headline word, numerals, timestamps, counts, drawings | 7.3 / 6.9 / 6.4 |
+| `--primary` | `#ea580c` | primary button, focus ring, brand mark, current-section marker, blockquote rule | 5.6 / 5.3 / 4.9 |
+| `--on-primary` | `#0b0b0c` | text on the orange button and skip link | 5.6 on `--primary` |
 
-Ratios are WCAG 2.x, computed from the hex values; every text colour passes AA for
-normal text on every surface it is used on. `--accent-text` exists because the raw
+There is one accent and no second hue: nothing on the page is coloured to carry meaning
+that a label could carry instead. Ratios are WCAG 2.x, computed from the hex values;
+every text colour passes AA for normal text on every surface it is used on. `--accent-text` exists because the raw
 accent at small mono sizes on the warm ground read slightly dull; the lighter tint keeps
 the same hue with more contrast. Link underlines fade to 40 % of the link colour with
 `color-mix()`; browsers without it show a full-strength underline.
@@ -88,13 +100,15 @@ the same hue with more contrast. Link underlines fade to 40 % of the link colour
 
 ## Shape, depth and motion
 
-- **Radii:** `--radius-sm` 6px (thumbnails, buttons, small blocks), `--radius` 10px
-  (code, tables, blockquotes, previous/next, the menu panel, the section disclosure),
-  `--radius-lg` 14px (the problem panel, chapter lists, cards); chips and count pills are
-  fully round.
-- **Depth:** hairlines and surface steps. The only shadow is under the open header menu,
-  because it floats over content. Frames sit on black inside a hairline so a lazy image
-  shows a correctly sized 16:9 slot before it lands.
+- **Radii: square.** `--radius-sm` 2px, `--radius` 4px (tiles, cards, tags, chips, count
+  badges, the menu panel), `--radius-lg` 14px (the problem panel only). Buttons are 0.
+  Exactly one element is a pill: the section marker, so that shape means "a new section
+  starts here" and nothing else.
+- **Depth: none.** No drop shadow, glass or glow anywhere in `main`. Structure is drawn
+  with hairlines: grids set `gap: 1px` and each cell paints its own
+  `box-shadow: 0 0 0 1px var(--border)`, so neighbouring cells meet on one hairline and a
+  partly filled last row shows ground instead of an orphan block. The one soft mark on
+  the page is the hero's drawn hairline grid, masked to fade out.
 - **Motion:** border and background colour on hover, `--hover-ms` 140ms ease-out; smooth
   in-page scrolling. Under `prefers-reduced-motion: reduce` both become instant. Nothing
   animates on load; the current-section marker in the rail changes without transition.
@@ -104,32 +118,33 @@ the same hue with more contrast. Link underlines fade to 40 % of the link colour
 1. **Header** — brand with the orange mark, four section links (Guides, Investigations,
    Skills, Frames), a "More" menu listing every page, and "GitHub". Never the full
    repository address.
-2. **Opening, two columns from 980px** — left: the title, one-sentence lead, the counts
-   strip as five pills (each a jump link; the counts are generated from the same data as
-   the shelves and the build fails if they disagree), the edition line with the
-   attribution sentence. Right: the problem panel, a surface with eight rows — bold
-   situation on the left, numbered chips on the right naming the guide(s) that answer it.
-   Both entry paths, *by problem* and *by source*, are on the first screen at desktop.
-3. **Four guide shelves grouped by source.** From 900px each shelf is a sticky heading
-   column (serif heading, provenance paragraph with the pinned revision, investigation
-   link, "Guides 01–08" in mono) beside a **chapter list**: one bordered surface, two
-   columns from 720px, hairlines between rows, a large accent numeral, the title and the
-   use-when line. Rows, not cards: the guides are numbered chapters and read as a
-   contents page.
-4. **Investigations and skills** as cards (serif title, purpose line, mono file or
-   directory), full width with the heading row above so four skills fit in one row.
-5. **Nineteen ideas** as a timeline: accent timestamp, the idea, a chip naming the
-   implementing guide; two columns from 900px.
-6. **Twelve frames** as a filmstrip, four across from 1000px, three from 640, two below.
-7. **Closing:** what was checked, and attribution with chip links to the index pages.
+2. **Opening, two columns from 980px** — left: the title with one italic accent word, the
+   one-sentence lead, two square buttons, the counts as five mono badges (each a jump
+   link; the counts are generated from the same data as the sections and the build fails
+   if they disagree), the edition line with the attribution sentence. Right: the problem
+   panel, eight rows — situation on the left, numbered tags on the right naming the
+   guide(s) that answer it. Both entry paths, *by problem* and *by source*, are on the
+   first screen at desktop. A drawn hairline grid sits behind, masked to fade.
+3. **Nineteen ideas** first, because they are what the handbook is derived from: icon
+   tiles in a hairline grid, three across from 1080px, two from 700.
+4. **Four skills** as a hairline row, four across from 1080px.
+5. **Thirteen guides** in four shelves grouped by source. Each shelf is a mono `+ Source`
+   label, the provenance paragraph with the pinned revision and investigation link, and
+   the guide range set mono at the right, above an icon-tile grid four across from 1080px.
+6. **Three investigations** as hairline cells carrying their wide monoline diagrams.
+7. **Twelve frames** as file cards — mono timestamp, caption, `open →` — four across from
+   1180px. The images stay in the gallery.
+8. **Closing:** what was checked, and attribution with tag links to the index pages.
+
+Each band opens with a section marker: a mono label in a bordered pill with a hairline
+rule running from it. That is the only pill on the page.
 
 ## The reader
 
 - **Page head:** a context line (`Guide 02` · of 13 · shelf link, or the page's place on
   the map) and the serif title. Guide titles come from the README's canonical list so the
   reader and the map agree; the Markdown file's own h1 is not rendered a second time.
-- **Article:** first paragraph as a muted, slightly larger deck; serif h2 with a hairline;
-  sans h3; code, tables and blockquotes on `--surface` inside `--radius`; tables in a
+- **Article:** first paragraph as a muted, slightly larger deck; h2 with a hairline; h3; code, tables and blockquotes on `--surface` inside `--radius`; tables in a
   focusable scroll region.
 - **Rail (from 1100px), sticky:** *On this page* (h2/h3 anchors, current one marked with
   an orange edge), *This guide* (number, shelf, use-when), *Sequence* (previous/next),
@@ -141,18 +156,27 @@ the same hue with more contrast. Link underlines fade to 40 % of the link colour
 
 ## Components
 
-- **Chip** (`.chip`): pill, `--surface-2`, hairline, mono accent number then label. Used
-  for problem answers, idea → guide links and the closing links. Whole pill is the target.
-- **Chapter row** (`.tiles.guides .tile`): numeral column + title/use-when; stretched
-  link; hover fills the row; focus ring drawn inside the row.
-- **Card** (`.tiles.cards .tile`): serif title, purpose line, mono path pinned to the
-  bottom; stretched link with the ring around the card; the directory link keeps its own.
+- **Tag** (`.chip`): 4px radius, `--fill`, hairline, mono accent number then label. Used
+  for problem answers, idea → guide and idea → skill links, and the closing links. The
+  whole tag is the target. It was a pill before this design; pills now mean section
+  markers only.
+- **Icon tile** (`.tiles.guides .tile`): a 34px bordered box holding the guide's drawing,
+  then the mono number, title and use-when line; stretched link; hover lifts the cell fill.
+- **Idea tile** (`.tile.idea`): the drawing, a `[nn]` marker at the top right, title,
+  speaker, when-useful sentence, mono watch link, evidence badge, guide and skill tags.
+- **Card** (`.tiles.cards .tile`): drawing, title, purpose line, honest count where one
+  exists, mono path pinned to the bottom; stretched link with the ring around the card;
+  the directory link keeps its own.
+- **File card** (`.grid-frames figure`): mono timestamp, caption, `open →`. Carries no
+  image; the frame itself is one click away in the gallery.
+- **Section marker** (`.marker`): mono label in a bordered pill, then a hairline rule.
 - **Header menu** (`details.menu`): a native disclosure, the panel absolutely positioned
   under its button; the four primary links are hidden inside it from 760px.
 - **Section disclosure** (`details.toc-mobile`) and **rail** (`aside.rail`): the same
   section list markup in two places, shown at complementary widths.
-- **Frame thumbnail**, **gallery frame**, **table region**, **not-found page**: as
-  before, restyled with the tokens above.
+- **Gallery frame**, **table region**, **not-found page**: as before, restyled with the
+  tokens above. Frame thumbnails still appear in the reader's evidence rail and in the
+  gallery — the homepage is the only surface that carries none.
 - **No decoration above headings:** no eyebrow labels, overlines, uppercase kickers or
   duplicate labels. Rail labels ("On this page", "Sequence") are sidebar section labels,
   set small and sans, not kickers over a main heading. Numbers before words are followed
@@ -167,6 +191,30 @@ Deliberate: the serif voice on a technical site; numerals, timestamps and counts
 only "icons"; chapter lists instead of card grids for the guides; the problem panel as
 the map's co-headline rather than a text list under the title; evidence frames placed
 beside the guide they support; a warm rather than neutral ground.
+
+## The homepage motifs
+
+Each element of the landing page is one phrase from the language, chosen for the content
+it carries:
+
+- **Opening** — text-led, on the faded hairline grid. One italic accent word in the
+  headline; two square buttons; the five counts as mono badges whose numbers the page can
+  prove.
+- **Nineteen ideas** — icon tiles in a hairline grid, each with its authored drawing, a
+  `[nn]` marker, the speaker, when it is useful, a mono "Watch at" link, an evidence badge
+  and its guide and skill tags. No video stills: the frames stay in the gallery.
+- **Four skills** — a hairline row led by each drawing, with an honest count
+  (`8 ideas feed it`) derived from `evidence/video-tips.json`.
+- **Thirteen guides** — icon tiles grouped under mono `+ Source` shelf labels with the
+  guide range set mono at the right.
+- **Three investigations** — hairline cells carrying the wide monoline diagrams, with the
+  source file named in mono.
+- **Twelve frames** — file cards: mono timestamp, caption, `open →`. The images
+  themselves live one click away in the gallery, which is where full-size evidence belongs.
+
+The 39 drawings (19 ideas, 4 skills, 13 guides, 3 investigations, all distinct) are
+authored stroke SVG in `build/icons.py`, inlined at build time in `currentColor`, so the
+page still loads nothing from the network.
 
 ## Not done, on purpose
 
