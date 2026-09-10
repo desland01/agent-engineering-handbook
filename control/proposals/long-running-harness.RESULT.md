@@ -16,6 +16,14 @@ the "outside the batch" rule, the stop conditions, the fresh-agent handover and 
 evidence with its numbers. Dropped: the file:/// links into `~/.claude/skills`, which no longer
 resolve, and the `builder-proof` probe reference, which is not part of this release.
 
+**Owner correction, 2026-09-10, folded in.** "The point of Pilot First is not to give up after
+they fail on the first try... pilot it, fix what didn't work, pilot it again... Not 'pilot it,
+didn't work, okay I'll just do it myself.'" The section now carries: a failed pilot is the
+pilot working; fix the machine, not the output; the pilot's defect becomes an executable check
+before the batch; one generator builds both plans; piloting the content change is not piloting
+the harness. This is the same rule the handbook's own tip-08 states - encode the repeated
+correction - applied to the harness.
+
 **Applied today before publication.** The Chart-heading correction across 67 Charts ran a pilot
 on the known-bad Chart (`explainer`) with one GLM worker, was reviewed cold, and its procedure
 became an input to the two batch workers. Record: `control/reviews/chart-headings.md`.

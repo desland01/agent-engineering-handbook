@@ -45,6 +45,14 @@ rename across repositories, a migration, a loop over a work-list.
 7. Only then scale, through `tickets-prepare` and `tickets-start`, with a fresh agent that has
    no memory of the pilot session. Add an instruction only where that agent stalls.
 
+A pilot that fails is the pilot working. Fix what failed in the machine - the task text, the
+acceptance check, the workspace layout, the capsule - and pilot again. Never fix the pilot's
+output by hand and scale anyway: a defect you corrected yourself is a defect the batch will
+reproduce 66 more times. A defect the pilot exposes becomes an executable check before the
+batch runs, and the same generator builds the pilot plan and the batch plan so the machine you
+proved is the machine that runs. Piloting the content change is not piloting the harness:
+prepare, dispatch, check and accept one small ticket end to end first.
+
 An item that resolves outside the batch is not in the batch. Resolve every path before
 editing; if it lands outside the tree the batch is scoped to, leave it, record it, report it.
 Editing it "from the other side" is the same edit. Stop conditions: the pilot needed more than
