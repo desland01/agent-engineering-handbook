@@ -3,69 +3,69 @@
   "pages": {
     "tip-01-ci-feedback-loop": {
       "said": {
-        "heading": "Human log relays",
+        "heading": "Agents can retrieve check failures without you",
         "body": "The sponsor segment, read by Theo, describes agents opening pull requests whose checks fail with errors missed locally. A human retrieves the failure logs, passes them to the agent, and waits through another run. The pitch is that agents can trigger checks and retrieve logs themselves, removing that manual handoff."
       },
       "apply": {
-        "heading": "Self-serve failure logs",
+        "heading": "Let agents run checks and read failures",
         "body": "Give the agent a way to trigger a check run from its own working environment. Let it retrieve the failing portion of the logs without waiting for you to copy anything. Use that path to let the agent inspect the failure, make a fix, and run checks again."
       },
       "useful": {
-        "heading": "Checks awaiting a human",
+        "heading": "Stop relaying check failures by hand",
         "body": "Use this approach where agents open pull requests and passing checks are required before changes proceed. It addresses the repeated interruption of finding errors and handing them back to the agent. If agents already retrieve failures themselves, this particular human handoff is no longer the gap to fix."
       },
       "fit": {
-        "heading": "Advertising without verification",
+        "heading": "The sponsor's performance claims remain unverified",
         "body": "This is a paid advertisement, and its claims about speed, cost, workload, and falling failure rates remain unverified. Do not choose Blacksmith on the strength of the sponsor's claims in this video. The portable idea still applies wherever a human relays check failures that an agent could retrieve."
       }
     },
     "tip-02-two-browser-e2e": {
       "said": {
-        "heading": "A chat round trip",
+        "heading": "Theo's chat test caught failures early",
         "body": "Theo recalls a Twitch test that opened two Playwright browsers with bot accounts already signed in. One bot sent a chat message, while the other checked that the message appeared and rendered. He says this simple test caught failures earlier than almost anything else in that system."
       },
       "apply": {
-        "heading": "Test the shared journey",
+        "heading": "Test that the other person receives it",
         "body": "Choose the smallest path where one actor produces something and another actor must receive it. Encode that path as an end-to-end test using authenticated browser contexts for the participating actors. Assert that the receiving side actually sees the result when shallow checks keep missing the same integration failure."
       },
       "useful": {
-        "heading": "Passing components, broken interactions",
+        "heading": "Separate checks can miss broken interactions",
         "body": "This pays off for chat, notifications, or other multi-party features where component checks pass while integration breaks. The important situation is a failure across the actors' shared path that isolated checks keep missing. Do not select a two-actor test merely for its shape when your failing behavior does not involve that interaction."
       },
       "fit": {
-        "heading": "A remembered implementation",
+        "heading": "The recalled test has no implementation here",
         "body": "Theo is recalling a test from a past employer, rather than supplying a checked-in implementation here. The video does not prove the separately documented details of video retention, tracing, or retries. Use the cross-system assertion as a pattern when it matches your failure, without treating those details as demonstrated."
       }
     },
     "tip-03-automation-multiplies-agents": {
       "said": {
-        "heading": "Agent multipliers",
+        "heading": "Shared automation can speed up every agent",
         "body": "Boris as quoted by Theo argues that infrastructure and developer-experience automation now benefit every agent you run. Work that once sped up an engineer can also speed up the agents using that environment. Theo agrees with the argument that more automation can mean more output per unit of time."
       },
       "apply": {
-        "heading": "Shared steps first",
+        "heading": "Fix shared delays before adding more agents",
         "body": "Before increasing the number of parallel agents, examine the slow steps those agents share. Profile environment setup, test execution, and waiting for checks to identify where tooling effort belongs. Fix those shared delays first when deciding how to support more concurrent agent work."
       },
       "useful": {
-        "heading": "Concurrent work bottlenecks",
+        "heading": "Concurrent agents benefit from removing shared delays",
         "body": "Use this argument when allocating tooling time for a team running multiple agent sessions at once. Focus that investment on setup and checking delays shared by the agents using the environment. If you are not running concurrent agents, do not justify the investment through an unobserved agent-count multiplier."
       },
       "fit": {
-        "heading": "Unmeasured output gains",
+        "heading": "The automation gains have not been measured",
         "body": "The video asserts the direction of the benefit without measuring how much extra output automation produces. Theo's agreement does not supply a measured return for your own tooling investment either. The idea still gives you a reason to examine shared delays before expanding parallel work."
       }
     },
     "tip-04-preview-environments": {
       "said": {
-        "heading": "Code beyond your laptop",
+        "heading": "Remote agent work makes previews more valuable",
         "body": "Theo says the old objection to previews was that everyone already built the application locally. Agents now build in cloud environments, background tabs, worktrees, and other machines beyond the developer's laptop. He argues that reachable previews matter more, including ways for agents to test them and post results."
       },
       "apply": {
-        "heading": "Reachable review surfaces",
+        "heading": "Give agents previews they can reach and test",
         "body": "Plan a per-branch preview with a URL the agent can reach from its own workspace. Pair it with a scripted check of a key flow, screenshot, or console errors. Give the agent a way to attach the check results to the pull request when those actions are authorized."
       },
       "useful": {
-        "heading": "Review beyond your machine",
+        "heading": "Previews help when local review is impractical",
         "body": "This approach fits work where you cannot or should not run the application locally for every review. A preview gives the agent-built change a place to be inspected from outside your own machine. When local review already covers each change, this argument alone does not establish a need for preview deployments."
       },
       "fit": {
@@ -75,55 +75,55 @@
     },
     "tip-05-custom-file-upload-skill": {
       "said": {
-        "heading": "Missing upload operations",
+        "heading": "Theo built a tool for agent uploads",
         "body": "Theo describes agents being unable to attach videos through the command-line tools used for pull requests. The interface allowed drag-and-drop uploads, so he built a file-upload skill backed by a small Cloudflare service. He says his machines could upload files through that service and place the resulting links in pull requests."
       },
       "apply": {
-        "heading": "Bridge the verified gap",
+        "heading": "Confirm existing tools cannot upload before building",
         "body": "First confirm that the required operation is missing from the tools currently available to the agent. Reuse an authorized transport before building a narrow adapter, and document that adapter's contract as a skill. Verify that the actual agent can use it, and obtain applicable authorization before posting any resulting link."
       },
       "useful": {
-        "heading": "Manual-only media tasks",
+        "heading": "Build upload tools only for recurring gaps",
         "body": "A small adapter fits recurring tasks where people can attach media by hand but agents lack that operation. Look for that gap in recurring screenshot, video attachment, or signed artifact tasks handled by people. If an authorized tool already provides the operation, reuse it rather than treating the gap as established."
       },
       "fit": {
-        "heading": "Visible contract, unproven upload",
+        "heading": "Upload instructions do not prove successful uploads",
         "body": "The inspected on-screen file names FILE_HOST_TOKEN and uses curl --fail-with-body over HTTP PUT. It specifies a public URL from the response body, but that does not prove an upload succeeded. The inspection establishes neither additional endpoint details nor a broader security model for the service. An equivalent needs its own key-handling review, and this example grants no authority to deploy a service. The adapter pattern still fits a verified capability gap when its transport and use are authorized."
       }
     },
     "tip-06-skill-authoring-reward": {
       "said": {
-        "heading": "Small tools, quick feedback",
+        "heading": "Theo finds small agent tools rewarding",
         "body": "Theo says assembling a small tool, finding what works, and watching an agent use it is unexpectedly enjoyable. He compares writing these skills with setting up an environment for a team of developers. In his experience, the feedback arrives sooner and a failed attempt costs less than team environment work."
       },
       "apply": {
-        "heading": "A reversible first attempt",
+        "heading": "Replace one recurring workaround with a small tool",
         "body": "When a manual workaround keeps recurring, set aside a short iteration to replace that specific workaround. Build the smallest working tool, document it as a skill, and run it through the agent. Refine what failed while keeping the change small and reversible so another attempt remains inexpensive."
       },
       "useful": {
-        "heading": "Hesitation over tooling",
+        "heading": "Try small tools when bigger efforts discourage you",
         "body": "This is relevant when you avoid tooling because previous environment work demanded substantial effort with little recognition. A recurring workaround gives the small experiment a concrete task to address and test through the agent. Without that recurring problem, the tip does not provide a reason to build a tool just for enjoyment."
       },
       "fit": {
-        "heading": "Enjoyment is personal",
+        "heading": "Theo's enjoyment does not establish productivity gains",
         "body": "Theo is reporting his own enjoyment and the feedback loop he experiences while building these pieces. He does not present a productivity measurement showing what a similar experiment will deliver for you. The practice still offers a small, reversible way to address a recurring workaround without assuming the same subjective reward."
       }
     },
     "tip-07-team-buy-in": {
       "said": {
-        "heading": "Permission to improve tools",
+        "heading": "Theo sees more support for tooling work",
         "body": "Theo says teams are more willing to fund environment and automation work than they used to be. He recalls concern from bosses and teammates when developers spent substantial time refining their editor setup. He now encourages his own team to invest in tooling after they had internalized that it was not worthwhile."
       },
       "apply": {
-        "heading": "Propose a bounded investment",
+        "heading": "Ask for limited time to improve shared tools",
         "body": "Ask for a time-boxed piece of agent-tooling work instead of assuming that the team will welcome it. Explain how the improvement would serve teammates' agents, making the proposed benefit broader than your own setup. Show a concrete win from that work before asking the team to allocate more time."
       },
       "useful": {
-        "heading": "Old assumptions about approval",
+        "heading": "Recheck assumptions that managers oppose tooling work",
         "body": "This matters if you still assume management views deep tooling work as time away from useful engineering. Theo's experience gives you a reason to ask whether that assumption still holds on your team. If the team has already declined the investment, his anecdote does not supply approval to proceed anyway."
       },
       "fit": {
-        "heading": "Your team's actual tolerance",
+        "heading": "Does your team welcome time spent on tools?",
         "body": "Theo's claim about changing team attitudes is anecdotal, and the video does not establish your team's tolerance. His encouragement of his own team cannot settle how much time your teammates consider worthwhile. Use the idea to open a specific tooling proposal, then ask rather than assume that it is welcome."
       }
     },
@@ -137,179 +137,179 @@
         "body": "When you or an agent corrects the same class of issue repeatedly, turn that correction into an executable check. Choose a lint rule, a check gate, or a small script that catches the recurring pattern. Let the check run on each change, and review it as carefully as the code it checks."
       },
       "useful": {
-        "heading": "Review comments on repeat",
+        "heading": "Automate corrections that keep returning in reviews",
         "body": "Use this for recurring style, safety, or architecture corrections that currently return as repeated review comments. The relevant pattern is the same kind of busywork appearing across changes and requiring another individual fix. An isolated correction without a recurring class does not yet supply the reason this tip gives for automation."
       },
       "fit": {
-        "heading": "Broad checks can block",
+        "heading": "Overly broad checks can reject good changes",
         "body": "Boris's efficiency argument is not accompanied by a measured result for replacing repeated corrections with checks. A wrong or overly broad check can silently block good changes, so executable rules need code review. The idea still applies when the check captures the recurring issue without rejecting changes that should be allowed."
       }
     },
     "tip-19-custom-lint-economics": {
       "said": {
-        "heading": "The price of custom checks",
+        "heading": "Cheaper rule writing can make checks worthwhile",
         "body": "Theo argues that some useful custom checks used to cost too much to justify writing them. His example is a rule requiring around 400 lines to check project-specific oddities left to manual review. He says cheaper rule-writing and cheaper tests change that calculation, especially when agents encounter those issues more often."
       },
       "apply": {
-        "heading": "Reconsider the review backlog",
+        "heading": "Reassess the cost of rejected check ideas",
         "body": "Revisit checks you previously dismissed because writing the rule and its tests would cost too much. Assess that combined effort again, including the tests that verify the rule's behavior on your project. When that work is now affordable, have the agent write the rule and accompanying tests for review."
       },
       "useful": {
-        "heading": "Oddities caught by eye",
+        "heading": "Revisit manual checks once automation becomes affordable",
         "body": "This fits a backlog of project-specific issues that reviewers repeatedly catch by eye during code review. The opportunity is strongest when those checks stayed manual because their implementation effort was hard to justify. If the rule and its verifying tests remain too costly, this economic argument does not establish that you should build it."
       },
       "fit": {
-        "heading": "Maintenance still counts",
+        "heading": "Custom checks still need maintenance and review",
         "body": "Theo presents an economic argument, without measuring the savings from a custom rule and its tests. Custom rules still require maintenance, and an incorrect rule can silently block otherwise good code. Reconsider a previously unaffordable check when its full effort makes sense, while reviewing the rule like any other code."
       }
     },
     "tip-09-domain-knowledge-as-infra": {
       "said": {
-        "heading": "Knowledge held in heads",
+        "heading": "Unwritten project knowledge holds newcomers back",
         "body": "Boris as quoted by Theo argues that domain knowledge held by existing engineers blocks newcomers from contributing immediately. He proposes encoding that knowledge through comments, skills, and written rules beyond lint, types, and tests. He frames rejected pull requests as automation failures, while Theo supports the core idea but considers that framing too strong."
       },
       "apply": {
-        "heading": "Make corrections durable",
+        "heading": "Record recurring corrections for everyone's agents",
         "body": "Audit the contextual corrections you repeatedly give people joining the codebase and identify what each correction depends on. Put each into a durable form, such as a lint rule, type, architectural structure, or written steering file. Aim that guidance at everyone's agents so the project knowledge is available beyond your own working context."
       },
       "useful": {
-        "heading": "Repeated verbal onboarding",
+        "heading": "Write down project rules you keep explaining",
         "body": "This pays when the same project rules have to be explained verbally to every new engineer. The repeated explanation identifies knowledge that the codebase could make available to newcomers and their agents. Do not assume every rejected contribution exposes missing automation, since that is the strong framing Theo qualifies."
       },
       "fit": {
-        "heading": "Equal contribution is disputed",
+        "heading": "Theo disputes equal effectiveness without engineering experience",
         "body": "Boris also claims non-engineers can contribute as effectively as engineers, and Theo explicitly calls that a reach. Theo supports turning knowledge into project infrastructure but says Boris takes that argument further than he would. Preserve the practical effort to make knowledge available without treating equal effectiveness or every rejection as established facts."
       }
     },
     "tip-10-newcomer-questions-signal": {
       "said": {
-        "heading": "Fresh eyes reveal gaps",
+        "heading": "Newcomer questions reveal unclear project guidance",
         "body": "Theo describes asking new teammates to ask at least one dumb question per day on his teams. Their questions exposed what was unclear to people encountering the codebase for the first time. He values that perspective because a person is only a beginner in a particular codebase once."
       },
       "apply": {
-        "heading": "Repair the confusing source",
+        "heading": "Answer newcomer questions and fix their causes",
         "body": "Record newcomer questions without blame, answer the person, and periodically review what made each question necessary. Address the underlying gap with clearer naming, a missing document, a lint rule, or a steering-file entry. Treat an agent's repeated confusion as another signal to inspect the same kind of onboarding gap."
       },
       "useful": {
-        "heading": "First encounters with code",
+        "heading": "Repeated confusion points to missing project guidance",
         "body": "Use this when onboarding engineers reveals assumptions that established teammates no longer notice in the codebase. It also fits repeated agent confusion where the project has failed to make needed knowledge clear. Collecting questions without addressing their causes does not by itself repair the gaps those questions reveal."
       },
       "fit": {
-        "heading": "Safety before question quotas",
+        "heading": "Make questions safe without requiring daily quotas",
         "body": "This is a cultural practice Theo describes for his own teams, rather than a rule adopted here. No daily quota is required, and the practice depends on people feeling safe enough to ask. The idea still applies when questions lead to answers and repairs, rather than becoming a requirement to produce questions."
       }
     },
     "tip-11-own-your-instructions": {
       "said": {
-        "heading": "Human judgment in instructions",
+        "heading": "Theo recommends writing agent instructions yourself",
         "body": "Theo advises engineers to write their own instruction files because that effort teaches them what changes agent behavior. He says to watch the agent's work and then adjust the files, tools, and setup. His goal is useful feedback when behavior goes wrong, rather than giving the agent every possible piece of context."
       },
       "apply": {
-        "heading": "Revise from observed behavior",
+        "heading": "Revise instructions yourself after observing agent behavior",
         "body": "To follow Theo's practice, write changes by hand in response to behavior you have actually observed. Keep a short record of the unwanted behavior and the instruction edit intended to address it. Under that practice, decline an offered agent rewrite and make the change yourself while adjusting tooling where needed."
       },
       "useful": {
-        "heading": "Generated and then forgotten",
+        "heading": "Revisit generated instructions you have never revised",
         "body": "This is relevant when instruction files were generated once and have never been deliberately revised afterward. Watching subsequent agent behavior gives you concrete material for deciding which instructions or tools to change. A file already revised through deliberate observation does not have the neglected-instructions problem this tip singles out."
       },
       "fit": {
-        "heading": "Personal rule, limited authority",
+        "heading": "Theo's writing preference does not override your instructions",
         "body": "Theo's instruction-ownership advice is a strong personal rule for his own files, rather than authority over this workspace. Current user instructions and workspace rules take precedence over the authoring preference expressed in the video. You can still use observed behavior to guide revisions without treating his preference as a ban on authorized agent-assisted writing."
       }
     },
     "tip-12-steering-pushback": {
       "said": {
-        "heading": "Pushback in project guidance",
+        "heading": "Written rules can guide agents to refuse requests",
         "body": "Theo describes using steering files to make an agent decline feature requests that repeatedly fall outside a project's scope. He says combining these rules can make the resulting behavior more consistent and reliable across requests. The broader goal is feedback when people or agents go wrong, rather than packing every possible fact into context."
       },
       "apply": {
-        "heading": "Record the rejected pattern",
+        "heading": "Write down recurring refusals and their reasons",
         "body": "When you repeatedly reject the same kind of request, write that pattern into the project's steering file. Include the reason for rejecting it and the response you expect the agent to give. Combine related rules where they improve consistency, while keeping actual enforcement in lint, types, and check gates."
       },
       "useful": {
-        "heading": "Requests outside the project",
+        "heading": "Explain project boundaries when unwanted requests recur",
         "body": "This fits projects that repeatedly receive out-of-scope requests from users, teammates, or agents working on changes. A recurring rejection gives you a concrete boundary to explain in the project's written guidance. Do not rely on that guidance when the requirement is to enforce a boundary against novel or adversarial requests."
       },
       "fit": {
-        "heading": "A nudge can fail",
+        "heading": "Written refusal rules can be bypassed",
         "body": "Theo says the agent will decline, but a written steering rule only nudges behavior rather than enforcing it. New or adversarial wording can bypass a written steering rule even when the intended boundary is clear. Use the rule to guide ordinary requests, and retain executable enforcement where a boundary must actually hold."
       }
     },
     "tip-13-type-safe-composition": {
       "said": {
-        "heading": "Types across connected layers",
+        "heading": "Connected data rules can check whole application paths",
         "body": "Theo describes the T3 stack's composition, where Prisma produces typed functions and tRPC carries those types toward the interface. Type safety then reaches from an interface hook or component back to the database underneath it. He compares that satisfying connection with agent setups, saying he now experiences similar moments much more often."
       },
       "apply": {
-        "heading": "Consume the existing contract",
+        "heading": "Reuse data definitions instead of copying them",
         "body": "When a layer produces types, have the next layer consume them instead of declaring the same shapes again. Look for equivalent connections in the agent setup so tools and checks share the same source. Let schemas, tools, tests, and documentation derive from that source where the existing contract supports the connection."
       },
       "useful": {
-        "heading": "Copies drifting apart",
+        "heading": "Connect duplicated data definitions when they drift apart",
         "body": "This fits a stack where handwritten copies of the same underlying shape have begun to drift apart. The composition opportunity is to carry the existing guarantee across a boundary instead of recreating it there. Without duplicated contracts to connect, this tip does not supply a reason to adopt Theo's particular stack."
       },
       "fit": {
-        "heading": "A stack-specific example",
+        "heading": "You need not adopt Theo's chosen technologies",
         "body": "The named technologies belong to Theo's example, and the video does not make them a general requirement. His report of experiencing these moments almost daily is anecdotal rather than a measured engineering outcome. The idea still applies where a single typed source can connect layers that currently repeat its contract."
       }
     },
     "tip-14-zero-context-docs": {
       "said": {
-        "heading": "Knowledge available at entry",
+        "heading": "Written project knowledge reduces repeated explanations to agents",
         "body": "Boris as quoted by Theo argues that teams should write instructions, review guidance, skills, and documentation for their codebases. His aim is productive agent work without additional project context supplied by the person making the request. Theo endorses the core idea that moving domain knowledge into the repository helps the next contributor's agent."
       },
       "apply": {
-        "heading": "Try the repository alone",
+        "heading": "Test whether project files explain enough to newcomers",
         "body": "Give a fresh agent or new hire only the repository and see where the missing project explanation blocks progress. When the repository could have supplied that explanation, put it in the instruction or documentation layer. Keep review standards in a review file so the next review has access to those expectations too."
       },
       "useful": {
-        "heading": "A stranger's first task",
+        "heading": "First tasks reveal explanations missing from project files",
         "body": "This is useful in shared codebases where a newcomer's first request still depends on explanations from existing contributors. That first attempt can expose knowledge that remains in prompts instead of being available in the repository. If the repository already supplies the needed context, this test does not call for adding more explanation merely to expand it."
       },
       "fit": {
-        "heading": "Aspirations and tuning anecdotes",
+        "heading": "Better documentation does not guarantee equal newcomer performance",
         "body": "Boris's equal-effectiveness claim for non-engineers is disputed by Theo and should not become a promise about newcomer performance. Theo's examples of public preferences and book-based tone tuning are illustrations, rather than generally recommended prompting techniques. Use repository-only onboarding to locate missing knowledge without assuming that name-dropping or borrowed book context will solve it."
       }
     },
     "tip-15-minimal-context-calibration": {
       "said": {
-        "heading": "Defaults before customization",
+        "heading": "Try default tools before adding more",
         "body": "Theo warns against installing every skill and plugin before the team has tried the tools as configured. He advises sending early prompts with little context and observing where the resulting work goes wrong. Those failures should guide additions to instruction files, instead of customizing the setup before any actual problem appears."
       },
       "apply": {
-        "heading": "Add the missing piece",
+        "heading": "Add only what observed agent failures show missing",
         "body": "Start with the default configuration and a minimal prompt, then record where the agent fails. Add the smallest needed file entry, rule, or tool, and repeat the attempt to expose remaining gaps. Keep standing instructions, admitted tools, and runtime safeguards while reducing only the extra project explanation in the prompt."
       },
       "useful": {
-        "heading": "Untested plugin collections",
+        "heading": "Test new setups before installing extra tools",
         "body": "This fits new projects, newly agent-enabled repositories, and teams tempted to install large plugin collections in advance. The early attempts reveal whether the default setup already handles the work or lacks specific project context. It does not call for removing existing safeguards or withholding instructions that already govern the task."
       },
       "fit": {
-        "heading": "Calibration has boundaries",
+        "heading": "Testing defaults does not restrict authorized tool authoring",
         "body": "This advice concerns project steering and plugin adoption, rather than every activity involving a skill or instruction file. Authorized skill authoring remains a separate activity governed by current workspace rules rather than the video's preference. The approach still applies when you are testing how much additional project context a new setup actually needs."
       }
     },
     "tip-16-steer-not-map": {
       "said": {
-        "heading": "Judgment over file inventory",
+        "heading": "File locations alone cannot guide good decisions",
         "body": "Theo says an instruction file that merely lists locations in the codebase is a poor guide. He wants those files to direct the agent toward successful work rather than particular lines of code. The distinction is between supplying an inventory and supplying the judgment needed to make appropriate changes."
       },
       "apply": {
-        "heading": "Replace entries with decisions",
+        "heading": "Write decision guidance beyond listing file locations",
         "body": "Replace directory-listing entries with guidance about conventions, invariants, uncertainty, and the checks needed to verify the work. Let the agent locate files itself while you use the instruction space for project judgment. Keep any brief orientation that genuinely helps without letting the file become only a map."
       },
       "useful": {
-        "heading": "Directory listings in disguise",
+        "heading": "Revise instructions dominated by directory lists",
         "body": "Use this when reviewing an existing instruction file that reads mainly like a list of directories. The practical question is whether it explains decisions and verification or mostly repeats where code lives. A short orientation within otherwise useful guidance is not the inventory-only problem the tip asks you to repair."
       },
       "fit": {
-        "heading": "Orientation can still help",
+        "heading": "Brief file location guidance can still help",
         "body": "Treat Theo's advice as a heuristic, leaving room for a brief orientation line when it genuinely helps. The target is a file dominated by maps, rather than a prohibition on mentioning any location. Apply the idea when file inventory crowds out the behavioral guidance an agent needs for successful work."
       }
     },
     "tip-17-career-leverage": {
       "said": {
-        "heading": "Team-level engineering work",
+        "heading": "Improving others' contributions may help your career",
         "body": "Theo suggests that building environments where code lands effectively is part of progressing toward senior and staff engineering. He emphasizes structures and systems that improve other people's contributions, beyond the code an individual lands. He says this can be learned at a company or through solo multi-agent projects, while flagging the argument as speculative."
       },
       "apply": {
@@ -317,29 +317,29 @@
         "body": "Set aside deliberate time to improve shared instruction files, lint rules, checks, or preview verification. Document those contributions so reviews can consider work whose benefit belongs to the team rather than your commit count. Present the shared engineering work explicitly instead of assuming that its value will be visible from individual code changes."
       },
       "useful": {
-        "heading": "Beyond individual contribution",
+        "heading": "Consider team improvements when recognizing senior work",
         "body": "This matters for engineers aiming at senior or staff scope and teams deciding which contributions to recognize. It offers a way to discuss work that improves how others contribute to the codebase. It does not establish that a particular employer will reward that work with promotion or a different role."
       },
       "fit": {
-        "heading": "Career advice with uncertainty",
+        "heading": "Employers may not reward shared tooling work",
         "body": "Theo explicitly asks for skepticism about this career argument, and the video does not establish career causation. Whether a given employer recognizes environment work as advancement toward senior or staff scope can vary. The idea still supports making shared contributions visible, without promising that a review will reward them."
       }
     },
     "tip-18-solo-onboarding": {
       "said": {
-        "heading": "Beyond personal recall",
+        "heading": "Theo's solo projects outgrew his own understanding",
         "body": "Theo says his earlier solo projects stayed in his head, hiding what joining them would feel like. With agents producing code, he describes even his own solo projects as exceeding his comprehension. He now builds systems to keep both his agents and his own attention from getting lost."
       },
       "apply": {
-        "heading": "Onboard your future self",
+        "heading": "Document solo projects for someone new to contribute",
         "body": "Treat the solo repository like a team project and write guidance for a stranger arriving to contribute. Provide steering files, runnable checks, and preview verification rather than relying entirely on what you remember. Periodically try a cold, minimal-context prompt to locate project knowledge that still lives only in your head."
       },
       "useful": {
-        "heading": "Solo code outgrowing memory",
+        "heading": "Add guidance when solo code outpaces your memory",
         "body": "This is useful when agent-generated code in a small or solo project outpaces your personal recall. The missing context affects both your own return to the work and the agents joining it. If you can still hold the entire project in your head, do not treat Theo's self-description as proof otherwise."
       },
       "fit": {
-        "heading": "One developer's experience",
+        "heading": "Your solo project may still fit your memory",
         "body": "Theo's claim that his solo codebases exceed his comprehension describes his own experience, rather than a general measurement. The video does not establish that every solo developer has already reached the same limit. Use the onboarding discipline where your own project context has become tacit or difficult to recall."
       }
     }
