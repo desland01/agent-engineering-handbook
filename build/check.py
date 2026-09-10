@@ -16,9 +16,12 @@ Checks (repository, not third-party application, behavior):
      Full YAML validation is a separate authoring check.
   5. Page semantics: one h1 per page, a skip link and a main landmark, alt text
      on every image, unique ids, every in-page anchor present.
-  6. The landing page maps everything: 13 guide tiles, 3 investigation tiles,
-     4 skill tiles, 19 ideas, 12 frames and the 8 problem rows, with the
-     contents strip counts equal to what is on the page.
+  6. Progressive disclosure holds: the home page carries the 8 problem rows,
+     4 skill tiles, 3 investigation tiles, a taste of the ideas and routes to
+     ideas.html, guides.html and the gallery, with its counts strip equal to
+     the sets; ideas.html holds 19 idea tiles that each open one of 19 idea
+     pages; guides.html holds 13 guide tiles linking every guide page; the
+     gallery holds 12 frames and the home page links each one.
   7. No network dependency in any page (no external stylesheet, script, font
      or image). Layout and visual rules are verified on real renders, not by
      searching the stylesheet for phrases.
@@ -92,7 +95,7 @@ def main():
         check((PUBLIC / 'skills' / s / 'SKILL.md').is_file(), f'public/skills/{s}/SKILL.md missing')
     frames = sorted((PUBLIC / 'screenshots').glob('*.jpg')) if (PUBLIC / 'screenshots').is_dir() else []
     check(len(frames) == 12, f'expected 12 frames in public/screenshots, found {len(frames)}')
-    for page in ['index.html', 'README.html', 'adoption.html', 'prompts.html',
+    for page in ['index.html', 'ideas.html', 'guides.html', 'README.html', 'adoption.html', 'prompts.html',
                  'validation.html', 'evidence.html', 'github-inspection.html',
                  'matt-pocock-inspection.html', 'boris-cherny-inspection.html',
                  '404.html', 'assets/handbook.css', 'assets/handbook.js']:
@@ -148,37 +151,47 @@ def main():
         check(not missing, f'{rel}: in-page anchors without a target {missing}')
         check(not scan.network, f'{rel}: loads from the network: {scan.network}')
 
-    # 6. The landing page maps everything.
+    # 6. Progressive disclosure: home routes out; the section pages hold the sets.
     index = (PUBLIC / 'index.html').read_text() if (PUBLIC / 'index.html').is_file() else ''
-    expected = {'class="tile guide"': 13, 'class="tile report"': 3, 'class="tile skill"': 4}
-    for marker, n in expected.items():
-        check(index.count(marker) == n, f'index.html: expected {n} × {marker}, found {index.count(marker)}')
-    ideas = re.search(r'<ol class="ideas"[^>]*>(.*?)</ol>', index, re.S)
-    n_ideas = ideas.group(1).count('<li>') if ideas else 0
-    check(n_ideas == 19, f'index.html: expected 19 ideas, found {n_ideas}')
-    grid = re.search(r'<div class="grid-frames">(.*?)</div>', index, re.S)
-    n_frames = grid.group(1).count('<figure>') if grid else 0
-    check(n_frames == 12, f'index.html: expected 12 frame thumbnails, found {n_frames}')
+    ideas_html = (PUBLIC / 'ideas.html').read_text() if (PUBLIC / 'ideas.html').is_file() else ''
+    guides_html = (PUBLIC / 'guides.html').read_text() if (PUBLIC / 'guides.html').is_file() else ''
+    check(index.count('class="tile skill"') == 4, f'index.html: expected 4 skill tiles, found {index.count("class=\"tile skill\"")}')
+    check(index.count('class="tile report"') == 3, f'index.html: expected 3 investigation tiles, found {index.count("class=\"tile report\"")}')
+    taste = re.search(r'<ol class="ideas taste"[^>]*>(.*?)</ol>', index, re.S)
+    n_taste = taste.group(1).count('<li>') if taste else 0
+    check(0 < n_taste < 19, f'index.html: expected a taste of the ideas (1–18 tiles), found {n_taste}')
     pick = re.search(r'<div class="pick">.*?<ol[^>]*>(.*?)</ol>', index, re.S)
     n_pick = pick.group(1).count('<li>') if pick else 0
     check(n_pick == 8, f'index.html: expected 8 problem rows, found {n_pick}')
-    strip = dict(re.findall(r'<li><a href="#(\w+)"><span>(\d+)</span>', index))
-    check(strip == {'guides': '13', 'reports': '3', 'skills': '4', 'ideas': '19', 'frames': '12'},
-          f'index.html: contents strip counts {strip} do not match the page')
+    for route in ('href="ideas.html"', 'href="guides.html"', 'href="evidence.html"'):
+        check(route in index, f'index.html: no route {route}')
+    strip = dict(re.findall(r'<li><a href="([^"]+)"><span>(\d+)</span>', index))
+    check(strip == {'ideas.html': '19', 'guides.html': '13', '#skills': '4', '#reports': '3', 'evidence.html': '12'},
+          f'index.html: contents strip {strip} does not match the sets')
     for s in skills:
         check(f'href="skills/{s}/SKILL.md"' in index, f'index.html: skill tile for {s} does not link to its copied SKILL.md')
-    for g in guides:
-        check(f'href="guides/{g.name}"' in index, f'index.html: no tile links to guides/{g.name}')
     for f in manifest:
-        check(f'href="evidence.html#frame-{f["seconds"]}"' in index, f'index.html: no thumbnail links to frame-{f["seconds"]}')
+        check(f'href="evidence.html#frame-{f["seconds"]}"' in index, f'index.html: no link to frame-{f["seconds"]}')
+
+    idea_pages = sorted((PUBLIC / 'ideas').glob('*.html')) if (PUBLIC / 'ideas').is_dir() else []
+    check(len(idea_pages) == 19, f'expected 19 idea pages in public/ideas, found {len(idea_pages)}')
+    n_ideas = ideas_html.count('class="tile idea"')
+    check(n_ideas == 19, f'ideas.html: expected 19 idea tiles, found {n_ideas}')
+    for ip in idea_pages:
+        check(f'href="ideas/{ip.name}"' in ideas_html, f'ideas.html: no tile opens ideas/{ip.name}')
+        text = ip.read_text()
+        check('youtube.com/watch' in text, f'ideas/{ip.name}: no link to the video moment')
+    check(guides_html.count('class="tile guide"') == 13, f'guides.html: expected 13 guide tiles, found {guides_html.count("class=\"tile guide\"")}')
+    for g in guides:
+        check(f'href="guides/{g.name}"' in guides_html, f'guides.html: no tile links to guides/{g.name}')
 
     if failures:
         print(f'FAIL ({len(failures)}):')
         for f in failures:
             print(f'  - {f}')
         sys.exit(1)
-    print(f'PASS: {len(pages)} HTML pages, {len(guides)} guides, {len(skills)} skills, '
-          f'{len(frames)} frames verified; links, hashes, semantics, map counts, no network loads and required metadata fields OK.')
+    print(f'PASS: {len(pages)} HTML pages, {len(guides)} guides, {len(idea_pages)} idea pages, {len(skills)} skills, '
+          f'{len(frames)} frames verified; links, hashes, semantics, disclosure routes, no network loads and required metadata fields OK.')
 
 
 if __name__ == '__main__':

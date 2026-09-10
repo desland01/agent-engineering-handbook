@@ -113,31 +113,42 @@ the same hue with more contrast. Link underlines fade to 40 % of the link colour
   in-page scrolling. Under `prefers-reduced-motion: reduce` both become instant. Nothing
   animates on load; the current-section marker in the rail changes without transition.
 
-## Hierarchy of the map
+## Hierarchy of the site
 
-1. **Header** — brand with the orange mark, four section links (Guides, Investigations,
-   Skills, Frames), a "More" menu listing every page, and "GitHub". Never the full
-   repository address.
+The home page discloses progressively: it makes the promise, offers the entry by problem,
+shows one taste of each section, and routes out. The full sets live on their own pages.
+
+1. **Header** — brand with the orange mark, five mono section links (Ideas, Guides, Skills,
+   Investigations, Frames), a "More" menu listing every page, and "GitHub".
 2. **Opening, two columns from 980px** — left: the title with one italic accent word, the
-   one-sentence lead, two square buttons, the counts as five mono badges (each a jump
-   link; the counts are generated from the same data as the sections and the build fails
-   if they disagree), the edition line with the attribution sentence. Right: the problem
-   panel, eight rows — situation on the left, numbered tags on the right naming the
-   guide(s) that answer it. Both entry paths, *by problem* and *by source*, are on the
-   first screen at desktop. A drawn hairline grid sits behind, masked to fade.
-3. **Nineteen ideas** first, because they are what the handbook is derived from: icon
-   tiles in a hairline grid, three across from 1080px, two from 700.
-4. **Four skills** as a hairline row, four across from 1080px.
-5. **Thirteen guides** in four shelves grouped by source. Each shelf is a mono `+ Source`
-   label, the provenance paragraph with the pinned revision and investigation link, and
-   the guide range set mono at the right, above an icon-tile grid four across from 1080px.
-6. **Three investigations** as hairline cells carrying their wide monoline diagrams.
-7. **Twelve frames** as file cards — mono timestamp, caption, `open →` — four across from
-   1180px. The images stay in the gallery.
-8. **Closing:** what was checked, and attribution with tag links to the index pages.
+   one-sentence lead, two square buttons (`Browse the nineteen ideas` → `ideas.html`,
+   `All 13 guides` → `guides.html`), the counts as five mono badges that each route to the
+   page holding the set (the build fails if a count disagrees with the set), and the edition
+   line. Right: the problem panel, eight rows — situation on the left, numbered tags naming
+   the guide(s) that answer it. A drawn hairline grid sits behind, masked to fade.
+3. **Ideas** — the first three, in order, as icon tiles, then `ALL 19 IDEAS →`.
+4. **Skills** — all four, as a hairline row. They are the deliverable and fit in one row.
+5. **Guides** — the four source shelves as rows (range, title, count and investigation),
+   each a route into `guides.html#shelf`, then `ALL 13 GUIDES →`.
+6. **Investigations** — all three, as hairline cells carrying their monoline diagrams.
+7. **Frames** — the twelve timestamps as a mono strip, each opening its frame in the
+   gallery, then `OPEN THE GALLERY →`. No stills on the home page.
+8. **Closing** — what was checked, and attribution with tag links to the index pages.
 
 Each band opens with a section marker: a mono label in a bordered pill with a hairline
 rule running from it. That is the only pill on the page.
+
+**Section pages.** `ideas.html` holds all nineteen idea tiles; `guides.html` holds the
+thirteen guides under their shelves; `evidence.html` holds the twelve frames at full size.
+Each opens with the same marker-and-title head as a band, so a section page reads as the
+band unfolded rather than as a different site.
+
+**Idea pages** (`ideas/NN-slug.html`, nineteen of them). Each idea is disclosed in full on
+the reader shell: the drawing, the title, then *What was said*, *How to apply it*, *When it
+is useful* and *Qualification* from the structured extraction, with a rail carrying the
+evidence badge and speaker, the video moment and segment, the guide and skill it leads to,
+the previous and next idea, and the source files. This is where the nineteen tiles' compact
+form pays off: the tile is the disclosure control, the page is the content.
 
 ## The reader
 
@@ -200,17 +211,19 @@ it carries:
 - **Opening** — text-led, on the faded hairline grid. One italic accent word in the
   headline; two square buttons; the five counts as mono badges whose numbers the page can
   prove.
-- **Nineteen ideas** — icon tiles in a hairline grid, each with its authored drawing, a
-  `[nn]` marker, the speaker, when it is useful, a mono "Watch at" link, an evidence badge
-  and its guide and skill tags. No video stills: the frames stay in the gallery.
+- **Nineteen ideas** — icon tiles in a hairline grid (three on the home page, all nineteen
+  on `ideas.html`), each with its authored drawing, a `[nn]` marker, the speaker, when it
+  is useful, the timestamp and an evidence badge; the title opens the idea's page. No video
+  stills: the frames stay in the gallery.
 - **Four skills** — a hairline row led by each drawing, with an honest count
   (`8 ideas feed it`) derived from `evidence/video-tips.json`.
-- **Thirteen guides** — icon tiles grouped under mono `+ Source` shelf labels with the
-  guide range set mono at the right.
+- **Thirteen guides** — on the home page, the four shelves as routing rows; on
+  `guides.html`, icon tiles grouped under mono `+ Source` shelf labels with the guide range
+  set mono at the right.
 - **Three investigations** — hairline cells carrying the wide monoline diagrams, with the
   source file named in mono.
-- **Twelve frames** — file cards: mono timestamp, caption, `open →`. The images
-  themselves live one click away in the gallery, which is where full-size evidence belongs.
+- **Twelve frames** — on the home page, a mono strip of the twelve timestamps, each a
+  route into the gallery, which is where full-size evidence belongs.
 
 The 39 drawings (19 ideas, 4 skills, 13 guides, 3 investigations, all distinct) are
 authored stroke SVG in `build/icons.py`, inlined at build time in `currentColor`, so the

@@ -463,3 +463,44 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
   .tile a.t::after { display: none; }
   a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.85em; color: var(--muted-fg); }
 }
+
+/* ------------------------------------------------ progressive disclosure
+   The home page shows one taste of each section and routes out; the full
+   sets live on ideas.html, guides.html and the gallery. */
+.route { margin-top: 18px; }
+.more { display: inline-flex; align-items: center; gap: 8px; color: var(--accent-text); text-decoration: none; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); }
+.more:hover { text-decoration: underline; }
+.tile.idea h3 a { color: inherit; text-decoration: none; }
+.tile.idea h3 a::after { content: ""; position: absolute; inset: 0; }
+.tile.idea h3 a:hover { color: var(--link); }
+.tile.idea .meta .ts { color: var(--accent-text); }
+
+/* Shelves on the home page: four rows, each a route into guides.html. */
+.shelves { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+@media (min-width: 720px) { .shelves { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.shelves a { display: grid; gap: 4px; padding: 16px 18px; background: var(--bg); color: var(--fg); text-decoration: none; box-shadow: 0 0 0 1px var(--border); transition: background-color var(--hover-ms) ease-out; }
+.shelves a:hover { background: var(--surface); }
+.shelves .range, .shelves .k { font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg); }
+.shelves .range { color: var(--accent-text); }
+.shelves .t { font-weight: 600; font-size: 1rem; letter-spacing: -0.015em; }
+
+/* Frames on the home page: the twelve timestamps as a mono strip. */
+.timestamps { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.timestamps a { display: inline-block; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--accent-text); text-decoration: none; font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.06em; transition: border-color var(--hover-ms) ease-out; }
+.timestamps a:hover { border-color: var(--border-strong); }
+
+/* Section pages: a head, then the full set. */
+.section-head { padding-block: 44px 8px; }
+@media (min-width: 980px) { .section-head { padding-block: 64px 8px; } }
+.section-head h1 { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.1rem); letter-spacing: -0.03em; max-width: 20ch; margin-bottom: 14px; }
+.section-head .lead { color: var(--muted-fg); max-width: 60ch; font-size: 1.05rem; }
+.shelves-band { padding-block: 8px 56px; }
+.shelves-band .shelf-head h2 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; }
+
+/* Idea pages: the reader shell with the drawing above the title. */
+.idea-page .page-head .art { display: block; width: 56px; height: 56px; color: var(--accent-text); margin: 10px 0 14px; }
+.idea-page .page-head .art svg { width: 100%; height: 100%; }
+.idea-page .rail .watch .ts { color: var(--accent-text); text-decoration: none; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); }
+.idea-page .rail .watch .ts:hover { text-decoration: underline; }
+.idea-page .rail .leads p { margin: 0 0 6px; }
+.idea-page .rail .badge { display: inline-block; }
