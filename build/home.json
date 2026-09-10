@@ -23,7 +23,7 @@
     {
       "id": "guides-melee",
       "title": "Melee for Mac",
-      "description": "Two guides adapted from `tools/verify.py`, `docs/code-map.md` and related tools in t3dotgg/melee4mac at revision `a276aeb70f9879204d891d967f1c9442523568e1`.",
+      "description": "Two guides adapted from the verify script and the code map Theo keeps in his Melee for Mac repository.",
       "guides": [
         "09",
         "10"
@@ -33,7 +33,7 @@
     {
       "id": "guides-course-video-manager",
       "title": "Matt Pocock's Course Video Manager",
-      "description": "Two guides adapted from Matt Pocock's course-video-manager at revision `4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8`.",
+      "description": "Two guides adapted from the checks and scripts in Matt Pocock's course-video-manager repository.",
       "guides": [
         "11",
         "12"

@@ -215,6 +215,13 @@ async function main() {
           for (const el of document.querySelectorAll('.btn, .row-controls button')) { const s = getComputedStyle(el); let bg = s.backgroundColor, p = el; while (bg === 'rgba(0, 0, 0, 0)' && p.parentElement) { p = p.parentElement; bg = getComputedStyle(p).backgroundColor; } const l1 = lum(s.color), l2 = lum(bg); if (l1 === null || l2 === null) continue; const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); if (ratio < 4.5) out.push('contrast — "' + el.textContent.trim().slice(0, 30) + '" text/background ' + ratio.toFixed(2) + ':1 (min 4.5)'); }
           // 8. No eyebrow above a heading: no small uppercase label as the element right before an h1/h2.
           for (const h of document.querySelectorAll('h1, h2')) { const prev = h.previousElementSibling; if (!prev) continue; const s = getComputedStyle(prev); const small = parseFloat(s.fontSize) <= 13 && (s.textTransform === 'uppercase' || /mono/i.test(s.fontFamily)); if (small && prev.textContent.trim().length > 0 && prev.textContent.trim().length < 40 && !prev.querySelector('a') && !/^\[\d+\]$/.test(prev.textContent.trim())) out.push('eyebrow — "' + prev.textContent.trim().slice(0, 30) + '" sits above "' + h.textContent.trim().slice(0, 30) + '"'); }
+          // 9. Five seconds, from any viewpoint: no code spans, paths or hashes in front-facing copy.
+          for (const el of document.querySelectorAll('.opening .lead, .band-head p, .section-head .lead, .tile .when, .tile .who, .ledger .what, .shelves .k, .shelf-head p, .hub-next .k, .study .claim, .study .findings li, .tier-lead')) {
+            const txt = el.textContent.trim();
+            if (el.querySelector('code')) out.push('jargon — code span in front-facing copy: "' + txt.slice(0, 50) + '"');
+            else if (/\b[0-9a-f]{12,40}\b/.test(txt)) out.push('jargon — revision hash in front-facing copy: "' + txt.slice(0, 50) + '"');
+            else if (/\b[\w-]+\/[\w.-]+\.(?:py|md|ts|js|json|yaml|yml)\b/.test(txt)) out.push('jargon — file path in front-facing copy: "' + txt.slice(0, 50) + '"');
+          }
           // 7. No emoji anywhere in the rendered text.
           if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(document.body.innerText)) out.push('emoji — rendered text contains an emoji');
           return out;

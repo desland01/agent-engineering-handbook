@@ -129,11 +129,11 @@
     },
     "tip-08-fix-class-loops": {
       "said": {
-        "heading": "Repeated fixes spend tokens",
+        "heading": "Repeated failures waste tokens",
         "body": "Boris as quoted by Theo argues that fixing each occurrence costs tokens and can leave other cases missed. A lint rule, check step, or routine can instead automate the recurring class of busywork. Theo notes that this approach is familiar engineering practice rather than an idea invented for agents."
       },
       "apply": {
-        "heading": "Encode the repeated correction",
+        "heading": "Make the corrections automatic",
         "body": "When you or an agent corrects the same class of issue repeatedly, turn that correction into an executable check. Choose a lint rule, a check gate, or a small script that catches the recurring pattern. Let the check run on each change, and review it as carefully as the code it checks."
       },
       "useful": {
