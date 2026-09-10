@@ -78,23 +78,30 @@ Two failures of that kind, both mine:
 
 ## The harness pilot, round by round
 
-Every round found a fault in the machine, not in the work, and each refusal named a runtime
-constant rather than a mistake on the page. This is the record the batch is built on.
+Eight rounds. Every one found a fault in the machine or in the instruction, none was corrected
+by hand, and each refusal named a runtime constant rather than a mistake on the page.
 
-| # | Refusal | The defect in how the harness was built |
+| # | Result | What was wrong, and what was changed |
 | --- | --- | --- |
-| 1 | `checker_environment_changed` | argv named the candidate and report files the check itself creates, so the environment digest changed between freeze and verify |
-| 2 | `capsule_refused_binding` (`tools_within_anchor`) | the checker capsule's tool set sat outside the anchor tools and omitted the native `Skill` tool |
-| 3 | `repeated_defect_requires_architect_diagnosis` after four repairs | the checker is sandboxed to its own workspace; `--originals` and `--out` pointed outside it, so both read as empty and the report accused the worker of delivering nothing |
-| 4 | `capsule_refused_admission` (`release_bound`) | `~/.nautilus/current` moved to another release mid-build and the generator read its digest from that symlink instead of from the release the plan is bound to |
-| 5 | **accepted** — 1 attempt, 1 checker run, 32 checks, 0 failures | — |
+| 1 | `checker_environment_changed` | argv named the candidate and report files the check itself creates, so the environment digest changed between freeze and verify. The checker derives both paths from `--half`. |
+| 2 | `capsule_refused_binding` (`tools_within_anchor`) | the checker capsule's tool set sat outside the anchor tools and omitted the native `Skill` tool. |
+| 3 | `repeated_defect_requires_architect_diagnosis` after four repairs | the checker is sandboxed to its own workspace; `--originals` and `--out` pointed outside it, read as empty, and the report accused the worker of delivering nothing. Redesign: one declared artifact carries the corrected text, the originals live inside the checker workspace. |
+| 4 | `capsule_refused_admission` (`release_bound`) | `~/.nautilus/current` moved to another release mid-build and the generator read its digest from that symlink instead of from the release the plan is bound to. |
+| 5 | accepted, 32 checks | machine clean; the judged read found two content defects (below). Both became checks. |
+| 6 | accepted, 38 checks | both fixed; the judged read found a coverage miss — `two-to-four-word name` survived because the banned pattern wanted the word "heading" nearby. The pattern now catches a word count attached to a name, and is proved to still accept "up to eight words", the limit the rule itself teaches. |
+| 7 | accepted, 30 checks, one repair inside the harness | the word count was gone but the instruction had become "a short plain name" — a label with its measurement removed. Deliberately not encoded: a regex fitted to that string would measure nothing. The task text carries the general form with both phrasings as the worked right and wrong example. |
+| 8 | accepted, 32 checks, no repair | judged read clean: `a name stating what deciding it settles`, the test stated once, content lists left as content with one sentence added. Scaled. |
 
-Round 3 forced a redesign rather than a patch. Checker copies are single files and each must
-be a declared artifact, so a worker's output *tree* can never reach a check. The worker now
-delivers one artifact carrying the corrected text, and the checker keeps a static copy of the
-originals inside its own workspace. The checker's own suite grew 6 → 8 → 10 → 12 scenarios
-(2 accept, 10 refuse), including one that reproduces the sandbox failure so it can never be
-silent again.
+Round 3 forced a redesign rather than a patch. Checker copies are single files and each must be
+a declared artifact, so a worker's output *tree* can never reach a check. The checker's own
+suite grew 6 → 8 → 10 → 12 → 14 scenarios (3 accept, 11 refuse), including one that reproduces
+the sandbox failure so it can never be silent again, and one that proves the banned-pattern
+list does not ban the rule it teaches.
+
+One judgment left open rather than forced: rounds 6 and 7 added the "delivered headings state
+claims" sentence to a reference file's pattern list; round 8 left that file clean. Both are
+defensible — a list of required contents stays content — so the variance is inside judgment,
+not a defect, and the per-half judged review will settle each real instance.
 
 ## Judged acceptance of the accepted pilot
 
