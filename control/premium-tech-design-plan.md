@@ -86,6 +86,21 @@ The handbook is the proving ground: every change below runs through the gate.
 
 ### C — The gate as machinery, not a memo
 
+**Execution shape (adopted from `long-running-harness`, 2026-09-10).** The plan runs as a
+finite ticket graph in the existing runtime — `tickets-prepare` from astra's `TICKETS.md`
+turned into a recipe, `tickets-start`, `tickets-inspect` — bound to the immutable release
+path at start, so a moved `current` no longer breaks a dispatch. Every visual ticket
+declares, before dispatch: `acceptance.checks` = the JSON report from
+`build/check-report.cjs` (structure, rendered, headings, sentences, scroll, reveal) bound
+to the exact delivered bytes; and `acceptance.qualityReceipt` = the host-authored craft
+receipt written only after a different route's rendered review, with the reviewer's
+report path in its `reason`. That is the design gate expressed in the harness's own
+terms: not a reviewer chain, a declared acceptance target that checks alone cannot
+establish. A repair ticket carries the render, the finding and the maker's answer. The
+controlled comparison runs as an experiment loop: metric = defaults fallen into per blind
+review; baseline = no skill; stop when the rewritten skills beat both conditions on both
+makers or fail to. Non-blocking decisions batch at closeout; silence authorizes nothing.
+
 1. A **design-review capsule template**: reviewer route, `design-review` in role-first form,
    evidence directory of tiles ≤2000px, the design language, the maker's pre-flight plan,
    the report format (page@width, what, evidence, rule, proposed fix). Astra and GLM run it
