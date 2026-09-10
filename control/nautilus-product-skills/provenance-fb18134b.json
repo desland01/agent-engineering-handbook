@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "manufacturer": "Higgsfield",
+  "repository": "https://github.com/higgsfield-ai/skills.git",
+  "commit": "fb18134b4aabe99c4bf7ff01c8f4883400efc80d",
+  "rule": "Installed verbatim; never edited locally; update only by re-syncing to a newer upstream commit and re-running this script.",
+  "skills": {
+    "higgsfield-brandkit": {
+      "files": 29,
+      "contentDigest": "38a1b40f8761f6ef75e1d1d31cb587454961350aa27acd920f5d7f9e2330de9f"
+    },
+    "higgsfield-generate": {
+      "files": 13,
+      "contentDigest": "3c35b6d0fa63281b55542a7d30261871c5acacd0d9d9767cdc9b9125b117330b"
+    },
+    "higgsfield-marketplace-cards": {
+      "files": 1,
+      "contentDigest": "7f8ccee4bb41a63ac056b9ef40a3ae1d9e3c51d920f43e45328e58f0b85ec9b8"
+    },
+    "higgsfield-product-photoshoot": {
+      "files": 1,
+      "contentDigest": "5e3640cee25e2c3ebc37da52e7d070fe288414520441ac36d62fc140a13c6788"
+    },
+    "higgsfield-soul-id": {
+      "files": 3,
+      "contentDigest": "73f37ef06f132cd6872fa74b29c3694eb53cdda4c2d9ebd8460675e05131e945"
+    },
+    "higgsfield-video-explainer": {
+      "files": 2,
+      "contentDigest": "1fc09f758e356f4ae82d10644c2d50a5a42937d4f12f2eb34b22b3f1a89bb71e"
+    },
+    "higgsfield-websites": {
+      "files": 49,
+      "contentDigest": "a98daebfd33a728cf91ca52be2d0fa8c6e0ffebd9be5ebe056f7769ad23033af"
+    },
+    "higgsfield-youtube-thumbnail": {
+      "files": 4,
+      "contentDigest": "e3dfc0a47f6fa721cc0433e87e31fab1a2c0b4d8c49eeafcbfb89e3e4f352036"
+    }
+  }
+}

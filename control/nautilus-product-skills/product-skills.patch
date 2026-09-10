@@ -1,0 +1,784 @@
+diff --git a/scripts/prepare-product-skills.py b/scripts/prepare-product-skills.py
+new file mode 100755
+index 0000000..42a4684
+--- /dev/null
++++ b/scripts/prepare-product-skills.py
+@@ -0,0 +1,100 @@
++#!/usr/bin/env python3
++"""Install manufacturer skills into the release as the product tier, verbatim.
++
++Product skills (owner amendment 2026-09-10) are published by the maker of a paid
++product, installed byte-for-byte from the manufacturer's repository at a pinned
++commit, never capped and never edited locally. This script is the only path
++that puts them into a release:
++
++  prepare-product-skills.py --source <checkout> --commit <40-hex> --manufacturer <name>
++      --repository <https url> --skills a,b,c [--apply]
++
++It copies each named skill directory from the checkout into
++release/charts/product-skills/bundles/<name>/ exactly (no edits, no filtering
++beyond VCS metadata), writes the plugin manifest, catalog and provenance record,
++adds `productSkills` provenance (with the content digest the runtime will
++verify) and `allowance.product: null` to release/skill-capacity.json, and adds
++each skill's frontmatter description to release/skill-purposes.json. Without
++--apply it only reports what it would do. Digest law matches
++src/skill-package.ts productBundleDigest: sha256 of the JSON list of
++[path-relative-to-bundle, sha256(bytes)] sorted by path.
++"""
++import argparse, hashlib, json, os, re, shutil, subprocess, sys
++from pathlib import Path
++
++REPO = Path(__file__).resolve().parent.parent
++RELEASE = REPO / 'release'
++FOLDER = 'charts/product-skills'
++NAME = re.compile(r'^[a-z0-9]+(?:-[a-z0-9]+)*$')
++SKIP = {'.git', '.DS_Store'}
++
++def sha256(data: bytes) -> str:
++    return hashlib.sha256(data).hexdigest()
++
++def frontmatter_description(text: str) -> str:
++    m = re.match(r'^---\r?\n(.*?)\r?\n---(?:\r?\n|$)', text, re.S)
++    if not m:
++        raise SystemExit('SKILL.md without frontmatter')
++    import yaml  # PyYAML is present in the workspace toolchain
++    desc = yaml.safe_load(m.group(1)).get('description')
++    if not isinstance(desc, str) or not desc.strip():
++        raise SystemExit('SKILL.md frontmatter without a description')
++    return desc
++
++def bundle_digest(bundle: Path) -> str:
++    listed = []
++    for p in sorted(x for x in bundle.rglob('*') if x.is_file() and not (set(x.relative_to(bundle).parts) & SKIP)):
++        listed.append([p.relative_to(bundle).as_posix(), sha256(p.read_bytes())])
++    return sha256(json.dumps(listed, separators=(',', ':')).encode())
++
++def main() -> int:
++    ap = argparse.ArgumentParser()
++    ap.add_argument('--source', required=True); ap.add_argument('--commit', required=True)
++    ap.add_argument('--manufacturer', required=True); ap.add_argument('--repository', required=True)
++    ap.add_argument('--skills', required=True); ap.add_argument('--apply', action='store_true')
++    a = ap.parse_args()
++    src = Path(a.source).resolve()
++    if not re.fullmatch(r'[0-9a-f]{40}', a.commit): raise SystemExit('commit must be 40 hex')
++    head = subprocess.run(['git', '-C', str(src), 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
++    if head != a.commit: raise SystemExit(f'source checkout is at {head}, not the pinned {a.commit}')
++    if subprocess.run(['git', '-C', str(src), 'status', '--porcelain'], capture_output=True, text=True).stdout.strip():
++        raise SystemExit('source checkout is dirty; product skills come from a clean pinned commit')
++    names = [n for n in a.skills.split(',') if n]
++    for n in names:
++        if not NAME.match(n) or not (src / n / 'SKILL.md').is_file(): raise SystemExit(f'not a skill at the pinned commit: {n}')
++    dest = RELEASE / FOLDER
++    plan = []
++    for n in names:
++        d = bundle_digest(src / n)
++        plan.append({'name': n, 'files': sum(1 for x in (src / n).rglob('*') if x.is_file()), 'contentDigest': d,
++                     'purpose': frontmatter_description((src / n / 'SKILL.md').read_text())})
++    print(json.dumps({'release': str(RELEASE), 'folder': FOLDER, 'commit': a.commit, 'skills': plan}, indent=1))
++    if not a.apply: print('(preflight only; pass --apply to write)'); return 0
++    if dest.exists(): shutil.rmtree(dest)
++    (dest / 'bundles').mkdir(parents=True)
++    for n in names:
++        shutil.copytree(src / n, dest / 'bundles' / n, ignore=shutil.ignore_patterns(*SKIP))
++        if bundle_digest(dest / 'bundles' / n) != next(p['contentDigest'] for p in plan if p['name'] == n):
++            raise SystemExit(f'copy of {n} does not digest to the source; refusing')
++    (dest / '.claude-plugin').mkdir()
++    (dest / '.claude-plugin/plugin.json').write_text(json.dumps({'name': 'nautilus-product', 'version': a.commit[:12], 'skills': './bundles/',
++        'description': f'Manufacturer skills installed verbatim from {a.repository} at {a.commit}. Never edited locally.'}, indent=2) + '\n')
++    (dest / 'catalog.json').write_text(json.dumps({'schemaVersion': 1, 'generatedFrom': 'scripts/prepare-product-skills.py',
++        'groups': {a.manufacturer.lower().replace(' ', '-'): [{'name': n, 'entrypoint': f'bundles/{n}/SKILL.md', 'description': p['purpose'], 'disableModelInvocation': False, 'userInvocationRequired': False}
++                   for n, p in zip(names, plan)]}}, indent=2) + '\n')
++    (dest / 'provenance.json').write_text(json.dumps({'version': 1, 'manufacturer': a.manufacturer, 'repository': a.repository, 'commit': a.commit,
++        'rule': 'Installed verbatim; never edited locally; update only by re-syncing to a newer upstream commit and re-running this script.',
++        'skills': {p['name']: {'files': p['files'], 'contentDigest': p['contentDigest']} for p in plan}}, indent=2) + '\n')
++    policy_path = RELEASE / 'skill-capacity.json'; policy = json.loads(policy_path.read_text())
++    policy['allowance']['product'] = None
++    policy['productSkills'] = {f'nautilus-product:{p["name"]}': {'category': 'product', 'updateAuthority': 'manufacturer', 'manufacturer': a.manufacturer,
++        'repository': a.repository, 'commit': a.commit, 'contentDigest': p['contentDigest']} for p in plan}
++    policy_path.write_text(json.dumps(policy, indent=2) + '\n')
++    purposes_path = RELEASE / 'skill-purposes.json'; purposes = json.loads(purposes_path.read_text())
++    for p in plan: purposes['purposes'][f'nautilus-product:{p["name"]}'] = p['purpose']
++    purposes_path.write_text(json.dumps(purposes, indent=2) + '\n')
++    print(f'applied: {len(names)} product skills under {dest}; policy and purposes updated')
++    return 0
++
++if __name__ == '__main__':
++    sys.exit(main())
+diff --git a/src/native-skill-configuration.ts b/src/native-skill-configuration.ts
+index 0450174..d547e4a 100644
+--- a/src/native-skill-configuration.ts
++++ b/src/native-skill-configuration.ts
+@@ -49,9 +49,9 @@ export function nativeSkillConfiguration(root:string,files:Record<string,string>
+   if(createHash('sha256').update(bytes).digest('hex')!==files[file])throw Error('native_skill_configuration_release_mismatch: '+file);
+   return JSON.parse(bytes.toString('utf8'));
+  }
+- for(const tier of ['core','business']){
++ for(const tier of ['core','product','business']){
+   const base=`charts/${tier}-skills`;
+-  if(tier==='business'&&!Object.keys(files).some(f=>f.startsWith(base+'/')))continue;
++  if(tier!=='core'&&!Object.keys(files).some(f=>f.startsWith(base+'/')))continue;
+   const manifest=json(base+'/.claude-plugin/plugin.json'),catalog=json(base+'/catalog.json');
+   if(manifest.name!==`nautilus-${tier}`||manifest.skills!=='./bundles/'||typeof manifest.version!=='string'||!manifest.version||catalog.schemaVersion!==1||!catalog.groups||typeof catalog.groups!=='object'||Array.isArray(catalog.groups))throw Error('native_skill_configuration_invalid');
+   const plugin={name:manifest.name,version:manifest.version,skills:manifest.skills,path:path.join(root,base)};
+@@ -85,7 +85,7 @@ export function nativeSkillConfiguration(root:string,files:Record<string,string>
+   for(const id of new Set(ids)){
+    const plugin=plugins.find(p=>id.startsWith(p.name+':'));
+    if(!plugin||!expectedSkills.includes(id)||(permitted&&id.startsWith('nautilus-business:')&&!permitted.includes(id)))throw Error('capsule_required_chart_unresolvable: '+id);
+-   const tier=plugin.name==='nautilus-core'?'core':'business';
++   const tier=plugin.name==='nautilus-core'?'core':plugin.name==='nautilus-product'?'product':'business';
+    sections.push(...resolveRequiredChartBodies({requiredCharts:[id],releaseRoot:root,releaseFiles:files,pluginName:plugin.name,bundlesDir:`charts/${tier}-skills/bundles`}));
+   }
+   return sections;
+diff --git a/src/skill-capacity.ts b/src/skill-capacity.ts
+index 0f6b51a..383d95e 100644
+--- a/src/skill-capacity.ts
++++ b/src/skill-capacity.ts
+@@ -38,7 +38,9 @@
+ 
+ // business is retained solely for admission/recovery of version-1 declarations.
+ // Version-2 packages classify by purpose into core/domain; it is not an alias.
+-export const CAPACITY_TIERS = ['core', 'domain', 'business'] as const;
++// product is the manufacturer tier (owner amendment 2026-09-10): skills published
++// by the maker of a paid product, installed verbatim and never capped.
++export const CAPACITY_TIERS = ['core', 'domain', 'product', 'business'] as const;
+ export type CapacityTier = (typeof CAPACITY_TIERS)[number];
+ 
+ /** File name of the canonical active skill entrypoint inside a bundle. */
+@@ -80,8 +82,9 @@ export interface SkillCatalog {
+   readonly tiers: readonly TierSection[];
+ }
+ 
+-/** Tier limits from the caller's release declaration; a tier may be undeclared. */
+-export type CapacityAllowance = Partial<Record<CapacityTier, number>>;
++/** Tier limits from the caller's release declaration; a tier may be undeclared.
++ * The product tier is declared as `null`: it has no limit, by policy, ever. */
++export type CapacityAllowance = Partial<Record<CapacityTier, number | null>>;
+ 
+ export type MigrationStep =
+   | { readonly type: 'add'; readonly tier: CapacityTier; readonly entry: SkillEntry }
+@@ -199,7 +202,7 @@ function sectionsOf(catalog: SkillCatalog): Map<CapacityTier, SkillEntry[]> {
+   const seenNames = new Set<string>();
+   for (const section of catalog.tiers) {
+     if (typeof section !== 'object' || section === null || !isTier(section.tier)) {
+-      throw new SkillCapacityError('unknown_tier', 'catalog section has a tier outside core/domain or legacy business');
++      throw new SkillCapacityError('unknown_tier', 'catalog section has a tier outside core/domain/product or legacy business');
+     }
+     if (sections.has(section.tier)) throw new SkillCapacityError('duplicate_tier_section', `tier "${section.tier}" appears twice`);
+     if (!Array.isArray(section.entries)) throw new SkillCapacityError('catalog_invalid', `tier "${section.tier}" entries must be an array`);
+@@ -217,6 +220,15 @@ function sectionsOf(catalog: SkillCatalog): Map<CapacityTier, SkillEntry[]> {
+ 
+ function limitOf(allowance: CapacityAllowance, tier: CapacityTier): number {
+   const limit = allowance[tier];
++  if (tier === 'product') {
++    // Absent and null mean the same thing for this tier: there is no limit,
++    // by policy, and nothing is being defaulted because no number exists.
++    if (limit !== null && limit !== undefined) {
++      throw new SkillCapacityError('product_uncapped',
++        'the product tier is never capped: manufacturer skills are declared with allowance.product null, not a number');
++    }
++    return Number.POSITIVE_INFINITY;
++  }
+   if (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 0) {
+     throw new SkillCapacityError('invalid_allowance', `limit for tier "${tier}" must be a non-negative integer`);
+   }
+@@ -224,8 +236,8 @@ function limitOf(allowance: CapacityAllowance, tier: CapacityTier): number {
+ }
+ 
+ function requireLimit(allowance: CapacityAllowance, tier: CapacityTier): number {
+-  if (!isTier(tier)) throw new SkillCapacityError('unknown_tier', `tier "${String(tier)}" is not core/domain or legacy business`);
+-  if (allowance[tier] === undefined) {
++  if (!isTier(tier)) throw new SkillCapacityError('unknown_tier', `tier "${String(tier)}" is not core/domain/product or legacy business`);
++  if (allowance[tier] === undefined && tier !== 'product') {
+     throw new SkillCapacityError('allowance_missing_limit',
+       `the caller release declaration supplies no limit for tier "${tier}"; policy is never defaulted`);
+   }
+@@ -244,6 +256,7 @@ function catalogFrom(sections: Map<CapacityTier, SkillEntry[]>): SkillCatalog {
+ const countsOf = (sections: Map<CapacityTier, SkillEntry[]>): Partial<Record<CapacityTier, number>> => ({
+   core: sections.get('core')?.length ?? 0,
+   ...(sections.has('domain') ? {domain: sections.get('domain')!.length} : {}),
++  ...(sections.has('product') ? {product: sections.get('product')!.length} : {}),
+   ...(!sections.has('domain') || sections.has('business') ? {business: sections.get('business')?.length ?? 0} : {}),
+ });
+ 
+@@ -427,8 +440,9 @@ function evaluateLowerAllowance(
+     }
+   }
+ 
++  const ceiling = (tier: CapacityTier): number => (newAllowance[tier] === null ? Number.POSITIVE_INFINITY : (newAllowance[tier] ?? 0));
+   const counts = countsOf(sections);
+-  const overTiers = CAPACITY_TIERS.filter(tier => (counts[tier] ?? 0) > (newAllowance[tier] ?? 0));
++  const overTiers = CAPACITY_TIERS.filter(tier => (counts[tier] ?? 0) > ceiling(tier));
+   if (overTiers.length === 0) {
+     return buildResult(sections, newAllowance, true, 'within_new_limit',
+       'the catalog already satisfies the declared limits; a supplied migration is not applied',
+@@ -457,7 +471,7 @@ function evaluateLowerAllowance(
+   }
+ 
+   const finalCounts = countsOf(working);
+-  const stillOver = CAPACITY_TIERS.filter(tier => (finalCounts[tier] ?? 0) > (newAllowance[tier] ?? 0));
++  const stillOver = CAPACITY_TIERS.filter(tier => (finalCounts[tier] ?? 0) > ceiling(tier));
+   if (stillOver.length > 0) {
+     return buildResult(sections, newAllowance, false, 'migration_insufficient',
+       `the migration leaves ${stillOver.map(tier => `"${tier}" at ${finalCounts[tier]} entries`).join(' and ')}`
+diff --git a/src/skill-derived-documents.ts b/src/skill-derived-documents.ts
+index f9359ac..fc921c4 100644
+--- a/src/skill-derived-documents.ts
++++ b/src/skill-derived-documents.ts
+@@ -171,7 +171,7 @@ function boundBytes(releaseRoot: string, files: Record<string, string>, path: st
+ interface InventoryRow {
+   readonly id: string;
+   readonly name: string;
+-  readonly category: 'core' | 'domain';
++  readonly category: 'core' | 'domain' | 'product';
+   readonly description: string;
+   readonly invocation: string;
+ }
+@@ -206,6 +206,8 @@ interface DerivedInputs {
+   readonly business: {readonly core: number; readonly domain: number};
+   readonly target: {readonly core: number; readonly domain: number} | undefined;
+   readonly allowance: {readonly core: number; readonly domain: number};
++  /** Manufacturer skills: counted, never capped, never edited locally. */
++  readonly product: number;
+ }
+ 
+ const invocationOf = (frontmatter: Record<string, unknown>): string => {
+@@ -240,7 +242,7 @@ function deriveInputs(releaseRoot: string, files: Record<string, string>, option
+   // All-active category totals come from the admitted inventory (publisher
+   // and declared business-authored skills alike), never from the catalog rows
+   // alone; the two populations are reported separately.
+-  const countOf = (authority: string, category: 'core' | 'domain'): number =>
++  const countOf = (authority: string, category: 'core' | 'domain' | 'product'): number =>
+     inventory.filter(entry => entry.updateAuthority === authority && entry.category === category).length;
+   return {
+     rows,
+@@ -249,6 +251,7 @@ function deriveInputs(releaseRoot: string, files: Record<string, string>, option
+     business: {core: countOf('business-procedure', 'core'), domain: countOf('business-procedure', 'domain')},
+     target: pkg.target ? {...pkg.target} : undefined,
+     allowance: {core: pkg.allowance.core as number, domain: pkg.allowance.domain as number},
++    product: countOf('manufacturer', 'product'),
+   };
+ }
+ 
+@@ -282,6 +285,9 @@ function renderInventory(inputs: DerivedInputs): string {
+     + ` business-authored ${inputs.business.core + inputs.business.domain} (core ${inputs.business.core}, domain ${inputs.business.domain}), declared separately by the approved business package.`
+     + ` ${targets} and stops at its declared maximum (${inputs.allowance.core} core, ${inputs.allowance.domain} domain);`
+     + ' the categories are counted and limited independently, with no borrowing.', '');
++  if (inputs.product > 0) {
++    lines.push(`Product skills: ${inputs.product} manufacturer-maintained (no maximum; installed verbatim at a pinned upstream commit and never edited locally; counted in neither core nor domain).`, '');
++  }
+   return lines.join('\n');
+ }
+ 
+@@ -294,6 +300,7 @@ function renderCapacity(inputs: DerivedInputs): string {
+     target,
+     `- Maximum per purpose category: ${inputs.allowance.core} core, ${inputs.allowance.domain} domain.`,
+     '- The categories are counted and limited independently; neither borrows unused places from the other.',
++    `- Product skills: ${inputs.product} manufacturer-maintained, no maximum, never edited locally; outside both counts.`,
+     '- Purpose category, publisher update authority and invocation behaviour are separate declared properties; this region derives only the counts, targets and allowances above.',
+     '',
+   ].join('\n');
+diff --git a/src/skill-package.ts b/src/skill-package.ts
+index f693892..e8a0a21 100644
+--- a/src/skill-package.ts
++++ b/src/skill-package.ts
+@@ -139,8 +139,24 @@ interface TierBinding {
+ 
+ const TIER_BINDINGS: readonly TierBinding[] = [
+   {tier: 'core', folder: 'charts/core-skills', pluginName: 'nautilus-core'},
++  {tier: 'product', folder: 'charts/product-skills', pluginName: 'nautilus-product'},
+   {tier: 'business', folder: 'charts/business-skills', pluginName: 'nautilus-business'},
+ ];
++const PRODUCT_ID = /^nautilus-product:[a-z0-9]+(?:-[a-z0-9]+)*$/;
++const COMMIT40 = /^[0-9a-f]{40}$/;
++const PROVENANCE_FIELDS = ['category','updateAuthority','manufacturer','repository','commit','contentDigest'] as const;
++
++/**
++ * Digest of every sealed file inside one product bundle: the sorted list of
++ * (path relative to the bundle, sealed sha256) as JSON, hashed. A single
++ * changed byte in any file - the entrypoint or a reference - changes it, which
++ * is the whole point: a manufacturer skill is admitted only as shipped.
++ */
++export function productBundleDigest(files: Record<string, string>, folder: string, name: string): string {
++  const prefix = `${folder}/bundles/${name}/`;
++  const listed = Object.keys(files).filter(path => path.startsWith(prefix)).sort().map(path => [path.slice(prefix.length), files[path]]);
++  return createHash('sha256').update(JSON.stringify(listed), 'utf8').digest('hex');
++}
+ 
+ const catalogPath = (folder: string): string => `${folder}/catalog.json`;
+ const pluginManifestPath = (folder: string): string => `${folder}/.claude-plugin/plugin.json`;
+@@ -203,12 +219,20 @@ function parsePolicy(releaseRoot: string, files: Record<string, string>): Capaci
+       `${POLICY_FILE} must be exactly {version:${POLICY_VERSION}, allowance:{${tierKeys.join(',')}}}`);
+   }
+   const allowance = parsed.allowance;
+-  if (!exactShape(allowance, tierKeys)) {
++  const capped = tierKeys.filter(tier => tier !== 'product');
++  if (!exactShape(allowance, capped) && !exactShape(allowance, [...capped, 'product'])) {
+     throw new SkillCapacityError('policy_invalid',
+-      `${POLICY_FILE} allowance must declare exactly the tiers ${tierKeys.join(' and ')}`);
++      `${POLICY_FILE} allowance must declare exactly the tiers ${capped.join(' and ')} (product, if present, is null)`);
+   }
+   const declared: CapacityAllowance = {};
+   for (const {tier} of TIER_BINDINGS) {
++    if (tier === 'product') {
++      if (Object.hasOwn(allowance, 'product')) {
++        if (allowance.product !== null) throw new SkillCapacityError('policy_invalid', `${POLICY_FILE} allowance.product must be null: the product tier is never capped`);
++        declared.product = null;
++      }
++      continue;
++    }
+     if (!isNonNegativeInteger(allowance[tier])) {
+       throw new SkillCapacityError('policy_invalid',
+         `${POLICY_FILE} allowance.${tier} must be a non-negative integer declared by the publisher; it is never defaulted`);
+@@ -218,9 +242,12 @@ function parsePolicy(releaseRoot: string, files: Record<string, string>): Capaci
+   return declared;
+ }
+ 
+-export interface SkillClassification {category:'core'|'domain';updateAuthority:'publisher'|'business-procedure'}
++export interface SkillClassification {category:'core'|'domain'|'product';updateAuthority:'publisher'|'business-procedure'|'manufacturer'}
++/** Provenance of a manufacturer skill: where its bytes come from and the digest they must still have. */
++export interface ProductProvenance {manufacturer:string;repository:string;commit:string;contentDigest:string}
++export type ProductClassification = SkillClassification & ProductProvenance;
+ export type CategoryLimits = {readonly core: number; readonly domain: number};
+-interface CategoryPolicy {version:2|3;allowance:{core:number;domain:number};target?:CategoryLimits;publisherSkills:Record<string,SkillClassification>;businessAuthored:SkillClassification}
++interface CategoryPolicy {version:2|3;allowance:{core:number;domain:number;product?:null};target?:CategoryLimits;publisherSkills:Record<string,SkillClassification>;businessAuthored:SkillClassification;productSkills?:Record<string,ProductClassification>}
+ /**
+  * Purpose-category policy. Version 2 keeps its original independent 30-slot
+  * limits. Version 3 declares the owner's exact 35-target/50-maximum per
+@@ -231,7 +258,10 @@ function categoryPolicy(root:string,files:Record<string,string>):CategoryPolicy|
+  if(!isPlainObject(raw)||(raw.version!==2&&raw.version!==3))return undefined;
+  const version=raw.version as 2|3;
+  const keys=version===2?['version','allowance','publisherSkills','businessAuthored']:['version','allowance','target','publisherSkills','businessAuthored'];
+- if(!exactShape(raw,keys)||!exactShape(raw.allowance,['core','domain'])||!isPlainObject(raw.publisherSkills)||!exactShape(raw.businessAuthored,['category','updateAuthority']))throw new SkillCapacityError('policy_invalid',`invalid version-${version} category declaration`);
++ // productSkills is optional at every classified version; allowance.product, when present, is null.
++ const hasProducts=Object.hasOwn(raw,'productSkills');
++ const shapeKeys=hasProducts?[...keys,'productSkills']:keys;
++ if(!exactShape(raw,shapeKeys)||!(exactShape(raw.allowance,['core','domain'])||exactShape(raw.allowance,['core','domain','product']))||!isPlainObject(raw.publisherSkills)||!exactShape(raw.businessAuthored,['category','updateAuthority']))throw new SkillCapacityError('policy_invalid',`invalid version-${version} category declaration`);
+  if(version===2){
+   for(const category of ['core','domain'])if(!isNonNegativeInteger(raw.allowance[category])||(raw.allowance[category] as number)>30)throw new SkillCapacityError('policy_invalid','each declared category is limited to at most30');
+  }else{
+@@ -241,6 +271,19 @@ function categoryPolicy(root:string,files:Record<string,string>):CategoryPolicy|
+    if((raw.target as Record<string,unknown>)[category]!==VERSION3_TARGET)throw new SkillCapacityError('policy_invalid',`version-3 target.${category} must be exactly ${VERSION3_TARGET}`);
+   }
+  }
++ if(Object.hasOwn(raw.allowance as object,'product')&&(raw.allowance as Record<string,unknown>).product!==null)throw new SkillCapacityError('policy_invalid','allowance.product must be null: the product tier is never capped');
++ if(hasProducts){
++  if(!isPlainObject(raw.productSkills))throw new SkillCapacityError('policy_invalid','productSkills must be an object');
++  for(const [id,value] of Object.entries(raw.productSkills)){
++   if(!PRODUCT_ID.test(id)||!exactShape(value,PROVENANCE_FIELDS))throw new SkillCapacityError('policy_invalid','productSkills.'+id+' must be nautilus-product:<kebab> with exactly '+PROVENANCE_FIELDS.join(', '));
++   const v=value as Record<string,unknown>;
++   if(v.category!=='product'||v.updateAuthority!=='manufacturer')throw new SkillCapacityError('policy_invalid','productSkills.'+id+' must keep category product and manufacturer update authority');
++   if(typeof v.manufacturer!=='string'||!v.manufacturer.trim()||v.manufacturer.length>200)throw new SkillCapacityError('policy_invalid','productSkills.'+id+' manufacturer');
++   if(typeof v.repository!=='string'||!/^https:\/\/[^\s]+$/.test(v.repository))throw new SkillCapacityError('policy_invalid','productSkills.'+id+' repository must be an https URL');
++   if(typeof v.commit!=='string'||!COMMIT40.test(v.commit))throw new SkillCapacityError('policy_invalid','productSkills.'+id+' commit must be a 40-hex upstream commit');
++   if(typeof v.contentDigest!=='string'||!HEX64.test(v.contentDigest))throw new SkillCapacityError('policy_invalid','productSkills.'+id+' contentDigest');
++  }
++ }
+  if(raw.businessAuthored.category!=='domain'||raw.businessAuthored.updateAuthority!=='business-procedure')throw new SkillCapacityError('policy_invalid','business-authored methods must explicitly retain domain category and procedure approval authority');
+  for(const [id,value]of Object.entries(raw.publisherSkills))if(!/^nautilus-core:[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)||!exactShape(value,['category','updateAuthority'])||!['core','domain'].includes(value.category as string)||value.updateAuthority!=='publisher')throw new SkillCapacityError('policy_invalid','publisher skills require purpose category and unchanged publisher authority');
+  return raw as unknown as CategoryPolicy;
+@@ -395,7 +438,7 @@ function projectSkillPackage(releaseRoot: string, files: Record<string, string>)
+       + ' removing the policy cannot turn a skill release back into a legacy release while bundles remain');
+   }
+   const categories=categoryPolicy(releaseRoot,files);
+-  const allowance = categories?.allowance ?? parsePolicy(releaseRoot, files);
++  const allowance: CapacityAllowance = categories ? {...categories.allowance, ...(categories.productSkills ? {product: null} : {})} : parsePolicy(releaseRoot, files);
+   const classifications:Record<string,SkillClassification>={};
+   const classifiedEntries=new Map<CapacityTier,SkillEntry[]>();
+ 
+@@ -431,6 +474,9 @@ function projectSkillPackage(releaseRoot: string, files: Record<string, string>)
+     }
+ 
+     const tierEntries: SkillEntry[] = [];
++    if (tier === 'product' && entries.length > 0 && !categories) {
++      throw new SkillCapacityError('product_requires_classification', `${folder} ships manufacturer skills, which need a classified policy (version 2 or 3) with productSkills provenance`);
++    }
+     for (const entry of entries) {
+       // Path safety: the entrypoint must be the canonical single-segment
+       // location for this entry's own name before any release path is built.
+@@ -451,8 +497,15 @@ function projectSkillPackage(releaseRoot: string, files: Record<string, string>)
+       tierEntries.push(value);
+       if(categories){
+         const id=pluginName+':'+entry.name;
+-        const classification=tier==='business'?categories.businessAuthored:categories.publisherSkills[id];
++        const classification=tier==='business'?categories.businessAuthored:tier==='product'?categories.productSkills?.[id]:categories.publisherSkills[id];
+         if(!classification)throw new SkillCapacityError('classification_required','missing purpose classification for '+id);
++        if(tier==='product'){
++          // A manufacturer skill is admitted only as shipped: every sealed byte
++          // of the bundle must still digest to what the provenance declares.
++          const pinned=classification as ProductClassification;
++          const actual=productBundleDigest(files,folder,entry.name);
++          if(actual!==pinned.contentDigest)throw new SkillCapacityError('product_skill_modified',`${id} differs from the bytes pinned at ${pinned.repository}@${pinned.commit}; product skills are never edited locally - re-sync from upstream and record the new commit`);
++        }
+         classifications[id]={...classification};
+         const values=classifiedEntries.get(classification.category)??[];values.push(value);classifiedEntries.set(classification.category,values);
+       }
+@@ -462,7 +515,7 @@ function projectSkillPackage(releaseRoot: string, files: Record<string, string>)
+ 
+   // Existing no-op-compatible admission check: lowering to the same declared
+   // limits admits the current catalog, and refuses any tier beyond its limit.
+-  if(categories)for(const id of Object.keys(categories.publisherSkills))if(!Object.hasOwn(classifications,id))throw new SkillCapacityError('classification_orphan','classification has no admitted skill: '+id);
++  if(categories)for(const id of [...Object.keys(categories.publisherSkills),...Object.keys(categories.productSkills??{})])if(!Object.hasOwn(classifications,id))throw new SkillCapacityError('classification_orphan','classification has no admitted skill: '+id);
+   const catalog: SkillCatalog = {tiers: categories ? [...classifiedEntries].map(([tier,entries])=>({tier,entries})) : sections};
+   const result = evaluateCapacity(catalog, allowance, {type: 'lowerAllowance', allowance});
+   if (!result.admitted) throw new SkillCapacityError(result.reason, result.detail);
+@@ -487,7 +540,7 @@ function purposeInventory(releaseRoot:string,files:Record<string,string>,pkg:Ski
+  const ids=Object.keys(pkg.classifications).sort();
+  const sourceOf=(id:string):Buffer=>{
+   const [plugin,name]=id.split(':');
+-  const folder=plugin==='nautilus-core'?'core':'business';
++  const folder=plugin==='nautilus-core'?'core':plugin==='nautilus-product'?'product':'business';
+   return boundBytes(releaseRoot,files,`charts/${folder}-skills/bundles/${name}/SKILL.md`,'entrypoint_hash_mismatch');
+  };
+  let purposeOf:(id:string,source:Buffer)=>string;
+diff --git a/src/skill-publication.ts b/src/skill-publication.ts
+index 99d893c..7da647f 100644
+--- a/src/skill-publication.ts
++++ b/src/skill-publication.ts
+@@ -379,6 +379,10 @@ export function composeSkillAdmissionLedger(input: LedgerCompositionInput): Skil
+         else if (previousCount <= target[category] && previous.inventory.some(candidate => candidate.category === category && sameTuple(candidate, entry))) binding = null;
+         else throw new SkillPublicationRefusal('lineage_missing', `${entry.id} is above the ${category} target without review or baseline lineage`);
+       }
++      // Rosters are built from the core/domain categories only; a manufacturer
++      // authority cannot reach here because validation binds it to the product
++      // category, so the narrowing below states a proven fact.
++      if (entry.updateAuthority === 'manufacturer') throw new SkillPublicationRefusal('roster_authority_invalid', `${entry.id}: manufacturer skills are never rostered`);
+       return {id: entry.id, purposeHash: entry.purposeHash, updateAuthority: entry.updateAuthority, sourceHash: entry.sourceHash, review: binding};
+     });
+     rosters[category] = roster;
+diff --git a/src/skill-scrutiny.ts b/src/skill-scrutiny.ts
+index f9a3d23..ebba020 100644
+--- a/src/skill-scrutiny.ts
++++ b/src/skill-scrutiny.ts
+@@ -75,8 +75,8 @@ export {SkillCapacityError};
+ // Inventory contract
+ // ---------------------------------------------------------------------------
+ 
+-export type SkillCategory = 'core' | 'domain';
+-export type UpdateAuthority = 'publisher' | 'business-procedure';
++export type SkillCategory = 'core' | 'domain' | 'product';
++export type UpdateAuthority = 'publisher' | 'business-procedure' | 'manufacturer';
+ 
+ export interface SkillInventoryEntry {
+   readonly id: string;
+@@ -123,10 +123,10 @@ export interface SkillChangeAssessment {
+   readonly requiredAuthoring: readonly RequiredAuthoring[];
+ }
+ 
+-const ID_PATTERN = /^(nautilus-core|nautilus-business):([a-z0-9]+(?:-[a-z0-9]+)*)$/;
++const ID_PATTERN = /^(nautilus-core|nautilus-business|nautilus-product):([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+ const HASH_PATTERN = /^[0-9a-f]{64}$/;
+ const INVENTORY_FIELDS = ['id', 'category', 'sourceHash', 'purposeHash', 'updateAuthority'] as const;
+-const SCRUTINY_LIMITS: CapacityAllowance = {core: 50, domain: 50};
++const SCRUTINY_LIMITS: CapacityAllowance = {core: 50, domain: 50, product: null};
+ const REVIEW_TARGET = 35;
+ const BASE_CHARTS = ['nautilus-core:precise', 'nautilus-core:create-skill'] as const;
+ const BUSINESS_PROCEDURE_CHART = 'nautilus-core:operational-sop';
+@@ -165,18 +165,21 @@ function validateEntry(entry: unknown, where: string): SkillInventoryEntry {
+   const match = typeof record.id === 'string' ? ID_PATTERN.exec(record.id) : null;
+   if (match === null || match[2]!.length > 64) {
+     throw new SkillCapacityError('invalid_id', `${where}: id ${JSON.stringify(record.id ?? null)}`
+-      + ' is not nautilus-core:<kebab> or nautilus-business:<kebab>');
++      + ' is not nautilus-core:<kebab>, nautilus-business:<kebab> or nautilus-product:<kebab>');
+   }
+   const category = record.category;
+-  if (category !== 'core' && category !== 'domain') {
+-    throw new SkillCapacityError('unknown_tier', `${where}: category ${JSON.stringify(category)} is not core or domain`);
++  if (category !== 'core' && category !== 'domain' && category !== 'product') {
++    throw new SkillCapacityError('unknown_tier', `${where}: category ${JSON.stringify(category)} is not core, domain or product`);
+   }
+   const namespace = match[1];
+-  if (record.updateAuthority !== 'publisher' && record.updateAuthority !== 'business-procedure') {
++  if (record.updateAuthority !== 'publisher' && record.updateAuthority !== 'business-procedure' && record.updateAuthority !== 'manufacturer') {
+     throw new SkillCapacityError('invalid_update_authority', `${where}: invalid update authority`);
+   }
+-  if ((namespace === 'nautilus-core' && record.updateAuthority !== 'publisher')
+-      || (namespace === 'nautilus-business' && (category !== 'domain' || record.updateAuthority !== 'business-procedure'))) {
++  // A product skill is exactly its namespace, category and authority together;
++  // none of the three transfers to or from the other tiers.
++  if ((namespace === 'nautilus-core' && (record.updateAuthority !== 'publisher' || category === 'product'))
++      || (namespace === 'nautilus-business' && (category !== 'domain' || record.updateAuthority !== 'business-procedure'))
++      || (namespace === 'nautilus-product' && (category !== 'product' || record.updateAuthority !== 'manufacturer'))) {
+     throw new SkillCapacityError('scrutiny_authority_mismatch', `${where}: preserve the declared package update authority; category does not transfer ownership`);
+   }
+   const sourceHash = record.sourceHash;
+@@ -251,7 +254,7 @@ const capacityEntry = (entry: SkillInventoryEntry): SkillEntry => {
+ 
+ function catalogOf(entries: readonly SkillInventoryEntry[]): SkillCatalog {
+   const tiers: {tier: CapacityTier; entries: SkillEntry[]}[] = [];
+-  for (const tier of ['core', 'domain'] as const) {
++  for (const tier of ['core', 'domain', 'product'] as const) {
+     const selected = entries.filter(entry => entry.category === tier).map(capacityEntry);
+     if (selected.length > 0) tiers.push({tier, entries: selected});
+   }
+@@ -287,6 +290,7 @@ export function assessSkillChange(
+   const counts: Record<SkillCategory, number> = {
+     core: proposedEntries.filter(entry => entry.category === 'core').length,
+     domain: proposedEntries.filter(entry => entry.category === 'domain').length,
++    product: proposedEntries.filter(entry => entry.category === 'product').length,
+   };
+ 
+   const hardLimitSatisfied = evaluateCapacity(catalogOf(proposedEntries), SCRUTINY_LIMITS, {type: 'lowerAllowance', allowance: SCRUTINY_LIMITS}).admitted;
+@@ -323,6 +327,9 @@ export function assessSkillChange(
+   // ---- required authoring: every added or changed identity, byte hash, or authority
+   const authoring: RequiredAuthoring[] = [];
+   for (const entry of proposedEntries) {
++    // Manufacturer skills are never authored here: their bytes are bound to
++    // an upstream commit by the package's provenance digest instead.
++    if (entry.updateAuthority === 'manufacturer') continue;
+     const before = previousById.get(entry.id);
+     const changed = before === undefined
+       || before.purposeHash !== entry.purposeHash
+diff --git a/tests/product-skills.test.ts b/tests/product-skills.test.ts
+new file mode 100644
+index 0000000..659038a
+--- /dev/null
++++ b/tests/product-skills.test.ts
+@@ -0,0 +1,189 @@
++// Product skills: a third category for manufacturer-published skills of a
++// paid product. Uncapped, installed verbatim at a pinned upstream commit, and
++// refused the moment their bytes differ from the declared provenance digest.
++// Owner amendment of 2026-09-10 (ARCHITECT.md, "Product skills").
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {createHash} from 'node:crypto';
++import {mkdirSync, mkdtempSync, writeFileSync, rmSync, readdirSync, lstatSync, readFileSync} from 'node:fs';
++import {dirname, join, relative, resolve} from 'node:path';
++import {evaluateCapacity, SkillCapacityError} from '../src/skill-capacity.js';
++import type {SkillCatalog, SkillEntry} from '../src/skill-capacity.js';
++import {assessSkillChange, skillInventoryDigest} from '../src/skill-scrutiny.js';
++import type {SkillInventoryEntry} from '../src/skill-scrutiny.js';
++import {assertSkillPackage, productBundleDigest, readSkillPackageInventory} from '../src/skill-package.js';
++import {nativeSkillConfiguration} from '../src/native-skill-configuration.js';
++import {assertSkillContentBounds} from '../src/skill-content.js';
++
++process.env.TMPDIR = resolve(process.cwd(), 'tmp');
++const TMP = resolve(process.cwd(), 'tmp');
++const sha256 = (data: string | Buffer) => createHash('sha256').update(data).digest('hex');
++const hex = (input: string) => sha256(input);
++const COMMIT = 'fb18134b4aabe99c4bf7ff01c8f4883400efc80d';
++
++const thrownCode = (run: () => unknown): string => {
++  try { run(); } catch (error) {
++    assert.ok(error instanceof SkillCapacityError, `expected SkillCapacityError, got ${String(error)}`);
++    return error.code;
++  }
++  assert.fail('expected a throw');
++};
++
++// ---------------------------------------------------------------- capacity
++const entry = (name: string): SkillEntry => ({name, sourceHash: hex(name), version: 'v', location: `bundles/${name}/SKILL.md`});
++const catalog = (core: number, product: number): SkillCatalog => ({tiers: [
++  {tier: 'core', entries: Array.from({length: core}, (_, i) => entry(`core-${i}`))},
++  {tier: 'product', entries: Array.from({length: product}, (_, i) => entry(`prod-${i}`))},
++]});
++
++test('the product tier is uncapped: a null allowance admits any count', () => {
++  const result = evaluateCapacity(catalog(3, 300), {core: 50, product: null}, {type: 'add', tier: 'product', entry: entry('prod-more')});
++  assert.equal(result.admitted, true);
++  assert.equal(result.resultingCount.product, 301);
++});
++
++test('the product tier refuses a numeric limit: a cap on manufacturer skills is not a policy this runtime accepts', () => {
++  assert.equal(thrownCode(() => evaluateCapacity(catalog(3, 1), {core: 50, product: 5}, {type: 'add', tier: 'product', entry: entry('x')})), 'product_uncapped');
++});
++
++test('core stays capped exactly as before when a product tier is present', () => {
++  const result = evaluateCapacity(catalog(50, 8), {core: 50, product: null}, {type: 'add', tier: 'core', entry: entry('core-extra')});
++  assert.equal(result.admitted, false);
++  assert.equal(result.reason, 'limit_exceeded');
++});
++
++test('lowering allowances leaves the product tier untouched and never counts it as over', () => {
++  const result = evaluateCapacity(catalog(10, 200), {core: 50, product: null}, {type: 'lowerAllowance', allowance: {core: 40, product: null}});
++  assert.equal(result.admitted, true);
++});
++
++// ---------------------------------------------------------------- scrutiny
++const inv = (id: string, category: SkillInventoryEntry['category'], updateAuthority: SkillInventoryEntry['updateAuthority']): SkillInventoryEntry =>
++  ({id, category, sourceHash: hex(`s:${id}`), purposeHash: hex(`p:${id}`), updateAuthority});
++const cores = (n: number) => Array.from({length: n}, (_, i) => inv(`nautilus-core:c-${String(i).padStart(3, '0')}`, 'core', 'publisher'));
++const products = (n: number) => Array.from({length: n}, (_, i) => inv(`nautilus-product:p-${String(i).padStart(3, '0')}`, 'product', 'manufacturer'));
++
++test('a product skill is exactly the nautilus-product namespace, the product category and manufacturer authority', () => {
++  assert.equal(skillInventoryDigest(products(1)).length, 64);
++  assert.equal(thrownCode(() => skillInventoryDigest([inv('nautilus-product:x', 'core', 'manufacturer')])), 'scrutiny_authority_mismatch');
++  assert.equal(thrownCode(() => skillInventoryDigest([inv('nautilus-product:x', 'product', 'publisher')])), 'scrutiny_authority_mismatch');
++  assert.equal(thrownCode(() => skillInventoryDigest([inv('nautilus-core:x', 'product', 'publisher')])), 'scrutiny_authority_mismatch');
++  assert.equal(thrownCode(() => skillInventoryDigest([inv('nautilus-core:x', 'core', 'manufacturer')])), 'scrutiny_authority_mismatch');
++});
++
++test('product skills count in their own category, never toward core or domain, and need no review or authoring', () => {
++  const previous = cores(40);
++  const proposed = [...cores(40), ...products(60)];
++  const result = assessSkillChange(previous, proposed, skillInventoryDigest(previous));
++  assert.deepEqual(result.counts, {core: 40, domain: 0, product: 60});
++  assert.equal(result.hardLimitSatisfied, true);
++  assert.deepEqual(result.requiredReviews.map(r => r.category).filter(c => c === 'product'), []);
++  assert.deepEqual(result.requiredAuthoring.filter(a => a.id.startsWith('nautilus-product:')), []);
++});
++
++// ------------------------------------------------------------ the package
++const CORE = 'charts/core-skills';
++const PRODUCT = 'charts/product-skills';
++const body = (name: string, description = 'Test method.') => `---\nname: ${name}\ndescription: ${description}\n---\n# ${name}\n\nBody of ${name}.\n`;
++const manifest = (name: string, version: string) => JSON.stringify({name, version, skills: './bundles/'});
++const catalogFor = (group: string, names: string[]) => JSON.stringify({schemaVersion: 1, groups: {[group]: names.map(name => ({name, entrypoint: `bundles/${name}/SKILL.md`}))}});
++
++function fileMapOf(root: string): Record<string, string> {
++  const files: Record<string, string> = {};
++  const visit = (dir: string): void => {
++    for (const name of readdirSync(dir).sort()) {
++      const path = join(dir, name); const st = lstatSync(path);
++      if (st.isDirectory()) visit(path); else if (st.isFile()) files[relative(root, path)] = sha256(readFileSync(path));
++    }
++  };
++  visit(root); return files;
++}
++function withTree(tree: Record<string, string>, run: (root: string, files: Record<string, string>, rewrite: (path: string, content: string) => Record<string, string>) => void): void {
++  mkdirSync(TMP, {recursive: true});
++  const root = mkdtempSync(join(TMP, 'product-skills-'));
++  const write = (path: string, content: string) => { mkdirSync(dirname(join(root, path)), {recursive: true}); writeFileSync(join(root, path), content); };
++  try {
++    for (const [path, content] of Object.entries(tree)) write(path, content);
++    run(root, fileMapOf(root), (path, content) => { write(path, content); return fileMapOf(root); });
++  } finally { rmSync(root, {recursive: true, force: true}); }
++}
++const refuses = (root: string, files: Record<string, string>, code: string): void =>
++  assert.throws(() => assertSkillPackage(root, files), (e: unknown) => e instanceof Error && e.message.startsWith(`${code}: `), `expected ${code}`);
++
++/** A version-2 classified release with two core skills and one product skill; the policy's provenance digest is filled in from the sealed map. */
++function productTree(overrides: {policy?: (policy: any) => any} = {}) {
++  const tree: Record<string, string> = {
++    'charts/operating.md': '# operating\n',
++    [`${CORE}/.claude-plugin/plugin.json`]: manifest('nautilus-core', '1.0.0'),
++    [`${CORE}/catalog.json`]: catalogFor('methods', ['precise', 'simple']),
++    [`${CORE}/bundles/precise/SKILL.md`]: body('precise'),
++    [`${CORE}/bundles/simple/SKILL.md`]: body('simple'),
++    [`${PRODUCT}/.claude-plugin/plugin.json`]: manifest('nautilus-product', COMMIT.slice(0, 12)),
++    [`${PRODUCT}/catalog.json`]: catalogFor('higgsfield', ['higgs-demo']),
++    [`${PRODUCT}/bundles/higgs-demo/SKILL.md`]: body('higgs-demo', 'Generate a demo through the vendor CLI.'),
++    [`${PRODUCT}/bundles/higgs-demo/references/flow.md`]: 'vendor reference, shipped verbatim\n',
++    'skill-purposes.json': JSON.stringify({version: 1, purposes: {'nautilus-core:precise': 'Test method.', 'nautilus-core:simple': 'Test method.', 'nautilus-product:higgs-demo': 'Generate a demo through the vendor CLI.'}}),
++  };
++  return (run: (root: string, files: Record<string, string>, rewrite: (p: string, c: string) => Record<string, string>) => void) => withTree(tree, (root, files, rewrite) => {
++    const digest = productBundleDigest(files, PRODUCT, 'higgs-demo');
++    let policy: any = {
++      version: 2, allowance: {core: 30, domain: 30, product: null},
++      publisherSkills: {'nautilus-core:precise': {category: 'core', updateAuthority: 'publisher'}, 'nautilus-core:simple': {category: 'core', updateAuthority: 'publisher'}},
++      businessAuthored: {category: 'domain', updateAuthority: 'business-procedure'},
++      productSkills: {'nautilus-product:higgs-demo': {category: 'product', updateAuthority: 'manufacturer', manufacturer: 'Higgsfield', repository: 'https://github.com/higgsfield-ai/skills.git', commit: COMMIT, contentDigest: digest}},
++    };
++    if (overrides.policy) policy = overrides.policy(policy);
++    run(root, rewrite('skill-capacity.json', JSON.stringify(policy)), rewrite);
++  });
++}
++
++test('a product skill with matching provenance is admitted, classified and carried in the inventory', () => productTree()((root, files) => {
++  const pkg = assertSkillPackage(root, files)!;
++  const classification = pkg.classifications!['nautilus-product:higgs-demo'] as any;
++  assert.equal(classification.category, 'product');
++  assert.equal(classification.updateAuthority, 'manufacturer');
++  assert.equal(classification.commit, COMMIT);
++  const inventory = readSkillPackageInventory(root, files);
++  assert.ok(inventory.some(e => e.id === 'nautilus-product:higgs-demo' && e.category === 'product' && e.updateAuthority === 'manufacturer'));
++}));
++
++test('one changed byte in a product bundle - even a support file - refuses the release as a locally modified manufacturer skill', () => productTree()((root, files, rewrite) => {
++  assertSkillPackage(root, files);
++  refuses(root, rewrite(`${PRODUCT}/bundles/higgs-demo/references/flow.md`, 'vendor reference, "improved" locally\n'), 'product_skill_modified');
++}));
++
++test('a catalogued product bundle with no provenance declaration is refused', () => productTree({policy: p => ({...p, productSkills: {}})})((root, files) => {
++  refuses(root, files, 'classification_required');
++}));
++
++test('provenance must name a resolvable upstream: a malformed commit or repository refuses the policy', () => {
++  productTree({policy: p => ({...p, productSkills: {'nautilus-product:higgs-demo': {...p.productSkills['nautilus-product:higgs-demo'], commit: 'main'}}})})((root, files) => refuses(root, files, 'policy_invalid'));
++  productTree({policy: p => ({...p, productSkills: {'nautilus-product:higgs-demo': {...p.productSkills['nautilus-product:higgs-demo'], repository: 'not a url'}}})})((root, files) => refuses(root, files, 'policy_invalid'));
++});
++
++test('a product skill cannot be relabelled core or domain, and a numeric product allowance is refused', () => {
++  productTree({policy: p => ({...p, productSkills: {'nautilus-product:higgs-demo': {...p.productSkills['nautilus-product:higgs-demo'], category: 'core'}}})})((root, files) => refuses(root, files, 'policy_invalid'));
++  productTree({policy: p => ({...p, allowance: {...p.allowance, product: 8}})})((root, files) => refuses(root, files, 'policy_invalid'));
++});
++
++test('the native configuration projects the product plugin and resolves its bodies for a capsule', () => productTree()((root, files) => {
++  const config = nativeSkillConfiguration(root, files);
++  assert.ok(config.plugins.some(p => p.name === 'nautilus-product'));
++  assert.ok(config.expectedSkills.includes('nautilus-product:higgs-demo'));
++  const bodies = config.requiredBodies(['nautilus-product:higgs-demo']);
++  assert.equal(bodies.length, 1);
++}));
++
++test('local content-size limits govern authored skills, not manufacturer bundles: a 300 KB vendor reference is admitted as shipped', () => productTree()((root, files, rewrite) => {
++  const big = 'x'.repeat(300 * 1024) + '\n';
++  const next = rewrite(`${PRODUCT}/bundles/higgs-demo/references/large.md`, big);
++  // The bundle changed, so its pinned digest must be re-declared - as an upstream re-sync would.
++  const policy = JSON.parse(readFileSync(join(root, 'skill-capacity.json'), 'utf8'));
++  policy.productSkills['nautilus-product:higgs-demo'].contentDigest = productBundleDigest(next, PRODUCT, 'higgs-demo');
++  const sealed = rewrite('skill-capacity.json', JSON.stringify(policy));
++  assert.ok(assertSkillPackage(root, sealed));
++  // The declaration as the release actually ships it, not a hand-written copy.
++  const limits = JSON.parse(readFileSync(resolve(process.cwd(), 'release/skill-content-limits.json'), 'utf8'));
++  const bounds = assertSkillContentBounds(root, sealed, limits);
++  assert.ok(bounds.libraryBytes < 262144, `vendor bytes must not enter the authored library count (got ${bounds.libraryBytes})`);
++}));
+diff --git a/tests/skill-capacity.test.ts b/tests/skill-capacity.test.ts
+index 179826a..42ee482 100644
+--- a/tests/skill-capacity.test.ts
++++ b/tests/skill-capacity.test.ts
+@@ -57,7 +57,8 @@ const refusal = (catalog: SkillCatalog, allowance: typeof ALLOWANCE, change: Cap
+ };
+ 
+ test('supports core/domain classification and explicit legacy business recovery', () => {
+-  assert.deepEqual([...CAPACITY_TIERS], ['core', 'domain', 'business']);
++  // product: the manufacturer tier, owner amendment 2026-09-10.
++  assert.deepEqual([...CAPACITY_TIERS], ['core', 'domain', 'product', 'business']);
+ });
+ 
+ test('43-core refuses an ordinary add', () => {
+diff --git a/tests/skill-scrutiny.test.ts b/tests/skill-scrutiny.test.ts
+index fc4359d..731944c 100644
+--- a/tests/skill-scrutiny.test.ts
++++ b/tests/skill-scrutiny.test.ts
+@@ -56,7 +56,7 @@ test('35 core skills need no capacity review and satisfy the hard limit', () =>
+   const proposed = coreSet(35);
+   const assessment = assessSkillChange(previous, proposed, digestOf(previous));
+   assert.equal(assessment.hardLimitSatisfied, true);
+-  assert.deepEqual(assessment.counts, {core: 35, domain: 0});
++  assert.deepEqual(assessment.counts, {core: 35, domain: 0, product: 0});
+   assert.equal(assessment.requiredReviews.length, 0);
+   assert.equal(assessment.requiredAuthoring.length, 1);
+   assert.equal(assessment.requiredAuthoring[0].id, 'nautilus-core:skill-035');
+@@ -97,11 +97,11 @@ test('the 50 limit is enforced independently per category, in both directions',
+   const previous = [...coreSet(35), ...domainSet(35)];
+   const coreOver = assessSkillChange(previous, [...coreSet(51), ...domainSet(35)], digestOf(previous));
+   assert.equal(coreOver.hardLimitSatisfied, false);
+-  assert.deepEqual(coreOver.counts, {core: 51, domain: 35});
++  assert.deepEqual(coreOver.counts, {core: 51, domain: 35, product: 0});
+ 
+   const domainOver = assessSkillChange(previous, [...coreSet(35), ...domainSet(51)], digestOf(previous));
+   assert.equal(domainOver.hardLimitSatisfied, false);
+-  assert.deepEqual(domainOver.counts, {core: 35, domain: 51});
++  assert.deepEqual(domainOver.counts, {core: 35, domain: 51, product: 0});
+ });
+ 
+ test('a category cannot borrow headroom from the other category', () => {
+@@ -114,7 +114,7 @@ test('100 skills across both categories fit the hard limits', () => {
+   const proposed = [...coreSet(50), ...domainSet(50)];
+   const assessment = assessSkillChange([], proposed, digestOf([]));
+   assert.equal(assessment.hardLimitSatisfied, true);
+-  assert.deepEqual(assessment.counts, {core: 50, domain: 50});
++  assert.deepEqual(assessment.counts, {core: 50, domain: 50, product: 0});
+   assert.equal(assessment.requiredReviews.length, 100);
+ });
+ 
+@@ -157,7 +157,7 @@ test('a cross-category transfer requires review and counts both resulting counts
+   const previous = [...coreSet(36), ...domainSet(35)];
+   const transferred = [...coreSet(35), ...domainSet(35), {...core('skill-036'), category: 'domain' as const}];
+   const assessment = assessSkillChange(previous, transferred, digestOf(previous));
+-  assert.deepEqual(assessment.counts, {core: 35, domain: 36});
++  assert.deepEqual(assessment.counts, {core: 35, domain: 36, product: 0});
+   const review = reviewFor(assessment, 'nautilus-core:skill-036');
+   assert.ok(review);
+   assert.equal(review!.reason, 'category-transfer');

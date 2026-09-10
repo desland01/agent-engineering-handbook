@@ -636,6 +636,14 @@ from the workspace (`git diff HEAD -- build/home.json build/render.py`), applied
 and passed both checkers in isolation. Lesson: give a worker a base it can resolve — its
 own `HEAD` — never a hash from another repository.
 
+**Product skills, 2026-09-10.** Owner rule: a third, uncapped, manufacturer-maintained,
+never-edited category for skills published by the maker of a paid product; first set the
+eight Higgsfield skills. Implemented test-first in an isolated snapshot of the runtime
+source (the real tree was another session's, 5,465 files dirty): see
+`control/nautilus-product-skills/README.md` for the change, the verification and the
+shipping boundary. The `copy` skill is staged for whole readoption as a domain skill; it
+needs an authoring run for evidence before `skill-publish` will admit it.
+
 ## Open questions
 
 1. Should the problem panel keep its eleven guide links, or become decoration
