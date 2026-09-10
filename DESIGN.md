@@ -216,7 +216,7 @@ says it is.
 ## Familiar versus deliberate
 
 Familiar, and right here: dark ground, 16/17px body, hairlines, underlined links, a skip
-link, a rail with a section list, previous/next at the end of a chapter.
+link, a sticky rail with a section list, previous/next at the end of a chapter.
 
 Deliberate: the mono label carrying every secondary line on a technical site; numerals,
 timestamps and counts as the only "icons"; chapter lists instead of card grids for the

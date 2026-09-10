@@ -103,10 +103,12 @@ below, so a 320px phone keeps 288px of content.
   above.
 - **Reader, 1100px and above:** a 248px rail on the left and the reading column on the
   right, the two pinned to the page's left and right edges so the rail lines up with the
-  header's title and the column with the GitHub link. The rail flows with the article and
-  has no scroll region of its own: it was sticky with its own `max-height` and
-  `overflow-y`, which gave every reader page a second scrollbar, because the rail is
-  taller than the viewport on every one of them. Below 1100px the rail is gone and the
+  header's title and the column with the GitHub link. The rail holds beside the article
+  and takes its own scroll when it is taller than the screen, the ordinary
+  table-of-contents pattern; `overscroll-behavior: contain` stops that scroll chaining
+  into the page at either end, so the two sides move independently. Its scrollbar is thin
+  and appears only when the rail actually overruns: on a tall desktop the investigation,
+  README and adoption rails fit and show none. Below 1100px the rail is gone and the
   column is centred, unchanged.
 - **Long titles:** guide 11's title is 68 characters. It wraps in the chapter row, in the
   previous/next card, in the rail and in the page title; nothing truncates.

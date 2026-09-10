@@ -349,13 +349,21 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 /* The rail: sections, place on the map, evidence and neighbours (wide screens). */
 .rail { display: none; }
 @media (min-width: 1100px) {
-  /* The rail flows with the article. handbook.js then makes it a card that holds
-     once its bottom reaches the foot of the screen; the offset has to be measured,
-     because a bottom-anchored sticky element taller than the viewport never
-     engages, and a top-anchored one strands its lower blocks off-screen. Without
-     the script the rail just scrolls with the article, which is why nothing here
-     positions it. */
-  .rail { display: block; align-self: start; font-size: var(--text-base); }
+  /* The rail holds beside the article and takes its own scroll when it is taller
+     than the screen — the ordinary table-of-contents pattern. `overscroll-behavior:
+     contain` keeps that scroll from chaining into the page at either end, so the
+     two sides move independently without anything intercepting the wheel. The
+     scrollbar is thin and only as visible as it needs to be. */
+  .rail {
+    display: block; position: sticky; top: 24px;
+    max-height: calc(100vh - 48px); overflow-y: auto; overscroll-behavior: contain;
+    scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent;
+    padding-right: 10px; font-size: var(--text-base);
+  }
+  .rail::-webkit-scrollbar { width: 6px; }
+  .rail::-webkit-scrollbar-track { background: transparent; }
+  .rail::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+  .rail:hover::-webkit-scrollbar-thumb { background: var(--dim-fg); }
 }
 /* Rail headings act as labels: the mono label treatment. */
 .rail h2, .evidence-mobile h2 {
