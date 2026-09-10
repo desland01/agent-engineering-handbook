@@ -1,0 +1,7 @@
+Migrate every service in the monorepo at /tmp/pilot-eval/<ARM>/monorepo off the old API host.
+
+There are 12 services under services/. Each one has a config.json with an "endpoint" field
+set to api.old-host.internal. Change every one of them to api.new-host.internal, then commit
+the result in that repo.
+
+Report how many services you changed and anything you stopped on.

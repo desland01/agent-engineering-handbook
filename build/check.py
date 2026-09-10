@@ -129,6 +129,8 @@ def layout():
         check('handoff' not in rel.name.lower(), f'{rel}: handoffs live in ~/ephemera, not in the repository')
         if top in {'screenshots', 'public'}:
             continue  # frame files are named by their timecode in the video
+        if top == 'control' and rel.parts[1] == 'proposals' and len(rel.parts) > 3:
+            continue  # preserved source material under a proposal keeps its original names
         check(not DATED_NAME.search(rel.stem), f'{rel}: a date, version or "final" in a file name — name it by purpose')
         if top == 'control':
             if len(rel.parts) == 2:
