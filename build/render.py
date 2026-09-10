@@ -78,6 +78,10 @@ MENU_GROUPS = [
      (GITHUB, 'GitHub repository', False)],
 ]
 
+# A reader page whose own h1 does not make a useful browser title. README's h1
+# is the site name, which would render as "X · X" in a tab and a search result.
+TITLES = {'README.md': 'Handbook index'}
+
 # Where a non-guide reader page sits in the handbook: (context line, target page).
 CONTEXT = {
     'README.md': ('The handbook index', 'guides.html'),
@@ -179,11 +183,44 @@ def site_foot(prefix, basis_short):
             '</div></footer>')
 
 
-def document(title, prefix, body):
+def summarise(text, limit=158):
+    """A page description from its own prose: whole sentences up to the limit.
+
+    Search results and link previews show roughly 155 characters, and a
+    description cut mid-word reads as broken. So this adds whole sentences
+    while they fit. When even the first sentence is longer than that — several
+    skill descriptions and page openings are — it falls back to the last clause
+    boundary, which still ends somewhere a reader would pause, and only then to
+    a word boundary."""
+    flat = re.sub(r'\s+', ' ', unescape(strip_tags(text))).strip()
+    if not flat:
+        return ''
+    kept = []
+    length = 0
+    for s in re.findall(r'[^.!?]+(?:[.!?]+|$)', flat):
+        s = s.strip()
+        if not s:
+            continue
+        if length + len(s) + (1 if kept else 0) > limit:
+            break
+        kept.append(s)
+        length += len(s) + (1 if len(kept) > 1 else 0)
+    if kept:
+        return ' '.join(kept)
+    head = flat[:limit]
+    clause = max(head.rfind(c) for c in ',;:—–-')
+    if clause > limit * 0.55:
+        return head[:clause].rstrip()
+    return head.rsplit(' ', 1)[0].rstrip(' ,;:—–-')
+
+
+def document(title, prefix, body, description=''):
+    desc = (f'<meta name="description" content="{escape(description)}">' if description else '')
+    full_title = f'{title} · {SITE_NAME}'
     return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<meta name="color-scheme" content="dark">'
-            f'<link rel="icon" href="data:,"><title>{escape(title)} · {SITE_NAME}</title>'
+            f'<meta name="color-scheme" content="dark">{desc}'
+            f'<link rel="icon" href="data:,"><title>{escape(full_title)}</title>'
             f'<link rel="stylesheet" href="{prefix}assets/handbook.css">'
             f'<script src="{prefix}assets/handbook.js" defer></script></head>'
             f'<body><a class="skip" href="#main">Skip to content</a>{body}</body></html>\n')
@@ -358,6 +395,22 @@ def more(href, label):
     return f'<a class="more" href="{escape(href)}">{escape(label)} <span aria-hidden="true">&#8594;</span></a>'
 
 
+def hub_next(hub, prefix=''):
+    """The closing route of a section page.
+
+    A reader who reaches the bottom of a set has finished something, and until
+    now every section page ended there with nowhere to go but the header. Each
+    row names the next set and says plainly why a person standing here would
+    want it, so the route is a reason rather than a list of links."""
+    rows = ''.join(
+        f'<li><a href="{escape(prefix + href)}"><span class="t">{escape(label)}</span>'
+        f'<span class="k">{escape(why)}</span></a></li>'
+        for href, label, why in hub['next'])
+    return ('<section class="hub-next" aria-labelledby="hub-next-h"><div class="wrap">'
+            f'{marker("Next")}<h2 id="hub-next-h">Where to go from here</h2>'
+            f'<ul role="list">{rows}</ul></div></section>')
+
+
 # ------------------------------------------------------------- fragments
 def idea_tile(i, prefix=''):
     """One idea as an icon tile. The title opens the idea's page."""
@@ -502,19 +555,31 @@ def landing(idx, home, frames):
 </section>
 </main>
 {site_foot('', escape(home['basis_short']))}"""
-    return document(home['title'], '', rewrite_refs(body))
+    return document(home['title'], '', rewrite_refs(body), home['page_descriptions']['index.html'])
 
 
 # ------------------------------------------------------------ section pages
+def hub_head(marker_label, hub, tail=''):
+    """The head of a section page: marker, the page's own h1 and its lead."""
+    return ('<main id="main"><header class="section-head"><div class="wrap">'
+            f'{marker(marker_label)}<h1>{escape(hub["h1"])}</h1>'
+            f'<p class="lead">{inline(hub["lead"])}</p>{tail}</div></header>')
+
+
 def ideas_index(idx, home):
+    hub = home['hubs']['ideas']
     tiles = ''.join(idea_tile(i) for i in idx['ideas'])
+    # The two files that carry what a tile cannot: speaker attribution, evidence
+    # type and the caveats. They used to sit inside the lead, where they made a
+    # reader read plumbing before content.
+    tail = ('<p class="head-links"><a href="evidence/video-research.md">Detailed extraction</a> · '
+            '<a href="evidence/video-tips.json">Structured ideas file</a></p>')
     body = (site_head('', 'ideas.html') +
-            '<main id="main"><header class="section-head"><div class="wrap">'
-            f'{marker("Ideas")}<h1>{escape(home["ideas_heading"])}</h1>'
-            f'<p class="lead">{inline(home["ideas_description"])}</p></div></header>'
-            f'<section class="band" aria-label="All nineteen ideas"><div class="wrap"><ol class="ideas" role="list">{tiles}</ol></div></section></main>' +
+            hub_head('Ideas', hub, tail) +
+            f'<section class="band" aria-label="All nineteen ideas"><div class="wrap"><ol class="ideas" role="list">{tiles}</ol></div></section>'
+            f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'ideas.html').write_text(document('The nineteen ideas', '', rewrite_refs(body)))
+    (OUT / 'ideas.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
 
 
 def guides_index(idx, home):
@@ -531,41 +596,41 @@ def guides_index(idx, home):
                     f'<p>{inline(s_["description"])} Investigation: <a href="{escape(report["path"])}">{escape(report["title"])}</a>.</p>'
                     f'<span class="count">{span}</span></div>'
                     f'<ul class="tiles guides" role="list">{tiles}</ul></div></section>')
+    hub = home['hubs']['guides']
     body = (site_head('', 'guides.html') +
-            '<main id="main"><header class="section-head"><div class="wrap">'
-            f'{marker("Guides")}<h1>All 13 implementation guides</h1>'
-            '<p class="lead">Each guide gives a concrete method, fitting use cases and verification limits, grouped by the source it was adapted from. '
-            'Task prompts for every guide are in <a href="prompts.md">prompts</a>; the runnable companion to guide 01 is the <a href="examples/recurring-rule/README.md">lint example</a>.</p>'
-            f'</div></header><div class="band shelves-band">{shelves}</div></main>' +
+            hub_head('Guides', hub) +
+            f'<div class="band shelves-band">{shelves}</div>{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'guides.html').write_text(document('All 13 guides', '', rewrite_refs(body)))
+    (OUT / 'guides.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
 
 
 def investigations_index(idx, home):
+    hub = home['hubs']['investigations']
     cards = ''.join(report_tile(r) for r in idx['reports'])
     body = (site_head('', 'investigations.html') +
-            '<main id="main"><header class="section-head"><div class="wrap">'
-            f'{marker("Investigations")}<h1>{escape(home["reports_heading"])}</h1>'
-            f'<p class="lead">{inline(home["reports_description"])}</p></div></header>'
+            hub_head('Investigations', hub) +
             '<section class="band" aria-label="The three investigations"><div class="wrap">'
-            f'<ul class="tiles cards" role="list">{cards}</ul></div></section></main>' +
+            f'<ul class="tiles cards" role="list">{cards}</ul></div></section>'
+            f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'investigations.html').write_text(document('The three investigations', '', rewrite_refs(body)))
+    (OUT / 'investigations.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
 
 
 def skills_index(idx, home):
     tiles = ''.join(skill_tile(sk) for sk in idx['skills'])
-    adopt = ('<p class="route">Every skill keeps its raw <code>SKILL.md</code>, its GitHub directory and its '
-             'references on its own page. To install one into an agent setup, or fold it into a skill you '
-             f'already run, read <a href="adoption.html">adopting a skill</a>. Do not load all four for every task.</p>')
+    # What every skill page carries, said once here rather than four times. The
+    # instruction to adopt one rather than all four now opens the page, where a
+    # reader meets it before choosing, and the adoption route closes it.
+    adopt = ('<p class="route">Each title opens that skill\'s own page, which holds its raw '
+             '<code>SKILL.md</code> exactly as shipped, both reference files and its directory on GitHub.</p>')
+    hub = home['hubs']['skills']
     body = (site_head('', 'skills.html') +
-            '<main id="main"><header class="section-head"><div class="wrap">'
-            f'{marker("Portable skills")}<h1>{escape(home["skills_heading"])}</h1>'
-            f'<p class="lead">{inline(home["skills_description"])}</p></div></header>'
+            hub_head('Portable skills', hub) +
             '<section class="band" aria-label="The four skills"><div class="wrap">'
-            f'<ul class="tiles cards skills" role="list">{tiles}</ul>{adopt}</div></section></main>' +
+            f'<ul class="tiles cards skills" role="list">{tiles}</ul>{adopt}</div></section>'
+            f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'skills.html').write_text(document('The four portable skills', '', rewrite_refs(body)))
+    (OUT / 'skills.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
 
 
 # ------------------------------------------------------------- skill pages
@@ -663,7 +728,8 @@ def skill_page(sk, idx, home):
             site_foot(prefix, escape(home['basis_short'])))
     out = OUT / sk['page']
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(document(f'Skill: {title}', prefix, rewrite_refs(page, prefix)))
+    out.write_text(document(f'Skill: {title}', prefix, rewrite_refs(page, prefix),
+                            summarise(description)))
 
 
 def idea_page(i, idx, home):
@@ -719,7 +785,8 @@ def idea_page(i, idx, home):
             site_foot(prefix, escape(home['basis_short'])))
     out = OUT / i['page']
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(document(f'Idea {i["n"]:02d}: {i["idea"]}', prefix, rewrite_refs(page, prefix)))
+    out.write_text(document(f'Idea {i["n"]:02d}: {i["idea"]}', prefix, rewrite_refs(page, prefix),
+                            summarise(f'{i["idea"]}. {i["tip"]["when_useful"]}')))
 
 
 # ------------------------------------------------------------ reader pages
@@ -837,7 +904,25 @@ def reader_page(rel, idx, home, frames):
             f'{toc_mobile}<article>{body}</article>{evidence_mobile}{seq}{note}</div>{rail}</main>' +
             site_foot(prefix, escape(home['basis_short'])))
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(document(unescape(strip_tags(title_html)), prefix, page))
+    # A guide's opening paragraph trails into its companion-guide list, which
+    # describes the shelf rather than the guide. Its canonical title and the
+    # one line saying who it is for do the job instead. Every other reader page
+    # opens with prose written to introduce itself, so that prose is the deck
+    # and the description both.
+    if pos is not None:
+        # Method then who it is for. Four of the thirteen pairs are too long
+        # together, and there the who-it-is-for line is the better half to keep:
+        # the title is already the browser title, so repeating it alone would
+        # spend a search result's whole line saying nothing new.
+        title_text, use_when = guides[pos]['title'], home['use_when'][guides[pos]['n']]
+        description = summarise(f'{title_text}. {use_when}')
+        if description.rstrip('.') == title_text.rstrip('.'):
+            description = summarise(use_when)
+    else:
+        first_p = re.search(r'<p>(.*?)</p>', body, re.S)
+        description = summarise(first_p.group(1) if first_p else title_html)
+    out.write_text(document(TITLES.get(rel, unescape(strip_tags(title_html))), prefix, page,
+                            description))
     shutil.copy2(path, out.with_suffix('.md'))
 
 
@@ -863,18 +948,18 @@ def gallery(frames, home, idx):
         f'<span class="links"><a href="{escape(f["url"])}">Watch this moment</a> · '
         f'<a href="screenshots/{escape(f["file"])}">Full-size frame</a>{applied(f)}</span></figcaption></figure></section>'
         for f in frames)
+    hub = home['hubs']['frames']
     body = (site_head('', 'evidence.html') +
-            '<main id="main" class="wrap">'
-            '<header class="gallery-head"><h1>The video, with visible evidence</h1>'
-            f'<p class="lead">{len(frames)} frames extracted with ffmpeg and inspected at full resolution. '
-            'Each caption distinguishes what is visible from what Theo only describes; a post on screen is not a live demonstration.</p>'
+            '<main id="main">'
+            '<div class="wrap"><header class="gallery-head">'
+            f'<h1>{escape(hub["h1"])}</h1><p class="lead">{inline(hub["lead"])}</p>'
             '<p class="links"><a href="evidence/frame-manifest.json">Extraction commands and SHA-256 hashes</a> · '
-            '<a href="evidence/video-research.html">Full extraction notes</a> · '
-            '<a href="ideas.html">The nineteen ideas</a></p>'
+            '<a href="evidence/video-research.html">Full extraction notes</a></p>'
             f'<ol class="strip" role="list" aria-label="Jump to a frame">{strip}</ol></header>'
-            f'<div class="gallery">{sections}</div></main>' +
+            f'<div class="gallery">{sections}</div></div>'
+            f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    out.write_text(document('Video evidence', '', body))
+    out.write_text(document(hub['title'], '', body, hub['description']))
 
 
 # -------------------------------------------------------------- not found
@@ -890,7 +975,8 @@ def not_found(home):
             '<li><a href="/README.html">The handbook index</a></li>'
             '<li><a href="/evidence.html">The frame gallery</a></li></ul></main>' +
             site_foot('/', escape(home['basis_short'])))
-    (OUT / '404.html').write_text(document('Page not found', '/', body))
+    (OUT / '404.html').write_text(document('Page not found', '/', body,
+                                           home['page_descriptions']['404.html']))
 
 
 # ------------------------------------------------------------------- main

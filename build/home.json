@@ -60,5 +60,108 @@
     "403": "06", "494": "01", "612": "05", "754": "05", "884": "05", "1021": "07"
   },
   "frames_heading": "Twelve frames from the video",
-  "frames_description": "Extracted with ffmpeg and captioned to separate what is visible from what is narrated. Each opens the [gallery](evidence.html), which has full-size images, observations and extraction hashes."
+  "frames_description": "Extracted with ffmpeg and captioned to separate what is visible from what is narrated. Each opens the [gallery](evidence.html), which has full-size images, observations and extraction hashes.",
+  "_hubs_comment": "Copy for the five section pages. A band on the home page introduces a set to someone scrolling past it; a section page addresses someone who has arrived at that set, so each carries its own heading, lead, browser title and meta description rather than reusing the band's. `next` is the closing route: where a reader who has finished this set should go, as [href, label, why] rows.",
+  "hubs": {
+    "ideas": {
+      "title": "Nineteen ideas from the video",
+      "h1": "Nineteen ideas, each timestamped and mapped to a guide",
+      "lead": "Every distinct takeaway from the July 21, 2026 video, in the order it was said — including the opinions the speakers qualified themselves. Each idea opens the video at the second it came from, so you can hear the claim before you act on it, and names the guide that turns it into something you can run.",
+      "description": "Nineteen distinct takeaways from Theo's agent engineering video, in order. Each is timestamped to the moment it was said and mapped to the guide that implements it.",
+      "next": [
+        [
+          "guides.html",
+          "The thirteen guides",
+          "the methods these ideas turn into"
+        ],
+        [
+          "evidence.html",
+          "The twelve frames",
+          "what was visible on screen while they were said"
+        ]
+      ]
+    },
+    "guides": {
+      "title": "Thirteen implementation guides",
+      "h1": "Thirteen guides, and what each one does not prove",
+      "lead": "Each guide names one recurring failure, gives a method concrete enough to run this week, says who it fits, and states the limits of what it verifies. They are grouped by the source each was adapted from: the video, two repository snapshots, and Boris Cherny's public work.",
+      "description": "Thirteen implementation guides for agent coding environments. Each gives a concrete method, the situations it fits, and the limits of what it actually verifies.",
+      "next": [
+        [
+          "prompts.html",
+          "Task prompts",
+          "the input and expected evidence for every guide"
+        ],
+        [
+          "examples/recurring-rule/README.html",
+          "The runnable example",
+          "guide 01 as a lint rule you can execute"
+        ],
+        [
+          "skills.html",
+          "The four skills",
+          "the same methods, packaged for an agent"
+        ]
+      ]
+    },
+    "skills": {
+      "title": "Four portable agent skills",
+      "h1": "Four skills, portable to any agent setup",
+      "lead": "A skill here is a plain directory any agent that reads Markdown can load: the instructions themselves, two reference files, and OpenAI-compatible interface metadata. Adopt the one that matches the failure you actually have. Loading all four for every task makes each of them worse.",
+      "description": "Four portable agent skills as plain Markdown directories: feedback engineering, agent-ready workspaces, context calibration and tool adapters. Adopt one, not all four.",
+      "next": [
+        [
+          "adoption.html",
+          "Adopting a skill",
+          "how to install one or fold it into a skill you already run"
+        ],
+        [
+          "guides.html",
+          "The thirteen guides",
+          "the reasoning each skill was distilled from"
+        ]
+      ]
+    },
+    "investigations": {
+      "title": "Three repository investigations",
+      "h1": "Three repositories, read rather than summarised",
+      "lead": "Each report separates the code that was actually inspected from the results its author reported, remote CI records from runs on this machine, and open pull requests from merged work. Source snapshots are pinned wherever the repository allowed it.",
+      "description": "Three repository investigations that separate inspected code from author-reported results, remote CI records from local runs, and open pull requests from merged work.",
+      "next": [
+        [
+          "guides.html",
+          "The thirteen guides",
+          "five of them were adapted from these repositories"
+        ],
+        [
+          "validation.html",
+          "Validation and provenance",
+          "how every claim on this site was checked"
+        ]
+      ]
+    },
+    "frames": {
+      "title": "Twelve frames from the video",
+      "h1": "The video, with visible evidence",
+      "lead": "Twelve frames extracted with ffmpeg and inspected at full resolution. Each caption separates what is visible in the frame from what the speaker only describes — a post on screen is not a live demonstration.",
+      "description": "Twelve frames extracted from Theo's agent engineering video, captioned to separate what is visible on screen from what the speaker only describes.",
+      "next": [
+        [
+          "ideas.html",
+          "The nineteen ideas",
+          "the takeaways these moments belong to"
+        ],
+        [
+          "validation.html",
+          "Validation and provenance",
+          "extraction commands and SHA-256 hashes"
+        ]
+      ]
+    }
+  },
+  "page_descriptions": {
+    "_comment": "Meta descriptions for pages whose own opening prose does not describe the page well enough on its own. Every other page derives its description from its first paragraph.",
+    "index.html": "An evidence-backed handbook for building coding environments agents work well in: nineteen ideas, thirteen guides, four portable skills and three repository investigations.",
+    "404.html": "That page is not in the handbook. Routes to the ideas, guides, skills, investigations and the handbook index."
+  }
 }

@@ -144,11 +144,36 @@ Each band opens with a section marker: a mono label in a bordered pill with a ha
 rule running from it. That is the only pill on the page.
 
 **Section pages.** `ideas.html` holds all nineteen idea tiles; `guides.html` holds the
-thirteen guides under their shelves; `skills.html` holds the four skill tiles with the
-adoption guidance summary; `investigations.html` holds the three report cards;
-`evidence.html` holds the twelve frames at full size. Each opens with the same
-marker-and-title head as a band, so a section page reads as the band unfolded rather than
-as a different site.
+thirteen guides under their shelves; `skills.html` holds the four skill tiles;
+`investigations.html` holds the three report cards; `evidence.html` holds the twelve
+frames at full size. Each opens with the same marker-and-title head as a band, so a
+section page reads as the band unfolded rather than as a different site.
+
+**A section page writes its own head, and closes with a route out.** The head shares the
+band's *form* — marker, title, lead — but not its *words*. A band introduces a set to
+someone scrolling past it; a section page addresses someone who has arrived at that set
+and now has to use it, so each carries its own heading, lead, browser title and meta
+description in `build/home.json` under `hubs`. The headings say what the page is rather
+than what it contains: *Thirteen guides, and what each one does not prove*, *Three
+repositories, read rather than summarised*. Plumbing does not open a lead — the ideas
+page's two source files sit in a mono line under it, and the skills page keeps *adopt one,
+not all four* in the lead, where a reader meets it before choosing.
+
+Every section page ends with **the closing route** (`.hub-next`): the *Next* marker,
+*Where to go from here*, and two or three routing rows in the same hairline form as the
+home page's shelves — the destination, and a quiet mono line saying why someone standing
+here would want it. That line is mono but not uppercase; the label's 0.14em tracking makes
+a sentence shout. Before this, a reader who reached the bottom of a set had nowhere to go
+but back to the header. `build/check.py` fails if a section page has no closing route, if
+it offers fewer than two destinations, or if one of them points back at the page itself.
+
+**Page identity.** Every page carries a `<title>` that names it and a meta description
+that says what is on it — the two things a search result and a shared link show, and the
+only part of a page nobody proofreads by reading it. Hubs, the home page and 404 are
+written by hand; a guide uses its title and the line saying who it is for; a skill uses its
+own frontmatter description; every other page uses its opening prose, cut on a sentence
+boundary or, failing that, a clause. `build/check.py` fails on a missing description, one
+over 175 characters, one that ends mid-thought, or a title that is only the site's name.
 
 **Idea pages** (`ideas/NN-slug.html`, nineteen of them). Each idea is disclosed in full on
 the reader shell: the drawing, the title, then *What was said*, *How to apply it*, *When it

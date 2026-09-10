@@ -37,6 +37,7 @@ import sys
 
 REPO = Path(__file__).resolve().parent.parent
 PUBLIC = REPO / 'public'
+SITE_NAME = 'Agent Engineering Handbook'
 sys.path.insert(0, str(REPO / 'build'))
 from icons import GUIDES, INVESTIGATIONS, SKILLS   # noqa: E402  (authored drawings)
 
@@ -154,6 +155,21 @@ def main():
         check(not missing, f'{rel}: in-page anchors without a target {missing}')
         check(not scan.network, f'{rel}: loads from the network: {scan.network}')
 
+        # Page identity: a title that names the page and a description that
+        # says what is on it. Both are what a search result or a shared link
+        # shows, and neither is visible while reading, so only a check keeps
+        # them honest. The length bound is the roughly 155 characters a result
+        # displays; a description cut mid-word reads as broken.
+        title = re.search(r'<title>(.*?)</title>', page.read_text(), re.S)
+        title = title.group(1).strip() if title else ''
+        check(title and title != SITE_NAME and not title.startswith(f'{SITE_NAME} · '),
+              f'{rel}: title does not name the page: {title!r}')
+        desc = re.search(r'<meta name="description" content="([^"]*)"', page.read_text())
+        desc = desc.group(1).strip() if desc else ''
+        check(desc, f'{rel}: no meta description')
+        check(len(desc) <= 175, f'{rel}: meta description is {len(desc)} characters, over 175')
+        check(not desc.endswith(('...', '…')), f'{rel}: meta description is truncated: {desc!r}')
+
     # 6. Progressive disclosure: home routes out; the section pages hold the sets.
     index = (PUBLIC / 'index.html').read_text() if (PUBLIC / 'index.html').is_file() else ''
     ideas_html = (PUBLIC / 'ideas.html').read_text() if (PUBLIC / 'ideas.html').is_file() else ''
@@ -205,6 +221,21 @@ def main():
     for s in skills:
         check(f'href="skills/{s}/"' in skills_html, f'skills.html: no tile opens skills/{s}/')
         check(f'href="adoption.html"' in skills_html, 'skills.html: no link to the adoption page')
+
+    # 6b-ii. No section page dead-ends: each closes with routes to other sets,
+    # and every route resolves (section 2 already proved the targets exist).
+    for name in ('ideas.html', 'guides.html', 'skills.html', 'investigations.html', 'evidence.html'):
+        hub = PUBLIC / name
+        if not hub.is_file():
+            continue
+        text = hub.read_text()
+        block = re.search(r'<section class="hub-next".*?</section>', text, re.S)
+        check(block, f'{name}: no closing route out of the section')
+        n = len(re.findall(r'<li><a href=', block.group(0))) if block else 0
+        check(n >= 2, f'{name}: closing route offers {n} destinations, expected at least 2')
+        if block:
+            targets = set(re.findall(r'<li><a href="([^"#]+)', block.group(0)))
+            check(name not in targets, f'{name}: its closing route points back at itself')
 
     # 6c. Investigations: the index carries the three report cards and links
     # each report; every report page shows its own drawing.

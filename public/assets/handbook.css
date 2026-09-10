@@ -533,8 +533,25 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 /* Section pages: a head, then the full set. */
 .section-head { padding-block: 44px 8px; }
 @media (min-width: 980px) { .section-head { padding-block: 64px 8px; } }
-.section-head h1 { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.1rem); letter-spacing: -0.03em; max-width: 20ch; margin-bottom: 14px; }
-.section-head .lead { color: var(--muted-fg); max-width: 60ch; font-size: 1.05rem; }
+.section-head h1 { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.1rem); letter-spacing: -0.03em; max-width: 24ch; margin-bottom: 14px; }
+.section-head .lead { color: var(--muted-fg); max-width: 62ch; font-size: 1.05rem; }
+/* Source files a section page offers but does not lead with. */
+.section-head .head-links { margin-top: 14px; color: var(--dim-fg); font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); }
+
+/* The closing route of a section page. A reader who reaches the bottom of a
+   set has finished something; each row names the next set and why. Same
+   routing-row form as the home page's shelves, so arriving anywhere in the
+   site teaches the one pattern. */
+.hub-next { border-top: 1px solid var(--border); padding-block: 40px 64px; }
+.hub-next h2 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 16px; max-width: 30ch; }
+.hub-next ul { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+@media (min-width: 720px) { .hub-next ul { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
+.hub-next a { display: grid; gap: 4px; align-content: start; height: 100%; padding: 16px 18px; background: var(--bg); color: var(--fg); text-decoration: none; box-shadow: 0 0 0 1px var(--border); transition: background-color var(--hover-ms) ease-out; }
+.hub-next a:hover { background: var(--surface); }
+.hub-next .t { font-weight: 500; }
+/* Mono, but not uppercase: these lines are sentences rather than labels, and
+   the label's 0.14em tracking makes a sentence shout and read slowly. */
+.hub-next .k { font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: 0.01em; line-height: 1.5; color: var(--dim-fg); }
 .shelves-band { padding-block: 8px 56px; }
 .shelves-band .shelf-head h2 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; }
 

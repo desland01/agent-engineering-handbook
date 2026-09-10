@@ -52,9 +52,9 @@ the map from any page; the four section links and the "More" menu reach every pa
 | Map | title + problem panel | counts strip | guide shelves | a chip in the problem panel or a chapter row |
 | Guide | context line + drawing + title | deck paragraph | rail (sections, place) or the section disclosure | read; next guide |
 | Skill page | context line (`SKILL` · All four skills) + drawing + title | the description deck, then the skill's sections and references | rail (sections, This skill, In the guides, Adopt) or the section disclosure | read; adopt via the raw `SKILL.md`, GitHub or the adoption page |
-| Skills / Investigations index | marker + title + lead | the four skill tiles / the three report cards | the adoption summary (skills) | open a skill page or a report |
+| Skills / Investigations index | marker + title + lead | the four skill tiles / the three report cards | the closing route out of the section | open a skill page or a report |
 | Investigation / other page | context line + title | deck paragraph | sections | read; header menu |
-| Gallery | title + lead | timestamp strip | frames in two columns | open a frame's moment, image or guide |
+| Gallery | title + lead | timestamp strip | frames in two columns, then the closing route | open a frame's moment, image or guide |
 | Not found | heading | one sentence | four links | the map |
 
 ## State table
