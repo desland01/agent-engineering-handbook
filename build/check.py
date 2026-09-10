@@ -38,6 +38,10 @@ import sys
 REPO = Path(__file__).resolve().parent.parent
 PUBLIC = REPO / 'public'
 SITE_NAME = 'Agent Engineering Handbook'
+# render.py's production origin, read rather than imported: this checker runs
+# on a plain interpreter, and importing render would drag in Markdown with it.
+SITE_URL = re.search(r"^SITE_URL = '([^']*)'", (REPO / 'build/render.py').read_text(),
+                     re.M).group(1)
 sys.path.insert(0, str(REPO / 'build'))
 from icons import GUIDES, INVESTIGATIONS, SKILLS   # noqa: E402  (authored drawings)
 
@@ -80,6 +84,11 @@ class PageScan(HTMLParser):
             self.main = True
         if tag in ('link', 'script', 'img', 'iframe', 'video', 'audio', 'source'):
             target = a.get('href') if tag == 'link' else a.get('src')
+            # rel="canonical" names this page's own address for a crawler. It
+            # is metadata, not a fetch, and is the one absolute href the page
+            # is allowed to carry.
+            if a.get('rel') == 'canonical':
+                target = None
             if target and re.match(r'^(https?:)?//', target):
                 self.network.append(target)
 
@@ -169,6 +178,22 @@ def main():
         check(desc, f'{rel}: no meta description')
         check(len(desc) <= 175, f'{rel}: meta description is {len(desc)} characters, over 175')
         check(not desc.endswith(('...', '…')), f'{rel}: meta description is truncated: {desc!r}')
+
+        # Canonical URL and share tags are all-or-nothing. Until render.py's
+        # SITE_URL names a production origin they must be absent everywhere: a
+        # canonical pointing at the wrong host is worse than none. Once it is
+        # set, every page but 404.html — served at any path, so it has no one
+        # address — must carry one that matches where the page actually sits.
+        text = page.read_text()
+        canonical = re.search(r'<link rel="canonical" href="([^"]*)"', text)
+        if not SITE_URL:
+            check(not canonical, f'{rel}: has a canonical URL while SITE_URL is unset')
+            check('og:url' not in text, f'{rel}: has Open Graph tags while SITE_URL is unset')
+        elif rel.as_posix() != '404.html':
+            expect = SITE_URL + ('/' if rel.as_posix() == 'index.html' else '/' + rel.as_posix())
+            check(canonical and canonical.group(1) == expect,
+                  f'{rel}: canonical is {canonical.group(1) if canonical else "missing"}, expected {expect}')
+            check(f'content="{expect}"' in text, f'{rel}: og:url does not match its canonical')
 
     # 6. Progressive disclosure: home routes out; the section pages hold the sets.
     index = (PUBLIC / 'index.html').read_text() if (PUBLIC / 'index.html').is_file() else ''

@@ -37,6 +37,13 @@ ASSETS = REPO / 'build/assets'
 HOME = REPO / 'build/home.json'
 
 GITHUB = 'https://github.com/desland01/agent-engineering-handbook'
+# The production origin, once the site has one: scheme and host, no trailing
+# slash, e.g. 'https://agent-engineering-handbook.example'. Set it here and
+# every page gains a canonical URL and the Open Graph and Twitter tags a shared
+# link needs; leave it empty and none of them are emitted, because a canonical
+# pointing at the wrong origin is worse than no canonical at all. build/check.py
+# enforces that this is all-or-nothing across the 54 pages.
+SITE_URL = ''
 EDITION_DATE = 'September 9, 2026'
 SITE_NAME = 'Agent Engineering Handbook'
 
@@ -214,12 +221,37 @@ def summarise(text, limit=158):
     return head.rsplit(' ', 1)[0].rstrip(' ,;:—–-')
 
 
-def document(title, prefix, body, description=''):
+def social(path, full_title, description):
+    """Canonical URL and the tags a shared link shows, once SITE_URL is set.
+
+    A link to this site currently previews as a bare URL, and a page reachable
+    at more than one address has nothing saying which one is the real page.
+    Both need an absolute origin, which the project does not have yet, so this
+    emits nothing until SITE_URL is filled in — half of it would be worse than
+    none."""
+    # No SITE_URL yet, or a page with no one address of its own (404.html is
+    # served at every path), means no canonical and no share tags.
+    if not SITE_URL or not path:
+        return ''
+    # index.html is the site root; every other page is its path under public/.
+    url = SITE_URL + ('/' if path == 'index.html' else '/' + path)
+    tags = [('property', 'og:url', url), ('property', 'og:type', 'website'),
+            ('property', 'og:site_name', SITE_NAME), ('property', 'og:title', full_title),
+            ('name', 'twitter:card', 'summary')]
+    if description:
+        tags.insert(4, ('property', 'og:description', description))
+        tags.append(('name', 'twitter:description', description))
+    return (f'<link rel="canonical" href="{escape(url)}">'
+            + ''.join(f'<meta {k}="{n}" content="{escape(v)}">' for k, n, v in tags))
+
+
+def document(title, prefix, body, description='', path=''):
     desc = (f'<meta name="description" content="{escape(description)}">' if description else '')
     full_title = f'{title} · {SITE_NAME}'
     return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<meta name="color-scheme" content="dark">{desc}'
+            f'{social(path, full_title, description)}'
             f'<link rel="icon" href="data:,"><title>{escape(full_title)}</title>'
             f'<link rel="stylesheet" href="{prefix}assets/handbook.css">'
             f'<script src="{prefix}assets/handbook.js" defer></script></head>'
@@ -555,7 +587,8 @@ def landing(idx, home, frames):
 </section>
 </main>
 {site_foot('', escape(home['basis_short']))}"""
-    return document(home['title'], '', rewrite_refs(body), home['page_descriptions']['index.html'])
+    return document(home['title'], '', rewrite_refs(body), home['page_descriptions']['index.html'],
+                    'index.html')
 
 
 # ------------------------------------------------------------ section pages
@@ -579,7 +612,7 @@ def ideas_index(idx, home):
             f'<section class="band" aria-label="All nineteen ideas"><div class="wrap"><ol class="ideas" role="list">{tiles}</ol></div></section>'
             f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'ideas.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
+    (OUT / 'ideas.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'], 'ideas.html'))
 
 
 def guides_index(idx, home):
@@ -601,7 +634,7 @@ def guides_index(idx, home):
             hub_head('Guides', hub) +
             f'<div class="band shelves-band">{shelves}</div>{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'guides.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
+    (OUT / 'guides.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'], 'guides.html'))
 
 
 def investigations_index(idx, home):
@@ -613,7 +646,8 @@ def investigations_index(idx, home):
             f'<ul class="tiles cards" role="list">{cards}</ul></div></section>'
             f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'investigations.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
+    (OUT / 'investigations.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'],
+                                                     'investigations.html'))
 
 
 def skills_index(idx, home):
@@ -630,7 +664,7 @@ def skills_index(idx, home):
             f'<ul class="tiles cards skills" role="list">{tiles}</ul>{adopt}</div></section>'
             f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'skills.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description']))
+    (OUT / 'skills.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'], 'skills.html'))
 
 
 # ------------------------------------------------------------- skill pages
@@ -729,7 +763,7 @@ def skill_page(sk, idx, home):
     out = OUT / sk['page']
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(document(f'Skill: {title}', prefix, rewrite_refs(page, prefix),
-                            summarise(description)))
+                            summarise(description), sk['page']))
 
 
 def idea_page(i, idx, home):
@@ -786,7 +820,7 @@ def idea_page(i, idx, home):
     out = OUT / i['page']
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(document(f'Idea {i["n"]:02d}: {i["idea"]}', prefix, rewrite_refs(page, prefix),
-                            summarise(f'{i["idea"]}. {i["tip"]["when_useful"]}')))
+                            summarise(f'{i["idea"]}. {i["tip"]["when_useful"]}'), i['page']))
 
 
 # ------------------------------------------------------------ reader pages
@@ -922,7 +956,7 @@ def reader_page(rel, idx, home, frames):
         first_p = re.search(r'<p>(.*?)</p>', body, re.S)
         description = summarise(first_p.group(1) if first_p else title_html)
     out.write_text(document(TITLES.get(rel, unescape(strip_tags(title_html))), prefix, page,
-                            description))
+                            description, out.relative_to(OUT).as_posix()))
     shutil.copy2(path, out.with_suffix('.md'))
 
 
@@ -959,7 +993,7 @@ def gallery(frames, home, idx):
             f'<div class="gallery">{sections}</div></div>'
             f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    out.write_text(document(hub['title'], '', body, hub['description']))
+    out.write_text(document(hub['title'], '', body, hub['description'], 'evidence.html'))
 
 
 # -------------------------------------------------------------- not found
@@ -975,6 +1009,7 @@ def not_found(home):
             '<li><a href="/README.html">The handbook index</a></li>'
             '<li><a href="/evidence.html">The frame gallery</a></li></ul></main>' +
             site_foot('/', escape(home['basis_short'])))
+    # 404 is served at any path, so it gets no canonical of its own.
     (OUT / '404.html').write_text(document('Page not found', '/', body,
                                            home['page_descriptions']['404.html']))
 

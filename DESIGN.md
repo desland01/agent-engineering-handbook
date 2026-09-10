@@ -175,6 +175,18 @@ own frontmatter description; every other page uses its opening prose, cut on a s
 boundary or, failing that, a clause. `build/check.py` fails on a missing description, one
 over 175 characters, one that ends mid-thought, or a title that is only the site's name.
 
+The other half of page identity — a canonical URL, and the Open Graph and Twitter tags a
+shared link previews with — needs an absolute origin, and the site does not have one yet.
+`SITE_URL` at the top of `build/render.py` is where it goes: set it to the production
+origin, scheme and host with no trailing slash, and every page but `404.html` gains a
+canonical matching its own path plus the share tags. Leave it empty and none are emitted,
+because a canonical pointing at the wrong host is worse than no canonical at all, and
+`404.html` never gets one because it is served at every path. `build/check.py` reads that
+constant and enforces the two states: with it unset, no page may carry a canonical or an
+`og:url`; with it set, every page but 404 must carry one that matches where it sits, and
+its `og:url` must agree. A `rel="canonical"` is the one absolute href the no-network-loads
+check permits, since it names an address rather than fetching one.
+
 **Idea pages** (`ideas/NN-slug.html`, nineteen of them). Each idea is disclosed in full on
 the reader shell: the drawing, the title, then *What was said*, *How to apply it*, *When it
 is useful* and *Qualification* from the structured extraction, with a rail carrying the
