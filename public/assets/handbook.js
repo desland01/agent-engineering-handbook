@@ -35,27 +35,76 @@
      so its lower blocks come into view rather than being stranded.  CSS alone
      cannot do this: a bottom-anchored sticky element taller than the viewport
      never engages, and a top-anchored one pins the wrong edge.  So the offset is
-     measured.  Without this file the rail simply scrolls with the article. */
+     measured.  Without this file the rail simply scrolls with the article.
+
+     While it is holding, the card has travel of its own: however much taller
+     than the screen it is.  A wheel over the card moves it through that travel
+     instead of moving the page, so a reader halfway down an article can bring
+     the top of the rail back without losing their place.  At either end the
+     page takes the scroll again.  Keyboard focus moves the card the same way,
+     so a tabbed-to link is never left off-screen.  No scroll region and no
+     second scrollbar: the card is positioned, not scrolled. */
   var card = document.querySelector('.rail');
   if (card) {
     var wide = window.matchMedia('(min-width: 1100px)');
     var gap = 24;
+    var travel = 0;
+    var offset = null;
     var placing = false;
+
+    var clamp = function (value) {
+      return Math.min(travel, Math.max(0, value));
+    };
+    var apply = function () {
+      card.style.position = 'sticky';
+      card.style.top = (gap - offset) + 'px';
+    };
     var place = function () {
       if (!wide.matches) {
         card.style.position = '';
         card.style.top = '';
+        offset = null;
         return;
       }
-      card.style.position = 'sticky';
-      var over = card.offsetHeight + gap * 2 - window.innerHeight;
-      card.style.top = (over > 0 ? gap - over : gap) + 'px';
+      travel = Math.max(0, card.offsetHeight + gap * 2 - window.innerHeight);
+      offset = offset === null ? travel : clamp(offset);
+      apply();
     };
     var schedulePlace = function () {
       if (placing) { return; }
       placing = true;
       window.requestAnimationFrame(function () { placing = false; place(); });
     };
+    // Only while the card is actually holding; before that the page scrolls.
+    var holding = function () {
+      return card.getBoundingClientRect().top <= gap - offset + 1;
+    };
+    var move = function (delta) {
+      var next = clamp(offset + delta);
+      if (next === offset) { return false; }
+      offset = next;
+      apply();
+      return true;
+    };
+
+    // deltaY is not always pixels: Firefox reports lines, and some setups pages.
+    var pixels = function (event) {
+      if (event.deltaMode === 1) { return event.deltaY * 16; }
+      if (event.deltaMode === 2) { return event.deltaY * window.innerHeight; }
+      return event.deltaY;
+    };
+    card.addEventListener('wheel', function (event) {
+      if (!wide.matches || travel <= 0 || event.ctrlKey || !holding()) { return; }
+      if (move(pixels(event))) { event.preventDefault(); }
+    }, { passive: false });
+
+    card.addEventListener('focusin', function (event) {
+      if (!wide.matches || travel <= 0) { return; }
+      var box = event.target.getBoundingClientRect();
+      if (box.top < gap) { move(box.top - gap); }
+      else if (box.bottom > window.innerHeight - gap) { move(box.bottom - window.innerHeight + gap); }
+    });
+
     window.addEventListener('resize', schedulePlace);
     window.addEventListener('load', schedulePlace);
     if (wide.addEventListener) { wide.addEventListener('change', schedulePlace); }
