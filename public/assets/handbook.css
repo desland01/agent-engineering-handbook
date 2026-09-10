@@ -198,7 +198,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 }
 .opening > .wrap { display: grid; gap: 40px; position: relative; }
 @media (min-width: 980px) { .opening { padding-block: 84px 76px; } .opening > .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr); gap: 72px; align-items: start; } }
-.opening h1 { font-size: var(--title-home); line-height: 1.04; letter-spacing: -0.032em; max-width: 15ch; margin-bottom: 22px; }
+.opening h1 { font-size: var(--title-home); line-height: 1.04; letter-spacing: -0.032em; max-width: 15ch; margin-bottom: 22px; text-wrap: balance; }
 .opening h1 em { font-style: italic; color: var(--accent-text); }
 .opening .lead { font-size: 1.15rem; line-height: 1.5; color: var(--muted-fg); max-width: 44ch; margin-bottom: 26px; }
 
@@ -368,7 +368,9 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .shelf-head h3 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.02em; }
 .shelf-head p { color: var(--dim-fg); font-size: var(--text-sm); }
 .shelf-head .count { color: var(--dim-fg); white-space: nowrap; }
-.tiles.guides { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+/* No outer border: each cell paints its own hairline, so a two- or one-guide
+   shelf shows ground beside its cells instead of an outlined blank. */
+.tiles.guides { list-style: none; display: grid; gap: 1px; background: var(--bg); }
 @media (min-width: 620px) { .tiles.guides { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1080px) { .tiles.guides { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .tile.guide { box-shadow: 0 0 0 1px var(--border); position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; padding: 15px 16px; background: var(--bg); transition: background-color var(--hover-ms) ease-out; }
@@ -506,10 +508,10 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 /* The article itself. */
 .reader article { min-width: 0; }
 .reader article > p:first-child { color: var(--muted-fg); font-size: 1.08em; line-height: 1.55; margin-bottom: 1.4em; }
-.reader h2 { font-size: var(--text-xl); line-height: 1.15; margin: 2.4em 0 0.55em; padding-top: 1em; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
+.reader article h2 { font-size: var(--text-xl); line-height: 1.15; margin: 2.4em 0 0.55em; padding-top: 1em; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
 .reader article > h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
-.reader h3 { font-size: 1.32em; line-height: 1.22; margin: 1.9em 0 0.45em; scroll-margin-top: 24px; }
-.reader h4 { font-size: 1.1em; margin: 1.6em 0 0.4em; }
+.reader article h3 { font-size: 1.32em; line-height: 1.22; margin: 1.9em 0 0.45em; scroll-margin-top: 24px; }
+.reader article h4 { font-size: 1.1em; margin: 1.6em 0 0.4em; }
 
 /* On a skill page the appended reference files are whole documents, not the
    next section of the same argument. Their heading keeps the h2 level but
@@ -600,7 +602,7 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 
 /* --------------------------------------------------------------- gallery */
 .gallery-head { padding-block: 40px 28px; border-bottom: 1px solid var(--border); }
-.gallery-head h1 { font-size: var(--title-page); line-height: 1.12; letter-spacing: -0.018em; margin-bottom: 14px; max-width: 22ch; }
+.gallery-head h1 { font-size: var(--title-page); line-height: 1.12; letter-spacing: -0.018em; margin-bottom: 14px; max-width: 22ch; text-wrap: balance; }
 .gallery-head .lead { color: var(--muted-fg); font-size: var(--text-lg); max-width: 58ch; }
 .gallery-head .links { color: var(--muted-fg); font-size: var(--text-sm); }
 .strip { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
@@ -664,7 +666,7 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 /* Section pages: a head, then the full set. */
 .section-head { padding-block: 44px 8px; }
 @media (min-width: 980px) { .section-head { padding-block: 64px 8px; } }
-.section-head h1 { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.1rem); letter-spacing: -0.03em; max-width: 24ch; margin-bottom: 14px; }
+.section-head h1 { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.1rem); letter-spacing: -0.03em; max-width: 24ch; margin-bottom: 14px; text-wrap: balance; }
 .section-head .lead { color: var(--muted-fg); max-width: 62ch; font-size: 1.05rem; }
 /* Source files a section page offers but does not lead with. */
 .section-head .head-links { margin-top: 14px; color: var(--dim-fg); font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); }
