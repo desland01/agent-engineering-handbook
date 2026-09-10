@@ -176,7 +176,7 @@ says it is.
   reader and the map agree; the Markdown file's own h1 is not rendered a second time.
 - **Article:** first paragraph as a muted, slightly larger deck; h2 with a hairline; h3; code, tables and blockquotes on `--surface` inside `--radius`; tables in a
   focusable scroll region.
-- **Rail (from 1100px), sticky:** *On this page* (h2/h3 anchors, current one marked with
+- **Rail (from 1100px):** *On this page* (h2/h3 anchors, current one marked with
   an orange edge), *This guide* (number, shelf, use-when), *Sequence* (previous/next),
   *Evidence from the video* (up to two frames applied in this guide, linking into the
   gallery) and *Source* (the Markdown beside the page, and on GitHub). On a skill page the
@@ -216,7 +216,7 @@ says it is.
 ## Familiar versus deliberate
 
 Familiar, and right here: dark ground, 16/17px body, hairlines, underlined links, a skip
-link, a sticky rail with a section list, previous/next at the end of a chapter.
+link, a rail with a section list, previous/next at the end of a chapter.
 
 Deliberate: the mono label carrying every secondary line on a technical site; numerals,
 timestamps and counts as the only "icons"; chapter lists instead of card grids for the
