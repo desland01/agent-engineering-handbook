@@ -160,7 +160,12 @@ shows one taste of each section, and routes out. The full sets live on their own
    typographic and visual, never two columns of prose.
 
 Each band opens with a section marker: a mono label in a bordered pill with a hairline
-rule running from it. That is the only pill on the page.
+rule running from it. That is the only pill on the page. Bands are separated by a
+**dithered seam** rather than a hard rule — the one transition idiom Augment and
+Sourcegraph share: two layers of dots at 4px and 7px pitch, each masked to thin
+downward at a different rate, so the density falls off the way an ordered dither does
+rather than merely dimming. It is drawn in CSS; a generated raster was tried (GPT Image
+2.5 via Higgsfield, 5.5 credits) and came back opaque and soft, and did not earn a place.
 
 **Section pages.** `ideas.html` holds all nineteen ideas in three tiers; `guides.html`
 holds the thirteen guides under their shelves; `skills.html` holds the four skill tiles;

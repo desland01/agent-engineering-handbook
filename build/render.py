@@ -628,7 +628,7 @@ def landing(idx, home, frames):
 
 <section class="band" id="reports" aria-labelledby="reports-h"><div class="wrap">
   {band_head('Evidence', 'reports-h', home['reports_heading'], home['reports_description'])}
-  <ul class="shelves" role="list">{reports}</ul>
+  <ul class="shelves reports" role="list">{reports}</ul>
   <p class="route">{more('investigations.html', f'All {counts["reports"]} investigations')}</p>
 </div></section>
 

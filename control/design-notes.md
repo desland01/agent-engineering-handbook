@@ -588,6 +588,91 @@ workspace is only exempt from the installation-home overlap check when it sits u
 *current* release's `var/workspaces` — a workspace built under the previous release is
 refused with `workspace_overlaps_installation_home`.
 
+**Higgsfield, tried and not adopted (2026-09-10 15:25).** One `gpt_image_2_5` job,
+5.5 credits, 21:9 at 2k, `background: transparent`, prompting for a crisp monochrome
+Bayer-dither strip on a transparent ground. The result is 2688x1152, 2.8 MB, and
+100% opaque: a painted light-grey wash with a soft blurred edge and sparse white dots,
+not a dither and not transparent. Kept for evidence at
+`scratchpad/hf/seam-raw.png` (outside the repo). The seam was built instead as an
+authored CSS halftone - two dot layers at 4px and 7px pitch, each masked to thin
+downward - which is crisp, 0 bytes of assets, and matches the two references' idiom.
+Conclusion for this site: generated raster texture did not earn a place next to the
+39 authored drawings; the terminal set piece needed no 3D and no library either.
+
+## Open questions
+
+1. Should the problem panel keep its eleven guide links, or become decoration
+   with the routing moved somewhere else?
+2. With all nineteen ideas on the home page, what is the ideas *band* for that
+   `ideas.html` is not? Both would now carry the full set.
+3. Is a Higgsfield / `gpt-image-2.5` route going to be connected? Raster art
+   would be the first non-authored, non-SVG image on a site whose identity is 39
+   monoline drawings in `currentColor` that follow the theme, and the design
+   language currently rules out photographic card art.
+4. How many horizontal scroll sections should the home page have? Notes 2 and 4
+   each ask for one, and note 3 may want a third.
+5. Does the no-video-stills-on-the-homepage decision still hold? Note 4's band
+   is hard to make worth scrolling without it.
+
+## Working state
+
+Executing since "build out the plan and execute". Commits, newest first:
+
+```
+7d9865e Type the four skills as slash commands under the hero
+99e867f Say what the site is, close it with a ledger, and let the page move
+983cbb5 Draw the four skills as loops and the thirteen guides as a track
+078c87d Sort the ideas into three tiers, give each investigation a full viewport, and add a rendered check
+e260f6c Give the reader a type scale that steps evenly, and close the rail gap
+06b2168 Carry all nineteen ideas on the home page as a row, and draw no scrollbars
+f4157b1 Leave one place to fill in the production origin
+e88d6b4 Write each section page its own head, and a route out of it
+8b0da64 Give every scroll region on the site the same treatment
+```
+
+Done: notes 1, 2, 5, 6 (both halves), 7, 8, 9 (skills, guides, ideas, investigations,
+seams, drawings at size), 10, 11; the hero copy; the motion system; the typed prompt.
+Deliberately left: note 4 (the frames band stays a quiet timestamp strip, as the
+contrast between two rows above it — see note 4's own reasoning). Not adopted: Three.js,
+GSAP, the Higgsfield raster (all recorded above with the numbers). Every commit passed
+`check.py` (54 pages) and, from `078c87d` on, `check-render.js` (72 rendered checks) at
+1440 and 390.
+
+## Delegation log
+
+Three tickets ran on `glm-5.3-flash` through `nautilus_fleet.delegate` on 2026-09-10:
+T3 (investigations studies), T5 (idea tiers), T4 (rendered check). All three delivered
+`deliverable.patch` + `RESULT.md`, applied cleanly to baseline `e260f6c`, passed
+`check.py` in isolation, and were integrated with one append-conflict in `handbook.css`
+(both appended a block at the end; both kept). First admission was refused on
+`scope_canonical`: a `python3 -m venv` puts symlinks to the system interpreter inside
+the workspace. `python3 -m venv --copies` fixes it. T5 caught an arithmetic error in
+note 8 (6/7/6, not 6/7/5). T4's script was unexecuted in the sandbox (no browser) and
+ran green at the parent first time, then was proved to fail when the rule it guards was
+broken.
+
+**Fleet gap, 2026-09-10 15:18.** A fourth ticket (T9, the motion system) was admitted
+under the new current release `skill-packs-20260910b` but ended `blocked` with
+`run_observer_error` after zero model requests. Both required Charts reported
+`available: false`: that release has no `charts/core-skills/bundles` directory at all,
+so no Chart can be delivered to any worker on it. The route is unavailable until the
+release carries its Charts; the assignment was small and fully specified, so it was done
+at the parent instead. Also learned: `~/.nautilus/current` moved between dispatches, and a
+workspace is only exempt from the installation-home overlap check when it sits under the
+*current* release's `var/workspaces` — a workspace built under the previous release is
+refused with `workspace_overlaps_installation_home`.
+
+**Higgsfield, tried and not adopted (2026-09-10 15:25).** One `gpt_image_2_5` job,
+5.5 credits, 21:9 at 2k, `background: transparent`, prompting for a crisp monochrome
+Bayer-dither strip on a transparent ground. The result is 2688x1152, 2.8 MB, and
+100% opaque: a painted light-grey wash with a soft blurred edge and sparse white dots,
+not a dither and not transparent. Kept for evidence at
+`scratchpad/hf/seam-raw.png` (outside the repo). The seam was built instead as an
+authored CSS halftone - two dot layers at 4px and 7px pitch, each masked to thin
+downward - which is crisp, 0 bytes of assets, and matches the two references' idiom.
+Conclusion for this site: generated raster texture did not earn a place next to the
+39 authored drawings; the terminal set piece needed no 3D and no library either.
+
 ## Open questions
 
 1. Should the problem panel keep its eleven guide links, or become decoration

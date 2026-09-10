@@ -268,8 +268,18 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 @keyframes pick-dash { to { background-position-y: 9px; } }
 @keyframes pick-mark { 0%, 55% { color: var(--dim-fg); } 100% { color: var(--accent-text); } }
 
-/* Bands: one rule between sections, the head always left-aligned. */
-.band { padding-block: 56px; border-bottom: 1px solid var(--border); }
+/* Bands: a dithered seam between sections rather than a hard rule - the one
+   transition idiom Augment and Sourcegraph share. Two layers of dots, 4px and
+   7px pitch, each masked to fade downward at a different rate, so the density
+   thins the way an ordered dither does rather than merely dimming. Drawn, not
+   a photograph: a generated raster was tried and did not earn its place. */
+.band { padding-block: 56px; position: relative; }
+.band::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(247, 243, 239, 0.34) 0.75px, transparent 0.85px), radial-gradient(circle, rgba(247, 243, 239, 0.22) 0.75px, transparent 0.85px);
+  background-size: 4px 4px, 7px 7px; background-position: 0 0, 2px 3px;
+  -webkit-mask-image: linear-gradient(#000 0, rgba(0, 0, 0, 0.55) 30%, transparent 100%); mask-image: linear-gradient(#000 0, rgba(0, 0, 0, 0.55) 30%, transparent 100%); }
+.band:last-of-type::after { display: none; }
+.band-seam-top { border-top: 1px solid var(--border); }
 .band-head { margin-bottom: 28px; }
 .band-head h2 { font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.05rem); letter-spacing: -0.028em; }
 .band-head > p { color: var(--muted-fg); max-width: 66ch; margin-top: 10px; font-size: var(--text-sm); }
@@ -638,6 +648,8 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 /* Shelves on the home page: four rows, each a route into guides.html. */
 .shelves { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 @media (min-width: 720px) { .shelves { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+/* Three reports fill three columns; in two they left a blank fourth cell. */
+@media (min-width: 900px) { .shelves.reports { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .shelves a { display: grid; gap: 4px; padding: 16px 18px; background: var(--bg); color: var(--fg); text-decoration: none; box-shadow: 0 0 0 1px var(--border); transition: background-color var(--hover-ms) ease-out; }
 .shelves a:hover { background: var(--surface); }
 .shelves .range, .shelves .k { font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg); }
