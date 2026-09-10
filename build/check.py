@@ -117,8 +117,12 @@ def tracked_files():
         out = subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True, text=True, check=True).stdout
         return [Path(p) for p in out.splitlines() if p]
     except (OSError, subprocess.CalledProcessError):
+        # Source archives have no Git index. Omit generated runtime directories,
+        # while keeping unknown source files visible to the layout rules.
+        generated = {'.git', 'node_modules', 'public', '.scratch', '.vercel',
+                     '.build-deps', '.venv', '__pycache__'}
         return [p.relative_to(ROOT) for p in ROOT.rglob('*')
-                if p.is_file() and not any(part in {'.git', 'node_modules', 'public', '.scratch'} for part in p.parts)]
+                if p.is_file() and not any(part in generated for part in p.relative_to(ROOT).parts)]
 
 
 def layout():
