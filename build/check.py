@@ -93,7 +93,61 @@ class PageScan(HTMLParser):
                 self.network.append(target)
 
 
+ROOT = PUBLIC.parent
+
+# Source-tree layout. One file per purpose, named by what it is; the date lives inside the
+# file and in git, never in the name; handoffs and other read-once files live in
+# ~/ephemera, never in the repository. `python3 build/check.py --layout` runs only this
+# section (the pre-commit hook in build/hooks does), the full run includes it.
+DATED_NAME = re.compile(r'(?<!\d)20\d{6}(?!\d)|20\d\d-[01]\d-[0-3]\d|(?:^|[-_.])(?:v\d+|final|latest)(?:[-_.]|$)', re.I)
+ROOT_ENTRIES = {
+    '.github', '.gitignore', '.vercelignore', 'vercel.json', 'ATTRIBUTION.md', 'CONTRIBUTING.md',
+    'DESIGN.md', 'INTERACTIONS.md', 'README.md', 'adoption.md', 'prompts.md', 'validation.md',
+    'boris-cherny-inspection.md', 'github-inspection.md', 'matt-pocock-inspection.md',
+    'build', 'control', 'evidence', 'examples', 'guides', 'public', 'screenshots', 'skills',
+}
+CONTROL_FILES = {'README.md', 'plan.md', 'tickets.md', 'patterns.md', 'skill-evals.md',
+                 'design-notes.md', 'design-skill-standard.md', 'design-review-capsule.md'}
+CONTROL_DIRS = {'reviews', 'proposals', 'runtime'}
+
+
+def tracked_files():
+    import subprocess
+    try:
+        out = subprocess.run(['git', 'ls-files'], cwd=ROOT, capture_output=True, text=True, check=True).stdout
+        return [Path(p) for p in out.splitlines() if p]
+    except (OSError, subprocess.CalledProcessError):
+        return [p.relative_to(ROOT) for p in ROOT.rglob('*')
+                if p.is_file() and not any(part in {'.git', 'node_modules', 'public', '.scratch'} for part in p.parts)]
+
+
+def layout():
+    files = tracked_files()
+    for rel in files:
+        top = rel.parts[0]
+        check(top in ROOT_ENTRIES, f'{rel}: unexpected entry at the repository root ({top})')
+        check('handoff' not in rel.name.lower(), f'{rel}: handoffs live in ~/ephemera, not in the repository')
+        if top in {'screenshots', 'public'}:
+            continue  # frame files are named by their timecode in the video
+        check(not DATED_NAME.search(rel.stem), f'{rel}: a date, version or "final" in a file name — name it by purpose')
+        if top == 'control':
+            if len(rel.parts) == 2:
+                check(rel.name in CONTROL_FILES, f'{rel}: not a file control/README.md lists — extend an existing purpose or add it to the README first')
+            else:
+                check(rel.parts[1] in CONTROL_DIRS, f'{rel}: control/ subdirectories are reviews/, proposals/, runtime/')
+                if rel.parts[1] == 'reviews':
+                    check(len(rel.parts) == 3, f'{rel}: reviews/ holds one record per subject, no nesting')
+
+
 def main():
+    layout()
+    if '--layout' in sys.argv:
+        if failures:
+            for e in failures:
+                print('FAIL:', e)
+            sys.exit(1)
+        print('PASS: source layout')
+        return
     check(PUBLIC.is_dir(), 'public/ is missing — run `python3 build/render.py` first')
 
     # 1. Counts and required files.

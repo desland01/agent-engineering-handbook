@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Refuse a commit that breaks the source layout: dated names, handoffs in the repo,
+# unlisted files in control/. Install: ln -sf ../../build/hooks/pre-commit .git/hooks/pre-commit
+cd "$(git rev-parse --show-toplevel)" && exec python3 build/check.py --layout

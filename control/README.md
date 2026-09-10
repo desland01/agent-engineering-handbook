@@ -30,3 +30,8 @@ Rules for adding to it:
    (`astra-headings`, `glm-heading-reader`); the run's own record carries its timestamp.
 4. Scratch, tiles and screenshots never land here; they go to the session scratchpad or
    the worker's `evidence/`.
+
+Enforced: `python3 build/check.py --layout` refuses dated or versioned names, any file with
+"handoff" in its name, unlisted files in `control/`, and unexpected entries at the repository
+root. `build/hooks/pre-commit` runs it on every commit (install once:
+`ln -sf ../../build/hooks/pre-commit .git/hooks/pre-commit`); `build/check.sh` includes it.
