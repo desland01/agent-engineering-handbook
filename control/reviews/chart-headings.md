@@ -124,7 +124,51 @@ into a heading instruction, and `test-stated-once` refuses the test appearing mo
 in a file. Both were proved to refuse those exact strings before the next pilot ran, and the
 worker task now carries both findings.
 
+## The batch: both halves accepted and judged
+
+| Half | Charts | Result | Changes | Judged read |
+| --- | --- | --- | --- | --- |
+| a | 34 | accepted, 273 checks, 0 failures, one repair | 21 line changes in 11 files, 24 Charts clean | clean; coverage scan found 2 candidates (`# {Context Name}`) correctly left alone |
+| b | 33 | accepted at the third revision, 375 checks, 0 failures | 7 line changes in 6 files | clean; coverage scan's 8 remaining candidates all correctly left alone |
+
+**Half b took three revisions, each a repair of the machine.**
+
+1. Accepted at 297 checks and **failed the judged read**: ten of eleven changes were one stock
+   sentence, "The delivered headings state claims rather than these names", pasted file after
+   file and appended to whatever paragraph ended the section — the copying failure this job
+   exists to remove, wearing the corrector's clothes. The eleventh rewrote a recorded
+   observation (`local-service-copy`: "Process step titles describe methodology, not
+   benefits") into an instruction and lost what it said. Encoded: `no-stock-sentence` refuses
+   any added sentence appearing in more than two files of a half, proved to refuse three and
+   to accept two. Instructed: rewrite only sentences that instruct; an observation or a
+   finding about an example is evidence and stays.
+2. Three changes, all right, the observation preserved — and it found
+   `technical-seo-aeo`'s "descriptive headings that state the question or subject", which the
+   first pass missed entirely while it was pasting. Removing the noise is what let it see. The
+   coverage scan then found one miss: `teach/LEARNING-RECORD-FORMAT.md`'s
+   `# {Short title of what was learned or established}`, the same template shape half a had
+   corrected twice. Encoded: a file reported clean may not carry a `{... title ...}` heading
+   template, with `{... name ...}` deliberately excluded because `# {Context Name}` names a
+   bounded context and claims nothing. Both proved.
+3. Accepted, judged read clean: the title template became
+   `# {What was learned, stated as a claim, up to eight words}`, the sentence sits at each
+   template's own introduction, and `local-service-copy`'s "descriptive H2s" was caught —
+   a real find neither earlier pass made.
+
+**28 line changes across 67 Charts, in 17 files.** The rest were correctly left alone.
+
+The checker grew 6 → 18 scenarios (5 accept, 13 refuse) over this job. Every one of the twelve
+added exists because something got past the previous set: six construction faults, three
+content defects, two coverage misses, and one self-contradiction — a pattern that would have
+banned "up to eight words", the limit the rule itself teaches.
+
+**Preserved for publication:** `control/runtime/chart-corrections/` carries both accepted
+`corrections-*.json` (the corrected text of every changed file), both checker reports, the
+checker and its test suite, the coverage aid and the generator, so the deliverable outlives
+the release it was produced in.
+
 ## Publication
+
 
 
 Corrected files are proposals. They reach workers only through `skill-publish --proposal DIR

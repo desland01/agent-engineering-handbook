@@ -1,0 +1,310 @@
+{
+  "version": 1,
+  "half": "b",
+  "bundles": [
+    {
+      "bundle": "local-service-copy",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "references/offer-and-value.md", "status": "clean"},
+        {"path": "references/voice-and-clarity.md", "status": "clean"},
+        {"path": "references/quality-checklist.md", "status": "clean"},
+        {"path": "references/adapters.md", "status": "clean"},
+        {"path": "references/composition-modes.md", "status": "clean"},
+        {"path": "references/page-zones.md", "status": "clean"},
+        {"path": "references/business-facts.md", "status": "clean"},
+        {"path": "references/trust-sequence.md", "status": "changed", "text": "# Trust sequence\n\nSources: new-sources/hom-copy-april27-corrected.md lines 132-148 (states), 174-188 (gates,\ngoal layers), 213-220 (anti-pogo-stick 1-2); new-sources/hom-copy-aug12/SKILL.md lines\n222-232 (anti-pogo-stick 1-5); new-sources/hom-copy-aug12/references/neurostate-framework.md\nlines 7-102 and 132-138; new-sources/hom-copy-aug12/references/trust-gates.md lines 9-145;\nnew-sources/hom-copy-aug12/references/anti-pogo-stick.md lines 21-179. The August reference\nfiles are established in the August 12 commit; their April bytes were not recovered.\n\nThese models are the earlier author's working framework, not established science.\n\n## Customer state and copy order\n\nThe skill body (April, identical in August) lists three states; the August reference file\ndescribes two. Both are kept.\n\n| State | Customer | Copy order |\n|---|---|---|\n| Optimistic Security | Forward-looking; expects a good result if they pick the right company; choosing to improve | Transformation first, then risk removal |\n| Anxious Avoidance | Fear-driven; something is broken, failing or unsafe; reacting to a problem | Acknowledge the problem first, then the solution |\n| Skeptical Evaluation (skill body only) | Data-driven, comparison-focused; needs proof first | Evidence first, then the vision |\n\nDefault for home services (painting, HVAC, roofing, plumbing, remodeling, landscaping):\nOptimistic Security. Emergency, repair and restoration pages: Anxious Avoidance. Read the\nideal customer profile when it says otherwise. The state changes the order of appeals, not\ntheir content.\n\nFrame pairs from the reference (lines 20-24, 39-42):\n\n| Fear frame (wrong for Optimistic Security) | Optimistic Security frame |\n|---|---|\n| \"Tired of contractors who don't show up?\" | \"Imagine coming home to a [result] you're proud of, without a single stressful day during the process.\" |\n| \"We won't ghost you\" | \"You'll hear from us every day: photo updates, check-ins, and a project manager on site from start to finish.\" |\n\n| Optimistic frame (wrong for Anxious Avoidance) | Anxious Avoidance frame |\n|---|---|\n| \"Imagine your beautiful new roof\" | \"A leaking roof leads to mold and structural damage. We stop it before it spreads.\" |\n\n## Emotional framing (reference lines 48-71)\n\nEvoke: peace of mind, relief, confidence, pride. Resolve: regret, disruption, mess, poor\nworkmanship, miscommunication. Place the testimonial that answers a fear next to that fear\n(a review praising communication sits by the miscommunication fear). Rule: feelings open\n(hero), facts close (trust bar, CTA line that pairs an emotional hook with the guarantee).\n\n## The five trust gates\n\n| Gate | Customer question | What clears it | Copy pattern | Where on the page |\n|---|---|---|---|---|\n| 1. Competence | \"Have they done this before, in homes like mine?\" | Job count, portfolio tagged by location and service, neighborhood mentions, trade credentials | \"[X]+ [city] homes [served], and counting.\" Caption: \"[Service] - [Neighborhood] - [Detail]\" | Trust bar, portfolio, testimonials |\n| 2. Reputation | \"What do past customers say?\" | Star rating, review count, three verbatim testimonials covering communication, quality, process; link to the review source | \"[X]+ five-star Google reviews.\" \"Don't take our word for it. Here's what [X]+ customers said.\" | Trust bar, social proof, near CTAs |\n| 3. Reliability | \"Will they show up and do what they say?\" | 3-step process, on-site manager or daily oversight, response-time commitment, guarantee | \"Here's exactly what happens when you work with us.\" \"We respond within the same business day.\" | Process, differentiators, FAQ |\n| 4. Disruption | \"Is this going to mess up my life?\" | Timeline, daily cleanup, livability during work, photo updates | \"We complete most [service] projects in [X] days.\" \"Your home stays livable throughout.\" | Process, FAQ, service detail |\n| 5. Risk | \"What if something goes wrong?\" | Written warranty terms, satisfaction guarantee, insurance, guarantee near every CTA | \"Every project backed by our [X]-year written warranty.\" \"The price we quote is the price you pay.\" | Near every CTA, trust bar, FAQ |\n\nCoverage rule (trust-gates.md line 130): the homepage clears all five gates before the\nestimate form; a service page clears at least gates 1, 2 and 5; a location page clears gates 1\nand 2 with area-specific proof. Not every zone clears every gate.\n\n## Goal layers\n\nEach zone targets one layer primarily. Every zone reaches the functional layer at minimum;\nhero, differentiators and final CTA reach all three.\n\n| Layer | Meaning | Sounds like |\n|---|---|---|\n| Functional | Smooth service without disruption | \"No surprises. Daily updates. Done on schedule.\" |\n| Higher-order | Done right, with the right materials, by people who know the work | \"Premium materials. Thorough prep. A result that holds up for years.\" |\n| Aspirational | Identity as someone who plans ahead and protects their investment | \"Get on our calendar before the season fills.\" \"Protect your investment.\" |\n\nPair a transformation line with proof signals in each high-converting section so both the\nvisual outcome and the credibility evidence appear together. (The reference framed this by\ngender, lines 106-128; that framing is omitted as an unsourced generalization.)\n\n## Anti-pogo-stick principles\n\nPurpose as stated: give the visitor no reason to return to the search results. The source\ncarries two different lists under the same name; both are kept.\n\nList A, skill body (April lines 219-220 for 1-2; August lines 228-232 for 1-5):\n\n1. Answer the query completely; no thin content that sends the visitor back to search.\n2. Front-load the answer; the most important information sits above the fold.\n3. Eliminate dead zones; every scroll depth has value, no filler paragraphs.\n4. Link to depth; when a topic deserves more than this page can give, link to a dedicated\n   page rather than bloating this one.\n5. Give them a reason to stay; social proof, specificity and fresh data. Generic copy\n   sends them back.\n\nList B, reference file (lines 21-164), with its checkpoint questions:\n\n| Principle | Implement | Checkpoint |\n|---|---|---|\n| Build trust fast | Trust bar visible without scrolling: rating, review count, credential, project count, warranty; real project photo, never stock | Can a visitor see proof of credibility without scrolling? |\n| Reduce friction to action | CTA above the fold and at the bottom; 4 form fields maximum; specific button text (\"Get My Free Estimate\", never \"Submit\"); click-to-call on mobile; guarantee near every CTA | Can a visitor take action in under 10 seconds? |\n| Write for scanning | Paragraphs of 2-3 lines; bullets for lists; H2s state what their section concludes in a reader's words (cover the body, read the H2, write what the section must claim; a different or opposite reading fails); bold key phrases | Can a visitor find what they need by scanning headers only? |\n| Win above the fold | Answer three questions: What is this page? Is this for me? What do I do next? H1 = service + location, subheadline = differentiator or pain resolved, CTA, trust bar; under 100 words before the first CTA | Do H1 and first sentence say what the page offers and where? |\n| Match search intent | H1 exact or close match to the target keyword; first sentence contains the keyword and answers the query; page type matches intent; location in H1 or subheadline | Same as above |\n\nThe reference's ranking-mechanism claims (dwell time, return-to-SERP rate, engagement\nweighting, lines 7-17) and its statistics (\"60-70% never scroll\", \"under 2.5s LCP\") are\nunvalidated and not carried as facts.\n", "changes": [{"line": 96, "before": "| Write for scanning | Paragraphs of 2-3 lines; bullets for lists; descriptive H2s (\"Why [City] Homeowners Trust [Company]\", not \"Our Story\"); bold key phrases | Can a visitor find what they need by scanning headers only? |", "after": "| Write for scanning | Paragraphs of 2-3 lines; bullets for lists; H2s state what their section concludes in a reader's words (cover the body, read the H2, write what the section must claim; a different or opposite reading fails); bold key phrases | Can a visitor find what they need by scanning headers only? |", "why": "The row instructed descriptive H2s with example label headings; it now instructs each H2 to state its section's claim with the cover-the-body test."}]}
+      ]
+    },
+    {
+      "bundle": "long-running-harness",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "references/runtime-commands.md", "status": "clean"},
+        {"path": "references/runtime-contract.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "neon",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "example.md", "status": "clean"},
+        {"path": "references/branch-and-config.md", "status": "clean"},
+        {"path": "references/setup-and-connection.md", "status": "clean"},
+        {"path": "references/resources-and-limits.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "operational-sop",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "example.md", "status": "clean"},
+        {"path": "references/visual-prompts.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "performance",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "precise",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "premium-tech-design-language",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "references/handbook-direction.md", "status": "clean"},
+        {"path": "references/sources.md", "status": "clean"},
+        {"path": "references/vocabulary.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "product-discovery",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "product-strategy",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "prototype",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "LOGIC.md", "status": "clean"},
+        {"path": "UI.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "qa",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "release-delivery",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "release-writing",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "research",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "resolving-merge-conflicts",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "sanity-agent-context",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "example.md", "status": "clean"},
+        {"path": "references/architecture-and-scope.md", "status": "clean"},
+        {"path": "references/agent-prompt-design.md", "status": "clean"},
+        {"path": "references/client-tools-and-rendering.md", "status": "clean"},
+        {"path": "references/context-deltas.md", "status": "clean"},
+        {"path": "references/context-method-example.md", "status": "clean"},
+        {"path": "references/conversation-observation.md", "status": "clean"},
+        {"path": "references/runtime-integration.md", "status": "clean"},
+        {"path": "references/studio-context-and-instructions.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "sanity-development",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "example.md", "status": "clean"},
+        {"path": "references/framework-and-infrastructure.md", "status": "clean"},
+        {"path": "references/schema-and-studio.md", "status": "clean"},
+        {"path": "references/groq-and-types.md", "status": "clean"},
+        {"path": "references/rendering-and-preview.md", "status": "clean"},
+        {"path": "references/localization-and-migration.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "search-data-collection",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "example.md", "status": "clean"},
+        {"path": "references/routing.md", "status": "clean"},
+        {"path": "references/local-search-measurements.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "security-review",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "seo-campaign",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "references/audit-first.md", "status": "clean"},
+        {"path": "references/avalanche-supporting.md", "status": "clean"},
+        {"path": "references/buyer-intent.md", "status": "clean"},
+        {"path": "references/campaign-operation.md", "status": "clean"},
+        {"path": "references/directory-first.md", "status": "clean"},
+        {"path": "references/durable-campaign-evidence.md", "status": "clean"},
+        {"path": "references/handoffs.md", "status": "clean"},
+        {"path": "references/money-page-priority.md", "status": "clean"},
+        {"path": "references/pop-local.md", "status": "clean"},
+        {"path": "references/runtime.md", "status": "clean"},
+        {"path": "references/search-research.md", "status": "clean"},
+        {"path": "references/silo-architecture.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "serp-led-on-page",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "references/audit-checklist.md", "status": "clean"},
+        {"path": "references/historical-claims.md", "status": "clean"},
+        {"path": "references/internal-linking-and-silos.md", "status": "clean"},
+        {"path": "references/measurement.md", "status": "clean"},
+        {"path": "references/placements-and-density.md", "status": "clean"},
+        {"path": "references/project-context.md", "status": "clean"},
+        {"path": "references/serp-analysis.md", "status": "clean"},
+        {"path": "references/structure-and-page-types.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "simple",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "tdd",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "mocking.md", "status": "clean"},
+        {"path": "suite-layering.md", "status": "clean"},
+        {"path": "tests.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "teach",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "MISSION-FORMAT.md", "status": "changed", "text": "# MISSION.md Format\n\n`MISSION.md` lives at the workspace root. It captures the _reason_ the user is learning this topic. Every teaching decision (what to teach next, which resources to surface, which exercises to design) should trace back to this document.\n\n## Template\n\nThe delivered MISSION.md's headings state what their sections conclude in a reader's words (cover the body, read the heading, check a different or opposite reading fails); the template's headings below name required sections, not required wording.\n\n```md\n# Mission: {Topic}\n\n## Why\n{1-3 sentences. The concrete real-world goal the user is chasing. What changes in their life or work when they have this skill? Avoid abstract framings like \"to understand X\": push for the underlying outcome.}\n\n## Success looks like\n- {A specific, observable thing the user will be able to do}\n- {Another specific thing}\n- {…}\n\n## Constraints\n- {Time, budget, prior commitments, learning preferences, anything that bounds the approach}\n\n## Out of scope\n- {Adjacent topics the user explicitly does not want to chase right now, which protects the zone of proximal development}\n```\n\n## Rules\n\n- **One mission per workspace.** If the user wants to learn two unrelated things, that is two workspaces.\n- **Concrete over abstract.** \"Run a half marathon by October\" beats \"get fitter.\" \"Ship a Rust CLI to my team\" beats \"learn Rust.\"\n- **Push back on vagueness.** If the user cannot articulate why, interview them before writing anything. A bad mission is worse than no mission.\n- **Revise when reality shifts.** Missions change. When the user's goal moves, update this file: don't leave a stale mission steering future sessions.\n- **Keep it short.** If `MISSION.md` runs past a screen, it has stopped being a compass and started being a plan.\n", "changes": [{"line": 5, "before": "## Template", "after": "## Template\n\nThe delivered MISSION.md's headings state what their sections conclude in a reader's words (cover the body, read the heading, check a different or opposite reading fails); the template's headings below name required sections, not required wording.", "why": "The template hands over fixed section headings a writer would paste in as-is, so its introduction now requires the delivered headings to state their sections' claims."}]},
+        {"path": "RESOURCES-FORMAT.md", "status": "clean"},
+        {"path": "GLOSSARY-FORMAT.md", "status": "clean"},
+        {"path": "LEARNING-RECORD-FORMAT.md", "status": "changed", "text": "# Learning Record Format\n\nLearning records live in `./learning-records/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc. Create the directory lazily: only when the first record is written.\n\nThey are the teaching equivalent of ADRs: they capture non-obvious lessons, key insights, and stated prior knowledge that will steer future sessions. They are used to calculate the zone of proximal development.\n\n## Template\n\n```md\n# {What was learned, stated as a claim, up to eight words}\n\n{1-3 sentences: what was learned (or what prior knowledge was established), and why it matters for future sessions.}\n```\n\nThat is the whole format. Test the heading by covering the body: it should state what the record establishes, and a reader seeing only the heading should draw the same conclusion. A learning record can be a single paragraph. The value is recording _that_ this is now known and _why_ it changes what to teach next: not in filling out sections.\n\n## Optional sections\n\nOnly include these when they add genuine value. Most records won't need them.\n\n- **Status** frontmatter (`active | superseded by LR-NNNN`): useful when an earlier understanding turns out to be wrong and is replaced.\n- **Evidence**: how the user demonstrated the understanding (a question answered, an exercise completed, prior experience cited). Useful when the claim might be revisited.\n- **Implications**: what this unlocks or rules out for future sessions. Worth recording when non-obvious.\n\n## Numbering\n\nScan `./learning-records/` for the highest existing number and increment by one.\n\n## When to write a learning record\n\nWrite one when any of these is true:\n\n1. **The user demonstrated genuine understanding of something non-trivial**: not just exposure, but evidence they can use the concept correctly. This sets a new floor for what to teach next.\n2. **The user disclosed prior knowledge**: \"I already know X.\" Record it so future sessions don't re-teach it. Also record the _depth_ claimed.\n3. **A misconception was corrected**: the user previously believed something wrong and now sees why. These are high-value: they predict future stumbling blocks for related topics.\n4. **The mission shifted in response to learning**: the user discovered they cared about something different than they thought. Cross-link to [[MISSION.md]] and update it.\n\n### What does _not_ qualify\n\n- Material that was merely covered. Coverage is not learning. Wait for evidence.\n- Anything already captured tersely in [[GLOSSARY.md]] as a term definition. Don't duplicate.\n- Session-by-session activity logs. Learning records are not a journal: they are decision-grade insights.\n\n## Supersession\n\nWhen a later record contradicts an earlier one (the user's understanding deepened or corrected), mark the old record `Status: superseded by LR-NNNN` rather than deleting it. The history of how understanding evolved is itself useful signal.\n", "changes": [{"line": 10, "before": "# {Short title of what was learned or established}", "after": "# {What was learned, stated as a claim, up to eight words}", "why": "The template handed writers a paste-in title; the placeholder now asks for a claim of what the record establishes."}, {"line": 15, "before": "That is the whole format. A learning record can be a single paragraph. The value is recording _that_ this is now known and _why_ it changes what to teach next: not in filling out sections.", "after": "That is the whole format. Test the heading by covering the body: it should state what the record establishes, and a reader seeing only the heading should draw the same conclusion. A learning record can be a single paragraph. The value is recording _that_ this is now known and _why_ it changes what to teach next: not in filling out sections.", "why": "Carries the cover-the-body test for the corrected heading placeholder in the Chart's own register."}]},
+        {"path": "references/upstream-context.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "technical-seo-aeo",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "example.md", "status": "clean"},
+        {"path": "references/answer-readiness.md", "status": "changed", "text": "# Answer readiness\n\nAnswer readiness makes factual content easy to locate, understand and attribute. It does not guarantee selection by a search or AI system.\n\n## Content shape\n\n- Open a factual section with the direct answer, then explain limits and detail.\n- Use headings that state what their section concludes in a reader's words; cover the body, read the heading, and check that a different or opposite reading fails.\n- Use lists for parallel items and tables for real comparisons.\n- Define technical terms before relying on them.\n- Cover related questions only when the page can answer them accurately.\n- Keep canonical copies and meaningful publication or update dates aligned with the content record.\n\nFAQ formatting is useful when users actually ask distinct questions and the page provides visible answers. Do not manufacture FAQ content solely to emit schema.\n\n## Source quality\n\nPrefer primary sources for factual claims. Link a citation to the claim it supports. Avoid circular citations and remove references that no longer support the text. Separate first-hand experience, professional expertise, third-party evidence and editorial judgment.\n\n## Crawler choices\n\nAgent-specific crawling rules are policy choices. Record which content the owner intends to expose and why, then implement only currently verified directives. Recheck the policy when bot identities or provider behavior changes.\n\n## What can be measured\n\nMeasure only signals the project can observe, such as attributed referral traffic, a recorded citation or mention, an owned search feature, or query impressions from an available source. Keep zero-click and assistant-citation observations separate from ordinary rank and traffic. The April source's claims about specific product reporting are not carried without current evidence.\n", "changes": [{"line": 8, "before": "- Use descriptive headings that state the question or subject.", "after": "- Use headings that state what their section concludes in a reader's words; cover the body, read the heading, and check that a different or opposite reading fails.", "why": "The bullet instructed subject headings; it now instructs each heading to state its section's conclusion with the cover-the-body test."}]},
+        {"path": "references/evidence-and-measurement.md", "status": "clean"},
+        {"path": "references/technical-discovery.md", "status": "clean"},
+        {"path": "references/website-technical-seo-methods.md", "status": "clean"},
+        {"path": "references/structured-data.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "to-spec",
+      "files": [
+        {"path": "SKILL.md", "status": "changed", "text": "---\nname: to-spec\ndescription: \"Turn the current conversation into a spec and publish it to the project issue tracker: no interview, just synthesis of what you've already discussed.\"\ndisable-model-invocation: true\n---\n\nThis skill takes the current conversation context and codebase understanding and produces a spec (you may know this document as a PRD). Do NOT interview the user: just synthesize what you already know. Use the decisions already settled in the conversation, in `CONTEXT.md`/ADRs, and in prior specs or triage notes; do not re-ask them. Ask only if a material decision the spec depends on is genuinely missing.\n\n**Tracker.** Discover the configured issue tracker from the project's actual configuration (its tracker config, CLAUDE.md, or repository settings). If none is configured, publish the spec as a local file at `.scratch/specs/<feature-slug>.md` and report its path: do not block on a missing setup step.\n\n## Process\n\n1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the spec, and respect any ADRs in the area you're touching.\n\n2. Record the relevant acceptance and existing behavioral checks. Resolve only a missing decision that changes the intended result. A test seam does not need its own approval, and this method sets no ideal seam count.\n\n3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage. The delivered spec's headings state what their sections conclude in a reader's words (cover the body, read the heading, check a different or opposite reading fails), not the template's section names.\n\n<spec-template>\n\n## Current Behavior\n\nWhat the system does today, observed in the code, for the area this spec touches. State what you verified by reading the code and what you did not check. If the area is new, say \"no current behavior\".\n\n## Must Remain Correct\n\nExisting behavior and contracts that must keep working after this change, so the implementer knows what not to break.\n\n## Problem Statement\n\nThe problem that the user is facing, from the user's perspective.\n\n## Solution\n\nThe solution to the problem, from the user's perspective.\n\n## User Stories\n\nInclude the user stories needed to explain distinct requirements. Use this format when helpful:\n\n1. As an <actor>, I want a <feature>, so that <benefit>\n\n<user-story-example>\n1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending\n</user-story-example>\n\nAvoid repeated stories and cases that add no requirement.\n\n## Implementation Decisions\n\nA list of implementation decisions that were made. This can include:\n\n- The modules that will be built/modified\n- The interfaces of those modules that will be modified\n- Technical clarifications from the developer\n- Architectural decisions\n- Schema changes\n- API contracts\n- Specific interactions\n\nDo NOT include specific file paths or code snippets. They may end up being outdated very quickly.\n\nException: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it within the relevant decision and note briefly that it came from a prototype. Trim to the decision-rich parts: not a working demo, just the important bits.\n\n## Testing Decisions\n\nA list of testing decisions that were made. Include:\n\n- The observable behavior and failure cases relevant to this change\n- Which modules will be tested\n- Prior art for the tests (i.e. similar types of tests in the codebase)\n\n## Acceptance\n\nObservable acceptance for the finished result, written so an implementer can check it without asking you: the behavior a user or caller can see, plus the craft quality the result must meet (e.g. readable interface, no console errors, matches existing patterns). This section names what is observable; the exact file ownership and environment/checker bindings for executing it belong in the worker assignment, not here.\n\n## Out of Scope\n\nA description of the things that are out of scope for this spec.\n\n## Further Notes\n\nAny further notes about the feature.\n\n</spec-template>\n\n<simple: the findings, recommendations and deliverable prose read by the user.>\n", "changes": [{"line": 17, "before": "3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.", "after": "3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage. The delivered spec's headings state what their sections conclude in a reader's words (cover the body, read the heading, check a different or opposite reading fails), not the template's section names.", "why": "The template hands over fixed section headings a writer would paste in as-is, so the step that applies it now requires the delivered headings to state their sections' claims."}]}
+      ]
+    },
+    {
+      "bundle": "to-tickets",
+      "files": [
+        {"path": "SKILL.md", "status": "changed", "text": "---\nname: to-tickets\ndescription: \"Break a plan, spec, or the current conversation into a set of tracer-bullet tickets, each declaring its blocking edges, published to the configured tracker: edges as text in one file per ticket locally, or native blocking links on a real tracker.\"\ndisable-model-invocation: true\n---\n\n# To Tickets\n\nBreak a plan, spec, or conversation into a set of **tickets**: tracer-bullet vertical slices, each declaring the tickets that **block** it.\n\nThe issue tracker and triage label vocabulary come from the project's actual configuration (its tracker config, CLAUDE.md, or repository settings). Discover it there. If no tracker is configured, default to local files under `.scratch/<feature-slug>/issues/`: do not block on a missing setup step.\n\n## Process\n\n### 1. Gather context\n\nWork from whatever is already in the conversation context. If the user passes a reference (a spec path, an issue number or URL) as an argument, fetch it and read its full body and comments.\n\n### 2. Explore the codebase (optional)\n\nIf you have not already explored the codebase, do so to understand the current state of the code. Ticket titles and descriptions should use the project's domain glossary vocabulary, and respect ADRs in the area you're touching.\n\nInclude prerequisite refactoring only when the implementation actually depends on it.\n\n### 3. Draft vertical slices\n\nBreak the work into **tracer bullet** tickets.\n\n<vertical-slice-rules>\n\n- Each slice delivers a complete usable behavior through the layers it actually touches; do not invent schema, API, UI or testing work to fill a template.\n- A completed slice is demoable or verifiable on its own\n- Independent slices fit the assigned model's working context; keep tightly coupled work together.\n- Prerequisite refactoring is a dependency only when it is necessary.\n\n</vertical-slice-rules>\n\nGive each ticket its **blocking edges**: the other tickets that must complete before it can start. A ticket with no blockers can start immediately.\n\n**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket: green is promised only there.\n\n### 4. Resolve the breakdown when needed\n\nReuse a breakdown and approval already established in the chosen planning conversation. If granularity and dependencies are settled and writing the tickets is authorized, proceed directly. Otherwise use the following questions for the material unresolved choices; do not restart the entire interview.\n\nRecord a title stating what the ticket settles, the actual blocking edges and the usable result. The agent resolves ordinary\nsize and dependency choices from the settled spec. Ask only about a missing consequential\nproduct decision; no separate granularity interview or approval loop is required.\n\n### 5. Publish the tickets to the configured tracker\n\nPublish the approved tickets. **How** depends on the tracker discovered from the project's configuration: the tickets are the same either way, only the shape of the blocking edges changes:\n\n- **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's \"Blocked by\" lists the numbers/titles it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file.\n- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking / sub-issue relationship where it has one; otherwise set each ticket's \"Blocked by\" to the blocking issues. Apply the `ready-for-agent` triage label unless instructed otherwise: the tickets are agent-grabbable by construction.\n\nWork the **frontier**: any ticket whose blockers are all done. For a purely linear chain that means top to bottom.\n\nDo NOT close or modify any parent issue.\n\n<local-ticket-template>\n\n# <NN>: <Ticket title>\n\n**What to build:** the end-to-end behaviour this ticket makes work, from the user's perspective: not a layer-by-layer implementation list.\n\n**Blocked by:** the numbers/titles of the tickets that gate this one, or \"None (can start immediately)\".\n\n**Status:** ready-for-agent\n\n- [ ] Acceptance criterion 1 (functional: the observable behavior this ticket makes work)\n- [ ] Acceptance criterion 2 (craft: the quality bar it must meet, e.g. matches existing patterns, no console errors)\n\n</local-ticket-template>\n\n<issue-template>\n\n## Parent\n\nA reference to the parent issue on the tracker (if the source was an existing issue, otherwise omit this section).\n\n## What to build\n\nThe end-to-end behaviour this ticket makes work, from the user's perspective: not layer-by-layer implementation.\n\n## Acceptance criteria\n\n- [ ] Criterion 1 — functional: observable behavior, checkable without asking the author\n- [ ] Criterion 2 — craft: quality bar proportionate to the change (readability, consistency with existing patterns, no regressions in surrounding behavior)\n\n## Blocked by\n\n- A reference to each blocking ticket, or \"None (can start immediately)\".\n\n</issue-template>\n\nIn either form, avoid specific file paths or code snippets: they go stale fast. Exception: if a prototype produced a snippet that encodes a decision more precisely than prose can (state machine, reducer, schema, type shape), inline it and note briefly that it came from a prototype. Trim to the decision-rich parts: not a working demo, just the important bits.\n\nKeep tickets implementation-neutral for humans: what works, what blocks it, and what observable + craft acceptance looks like. Choose the executor by uncertainty and coupling using [model assignment](../glm-fleet/references/model-assignment.md). Exact file ownership, environment, checker commands, and the chosen model are execution bindings: they belong in the worker assignment at dispatch time, not in the published ticket. Do not duplicate the runtime's execution packet into tickets; reference the selected execution method (e.g. `long-running-harness`) by name when the graph will run there.\n\n<simple: the findings, recommendations and deliverable prose read by the user.>\n", "changes": [{"line": 46, "before": "Record title, actual blocking edges and the usable result. The agent resolves ordinary", "after": "Record a title stating what the ticket settles, the actual blocking edges and the usable result. The agent resolves ordinary", "why": "The step asked to record a title toward a bare subject; the title now must state what the ticket settles."}]}
+      ]
+    },
+    {
+      "bundle": "triage",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "AGENT-BRIEF.md", "status": "clean"},
+        {"path": "OUT-OF-SCOPE.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "ui-ux-design",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "README.md", "status": "clean"},
+        {"path": "references/dashboard.md", "status": "clean"},
+        {"path": "references/design-systems.md", "status": "clean"},
+        {"path": "references/intent-and-reference.md", "status": "clean"},
+        {"path": "references/marketing-editorial.md", "status": "clean"},
+        {"path": "references/motion-immersive.md", "status": "clean"},
+        {"path": "references/native-mobile.md", "status": "clean"},
+        {"path": "references/product-ux.md", "status": "clean"},
+        {"path": "references/verification.md", "status": "clean"},
+        {"path": "provenance/attribution.md", "status": "clean"},
+        {"path": "provenance/authoring-handoff.md", "status": "clean"},
+        {"path": "provenance/decisions.md", "status": "clean"},
+        {"path": "provenance/scrollcraft-PROVENANCE.md", "status": "clean"},
+        {"path": "provenance/source-map.md", "status": "clean"},
+        {"path": "provenance/verification-report.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "video-ad-creative",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "references/ad-script-structure.md", "status": "clean"},
+        {"path": "references/caption-timing.md", "status": "clean"},
+        {"path": "references/seedance-prompting.md", "status": "clean"},
+        {"path": "references/voice-script.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "wayfinder",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "website-implementation",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "references/integration-ui-methods.md", "status": "clean"},
+        {"path": "references/operations-methods.md", "status": "clean"},
+        {"path": "references/sanity-methods.md", "status": "clean"}
+      ]
+    },
+    {
+      "bundle": "writing-great-skills",
+      "files": [
+        {"path": "SKILL.md", "status": "clean"},
+        {"path": "GLOSSARY.md", "status": "clean"}
+      ]
+    }
+  ]
+}
