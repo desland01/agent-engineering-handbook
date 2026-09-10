@@ -246,25 +246,49 @@ def wide(inner):
     return (f'<svg class="diagram" viewBox="0 0 160 80" aria-hidden="true" focusable="false" {STROKE}>{inner}</svg>')
 
 
+# Captions live inside the drawing, in mono, as the design language asks: the
+# figure has to say what it shows without the text beside it.
+MONO = 'font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" letter-spacing=".3" fill="#f7f3ef" fill-opacity=".72" stroke="none"'
+
+
+def cap(x, y, text, anchor='start', size=3.2):
+    return f'<text x="{x}" y="{y}" font-size="{size}" text-anchor="{anchor}" {MONO}>{text}</text>'
+
+
 INVESTIGATIONS = {
+    # Two repositories read: T3 Code, and the Melee fork whose thirteen PRs and
+    # verifier commit the report traces. Main line, the fork with its PRs, and
+    # the verifier that went from nine tests to fifteen.
     'github-inspection.md': wide(
-        '<path d="M10 56h140" stroke-opacity=".5"/>'
-        + ''.join(dot(x, 56, 3) for x in (24, 52, 80, 108, 136)) +
-        '<path d="M52 56c10-20 20-30 40-30h30"/>'
-        + ''.join(f'<circle cx="{x}" cy="26" r="3"/>' for x in (92, 106, 120)) +
-        '<path d="M122 26c8 0 10 12 14 30"/>'
-        + soft('M126 8h24v14h-24z') + '<rect x="126" y="8" width="24" height="14" rx="2"/><path d="M132 15l3 3 6-6"/>'),
+        cap(10, 9, 'T3 CODE \u00b7 MELEE4MAC') + cap(150, 13, 'MAIN', 'end')
+        + '<path d="M10 18h140" stroke-opacity=".5"/>'
+        + ''.join(dot(x, 18, 2.6) for x in (24, 52, 80, 108, 136))
+        + '<path d="M52 18c8 12 10 22 18 26"/>'
+        + cap(70, 40, 'FORK \u00b7 13 PRs')
+        + '<path d="M70 46h70" stroke-opacity=".7"/>'
+        + ''.join(f'<path d="M{70 + i * 5.6:.1f} 43v6"/>' for i in range(13))
+        + '<path d="M140 46v8"/><path d="M137 51l3 3 3-3"/>'
+        + soft('M96 56h56v18H96z') + '<rect x="96" y="56" width="56" height="18" rx="2"/>'
+        + '<path d="M101 65l3 3 6-6"/>' + cap(112, 67, 'VERIFIER 9\u219215 TESTS', size=2.7)),
+    # A codebase with a glossary, one HTTP transport and a published artifact
+    # whose identity survives a resume.
     'matt-pocock-inspection.md': wide(
-        '<rect x="8" y="24" width="40" height="32" rx="2"/><path d="M8 32h40M8 48h40"/>'
-        + ''.join(f'<path d="M{x} 24v8M{x} 48v8"/>' for x in (18, 28, 38)) +
-        '<path d="M52 40h28"/><path d="M76 36l4 4-4 4"/>'
-        '<rect x="84" y="30" width="28" height="20" rx="10"/><path d="M92 40h12"/>'
-        '<path d="M116 40h12"/><path d="M124 36l4 4-4 4"/>'
-        + soft('M132 22h20v36h-20z') + '<rect x="132" y="22" width="20" height="36" rx="2"/><path d="M137 32h10M137 40h10M137 48h6"/>'),
+        cap(8, 21, 'GLOSSARY')
+        + '<rect x="8" y="26" width="40" height="30" rx="2"/><path d="M8 34h40M8 46h40" stroke-opacity=".7"/>'
+        + '<path d="M14 30h10M14 40h16M14 51h8" stroke-opacity=".6"/>'
+        + '<path d="M50 41h8"/><path d="M55 38l3 3-3 3"/>'
+        + '<rect x="60" y="32" width="44" height="16" rx="8"/>' + cap(82, 41.6, 'ONE HTTP TRANSPORT', 'middle', 3)
+        + '<path d="M106 41h8"/><path d="M111 38l3 3-3 3"/>'
+        + cap(116, 17, 'PUBLISHED ARTIFACT')
+        + soft('M116 22h36v36h-36z') + '<rect x="116" y="22" width="36" height="36" rx="2"/><path d="M122 32h24M122 40h24M122 48h14"/>'
+        + '<path d="M134 60v10H28V60" stroke-opacity=".7"/><path d="M25 63l3-3 3 3"/>'
+        + cap(48, 74, 'RESUMABLE \u00b7 SAME IDENTITY', size=3)),
+    # A compiler validated five ways: the layers the report found, named.
     'boris-cherny-inspection.md': wide(
-        ''.join(f'<path d="M4 {y}h14"/><path d="M15 {y-3}l3 3-3 3"/>' for y in (28, 40, 52)) +
-        ''.join(soft(f'M{x} 26h30v28H{x}z') + f'<rect x="{x}" y="26" width="30" height="28" rx="2"/>' for x in (22, 64, 106)) +
-        '<path d="M52 40h12M94 40h12"/><path d="M60 36l4 4-4 4M102 36l4 4-4 4"/>'
-        '<path d="M30 36h14M30 42h10M72 36h14M72 42h10M114 36h14M114 42h10" stroke-opacity=".6"/>'
-        '<path d="M140 40h8"/><circle cx="152" cy="40" r="5"/><path d="M149.5 40l1.8 1.8 3.4-3.8"/>'),
+        cap(8, 42.6, 'SCHEMA') + '<path d="M26 41h12"/><path d="M35 38l3 3-3 3"/>'
+        + ''.join(soft(f'M44 {8 + i * 12.8:.1f}h72v11.8H44z') + f'<rect x="44" y="{8 + i * 12.8:.1f}" width="72" height="11.8" rx="1.5"/>'
+                  + cap(48, 8 + i * 12.8 + 8.2, label)
+                  for i, label in enumerate(('FIXTURES', 'BUILT-ARTIFACT SMOKE TESTS', 'FUZZING', 'REAL-WORLD CORPUS', 'CONFORMANCE CHECKS')))
+        + '<path d="M118 41h10"/><path d="M125 38l3 3-3 3"/>'
+        + '<circle cx="140" cy="41" r="6"/><path d="M137 41l2 2 4-4"/>' + cap(140, 55, 'TYPES', 'middle')),
 }

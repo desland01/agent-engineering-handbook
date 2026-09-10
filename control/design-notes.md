@@ -644,6 +644,17 @@ source (the real tree was another session's, 5,465 files dirty): see
 shipping boundary. The `copy` skill is staged for whole readoption as a domain skill; it
 needs an authoring run for evidence before `skill-publish` will admit it.
 
+**Fleet, corrected (2026-09-10, later).** The skill-packs releases do not lack Charts:
+`skill-packs-20260910c` carries 74 bundles including `precise`, `simple` and
+`design-review`. A capsule requiring `nautilus-core:precise` on it is admitted, then the
+run ends `blocked / run_observer_error` at zero model requests with the Chart reported
+`available: false`. Same signature as `skill-packs-20260910b` earlier. So the fault is in
+that release line's Chart delivery or run observer, not its content. Workaround in use: a
+review capsule with `requiredCharts: []` and the skill invocation removed from the task.
+Runs bound to `browser-route-20260910`, `task-file-20260910` and
+`premium-tech-design-20260910b` deliver Charts and complete. Whoever owns the skill-packs
+line should look at `capsule_required_charts` on a probe run there.
+
 ## Open questions
 
 1. Should the problem panel keep its eleven guide links, or become decoration
