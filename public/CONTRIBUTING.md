@@ -26,15 +26,16 @@ cd public && python3 -m http.server 8000    # http://localhost:8000
 |---|---|
 | `README.md`, `adoption.md`, `prompts.md`, `validation.md` | Reader entry points |
 | `guides/` | The 13 implementation guides |
-| `*-inspection.md` | The three repository investigation reports |
-| `skills/` | Four portable skill directories |
+| `*-inspection.md` | The three repository investigation reports, also listed on `investigations.html` |
+| `skills/` | Four portable skill directories: each `SKILL.md` and its `references/` render to `public/skills/<name>/index.html` (the raw files are also copied there verbatim) |
+| `ideas.html`, `guides.html`, `skills.html`, `investigations.html`, `evidence.html` | Generated section pages; the skills and investigations indexes are built from the README's skills and investigations lists plus `build/home.json` |
 | `evidence/` | Frame manifest, extracted ideas, verifier comparison |
 | `screenshots/` | The 12 frames (do not replace without updating `evidence/frame-manifest.json`) |
 | `examples/recurring-rule/` | Runnable lint demonstration (`npm ci --ignore-scripts && npm run demo`) |
 | `build/` | Renderer, checker, pinned requirements |
 | `build/assets/handbook.css` | The one stylesheet every page loads (tokens at the top) |
 | `build/assets/handbook.js` | The one script: closes the header menu on Escape or an outside tap, and marks the current section in the reader's rail. Every control works without it |
-| `build/home.json` | Landing-page data not already in `README.md`: title, lead, source-grouped shelves, each guide's use-when line |
+| `build/home.json` | Landing-page data not already in `README.md`: title, lead, source-grouped shelves, each guide's use-when line, and the headings and descriptions the index pages open with |
 | `DESIGN.md`, `INTERACTIONS.md` | Source-only design and behaviour guidance for contributors; never render or copy these into the website |
 | `public/` | Generated site — committed, never edited by hand |
 

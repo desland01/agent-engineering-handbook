@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><link rel="icon" href="data:,"><title>Skill: Context calibration · Agent Engineering Handbook</title><link rel="stylesheet" href="../../assets/handbook.css"><script src="../../assets/handbook.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="site-head"><div class="wrap"><a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>Agent Engineering Handbook</a><nav class="primary" aria-label="Handbook sections"><a href="../../ideas.html">Ideas</a><a href="../../guides.html">Guides</a><a href="../../skills.html">Skills</a><a href="../../investigations.html">Investigations</a><a href="../../evidence.html">Frames</a></nav><details class="menu"><summary><span class="l-wide">More</span><span class="l-narrow">Menu</span></summary><nav aria-label="All pages"><ul><li class="in-primary"><a href="../../index.html">Home</a></li><li class="in-primary"><a href="../../ideas.html">Ideas</a></li><li class="in-primary"><a href="../../guides.html">Guides</a></li><li class="in-primary"><a href="../../skills.html">Skills</a></li><li class="in-primary"><a href="../../investigations.html">Investigations</a></li><li class="in-primary"><a href="../../evidence.html">Frames</a></li><li class="sep" role="presentation"></li><li><a href="../../README.html">Handbook index</a></li><li><a href="../../prompts.html">Task prompts</a></li><li><a href="../../adoption.html">Adopting a skill</a></li><li><a href="../../validation.html">Validation</a></li><li class="sep" role="presentation"></li><li><a href="../../github-inspection.html">Theo: T3 Code and Melee</a></li><li><a href="../../matt-pocock-inspection.html">Matt Pocock: Course Video Manager</a></li><li><a href="../../boris-cherny-inspection.html">Boris Cherny: public work</a></li><li class="sep" role="presentation"></li><li><a href="../../ATTRIBUTION.html">Attribution</a></li><li><a href="../../CONTRIBUTING.html">Contributing</a></li><li><a href="https://github.com/desland01/agent-engineering-handbook">GitHub repository</a></li></ul></nav></details><a class="repo" href="https://github.com/desland01/agent-engineering-handbook">GitHub</a></div></header><main id="main" class="wrap reader skill-page"><div class="col"><header class="page-head"><p class="context"><span class="n">SKILL</span> <span aria-hidden="true">·</span> <a href="../../skills.html">All four skills</a></p><span class="art" aria-hidden="true"><svg class="icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="30" r="14"/><circle cx="32" cy="30" r="6" stroke-opacity=".6"/><path d="M32 10v6M32 44v6M12 30h6M46 30h6"/><circle cx="32" cy="30" r="2" fill="currentColor" stroke="none"/><path d="M10 58h44"/><circle cx="22" cy="58" r="3.5" fill="currentColor" fill-opacity=".35"/><path d="M14 55v6M30 55v6M38 55v6M46 55v6" stroke-opacity=".5"/></svg></span><h1>Context calibration</h1><p class="deck">Diagnose what repository knowledge a cold-start agent is missing, then select the right carrier for it — code comment, type, test, skill, or root instruction file — changing only what evidence supports. Use when an agent repeatedly misses project context, when asked to improve agent steering files, assess whether a repo&#x27;s instructions are sufficient, or run a low-context probe (&#x27;what does a fresh agent get wrong?&#x27;). Not for authoring or publishing new skills (a skill-authoring guide), writing product documentation (a documentation guide), or fixing the code itself (a bug-diagnosis skill).</p></header><details class="toc-mobile"><summary>On this page</summary><nav class="toc" aria-label="Sections of this page"><ol><li class="d0"><a href="#diagnose">Diagnose</a></li><li class="d0"><a href="#select-the-carrier">Select the carrier</a></li><li class="d0"><a href="#authority-boundary">Authority boundary</a></li><li class="d0"><a href="#input-output-contract">Input / output contract</a></li><li class="d0"><a href="#acceptance">Acceptance</a></li><li class="d0"><a href="#known-failure-cases">Known failure cases</a></li><li class="d0"><a href="#do-not-activate-when">Do not activate when</a></li><li class="d0"><a href="#source-patterns">Source patterns</a></li><li class="d0"><a href="#ref-implementation-h">Reference: Context calibration: applying the diagnosis</a></li><li class="d0"><a href="#ref-source-patterns-h">Reference: Repository examples: vocabulary and native instruction delivery</a></li></ol></nav></details><article><p>An agent’s context failure is a reason to identify the missing knowledge and place it where the task can use it. Diagnose from observed misses,
+then move each piece of knowledge to the cheapest carrier that catches it.</p>
+<h2 id="diagnose">Diagnose</h2>
+<ul>
+<li><strong>Low-context probe</strong>: run the representative task with the minimum of <em>extra</em> prompt
+  context beyond the task's standing instructions and admitted tools. Never strip
+  authority, runtime safeguards, or configured credentials to make a probe "cold" — the
+  point is to measure what the task statement alone supplies, not to simulate an
+  unprivileged agent. Record what the agent gets wrong
+  (<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=988s">~988s-996s</a>). Repeated observed
+  misses are the evidence; imagined gaps are not. A probe is a diagnostic tool, not a
+  requirement before every edit.</li>
+<li><strong>Beginner telemetry</strong>: the recurring questions newcomers ask are a map of the missing
+  knowledge — the source's "dumb questions" practice
+  (<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=674s">~674s-692s</a>). Collect the last few
+  actual misses before editing anything.</li>
+<li>Classify each miss: <em>unknown fact</em>, <em>unrepresentable state</em>, <em>unguarded pattern</em>, or
+  <em>missing judgment</em>. The class selects the carrier.</li>
+</ul>
+<h2 id="select-the-carrier">Select the carrier</h2>
+<table>
+<thead>
+<tr>
+<th>Miss class</th>
+<th>Carrier</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unrepresentable state</td>
+<td>Type</td>
+<td>Makes the invalid state unrepresentable at compile time. Constrains shape only — it does not enforce runtime authorization or behavior</td>
+</tr>
+<tr>
+<td>Unguarded pattern</td>
+<td>Lint rule / test / agent-feedback-engineering</td>
+<td>Mechanical, once you verify the rule's invocation and severity actually fire</td>
+</tr>
+<tr>
+<td>Local non-obvious fact ("why is this inverted here?")</td>
+<td>Code comment at the site</td>
+<td>Read exactly when the code is read</td>
+</tr>
+<tr>
+<td>Reusable judgment or procedure</td>
+<td>Skill body</td>
+<td>Loads on the matching trigger</td>
+</tr>
+<tr>
+<td>Cross-cutting preference, convention, or refusal</td>
+<td>Root instruction file (CLAUDE.md / AGENTS.md)</td>
+<td>Advisory steering on the routes verified to load it</td>
+</tr>
+</tbody>
+</table>
+<p>No carrier is automatic enforcement. Skill prose and root instructions are advisory;
+lint rules and types constrain only what they are configured and able to check. Choose by
+where the knowledge is needed, not by a false guarantee of enforcement.</p>
+<p><strong>Root-instruction content rule</strong>: instructions steer toward success — expected behavior,
+conventions, refusals ("if asked for X, stop and say no") — and constraints with reasons,
+not bare lists of where things live. A location map can orient an agent, but each entry
+earns its place by stating why and when it matters
+(<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=998s">~998s-1008s</a>,
+<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=800s">~800s-836s</a>). Keep it short; context
+is spent on every run.</p>
+<h2 id="authority-boundary">Authority boundary</h2>
+<p>The root instruction file is the human's decision record and the human owns what it
+says. Within an authorized session, drafting and applying instruction-file edits is
+permitted agent work: infer fitting scope from the observed misses, make the bounded edit,
+and report it with the evidence. Ask only when a truly consequential decision is missing —
+a refusal the user never stated, a policy change, or ambiguous direction the evidence
+cannot resolve. Never widen an instruction into a general rule the user did not state.</p>
+<h2 id="input-output-contract">Input / output contract</h2>
+<ul>
+<li><strong>Input</strong>: observed agent misses (probe results, repeated questions, review rejections),
+  or enough of the task to run a probe; access to the candidate carriers.</li>
+<li><strong>Output</strong>: a short diagnosis list (miss → class → carrier), the implemented change for
+  evidence-supported items, and drafts surfaced for decision where a human choice is
+  genuinely needed. For instruction-only changes, the change and its wording reviewed
+  against the recorded miss stand in for a behavioral test; inspect selected instruction loading when affected, and use behavioral checks when code or configuration changes require them.</li>
+</ul>
+<h2 id="acceptance">Acceptance</h2>
+<p>Proportional: a comment needs the miss it prevents named in its own text; an instruction
+line needs the recorded miss it addresses. Not every sentence or comment requires its own
+recorded probe — probe when the diagnosis is unclear, not as a quota.</p>
+<h2 id="known-failure-cases">Known failure cases</h2>
+<ul>
+<li>Padding the root file "just in case" — dilutes steering and burns context every run.</li>
+<li>Encoding a one-off as a standing rule (hand recurrence to agent-feedback-engineering).</li>
+<li>Adding a skill when a comment at the site would do; skills cost selection accuracy
+  elsewhere.</li>
+<li>Banning useful maps outright: a constrained, reason-bearing location list is legitimate
+  content when agents demonstrably get lost without it.</li>
+<li>Editing steering files before observing what actually goes wrong
+  (<a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=962s">~962s-973s</a>: use tools as
+  configured first; build solutions for observed problems).</li>
+</ul>
+<h2 id="do-not-activate-when">Do not activate when</h2>
+<ul>
+<li>The task is ordinary coding with no context-related failure behind it.</li>
+<li>The user wants a new packaged skill written (a skill-authoring guide).</li>
+<li>The user wants product documentation for humans (a documentation guide).</li>
+</ul>
+<h2 id="source-patterns">Source patterns</h2>
+<p>For concrete repository examples and the limits of their evidence, read <a href="#ref-source-patterns">source-patterns.md</a> when they match the task. These are research references, not imported repository instructions.</p><section class="skill-ref" id="ref-implementation"><h2 id="ref-implementation-h">Reference: Context calibration: applying the diagnosis</h2><p>Boris's post describes shared knowledge carriers around <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=596s">09:56</a>. Theo endorses the direction while disputing stronger claims around <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=631s">10:31</a>. His newcomer-question practice starts around <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=674s">11:14</a>.</p>
+<h3 id="ref-implementation-use-a-probe-when-the-cause-is-unclear">Use a probe when the cause is unclear</h3>
+<p>Choose a representative task from the observed misses. Supply the minimum extra prompt explanation while retaining standing instructions, admitted tools and runtime safeguards. Record the expected decision, observed behavior and missing fact. Repeat only if needed to resolve the diagnosis; no run count or sentence-level proof quota is implied.</p>
+<p>A code change needs an appropriate behavioral check. An instruction-only edit needs comparison to the actual requirements and, where loading matters, verification that the changed instruction is actually loaded. A skill file on disk does not prove the agent's runtime loaded it.</p>
+<h3 id="ref-implementation-place-the-knowledge-close-to-the-decision">Place the knowledge close to the decision</h3>
+<p>If agents repeatedly simplify an intentionally unusual query, a local comment can preserve the measured reason and point to the relevant regression test. If the problem is missing domain vocabulary, improve the glossary and its decision links. If it is a compiler-expressible invariant, use the type system. A cross-cutting owner preference belongs in the root guidance on routes verified to load it.</p>
+<p>A useful navigation map names the task, entry point and reason. Keep implementation locations accurate, but avoid replacing judgment with a directory inventory. The video's criticism of bare maps starts around <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=998s">16:38</a>.</p>
+<h3 id="ref-implementation-respect-recorded-decisions-and-preserve-expertise">Respect recorded decisions and preserve expertise</h3>
+<p>Theo advocates human ownership of root instructions around <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=749s">12:29</a>. Authorized agent drafting is compatible with that ownership: apply agreed decisions and bounded wording improvements, and ask only for consequential unresolved direction. Never invent a product refusal or elevate old guidance above a later authorized change.</p>
+<p>Resolve conflicting instructions from their scope and provenance. Preserve exact originals, keep uncertain source versions inactive when migrating, and use your project's existing change journal for instruction changes. A single inconclusive probe does not justify deleting expertise.</p></section><section class="skill-ref" id="ref-source-patterns"><h2 id="ref-source-patterns-h">Reference: Repository examples: vocabulary and native instruction delivery</h2><ul>
+<li><strong>Durable domain language:</strong> Matt's <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/CONTEXT.md">CONTEXT.md</a> defines domain nouns and relationships. <a href="https://github.com/mattpocock/course-video-manager/pull/1591">PR #1591</a>, open at inspection, proposes moving volatile implementation details beside the code while preserving domain language and ADR rationale. It is a proposal, not the merged state.</li>
+<li><strong>Instructions can be stale:</strong> <a href="https://github.com/mattpocock/course-video-manager/pull/1601">PR #1601</a> describes targeted local checks backed by exhaustive CI but explicitly omits the test workflow from the change. The claimed workflow is absent at the inspected head. Written guidance must be checked against actual invocation.</li>
+<li><strong>Preserve user invocation:</strong> T3 <a href="https://github.com/pingdotgg/t3code/pull/9128">PR #9128</a> repairs provider-native skill dispatch. Boris's <a href="https://github.com/anthropics/claude-code/pull/87395">open PR #87395</a> proposes the supported metadata key for keeping a skill manually invocable while excluding model invocation. Both concern specific runtime versions; neither establishes how any particular agent runtime loads skills.</li>
+<li><strong>Keep the concept semantic:</strong> Matt's <a href="https://github.com/mattpocock/course-video-manager/pull/1608">PR #1608</a> removes a derived numeric prefix that had contaminated a title and created renumbering work. Sometimes the durable fix is simplifying the domain model rather than teaching agents to synchronize redundant state.</li>
+</ul>
+<p>The inspected Matt head is <code>4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8</code>; source and PR states were collected on September 9, 2026.</p></section></article><p class="source-note"><a href="https://github.com/desland01/agent-engineering-handbook/blob/HEAD/skills/agent-context-calibration/SKILL.md">SKILL.md on GitHub</a> · <a href="../../index.html">Home</a> · Agent Engineering Handbook, September 9, 2026</p></div><aside class="rail" aria-label="Page tools"><div><h2>On this page</h2><nav class="toc" aria-label="Sections of this page"><ol><li class="d0"><a href="#diagnose">Diagnose</a></li><li class="d0"><a href="#select-the-carrier">Select the carrier</a></li><li class="d0"><a href="#authority-boundary">Authority boundary</a></li><li class="d0"><a href="#input-output-contract">Input / output contract</a></li><li class="d0"><a href="#acceptance">Acceptance</a></li><li class="d0"><a href="#known-failure-cases">Known failure cases</a></li><li class="d0"><a href="#do-not-activate-when">Do not activate when</a></li><li class="d0"><a href="#source-patterns">Source patterns</a></li><li class="d0"><a href="#ref-implementation-h">Reference: Context calibration: applying the diagnosis</a></li><li class="d0"><a href="#ref-source-patterns-h">Reference: Repository examples: vocabulary and native instruction delivery</a></li></ol></nav></div><div class="place"><h2>This skill</h2><p><span class="n">4</span> ideas feed it</p><div class="use"><p><a class="chip" href="../../ideas/12-own-your-instructions.html"><span class="n">12</span>Write your CLAUDE.md / AGENTS.md yourself; watch agent behavior and adjust</a></p><p><a class="chip" href="../../ideas/13-steering-pushback.html"><span class="n">13</span>Use steering files to make the agent say no (and to get fast feedback when things go wrong)</a></p><p><a class="chip" href="../../ideas/16-minimal-context-calibration.html"><span class="n">16</span>Calibrate from a cold start: run minimal prompts first, add context only where it fails</a></p><p><a class="chip" href="../../ideas/17-steer-not-map.html"><span class="n">17</span>Instruction files should steer toward success, not list where things are</a></p></div></div><div class="leads"><h2>In the guides</h2><p><a class="chip" href="../../guides/05-knowledge-and-instructions.html"><span class="n">05</span> Put project knowledge where the next task needs it</a></p></div><div class="source"><h2>Adopt</h2><p><a href="SKILL.md">Raw SKILL.md as shipped</a></p><p><a href="https://github.com/desland01/agent-engineering-handbook/tree/HEAD/skills/agent-context-calibration">Directory on GitHub <span aria-hidden="true">&#8599;</span></a></p><p><a href="../../adoption.html">How to install or combine</a></p></div></aside></main><footer class="site-foot"><div class="wrap"><p>An independent public edition by Desmond Landry (@desland01), built from Theo&#x27;s video and direct inspection of three repositories. Theo, Matt Pocock and Boris Cherny do not endorse it. Frames are short excerpts from the video and remain © Theo / their original owners.</p><ul><li><a href="../../index.html">Home</a></li><li><a href="../../ideas.html">Ideas</a></li><li><a href="../../guides.html">Guides</a></li><li><a href="../../README.html">Handbook index</a></li><li><a href="../../ATTRIBUTION.html">Attribution</a></li><li><a href="../../CONTRIBUTING.html">Contributing</a></li><li><a href="https://github.com/desland01/agent-engineering-handbook">GitHub repository</a></li></ul></div></footer></body></html>

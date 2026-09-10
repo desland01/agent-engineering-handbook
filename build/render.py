@@ -63,8 +63,8 @@ RENDER_MD = [
 PRIMARY_NAV = [
     ('ideas.html', 'Ideas'),
     ('guides.html', 'Guides'),
-    ('index.html#skills', 'Skills'),
-    ('index.html#reports', 'Investigations'),
+    ('skills.html', 'Skills'),
+    ('investigations.html', 'Investigations'),
     ('evidence.html', 'Frames'),
 ]
 MENU_GROUPS = [
@@ -81,12 +81,12 @@ MENU_GROUPS = [
 # Where a non-guide reader page sits in the handbook: (context line, target page).
 CONTEXT = {
     'README.md': ('The handbook index', 'guides.html'),
-    'github-inspection.md': ('One of three repository investigations', 'index.html#reports'),
-    'matt-pocock-inspection.md': ('One of three repository investigations', 'index.html#reports'),
-    'boris-cherny-inspection.md': ('One of three repository investigations', 'index.html#reports'),
+    'github-inspection.md': ('One of three repository investigations', 'investigations.html'),
+    'matt-pocock-inspection.md': ('One of three repository investigations', 'investigations.html'),
+    'boris-cherny-inspection.md': ('One of three repository investigations', 'investigations.html'),
     'evidence/video-research.md': ('Detailed extraction behind the nineteen ideas', 'ideas.html'),
     'examples/recurring-rule/README.md': ('Runnable companion to guide 01', 'guides/01-recurring-failures.html'),
-    'adoption.md': ('Adopting a guide or portable skill', 'index.html#skills'),
+    'adoption.md': ('Adopting a guide or portable skill', 'skills.html'),
     'prompts.md': ('Task prompts for the guides', 'guides.html'),
     'validation.md': ('What was checked, and what was not', 'index.html#checked'),
     'ATTRIBUTION.md': ('Sources and attribution', 'index.html#attribution'),
@@ -324,7 +324,11 @@ def enrich(idx):
     for sk in idx['skills']:
         sk['name'] = sk['path'].split('/')[1]
         sk['dir'] = sk['path'].rsplit('/', 1)[0]
+        sk['href'] = f'skills/{sk["name"]}/'
+        sk['page'] = f'skills/{sk["name"]}/index.html'
         sk['fed_by'] = 0
+        sk['fed'] = []
+        sk['guides'] = []
     skill_by_name = {sk['name']: sk for sk in idx['skills']}
     guide_by_n = {g['n']: g for g in idx['guides']}
     for n, i in enumerate(idx['ideas'], 1):
@@ -337,7 +341,10 @@ def enrich(idx):
         i['evidence'] = EVIDENCE_LABEL[tip['evidence_type']]
         i['skill'] = skill_by_name[tip['suggested_skill']]
         i['skill']['fed_by'] += 1
+        i['skill']['fed'].append(i)
         i['guide'] = guide_by_n[GUIDE_N.search(i['guide_path']).group(1)]
+        if i['guide'] not in i['skill']['guides']:
+            i['skill']['guides'].append(i['guide'])
     return idx
 
 
@@ -367,7 +374,7 @@ def idea_tile(i, prefix=''):
 
 def skill_tile(sk, prefix=''):
     return (f'<li class="tile skill"><span class="art" aria-hidden="true">{SKILLS[sk["name"]]}</span>'
-            f'<a class="t" href="{escape(prefix + sk["path"])}">{escape(sk["title"])}</a>'
+            f'<a class="t" href="{escape(prefix + sk["href"])}">{escape(sk["title"])}</a>'
             f'<p class="when">{escape(sk["use"])}</p>'
             f'<p class="fed"><span class="n">{sk["fed_by"]}</span> {"idea" if sk["fed_by"] == 1 else "ideas"} feed it</p>'
             f'<span class="dir"><a href="{GITHUB}/tree/HEAD/{escape(sk["dir"])}">{escape(sk["dir"])}/</a></span></li>')
@@ -384,6 +391,16 @@ def report_tile(r, prefix=''):
     return (f'<li class="tile report"><span class="art" aria-hidden="true">{INVESTIGATIONS[r["path"]]}</span>'
             f'<a class="t" href="{escape(prefix + r["path"])}">{escape(r["title"])}</a>'
             f'<p class="when">{escape(r["blurb"])}</p><span class="dir">{escape(r["path"])}</span></li>')
+
+
+def report_row(r, n, prefix=''):
+    """One investigation on the home page as a routing row, in the form of the
+    guide shelf rows: a mono range, the title, and one line from the README."""
+    kicker = r['blurb'].split(' — ')[0].split(',')[0].rstrip('.').strip()
+    return (f'<li><a href="{escape(prefix + r["path"][:-3] + ".html")}">'
+            f'<span class="range">Report {n:02d}</span>'
+            f'<span class="t">{escape(r["title"])}</span>'
+            f'<span class="k">{escape(kicker[0].lower() + kicker[1:])}</span></a></li>')
 
 
 def band_head(label, heading_id, heading, description):
@@ -422,7 +439,7 @@ def landing(idx, home, frames):
         f'<span class="t">{escape(s_["title"])}</span>'
         f'<span class="k">{len(s_["guides"])} {"guide" if len(s_["guides"]) == 1 else "guides"} · {escape(report_by_path[s_["investigation"]]["title"])}</span></a></li>'
         for s_ in home['shelves'])
-    reports = ''.join(report_tile(r) for r in idx['reports'])
+    reports = ''.join(report_row(r, n) for n, r in enumerate(idx['reports'], 1))
     frames_line = ''.join(f'<li><a href="evidence.html#frame-{f["seconds"]}">{escape(f["timestamp"])}</a></li>' for f in frames)
 
     closing_links = [('README.md', 'Handbook index'), ('adoption.md', 'Adopting a skill'), ('prompts.md', 'Task prompts'),
@@ -466,7 +483,8 @@ def landing(idx, home, frames):
 
 <section class="band" id="reports" aria-labelledby="reports-h"><div class="wrap">
   {band_head('Evidence', 'reports-h', home['reports_heading'], home['reports_description'])}
-  <ul class="tiles cards" role="list">{reports}</ul>
+  <ul class="shelves" role="list">{reports}</ul>
+  <p class="route">{more('investigations.html', f'All {counts["reports"]} investigations')}</p>
 </div></section>
 
 <section class="band" id="frames" aria-labelledby="frames-h"><div class="wrap">
@@ -523,6 +541,131 @@ def guides_index(idx, home):
     (OUT / 'guides.html').write_text(document('All 13 guides', '', rewrite_refs(body)))
 
 
+def investigations_index(idx, home):
+    cards = ''.join(report_tile(r) for r in idx['reports'])
+    body = (site_head('', 'investigations.html') +
+            '<main id="main"><header class="section-head"><div class="wrap">'
+            f'{marker("Investigations")}<h1>{escape(home["reports_heading"])}</h1>'
+            f'<p class="lead">{inline(home["reports_description"])}</p></div></header>'
+            '<section class="band" aria-label="The three investigations"><div class="wrap">'
+            f'<ul class="tiles cards" role="list">{cards}</ul></div></section></main>' +
+            site_foot('', escape(home['basis_short'])))
+    (OUT / 'investigations.html').write_text(document('The three investigations', '', rewrite_refs(body)))
+
+
+def skills_index(idx, home):
+    tiles = ''.join(skill_tile(sk) for sk in idx['skills'])
+    adopt = ('<p class="route">Every skill keeps its raw <code>SKILL.md</code>, its GitHub directory and its '
+             'references on its own page. To install one into an agent setup, or fold it into a skill you '
+             f'already run, read <a href="adoption.html">adopting a skill</a>. Do not load all four for every task.</p>')
+    body = (site_head('', 'skills.html') +
+            '<main id="main"><header class="section-head"><div class="wrap">'
+            f'{marker("Portable skills")}<h1>{escape(home["skills_heading"])}</h1>'
+            f'<p class="lead">{inline(home["skills_description"])}</p></div></header>'
+            '<section class="band" aria-label="The four skills"><div class="wrap">'
+            f'<ul class="tiles cards skills" role="list">{tiles}</ul>{adopt}</div></section></main>' +
+            site_foot('', escape(home['basis_short'])))
+    (OUT / 'skills.html').write_text(document('The four portable skills', '', rewrite_refs(body)))
+
+
+# ------------------------------------------------------------- skill pages
+def flat_toc(tokens):
+    """[(depth, id, name)] for the rail/disclosure list."""
+    out = []
+
+    def walk(ts, d=0):
+        for t in ts:
+            out.append((d, t['id'], t['name']))
+            walk(t.get('children') or [], d + 1)
+    walk(tokens)
+    return out
+
+
+def toc_flat(entries):
+    if not entries:
+        return ''
+    items = ''.join(f'<li class="d{d}"><a href="#{escape(i)}">{escape(n)}</a></li>'
+                    for d, i, n in entries)
+    return f'<ol>{items}</ol>'
+
+
+def ref_anchor(name):
+    """In-page id for a skill reference file: references/foo.md -> ref-foo."""
+    return 'ref-' + Path(name).stem
+
+
+def skill_page(sk, idx, home):
+    """One portable skill as a designed page: its own instructions, its
+    references as sections, and the routes an adopter needs."""
+    prefix = '../../'
+    src = REPO / 'skills' / sk['name']
+    text = (src / 'SKILL.md').read_text()
+    fm = re.search(r'^description:\s*"(.*)"\s*$', text.split('---', 2)[1] if text.startswith('---\n') else '', re.M)
+    description = fm.group(1) if fm else ''
+    body_text = text.split('---', 2)[2].lstrip() if text.startswith('---\n') else text
+    lines = body_text.splitlines()
+    h1_at = next((i for i, l in enumerate(lines) if l.startswith('# ')), None)
+    title = inline(lines[h1_at][2:].strip()) if h1_at is not None else escape(sk['title'])
+    if h1_at is not None:
+        lines = lines[:h1_at] + lines[h1_at + 1:]
+    body_md = re.sub(r'\]\((references/[^)]+\.md)\)',
+                     lambda m: f'](#{ref_anchor(m.group(1))})', '\n'.join(lines))
+    body_html, toc = md_convert(body_md)
+
+    refs_html, ref_entries = '', []
+    for ref in sorted((src / 'references').glob('*.md')):
+        rid = ref_anchor(ref.name)
+        ref_lines = ref.read_text().splitlines()
+        # The reference's own h1 titles the section; it does not repeat inside it.
+        label = f'Reference: {ref.stem}'
+        h1_at = next((i for i, l in enumerate(ref_lines) if l.startswith('# ')), None)
+        if h1_at is not None:
+            label = f'Reference: {inline(ref_lines[h1_at][2:].strip())}'
+            ref_lines = ref_lines[:h1_at] + ref_lines[h1_at + 1:]
+        frag, _ = md_convert(re.sub(r'(?m)^(#{1,5}) ', r'#\1 ', '\n'.join(ref_lines)))
+        frag = re.sub(r'id="', f'id="{rid}-', frag)
+        frag = re.sub(r'href="#', f'href="#{rid}-', frag)
+        refs_html += f'<section class="skill-ref" id="{rid}"><h2 id="{rid}-h">{label}</h2>{frag}</section>'
+        ref_entries.append((0, rid + '-h', label))
+    entries = flat_toc(toc) + ref_entries
+
+    toc_html = toc_flat(entries)
+    toc_nav = f'<nav class="toc" aria-label="Sections of this page">{toc_html}</nav>' if toc_html else ''
+    toc_mobile = (f'<details class="toc-mobile"><summary>On this page</summary>{toc_nav}</details>'
+                  if toc_html else '')
+    fed = ''.join(f'<p><a class="chip" href="{prefix}{i["page"]}">'
+                  f'<span class="n">{i["n"]:02d}</span>{escape(i["idea"])}</a></p>'
+                  for i in sk['fed'])
+    cites = ''.join(f'<p>{guide_chip(g["title"], g["path"])}</p>' for g in sk['guides'])
+    gh = f'{GITHUB}/tree/HEAD/skills/{sk["name"]}'
+    rail = ('<aside class="rail" aria-label="Page tools">'
+            f'<div><h2>On this page</h2>{toc_nav}</div>'
+            f'<div class="place"><h2>This skill</h2>'
+            f'<p><span class="n">{sk["fed_by"]}</span> {"idea" if sk["fed_by"] == 1 else "ideas"} feed it</p>'
+            f'<div class="use">{fed}</div></div>'
+            f'<div class="leads"><h2>In the guides</h2>{cites or "<p>No idea in the set routes here through a guide.</p>"}</div>'
+            f'<div class="source"><h2>Adopt</h2>'
+            f'<p><a href="SKILL.md">Raw SKILL.md as shipped</a></p>'
+            f'<p><a href="{gh}">Directory on GitHub <span aria-hidden="true">&#8599;</span></a></p>'
+            f'<p><a href="{prefix}adoption.html">How to install or combine</a></p></div>'
+            '</aside>')
+    page = (site_head(prefix, f'skills/{sk["name"]}/index.html') +
+            f'<main id="main" class="wrap reader skill-page"><div class="col">'
+            f'<header class="page-head">'
+            f'<p class="context"><span class="n">SKILL</span> <span aria-hidden="true">·</span> '
+            f'<a href="{prefix}skills.html">All four skills</a></p>'
+            f'<span class="art" aria-hidden="true">{SKILLS[sk["name"]]}</span>'
+            f'<h1>{title}</h1><p class="deck">{escape(description)}</p></header>'
+            f'{toc_mobile}<article>{body_html}{refs_html}</article>'
+            f'<p class="source-note"><a href="{GITHUB}/blob/HEAD/skills/{sk["name"]}/SKILL.md">SKILL.md on GitHub</a> · '
+            f'<a href="{prefix}index.html">Home</a> · {SITE_NAME}, {EDITION_DATE}</p>'
+            f'</div>{rail}</main>' +
+            site_foot(prefix, escape(home['basis_short'])))
+    out = OUT / sk['page']
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(document(f'Skill: {title}', prefix, rewrite_refs(page, prefix)))
+
+
 def idea_page(i, idx, home):
     """One idea, disclosed in full: what was said, how to apply it, when it is
     useful, its qualification, the moment in the video, and where it leads."""
@@ -558,7 +701,7 @@ def idea_page(i, idx, home):
             f'<div class="watch"><h2>In the video</h2><p><a class="ts" href="{escape(i["url"])}">Watch at {escape(i["ts"])} <span aria-hidden="true">&#8599;</span></a></p><p class="use">Segment {span}</p></div>'
             f'<div class="leads"><h2>Where it leads</h2>'
             f'<p>{guide_chip(g["title"], g["path"])}</p>'
-            f'<p><a class="chip" href="{escape(prefix + sk["path"])}">{escape(sk["title"])}</a></p></div>'
+            f'<p><a class="chip" href="{escape(prefix + sk["href"])}">{escape(sk["title"])}</a></p></div>'
             f'<div class="neighbours"><h2>Sequence</h2>{rail_seq}</div>'
             f'<div class="source"><h2>Source</h2><a href="{prefix}evidence/video-tips.json">Structured extraction</a> · <a href="{prefix}evidence/video-research.html">Full notes</a></div>'
             '</aside>')
@@ -624,9 +767,11 @@ def reader_page(rel, idx, home, frames):
     place = ''
     neighbours = ''
     seq = ''
+    art = ''
     if pos is not None:
         g = guides[pos]
         title_html = escape(g['title'])
+        art = f'<span class="art" aria-hidden="true">{GUIDES[g["n"]]}</span>'
         shelf = next(s for s in home['shelves'] if g['n'] in s['guides'])
         shelf_href = f'{prefix}guides.html#{escape(shelf["id"])}'
         context = (f'<p class="context"><span class="n">Guide {g["n"]}</span> <span>of {len(guides)}</span> '
@@ -658,6 +803,8 @@ def reader_page(rel, idx, home, frames):
         frames_here = [f for f in frames if home['frame_guides'].get(str(f['seconds'])) == g['n']]
     else:
         title_html = own_title
+        if rel in INVESTIGATIONS:
+            art = f'<span class="art wide" aria-hidden="true">{INVESTIGATIONS[rel]}</span>'
         if rel in CONTEXT:
             label, anchor = CONTEXT[rel]
             context = f'<p class="context"><a href="{prefix}{anchor}">{escape(label)}</a></p>'
@@ -686,7 +833,7 @@ def reader_page(rel, idx, home, frames):
             f'<a href="{prefix}index.html">Home</a> · {SITE_NAME}, {EDITION_DATE}</p>')
     page = (site_head(prefix, current) +
             f'<main id="main" class="wrap reader"><div class="col">'
-            f'<header class="page-head">{context}<h1>{title_html}</h1></header>'
+            f'<header class="page-head">{context}{art}<h1>{title_html}</h1></header>'
             f'{toc_mobile}<article>{body}</article>{evidence_mobile}{seq}{note}</div>{rail}</main>' +
             site_foot(prefix, escape(home['basis_short'])))
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -779,11 +926,16 @@ def main():
         idea_page(i, idx, home)
     ideas_index(idx, home)
     guides_index(idx, home)
+    investigations_index(idx, home)
+    skills_index(idx, home)
+    for sk in idx['skills']:
+        skill_page(sk, idx, home)
     (OUT / 'index.html').write_text(landing(idx, home, frames))
 
-    print(f'Rendered {len(RENDER_MD)} Markdown pages, {len(idx["ideas"])} idea pages, the ideas and guides '
-          f'indexes, the home page ({len(idx["guides"])} guides, {len(idx["reports"])} investigations, '
-          f'{len(idx["skills"])} skills, {len(idx["ideas"])} ideas, {len(frames)} frames), the gallery and 404.html into public/.')
+    print(f'Rendered {len(RENDER_MD)} Markdown pages, {len(idx["ideas"])} idea pages, {len(idx["skills"])} skill pages, '
+          f'the ideas, guides, skills and investigations indexes, the home page ({len(idx["guides"])} guides, '
+          f'{len(idx["reports"])} investigations, {len(idx["skills"])} skills, {len(idx["ideas"])} ideas, '
+          f'{len(frames)} frames), the gallery and 404.html into public/.')
 
 
 if __name__ == '__main__':

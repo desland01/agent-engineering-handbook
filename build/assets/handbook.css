@@ -33,7 +33,6 @@
      secondary line — labels, metadata, numbering, timestamps and paths. */
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-  --font-serif: var(--font-sans);   /* retained token: the serif voice was retired */
   --text-xs: 0.8rem;
   --text-sm: 0.9rem;
   --text-base: 1rem;
@@ -345,7 +344,11 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 @media (min-width: 1100px) {
   .rail { display: block; position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; padding-right: 4px; font-size: var(--text-base); }
 }
-.rail h2 { font-family: var(--font-sans); font-size: var(--text-xs); font-weight: 600; letter-spacing: 0; color: var(--dim-fg); margin: 0 0 8px; }
+/* Rail headings act as labels: the mono label treatment. */
+.rail h2, .evidence-mobile h2 {
+  font-family: var(--font-mono); font-size: var(--label-size); font-weight: 600;
+  text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg); margin: 0 0 8px;
+}
 .rail > div { padding: 18px 0; border-top: 1px solid var(--border); }
 .rail > div:first-child { padding-top: 4px; border-top: 0; }
 .rail .place p { margin: 0; font-size: var(--text-sm); color: var(--muted-fg); line-height: 1.45; }
@@ -368,7 +371,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 
 /* Narrow screens: the applied frames follow the article instead of the rail. */
 .evidence-mobile { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--border); }
-.evidence-mobile h2 { font-family: var(--font-sans); font-size: var(--text-sm); font-weight: 600; letter-spacing: 0; color: var(--dim-fg); margin: 0 0 12px; }
+.evidence-mobile h2 { margin: 0 0 12px; }
 .evidence-mobile .figs { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); }
 .evidence-mobile figure { margin: 0; }
 .evidence-mobile a.shot { display: block; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: #000; }
@@ -497,9 +500,15 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .shelves-band { padding-block: 8px 56px; }
 .shelves-band .shelf-head h2 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; }
 
-/* Idea pages: the reader shell with the drawing above the title. */
-.idea-page .page-head .art { display: block; width: 56px; height: 56px; color: var(--accent-text); margin: 10px 0 14px; }
-.idea-page .page-head .art svg { width: 100%; height: 100%; }
+/* Reader pages: the drawing above the title (ideas, guides, investigations,
+   skills) and the skill's deck line. */
+.page-head .art { display: block; width: 56px; height: 56px; color: var(--accent-text); margin: 10px 0 14px; }
+.page-head .art svg { width: 100%; height: 100%; }
+.page-head .art.wide { width: 190px; height: 95px; }
+.page-head .deck { color: var(--muted-fg); max-width: 58ch; margin: 12px 0 0; }
+.skill-ref { margin-top: 2em; padding-top: 1em; border-top: 1px solid var(--border); }
+.skill-ref > h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; font-size: var(--text-xl); }
+.rail .place .use p { margin: 0 0 6px; font-size: var(--text-sm); line-height: 1.45; }
 .idea-page .rail .watch .ts { color: var(--accent-text); text-decoration: none; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); }
 .idea-page .rail .watch .ts:hover { text-decoration: underline; }
 .idea-page .rail .leads p { margin: 0 0 6px; }

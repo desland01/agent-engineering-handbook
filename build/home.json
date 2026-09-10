@@ -51,7 +51,7 @@
   "reports_heading": "Three repository investigations",
   "reports_description": "Each report distinguishes inspected code, author-reported results, remote CI records and local execution, and links pinned snapshots wherever possible. Open PRs are separated from merged work.",
   "skills_heading": "Four portable skills",
-  "skills_description": "Standalone directories for any agent setup that reads Markdown instructions: `SKILL.md`, two reference files and `agents/openai.yaml`. Each title opens the skill file as shipped here; each directory line opens it on GitHub. Adopt one for the failure you actually have — [how to install or fold one into an existing skill](adoption.md).",
+  "skills_description": "Standalone directories for any agent setup that reads Markdown instructions: `SKILL.md`, two reference files and `agents/openai.yaml`. Each title opens the skill's page, which links the file as shipped; each directory line opens it on GitHub. Adopt one for the failure you actually have — [how to install or fold one into an existing skill](adoption.md).",
   "ideas_heading": "Nineteen ideas from the video, in order",
   "ideas_description": "Distinct takeaways, including qualified opinions. Each timestamp opens the video at that moment; each idea names the guide that implements it. Speaker attribution, evidence type and caveats are in the [detailed extraction](evidence/video-research.md) and the [structured ideas file](evidence/video-tips.json).",
   "frame_guides": {

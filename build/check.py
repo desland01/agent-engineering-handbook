@@ -37,6 +37,8 @@ import sys
 
 REPO = Path(__file__).resolve().parent.parent
 PUBLIC = REPO / 'public'
+sys.path.insert(0, str(REPO / 'build'))
+from icons import GUIDES, INVESTIGATIONS, SKILLS   # noqa: E402  (authored drawings)
 
 failures = []
 
@@ -95,7 +97,8 @@ def main():
         check((PUBLIC / 'skills' / s / 'SKILL.md').is_file(), f'public/skills/{s}/SKILL.md missing')
     frames = sorted((PUBLIC / 'screenshots').glob('*.jpg')) if (PUBLIC / 'screenshots').is_dir() else []
     check(len(frames) == 12, f'expected 12 frames in public/screenshots, found {len(frames)}')
-    for page in ['index.html', 'ideas.html', 'guides.html', 'README.html', 'adoption.html', 'prompts.html',
+    for page in ['index.html', 'ideas.html', 'guides.html', 'skills.html', 'investigations.html',
+                 'README.html', 'adoption.html', 'prompts.html',
                  'validation.html', 'evidence.html', 'github-inspection.html',
                  'matt-pocock-inspection.html', 'boris-cherny-inspection.html',
                  '404.html', 'assets/handbook.css', 'assets/handbook.js']:
@@ -155,21 +158,21 @@ def main():
     index = (PUBLIC / 'index.html').read_text() if (PUBLIC / 'index.html').is_file() else ''
     ideas_html = (PUBLIC / 'ideas.html').read_text() if (PUBLIC / 'ideas.html').is_file() else ''
     guides_html = (PUBLIC / 'guides.html').read_text() if (PUBLIC / 'guides.html').is_file() else ''
+    skills_html = (PUBLIC / 'skills.html').read_text() if (PUBLIC / 'skills.html').is_file() else ''
+    reports_html = (PUBLIC / 'investigations.html').read_text() if (PUBLIC / 'investigations.html').is_file() else ''
     check(index.count('class="tile skill"') == 4, f'index.html: expected 4 skill tiles, found {index.count("class=\"tile skill\"")}')
-    check(index.count('class="tile report"') == 3, f'index.html: expected 3 investigation tiles, found {index.count("class=\"tile report\"")}')
     taste = re.search(r'<ol class="ideas taste"[^>]*>(.*?)</ol>', index, re.S)
     n_taste = taste.group(1).count('<li>') if taste else 0
     check(0 < n_taste < 19, f'index.html: expected a taste of the ideas (1–18 tiles), found {n_taste}')
     pick = re.search(r'<div class="pick">.*?<ol[^>]*>(.*?)</ol>', index, re.S)
     n_pick = pick.group(1).count('<li>') if pick else 0
     check(n_pick == 8, f'index.html: expected 8 problem rows, found {n_pick}')
-    for route in ('href="ideas.html"', 'href="guides.html"', 'href="evidence.html"'):
+    for route in ('href="ideas.html"', 'href="guides.html"', 'href="evidence.html"',
+                  'href="skills.html"', 'href="investigations.html"'):
         check(route in index, f'index.html: no route {route}')
     strip = dict(re.findall(r'<li><a href="([^"]+)"><span>(\d+)</span>', index))
     check(strip == {'ideas.html': '19', 'guides.html': '13', '#skills': '4', '#reports': '3', 'evidence.html': '12'},
           f'index.html: contents strip {strip} does not match the sets')
-    for s in skills:
-        check(f'href="skills/{s}/SKILL.md"' in index, f'index.html: skill tile for {s} does not link to its copied SKILL.md')
     for f in manifest:
         check(f'href="evidence.html#frame-{f["seconds"]}"' in index, f'index.html: no link to frame-{f["seconds"]}')
 
@@ -184,6 +187,40 @@ def main():
     check(guides_html.count('class="tile guide"') == 13, f'guides.html: expected 13 guide tiles, found {guides_html.count("class=\"tile guide\"")}')
     for g in guides:
         check(f'href="guides/{g.name}"' in guides_html, f'guides.html: no tile links to guides/{g.name}')
+
+    # 6b. Skill pages: every skill directory has a generated page that carries
+    # the skill's drawing and links the raw SKILL.md, its GitHub directory and
+    # the adoption page. skills.html lists the whole set.
+    for s in skills:
+        page = PUBLIC / 'skills' / s / 'index.html'
+        check(page.is_file(), f'public/skills/{s}/: no generated skill page (skills/{s}/index.html)')
+        if not page.is_file():
+            continue
+        text = page.read_text()
+        check(SKILLS[s] in text, f'skills/{s}/index.html: the skill\'s drawing is missing')
+        check('href="SKILL.md"' in text, f'skills/{s}/index.html: no link to the copied SKILL.md')
+        check(f'/tree/HEAD/skills/{s}' in text, f'skills/{s}/index.html: no link to its GitHub directory')
+        check('href="../../adoption.html"' in text, f'skills/{s}/index.html: no link to the adoption page')
+    check(skills_html.count('class="tile skill"') == 4, f'skills.html: expected 4 skill tiles, found {skills_html.count("class=\"tile skill\"")}')
+    for s in skills:
+        check(f'href="skills/{s}/"' in skills_html, f'skills.html: no tile opens skills/{s}/')
+        check(f'href="adoption.html"' in skills_html, 'skills.html: no link to the adoption page')
+
+    # 6c. Investigations: the index carries the three report cards and links
+    # each report; every report page shows its own drawing.
+    check(reports_html.count('class="tile report"') == 3, f'investigations.html: expected 3 report tiles, found {reports_html.count("class=\"tile report\"")}')
+    for rel in INVESTIGATIONS:
+        page_name = rel[:-3] + '.html'
+        page = PUBLIC / page_name
+        check(f'href="{page_name}"' in reports_html, f'investigations.html: no card opens {page_name}')
+        check(page.is_file() and INVESTIGATIONS[rel] in page.read_text(),
+              f'{page_name}: the investigation\'s drawing is missing')
+
+    # 6d. Every guide page shows its own drawing.
+    for g in guides:
+        m = re.match(r'(\d\d)-', g.name)
+        check(m and GUIDES.get(m.group(1), '') and GUIDES[m.group(1)] in g.read_text(),
+              f'guides/{g.name}: the guide\'s drawing is missing')
 
     if failures:
         print(f'FAIL ({len(failures)}):')

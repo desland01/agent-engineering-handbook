@@ -34,8 +34,11 @@ applied frames follow the article.
 **4. Reach the source, a frame or a skill.** Video timestamps open the video at that
 moment in the same tab. Pinned repository links open the snapshot on GitHub. Evidence
 frames open the gallery at that frame, which offers the moment in the video, the
-full-size image and the guide that applies it. Skill titles open the shipped `SKILL.md`;
-the directory line opens the same directory on GitHub.
+full-size image and the guide that applies it. Skill titles open the skill's page
+(`skills/<name>/`): the page's sections list, its "N ideas feed it" tags and the guides
+that cite it let the reader decide, and its Adopt block links the shipped `SKILL.md`, the
+directory on GitHub and the adoption page. The section links reach `skills.html` and
+`investigations.html`, which hold every skill tile and every report card.
 
 **5. Return or continue.** Previous/next cards close every guide (the first guide's
 "previous" is the guide shelves; the last guide's "next" is the investigations). The
@@ -47,7 +50,9 @@ the map from any page; the four section links and the "More" menu reach every pa
 | Screen | First | Second | Third | Primary action |
 |---|---|---|---|---|
 | Map | title + problem panel | counts strip | guide shelves | a chip in the problem panel or a chapter row |
-| Guide | context line + title | deck paragraph | rail (sections, place) or the section disclosure | read; next guide |
+| Guide | context line + drawing + title | deck paragraph | rail (sections, place) or the section disclosure | read; next guide |
+| Skill page | context line (`SKILL` · All four skills) + drawing + title | the description deck, then the skill's sections and references | rail (sections, This skill, In the guides, Adopt) or the section disclosure | read; adopt via the raw `SKILL.md`, GitHub or the adoption page |
+| Skills / Investigations index | marker + title + lead | the four skill tiles / the three report cards | the adoption summary (skills) | open a skill page or a report |
 | Investigation / other page | context line + title | deck paragraph | sections | read; header menu |
 | Gallery | title + lead | timestamp strip | frames in two columns | open a frame's moment, image or guide |
 | Not found | heading | one sentence | four links | the map |
@@ -68,7 +73,7 @@ the map from any page; the four section links and the "More" menu reach every pa
 | Map | A shelf with one guide | One chapter row in the surface; the heading column says "Guide 13". | — |
 | Guide with no applied frame | Evidence block | The rail and the narrow-screen evidence block are simply absent; nothing says "no evidence". | — |
 | Gallery | Arrival at `#frame-<seconds>` | The frame scrolls into view with 20px above it. | Read the observation; jump to another timestamp. |
-| Skill file | Opened `SKILL.md` | The browser shows or downloads the Markdown as served. | Browser back, or the GitHub link on the card. |
+| Skill file | Opened `SKILL.md` | The browser shows or downloads the Markdown as served; the skill page's Adopt block links it as shipped. | Browser back, or the skill page's directory or adoption link. |
 | Print | Any page | Light palette; header, rail, disclosure, previous/next and footer links hidden; external addresses printed after link text; tables unconstrained; code wrapped. | — |
 
 Local preview note: `python3 -m http.server` does not serve `404.html` for missing paths;
@@ -156,7 +161,10 @@ below, so a 320px phone keeps 288px of content.
 - **Guides are grouped by source, not by number; previous/next follow guide numbers.**
   Unchanged from the earlier edition: the grouping is the map's argument about
   provenance, and a reader working through the guides expects 08 to lead to 09.
-- **Skill links go to the shipped `SKILL.md`, not a generated page.** Unchanged.
+- **Skills have their own pages; the raw `SKILL.md` stays shipped and linked.** Skill
+  titles used to open the raw file directly; they now open `skills/<name>/`, whose Adopt
+  block links the shipped `SKILL.md`, the GitHub directory and the adoption page, so the
+  installer's route is kept rather than dropped.
 - **External links open in the same tab.** Unchanged.
 - **The nineteen ideas are on the map, not only linked.** Unchanged.
 - **One optional script.** Every behaviour is HTML and CSS first; the script is a

@@ -3,7 +3,9 @@
 Source-only guidance for contributors: how the Agent Engineering Handbook looks and why.
 It is never rendered or copied into `public/`. Every generated page — the map
 (`index.html`), the reader template behind the guides, investigations and other Markdown
-pages, the frame gallery (`evidence.html`) and the not-found page — loads one stylesheet,
+pages, the section pages (`ideas.html`, `guides.html`, `skills.html`, `investigations.html`),
+the four skill pages (`skills/<name>/index.html`), the frame gallery (`evidence.html`) and
+the not-found page — loads one stylesheet,
 `build/assets/handbook.css`, whose first block holds the tokens listed here. Page
 structure lives in `build/render.py`. Behaviour (journeys, states, keyboard, responsive
 decisions) is in [INTERACTIONS.md](INTERACTIONS.md).
@@ -128,9 +130,12 @@ shows one taste of each section, and routes out. The full sets live on their own
    the guide(s) that answer it. A drawn hairline grid sits behind, masked to fade.
 3. **Ideas** — the first three, in order, as icon tiles, then `ALL 19 IDEAS →`.
 4. **Skills** — all four, as a hairline row. They are the deliverable and fit in one row.
+   Each tile's title opens the skill's page (`skills/<name>/`); the directory line keeps
+   linking to GitHub.
 5. **Guides** — the four source shelves as rows (range, title, count and investigation),
    each a route into `guides.html#shelf`, then `ALL 13 GUIDES →`.
-6. **Investigations** — all three, as hairline cells carrying their monoline diagrams.
+6. **Investigations** — the three reports as routing rows in the same form as the guide
+   shelves (`Report 01`, title, one line from the README), then `ALL 3 INVESTIGATIONS →`.
 7. **Frames** — the twelve timestamps as a mono strip, each opening its frame in the
    gallery, then `OPEN THE GALLERY →`. No stills on the home page.
 8. **Closing** — what was checked, and attribution with tag links to the index pages.
@@ -139,9 +144,11 @@ Each band opens with a section marker: a mono label in a bordered pill with a ha
 rule running from it. That is the only pill on the page.
 
 **Section pages.** `ideas.html` holds all nineteen idea tiles; `guides.html` holds the
-thirteen guides under their shelves; `evidence.html` holds the twelve frames at full size.
-Each opens with the same marker-and-title head as a band, so a section page reads as the
-band unfolded rather than as a different site.
+thirteen guides under their shelves; `skills.html` holds the four skill tiles with the
+adoption guidance summary; `investigations.html` holds the three report cards;
+`evidence.html` holds the twelve frames at full size. Each opens with the same
+marker-and-title head as a band, so a section page reads as the band unfolded rather than
+as a different site.
 
 **Idea pages** (`ideas/NN-slug.html`, nineteen of them). Each idea is disclosed in full on
 the reader shell: the drawing, the title, then *What was said*, *How to apply it*, *When it
@@ -150,17 +157,30 @@ evidence badge and speaker, the video moment and segment, the guide and skill it
 the previous and next idea, and the source files. This is where the nineteen tiles' compact
 form pays off: the tile is the disclosure control, the page is the content.
 
+**Skill pages** (`skills/<name>/index.html`, four of them — the deliverable given pages).
+The page head carries the skill's drawing, the mono `SKILL` context line with a link to
+`skills.html`, the skill's own title and its frontmatter description as the deck. The body
+renders the skill's own instructions from `SKILL.md` (its h1 is not repeated), followed by
+each file in `references/` as a section headed `Reference: …`, so one page is the whole
+skill. The rail carries *On this page*, *This skill* (the honest `N ideas feed it` count
+with tags to those idea pages), *In the guides* (the guides that cite it) and *Adopt* — the
+raw `SKILL.md` as shipped, the directory on GitHub, and the adoption page — so an adopter
+never has to leave the page to install it, and the raw file stays where `adoption.md`
+says it is.
+
 ## The reader
 
 - **Page head:** a context line (`Guide 02` · of 13 · shelf link, or the page's place on
-  the map) and the serif title. Guide titles come from the README's canonical list so the
+  the map), then the page's drawing — the guide's, the investigation's wide diagram, or the
+  skill's — and the title. Guide titles come from the README's canonical list so the
   reader and the map agree; the Markdown file's own h1 is not rendered a second time.
 - **Article:** first paragraph as a muted, slightly larger deck; h2 with a hairline; h3; code, tables and blockquotes on `--surface` inside `--radius`; tables in a
   focusable scroll region.
 - **Rail (from 1100px), sticky:** *On this page* (h2/h3 anchors, current one marked with
   an orange edge), *This guide* (number, shelf, use-when), *Sequence* (previous/next),
   *Evidence from the video* (up to two frames applied in this guide, linking into the
-  gallery) and *Source* (the Markdown beside the page, and on GitHub).
+  gallery) and *Source* (the Markdown beside the page, and on GitHub). On a skill page the
+  same rail carries *This skill*, *In the guides* and *Adopt* in those blocks' places.
 - **Below 1100px:** the rail is gone; a native "On this page" disclosure sits under the
   title, and the applied frames follow the article. Previous/next cards and the source
   line close every guide at every width.
@@ -198,10 +218,10 @@ form pays off: the tile is the disclosure control, the page is the content.
 Familiar, and right here: dark ground, 16/17px body, hairlines, underlined links, a skip
 link, a sticky rail with a section list, previous/next at the end of a chapter.
 
-Deliberate: the serif voice on a technical site; numerals, timestamps and counts as the
-only "icons"; chapter lists instead of card grids for the guides; the problem panel as
-the map's co-headline rather than a text list under the title; evidence frames placed
-beside the guide they support; a warm rather than neutral ground.
+Deliberate: the mono label carrying every secondary line on a technical site; numerals,
+timestamps and counts as the only "icons"; chapter lists instead of card grids for the
+guides; the problem panel as the map's co-headline rather than a text list under the
+title; evidence frames placed beside the guide they support; the neutral near-black ground.
 
 ## The homepage motifs
 
@@ -216,12 +236,16 @@ it carries:
   is useful, the timestamp and an evidence badge; the title opens the idea's page. No video
   stills: the frames stay in the gallery.
 - **Four skills** — a hairline row led by each drawing, with an honest count
-  (`8 ideas feed it`) derived from `evidence/video-tips.json`.
+  (`8 ideas feed it`) derived from `evidence/video-tips.json`; the title opens the skill's
+  page, the directory line opens GitHub. The same tiles, with the adoption summary, are
+  `skills.html`.
 - **Thirteen guides** — on the home page, the four shelves as routing rows; on
   `guides.html`, icon tiles grouped under mono `+ Source` shelf labels with the guide range
   set mono at the right.
-- **Three investigations** — hairline cells carrying the wide monoline diagrams, with the
-  source file named in mono.
+- **Three investigations** — on the home page, routing rows in the shelf form
+  (`Report 01`, title, one line); on `investigations.html`, cards carrying the wide
+  monoline diagrams, with the source file named in mono. Each report page shows its
+  diagram wide in the page head.
 - **Twelve frames** — on the home page, a mono strip of the twelve timestamps, each a
   route into the gallery, which is where full-size evidence belongs.
 
