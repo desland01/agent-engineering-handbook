@@ -201,9 +201,40 @@
     pending.forEach(function (el) { io.observe(el); });
   }
 
+  // ------------------------------------------------------------ prompt
+  /* Types the four skills as slash commands, one after another. Static text
+     is already in the markup, so without this the prompt simply shows the
+     first; under reduced motion it stays that way. Pauses while the tab is
+     hidden so it never runs unwatched. */
+  function prompt() {
+    var el = document.querySelector('.prompt .typed');
+    if (!el || (reduced && reduced.matches)) { return; }
+    var lines = (el.getAttribute('data-lines') || '').split('|').filter(Boolean);
+    if (lines.length < 2) { return; }
+    var i = 0, text = lines[0], deleting = false;
+    function tick() {
+      if (document.hidden) { setTimeout(tick, 600); return; }
+      var target = lines[i];
+      var wait;
+      if (!deleting) {
+        text = target.slice(0, text.length + 1);
+        wait = text === target ? 1700 : 42 + Math.random() * 40;
+        if (text === target) { deleting = true; }
+      } else {
+        text = text.slice(0, -1);
+        wait = 22;
+        if (text === '/') { deleting = false; i = (i + 1) % lines.length; wait = 260; }
+      }
+      el.textContent = text;
+      setTimeout(tick, wait);
+    }
+    setTimeout(tick, 1400);
+  }
+
   headerMenu();
   railCurrentSection();
   rows();
   overflowFades();
   reveals();
+  prompt();
 })();

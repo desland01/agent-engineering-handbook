@@ -597,6 +597,7 @@ def landing(idx, home, frames):
     <p class="lead">{escape(home['lead'])}</p>
     <div class="actions"><a class="btn primary" href="ideas.html">Read the ideas</a><a class="btn" href="guides.html">Open the guides</a></div>
     <ul class="contents" role="list" aria-label="Contents">{contents}</ul>
+    <a class="prompt" href="skills.html" aria-label="The four skills, each invoked as a slash command"><span aria-hidden="true"><span class="ps">&#8811;</span> <span class="typed" data-lines="{escape('|'.join('/' + sk['name'] for sk in idx['skills']))}">/{escape(idx['skills'][0]['name'])}</span><span class="cursor">&#9612;</span></span></a>
     <p class="edition"><span class="num">Edition of {EDITION_DATE}.</span> {escape(home['basis_short'])} <a href="#attribution">Full attribution</a> is at the end of the page.</p>
   </div>
   <div class="pick">
