@@ -34,7 +34,7 @@ rename across repositories, a migration, a loop over a work-list.
 
 1. Count the work-list yourself; do not trust a supplied count. Re-scope if it differs.
 2. Pick the riskiest item, never the easiest: indirection (a symlink, a pointer, a linked git
-   worktree, a gitignored path), or the item known to be bad.
+   worktree, a gitignored path), or the item already known to be bad.
 3. Read that item's own contract before editing (`AGENTS.md`, `CLAUDE.md`, `.claude/rules/*`).
    It decides what a valid change is here and whether you may commit at all.
 4. Change that one item through the same route the batch will use.
@@ -42,16 +42,50 @@ rename across repositories, a migration, a loop over a work-list.
    diffed against its committed state. A new commit in a repository that was not the target
    means the pilot failed. Stop.
 6. Write the procedure that worked into the batch's task inputs as you go.
-7. Only then scale, through `tickets-prepare` and `tickets-start`, with a fresh agent that has
-   no memory of the pilot session. Add an instruction only where that agent stalls.
+7. Only then scale, with a fresh agent that has no memory of the pilot session. Add an
+   instruction only where that agent stalls.
 
-A pilot that fails is the pilot working. Fix what failed in the machine - the task text, the
-acceptance check, the workspace layout, the capsule - and pilot again. Never fix the pilot's
-output by hand and scale anyway: a defect you corrected yourself is a defect the batch will
-reproduce 66 more times. A defect the pilot exposes becomes an executable check before the
-batch runs, and the same generator builds the pilot plan and the batch plan so the machine you
-proved is the machine that runs. Piloting the content change is not piloting the harness:
-prepare, dispatch, check and accept one small ticket end to end first.
+### Pilot the harness, not only the change
+
+Proving the content change on one item does not prove the machine that will carry it. Before
+generating the batch plan, run a pilot plan of one ticket over one or two items through the
+whole path — prepare, dispatch, check, accept — and require the ticket to reach `accepted`.
+A worker that delivered, a checker that never ran, and a ticket left `running` or `blocked`
+are three different states, and only the third-from-last is progress. Build the pilot plan
+and the batch plan from **one generator with a plan-id argument**, so the machine you proved
+is the machine that runs; a hand-built pilot proves nothing about a separately hand-built
+batch.
+
+### A failed pilot is the pilot working
+
+Fix what failed **in the machine** — the task text, the acceptance check, the workspace
+layout, the capsule — and pilot again. Never repair the pilot's output by hand and scale
+anyway: a defect you corrected yourself is a defect the batch reproduces on every remaining
+item. Where the defect is mechanically detectable, it becomes an executable check before the
+batch runs, and that check is proved to refuse the exact bad output before it is trusted.
+Where it is not mechanically detectable, name it in the task text and in the judged
+acceptance. Repeat the pilot after each fix; the pilot is done when it needs no
+intervention, not when you are tired of it.
+
+### Construction faults a pilot surfaces in minutes
+
+Each of these refused every attempt of a 67-item batch, and each is invisible until a plan is
+actually dispatched. Check them while building, and let the pilot prove them:
+
+- Worker and checker workspaces must not sit inside the runtime's installation home; a
+  workspace under it is refused as `workspace_overlaps_installation_home`.
+- Every capsule needs non-empty required charts, tools and declared outputs — the checker's
+  capsule included — and every effective tool set must sit inside the anchor tools and
+  include the native `Skill` tool.
+- A worker may not read an input out of the checker workspace. Keep a second copy of any
+  shared list outside it and feed the worker that copy.
+- The checker's argv must contain no path the check itself creates. The controller hashes
+  every argv element that exists as a file, so a candidate or report path passed as an
+  argument changes the environment digest between freeze and verify and blocks the ticket as
+  `checker_environment_changed`. Derive those paths inside the checker from a stable
+  argument.
+- A relocated or edited plan needs a new plan id. Reusing the id after the first run blocks
+  with `plan_changed_since_first_run`.
 
 An item that resolves outside the batch is not in the batch. Resolve every path before
 editing; if it lands outside the tree the batch is scoped to, leave it, record it, report it.
