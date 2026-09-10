@@ -101,11 +101,13 @@ below, so a 320px phone keeps 288px of content.
   under the title; applied frames after the article in a grid of 220px-minimum
   thumbnails. Previous/next stack below 640px. The body is 16px below 760px and 17px
   above.
-- **Reader, 1100px and above:** the column plus a 248px rail, the two pinned to the
-  page's left and right edges so they line up with the header and the footer. The rail
-  flows with the article and has no scroll region of its own: it was sticky with its own
-  `max-height` and `overflow-y`, which gave every reader page a second scrollbar, because
-  the rail is taller than the viewport on every one of them.
+- **Reader, 1100px and above:** a 248px rail on the left and the reading column on the
+  right, the two pinned to the page's left and right edges so the rail lines up with the
+  header's title and the column with the GitHub link. The rail flows with the article and
+  has no scroll region of its own: it was sticky with its own `max-height` and
+  `overflow-y`, which gave every reader page a second scrollbar, because the rail is
+  taller than the viewport on every one of them. Below 1100px the rail is gone and the
+  column is centred, unchanged.
 - **Long titles:** guide 11's title is 68 characters. It wraps in the chapter row, in the
   previous/next card, in the rail and in the page title; nothing truncates.
 

@@ -311,7 +311,14 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .closing ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 /* --------------------------------------------------------------- reader */
 .reader { padding-block: 32px 64px; display: grid; grid-template-columns: minmax(0, var(--measure)); justify-content: center; }
-@media (min-width: 1100px) { .reader { grid-template-columns: minmax(0, var(--measure)) 248px; column-gap: 72px; justify-content: space-between; align-items: start; padding-block: 48px 80px; } }
+@media (min-width: 1100px) {
+  /* The rail leads on the left; the article follows. Both columns sit at the
+     page's edges so they line up with the header and the footer. */
+  .reader { grid-template-columns: 248px minmax(0, var(--measure)); column-gap: 72px;
+    justify-content: space-between; align-items: start; padding-block: 48px 80px; }
+  .reader > .col { grid-column: 2; grid-row: 1; }
+  .reader > .rail { grid-column: 1; grid-row: 1; }
+}
 @media (min-width: 760px) { .reader { font-size: var(--text-read); } }
 .reader .col { min-width: 0; }
 
@@ -345,7 +352,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
   /* The rail flows with the article. It used to be sticky with its own
      max-height and overflow, which gave every reader page a second scrollbar
      as soon as the rail outgrew the viewport — and it always did. */
-  .rail { display: block; align-self: start; padding-right: 4px; font-size: var(--text-base); }
+  .rail { display: block; align-self: start; font-size: var(--text-base); }
 }
 /* Rail headings act as labels: the mono label treatment. */
 .rail h2, .evidence-mobile h2 {
