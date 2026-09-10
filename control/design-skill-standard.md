@@ -172,3 +172,15 @@ outcomes in model-facing specifications, assignments and evidence reports. Desig
 creative methods keep their facts precise and their **register** their own: they open with
 a role and the defaults to break, not with a procedure."* Human-facing prose stays with
 `simple`.
+
+
+## Addendum — the instruction is not the output
+
+A second failure mode, found on the idea pages the same day: the model copied the
+*instruction* into the *work*. The extraction schema's field names became the headings on
+all nineteen pages, and the one-line field values became the whole sections. The fix is a
+rule and a check, not more instruction: headings name their subject; a heading that repeats
+identically across pages is a label, and fails; prose sections are at least three sentences
+written from the evidence. The rule is in `ARCHITECT.md` under "The instruction is not the
+output". Every design and copy skill's pre-flight plan gains one line: *no heading, label or
+sentence in the output is the instruction that produced it.*
