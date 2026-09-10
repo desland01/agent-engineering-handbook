@@ -64,10 +64,30 @@
   "_hubs_comment": "Copy for the five section pages. A band on the home page introduces a set to someone scrolling past it; a section page addresses someone who has arrived at that set, so each carries its own heading, lead, browser title and meta description rather than reusing the band's. `next` is the closing route: where a reader who has finished this set should go, as [href, label, why] rows.",
   "hubs": {
     "ideas": {
-      "title": "Nineteen ideas from the video",
-      "h1": "Nineteen ideas, each timestamped and mapped to a guide",
-      "lead": "Every distinct takeaway from the July 21, 2026 video, in the order it was said — including the opinions the speakers qualified themselves. Each idea opens the video at the second it came from, so you can hear the claim before you act on it, and names the guide that turns it into something you can run.",
-      "description": "Nineteen distinct takeaways from Theo's agent engineering video, in order. Each is timestamped to the moment it was said and mapped to the guide that implements it.",
+      "title": "Nineteen ideas, sorted by what's behind them",
+      "h1": "What Theo does, what he tells you to do, and what he's still working out",
+      "lead": "Nineteen ideas from the July 21, 2026 video, sorted by what is behind each one — a practice he runs, a directive he gives, or an opinion he offers as one. Every idea opens the video at the second it was said.",
+      "description": "Nineteen ideas from Theo's agent engineering video, sorted into what he actually does, what he tells you to do, and what he offers as opinion. Each timestamped.",
+      "tiers": [
+        {
+          "key": "does",
+          "label": "01 / What he does",
+          "heading": "What he actually does",
+          "lead": "Backed by something Theo did: a practice he runs, or a story from a real codebase."
+        },
+        {
+          "key": "says",
+          "label": "02 / What he tells you",
+          "heading": "What he tells you to do",
+          "lead": "Directives — Theo's own, and Boris's as Theo quoted and endorsed them on camera."
+        },
+        {
+          "key": "thinks",
+          "label": "03 / Still working out",
+          "heading": "What he's still working out",
+          "lead": "Offered as opinion, and flagged as opinion. The video says so itself for several of these."
+        }
+      ],
       "next": [
         [
           "guides.html",
@@ -127,6 +147,25 @@
       "h1": "Three repositories, read rather than summarised",
       "lead": "Each report separates the code that was actually inspected from the results its author reported, remote CI records from runs on this machine, and open pull requests from merged work. Source snapshots are pinned wherever the repository allowed it.",
       "description": "Three repository investigations that separate inspected code from author-reported results, remote CI records from local runs, and open pull requests from merged work.",
+      "_findings_comment": "The findings shown on each study of investigations.html, edited from the report's own takeaway section: github-inspection.md -> 'What to take away', matt-pocock-inspection.md -> 'How this changes our guides', boris-cherny-inspection.md -> 'What this adds to the implementation package'. One sentence each, at most 22 words, beginning with a noun phrase.",
+      "findings": {
+        "github-inspection.md": [
+          "A completion contract names the real output, the completeness its inputs need, and the outcome the consumer actually sees.",
+          "Recurring mistakes belong in existing lint, type, test and build boundaries, with both rejection and legitimate success proved.",
+          "Explicit ownership isolates agent writes and test state, hides provider quirks behind adapters, and verifies remote artifact access.",
+          "Calibrated knowledge keeps decisions beside their code, and evidence carries provenance: local run, CI, author report or untested hardware."
+        ],
+        "matt-pocock-inspection.md": [
+          "Domain vocabulary, durable decisions, bounded modules and callable agent APIs became the guide on speaking a codebase's language.",
+          "Output identity, resumable work and result-format recovery became the guide on artifacts that survive an interruption.",
+          "The most transferable habit is to make a desired outcome easy to invoke and hard to misreport."
+        ],
+        "boris-cherny-inspection.md": [
+          "Guide 13's layered validation tests the public output, reproduces novel failures, and preserves meaningful baselines.",
+          "The same work is measured before and after a change, so improvement is a comparison rather than an impression.",
+          "Lessons the guides already cover, like lint, adapters and native loading, become supporting references in the four skills."
+        ]
+      },
       "next": [
         [
           "guides.html",

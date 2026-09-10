@@ -227,6 +227,13 @@ def main():
     check(len(idea_pages) == 19, f'expected 19 idea pages in public/ideas, found {len(idea_pages)}')
     n_ideas = ideas_html.count('class="tile idea"')
     check(n_ideas == 19, f'ideas.html: expected 19 idea tiles, found {n_ideas}')
+    # The three evidential tiers: exactly three sections, in COPY.md's order,
+    # each with at least one idea tile of its own.
+    tiers = re.findall(r'<section class="tier" id="(tier-[^"]+)"[^>]*>(.*?)(?=<section class="tier"|\Z)', ideas_html, re.S)
+    check([t for t, _ in tiers] == ['tier-does', 'tier-says', 'tier-thinks'],
+          f'ideas.html: tier sections {[t for t, _ in tiers]} != [tier-does, tier-says, tier-thinks]')
+    for tid, inner in tiers:
+        check(inner.count('class="tile idea"') >= 1, f'ideas.html: {tid} contains no idea tile')
     for ip in idea_pages:
         check(f'href="ideas/{ip.name}"' in ideas_html, f'ideas.html: no tile opens ideas/{ip.name}')
         text = ip.read_text()
@@ -268,13 +275,19 @@ def main():
             targets = set(re.findall(r'<li><a href="([^"#]+)', block.group(0)))
             check(name not in targets, f'{name}: its closing route points back at itself')
 
-    # 6c. Investigations: the index carries the three report cards and links
-    # each report; every report page shows its own drawing.
-    check(reports_html.count('class="tile report"') == 3, f'investigations.html: expected 3 report tiles, found {reports_html.count("class=\"tile report\"")}')
-    for rel in INVESTIGATIONS:
+    # 6c. Investigations: the index is three study sections, each carrying its
+    # report's drawing, a link to the report page and a 3-4 item findings list;
+    # every report page shows its own drawing.
+    studies = re.findall(r'<section class="study"[^>]*>(.*?)</section>', reports_html, re.S)
+    check(len(studies) == 3, f'investigations.html: expected 3 study sections, found {len(studies)}')
+    for rel, study in zip(INVESTIGATIONS, studies):
         page_name = rel[:-3] + '.html'
         page = PUBLIC / page_name
-        check(f'href="{page_name}"' in reports_html, f'investigations.html: no card opens {page_name}')
+        check(INVESTIGATIONS[rel] in study, f'investigations.html: {page_name} study is missing its drawing')
+        check(f'href="{page_name}"' in study, f'investigations.html: no card opens {page_name}')
+        findings = re.search(r'<ol class="findings"[^>]*>(.*?)</ol>', study, re.S)
+        n_findings = findings.group(1).count('<li>') if findings else 0
+        check(3 <= n_findings <= 4, f'investigations.html: {page_name} study has {n_findings} findings, expected 3-4')
         check(page.is_file() and INVESTIGATIONS[rel] in page.read_text(),
               f'{page_name}: the investigation\'s drawing is missing')
 

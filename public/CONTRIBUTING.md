@@ -16,6 +16,12 @@ python3 build/render.py
 # 3. Check links, file counts, hashes and rendered output:
 python3 build/check.py
 
+# 3b. (optional) Rendered check — headless Chromium, scrollbars/overflow:
+#    needs Node and puppeteer (`cd build && npm install`), then:
+bash build/check.sh
+#    `python3 build/check.py` alone is enough locally; the rendered check
+#    (`build/check-render.js`) is optional and skipped when puppeteer is absent.
+
 # 4. Preview before opening a pull request:
 cd public && python3 -m http.server 8000    # http://localhost:8000
 ```

@@ -10,3 +10,6 @@ __pycache__/
 .env*
 .build-deps/
 .scratch/
+
+build/node_modules/
+build/package-lock.json

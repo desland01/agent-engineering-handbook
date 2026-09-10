@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "devDependencies": {
+    "puppeteer": "^24.0.0"
+  },
+  "scripts": {
+    "check": "node check-render.js"
+  }
+}

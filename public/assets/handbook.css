@@ -659,3 +659,34 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .idea-page .rail .watch .ts:hover { text-decoration: underline; }
 .idea-page .rail .leads p { margin: 0 0 6px; }
 .idea-page .rail .badge { display: inline-block; }
+
+/* ------------------------------------------------------------------ */
+/* Investigations page: three full-viewport studies (T3).              */
+/* One study per report: the authored diagram at full column width,    */
+/* mono meta, the claim, findings as a hairline-divided list, and the  */
+/* CTA row. min-height, never a fixed height, so a phone can grow past */
+/* one viewport. Nothing animates; motion is added later.              */
+/* ------------------------------------------------------------------ */
+.study { min-height: 100svh; display: grid; align-content: center; padding-block: 64px; border-top: 1px solid var(--border); }
+.study-figure { margin: 0; }
+.study-figure svg { display: block; width: 100%; height: auto; color: var(--accent-text); }
+.study-meta { margin: 0 0 14px; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg); }
+.study h2 { margin: 0 0 18px; }
+.study .claim { margin: 0 0 24px; font-size: var(--text-lg); line-height: 1.5; color: var(--fg); max-width: 32ch; }
+.study .findings { list-style: none; margin: 0 0 32px; padding: 0; display: grid; gap: 1px; background: var(--bg); }
+.study .findings li { background: var(--bg); box-shadow: 0 0 0 1px var(--border); padding: 14px 16px; line-height: 1.5; color: var(--muted-fg); }
+.study .findings .ix { font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); margin-right: 10px; }
+.study .study-cta { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
+.study .study-body { max-width: 60ch; }
+/* Wide viewports: the figure takes the left column, the text the right. */
+@media (min-width: 980px) {
+  .study > .wrap { display: grid; grid-template-columns: minmax(0, 640px) minmax(0, 1fr); gap: 72px; align-items: center; }
+  .study-figure svg { width: 100%; max-width: 640px; }
+}
+
+/* T5: the ideas hub sorted into three evidential tiers (DESIGN-NOTES note 8).
+   Each tier is a hairline-ruled band with its own marker pill; the .ideas grid
+   rule already handles 1/2/3 columns, so only the tier's own chrome is here. */
+.tier { padding-block: 40px 56px; border-top: 1px solid var(--border); }
+.tier h2 { font-size: var(--text-xl); margin: 14px 0 6px; }
+.tier-lead { color: var(--muted-fg); max-width: 60ch; margin-bottom: 22px; }

@@ -32,6 +32,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from icons import IDEAS, SKILLS, GUIDES, INVESTIGATIONS
 
 REPO = Path(__file__).resolve().parent.parent
+# The claim line of each investigation, copied verbatim from COPY.md.
+CLAIMS = {
+    'github-inspection.md': "Ten of the thirteen guides trace back to this fork. It is where the video's advice met code that had to work.",
+    'matt-pocock-inspection.md': 'A codebase with a glossary and one transport. The two guides on domain language and durable artifacts came from reading it.',
+    'boris-cherny-inspection.md': "A compiler tested five different ways. Guide 13's layered validation is that method, generalised.",
+}
 OUT = REPO / 'public'
 ASSETS = REPO / 'build/assets'
 HOME = REPO / 'build/home.json'
@@ -368,6 +374,19 @@ def guide_chip(label, path, prefix=''):
     return f'<a class="chip" href="{escape(prefix + path)}">{n}{escape(label[0].upper() + label[1:])}</a>'
 
 
+# Note 8 (DESIGN-NOTES): the evidence types collapsed by evidential force into
+# three tiers. Exact types map directly; `sponsor-*` types land in `thinks` by
+# prefix so a renamed sponsor segment is still bucketed rather than misfiled.
+EVIDENCE_TIER = {
+    'theo-practice': 'does',
+    'theo-anecdote': 'does',
+    'theo-directive': 'says',
+    'quoted-post-via-theo': 'says',
+    'theo-opinion': 'thinks',
+}
+EVIDENCE_TIER_PREFIX = [('sponsor-', 'thinks')]
+
+
 EVIDENCE_LABEL = {
     'sponsor-ad-framing (sponsor performance claims unverified)': 'Sponsor segment',
     'theo-anecdote': 'Theo, anecdote',
@@ -408,6 +427,11 @@ def enrich(idx):
         i['slug'] = f'{n:02d}-' + tip['id'].split('-', 2)[2]
         i['page'] = f'ideas/{i["slug"]}.html'
         i['evidence'] = EVIDENCE_LABEL[tip['evidence_type']]
+        i['tier'] = EVIDENCE_TIER.get(tip['evidence_type']) or next(
+            (t for pre, t in EVIDENCE_TIER_PREFIX if tip['evidence_type'].startswith(pre)), None)
+        if i['tier'] is None:
+            raise SystemExit(f'enrich(): unknown evidence_type {tip["evidence_type"]!r} '
+                             f'(idea {n}, tip {tip["id"]}); no tier mapping')
         i['skill'] = skill_by_name[tip['suggested_skill']]
         i['skill']['fed_by'] += 1
         i['skill']['fed'].append(i)
@@ -611,7 +635,22 @@ def hub_head(marker_label, hub, tail=''):
 
 def ideas_index(idx, home):
     hub = home['hubs']['ideas']
-    tiles = ''.join(idea_tile(i) for i in idx['ideas'])
+    # The three evidential tiers of note 8. Each keeps the ideas in original
+    # video order — the [nn] numbers are the video order and the idea pages'
+    # numbering, so a tier is a selection of the sequence, not a renumbering.
+    sections = ''
+    for tier in hub['tiers']:
+        ideas = [i for i in idx['ideas'] if i['tier'] == tier['key']]
+        if not ideas:
+            raise SystemExit(f'ideas_index(): tier {tier["key"]!r} is empty; '
+                             'the extraction yields no ideas for it')
+        tiles = ''.join(idea_tile(i) for i in ideas)
+        sections += (f'<section class="tier" id="tier-{escape(tier["key"])}" '
+                     f'aria-labelledby="tier-{escape(tier["key"])}-h"><div class="wrap">'
+                     f'{marker(tier["label"])}'
+                     f'<h2 id="tier-{escape(tier["key"])}-h">{escape(tier["heading"])}</h2>'
+                     f'<p class="tier-lead">{escape(tier["lead"])}</p>'
+                     f'<ol class="ideas" role="list">{tiles}</ol></div></section>')
     # The two files that carry what a tile cannot: speaker attribution, evidence
     # type and the caveats. They used to sit inside the lead, where they made a
     # reader read plumbing before content.
@@ -619,7 +658,7 @@ def ideas_index(idx, home):
             '<a href="evidence/video-tips.json">Structured ideas file</a></p>')
     body = (site_head('', 'ideas.html') +
             hub_head('Ideas', hub, tail) +
-            f'<section class="band" aria-label="All nineteen ideas"><div class="wrap"><ol class="ideas" role="list">{tiles}</ol></div></section>'
+            sections +
             f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
     (OUT / 'ideas.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'], 'ideas.html'))
@@ -648,15 +687,44 @@ def guides_index(idx, home):
 
 
 def investigations_index(idx, home):
+    """The investigations page as three full-viewport studies, one per report.
+
+    Each study leads with its authored diagram at the size the drawing deserves,
+    then the counted evidence that this report earned its shelf, the claim, the
+    findings edited from the report's own takeaway section, and the route to the
+    full write-up. Findings copy lives in home.json so it stays editable."""
     hub = home['hubs']['investigations']
-    cards = ''.join(report_tile(r) for r in idx['reports'])
-    body = (site_head('', 'investigations.html') +
-            hub_head('Investigations', hub) +
-            '<section class="band" aria-label="The three investigations"><div class="wrap">'
-            f'<ul class="tiles cards" role="list">{cards}</ul></div></section>'
-            f'{hub_next(hub)}</main>' +
-            site_foot('', escape(home['basis_short'])))
-    (OUT / 'investigations.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'],
+    findings = hub['findings']
+    # Guides per report: the union of the home-page shelves that name it.
+    guides_from = {}
+    for s in home['shelves']:
+        guides_from.setdefault(s['investigation'], []).extend(s['guides'])
+
+    studies = []
+    for n, r in enumerate(idx['reports'], 1):
+        rel = r['path']
+        text = (REPO / rel).read_text()
+        words = len(text.split())
+        nguides = len(guides_from.get(rel, []))
+        meta = (f'REPORT {n:02d} · {nguides} GUIDE{"S" if nguides != 1 else ""} CAME FROM THIS · '
+                f'{words:,} WORD{"S" if words != 1 else ""}')
+        items = ''.join(f'<li><span class="ix" aria-hidden="true">[{i:02d}]</span>{escape(t)}</li>'
+                        for i, t in enumerate(findings[rel], 1))
+        studies.append(
+            f'<section class="study" id="study-{n:02d}" aria-labelledby="study-{n:02d}-h"><div class="wrap">'
+            f'<figure class="study-figure" aria-hidden="true">{INVESTIGATIONS[rel]}</figure>'
+            f'<div class="study-body"><p class="study-meta">{escape(meta)}</p>'
+            f'<h2 id="study-{n:02d}-h">{escape(r["title"])}</h2>'
+            f'<p class="claim">{escape(CLAIMS[rel])}</p>'
+            f'<ol class="findings" role="list">{items}</ol>'
+            f'<p class="study-cta"><a class="btn primary" href="{rel[:-3]}.html">Read the full report</a>'
+            f'<a class="more" href="{rel}">Editable Markdown</a></p></div></section>')
+    # The .md links above must stay .md, so the studies bypass rewrite_refs;
+    # everything else goes through it as usual.
+    body = (rewrite_refs(site_head('', 'investigations.html') + hub_head('Investigations', hub)) +
+            ''.join(studies) + hub_next(hub) + '</main>' +
+            rewrite_refs(site_foot('', escape(home['basis_short']))))
+    (OUT / 'investigations.html').write_text(document(hub['title'], '', body, hub['description'],
                                                      'investigations.html'))
 
 

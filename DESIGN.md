@@ -146,11 +146,34 @@ shows one taste of each section, and routes out. The full sets live on their own
 Each band opens with a section marker: a mono label in a bordered pill with a hairline
 rule running from it. That is the only pill on the page.
 
-**Section pages.** `ideas.html` holds all nineteen idea tiles; `guides.html` holds the
-thirteen guides under their shelves; `skills.html` holds the four skill tiles;
-`investigations.html` holds the three report cards; `evidence.html` holds the twelve
-frames at full size. Each opens with the same marker-and-title head as a band, so a
-section page reads as the band unfolded rather than as a different site.
+**Section pages.** `ideas.html` holds all nineteen ideas in three tiers; `guides.html`
+holds the thirteen guides under their shelves; `skills.html` holds the four skill tiles;
+`investigations.html` holds the three reports as three full-viewport studies;
+`evidence.html` holds the twelve frames at full size. Each opens with the same
+marker-and-title head as a band, so a section page reads as the band unfolded rather than
+as a different site — but a section page is not obliged to use the band's figure, and
+the two below deliberately do not.
+
+**The ideas, in three tiers.** Nineteen is a homework assignment; three groups of six or
+seven is a hook. `ideas.html` sorts the ideas by what is behind each one, using the
+`evidence_type` already recorded in `evidence/video-tips.json`: *What he actually does*
+(`theo-practice`, `theo-anecdote`), *What he tells you to do* (`theo-directive`,
+`quoted-post-via-theo`) and *What he's still working out* (`theo-opinion`, the sponsor
+segment). The mapping lives in `render.py` and fails the build on an evidence type it
+does not know, so nothing is silently bucketed. The `[nn]` numbers stay in video order;
+the tier copy lives in `home.json` under `hubs.ideas.tiers`. The page leads with the
+flattering tier and frames the third as candour, because the aim is that the people
+named want to share it.
+
+**The investigations, as three studies.** Each report gets a `min-height: 100svh`
+section — min-height, never a fixed height, so a phone can grow past a viewport — with
+its authored diagram at up to 640px on the left and, on the right, a mono metadata line
+of counts the page can prove (`REPORT 01 · 10 GUIDES CAME FROM THIS · 2,457 WORDS`,
+computed at render time), the title, one claim line, three or four findings edited to
+parallel form from the report's own takeaway section, and a primary *Read the full
+report* button. The findings copy lives in `home.json` under
+`hubs.investigations.findings`. This is the one place on the site a drawing is the size
+it deserves, and 10 / 2 / 1 is a more interesting fact than three equal cards implied.
 
 **A section page writes its own head, and closes with a route out.** The head shares the
 band's *form* — marker, title, lead — but not its *words*. A band introduces a set to
@@ -177,6 +200,16 @@ written by hand; a guide uses its title and the line saying who it is for; a ski
 own frontmatter description; every other page uses its opening prose, cut on a sentence
 boundary or, failing that, a clause. `build/check.py` fails on a missing description, one
 over 175 characters, one that ends mid-thought, or a title that is only the site's name.
+
+**Two checkers.** `build/check.py` is pure Python and runs in the Vercel build; it can
+prove structure, links and hashes but cannot see a rendered scrollbar. `build/check-render.js`
+is the rendered half: it serves `public/` itself, opens nine representative pages at 390
+and 1440 in headless Chromium, and fails on horizontal page overflow, on any overflowing
+scroll region that draws scrollbar chrome, on a hub without its closing route, and on
+console errors or failed requests. `build/check.sh` runs both and skips the rendered one
+with a plain message when node or puppeteer is absent, so the deploy never depends on it.
+It was proved to bite before it was trusted: setting `scrollbar-width` back to `auto`
+failed five checks.
 
 The other half of page identity — a canonical URL, and the Open Graph and Twitter tags a
 shared link previews with — needs an absolute origin, and the site does not have one yet.

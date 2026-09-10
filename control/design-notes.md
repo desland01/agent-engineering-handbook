@@ -209,7 +209,7 @@ set and never asked whether anyone wants a set of nineteen.
 | Cut | Groups | Sizes |
 |---|---|---|
 | By `suggested_skill` | 4 | 8 / 4 / 4 / 3 |
-| By `evidence_type`, collapsed by evidential force | 3 | 6 / 7 / 5 |
+| By `evidence_type`, collapsed by evidential force | 3 | 6 / 7 / 6 |
 
 Also true and unused: **all nineteen carry a `caveat` field**, and the speaker
 breakdown is 12 Theo, 5 Boris-as-quoted-by-Theo (three of them endorsed or
@@ -226,7 +226,7 @@ right now that mapping exists in the data and is shown only as a small tag. The
 
 `theo-practice` + `theo-anecdote` = **6, things he actually does**;
 `theo-directive` + `quoted-post-via-theo` = **7, things he tells you to do**;
-`theo-opinion` + `sponsor-ad-framing` = **5, things he only reckons**.
+`theo-opinion` + `sponsor-ad-framing` = **6, things he only reckons** (5 + 1; an earlier draft of this note said 5, which does not sum to 19 — the T5 worker caught it).
 
 Why this one:
 
@@ -234,7 +234,7 @@ Why this one:
   other summary of that video gives you a flat list; this one tells you which
   advice is backed by something and which is a man thinking out loud. That is a
   reason to click and a reason to share.
-- Three groups of 5 to 7 is exactly the scannable size the *top 7* instinct is
+- Three groups of 6 to 7 is exactly the scannable size the *top 7* instinct is
   reaching for — three times over, without discarding anything.
 - It costs no new editorial judgement. The `evidence_type` values were extracted
   and published already; this only groups by a field the cards are colouring in
@@ -563,6 +563,19 @@ The original phases below still hold as the repair backlog and slot underneath:
   it means `build/check-render.js` and a `build/check.sh` that runs both, with
   node and a headless browser as *developer* dependencies only — Vercel's build
   command keeps running plain `python3` and must not start needing them.
+
+## Delegation log
+
+Three tickets ran on `glm-5.3-flash` through `nautilus_fleet.delegate` on 2026-09-10:
+T3 (investigations studies), T5 (idea tiers), T4 (rendered check). All three delivered
+`deliverable.patch` + `RESULT.md`, applied cleanly to baseline `e260f6c`, passed
+`check.py` in isolation, and were integrated with one append-conflict in `handbook.css`
+(both appended a block at the end; both kept). First admission was refused on
+`scope_canonical`: a `python3 -m venv` puts symlinks to the system interpreter inside
+the workspace. `python3 -m venv --copies` fixes it. T5 caught an arithmetic error in
+note 8 (6/7/6, not 6/7/5). T4's script was unexecuted in the sandbox (no browser) and
+ran green at the parent first time, then was proved to fail when the rule it guards was
+broken.
 
 ## Open questions
 
