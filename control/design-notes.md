@@ -616,6 +616,16 @@ and launched after a switch is refused — `release_mismatch` or
 `workspace_overlaps_installation_home`. The reliable pattern is to bind the workspace and
 digest at the moment of dispatch, in the same step as the launch.
 
+**gpt-6-astra, two runs, 2026-09-10.** The first combined run (copy + QA, 22 full-page
+PNGs as evidence) died on `run_stdout_limit` after 12 requests and 23 Reads with nothing
+delivered: reading large images is what fills the stdout budget. Split into two runs. The
+QA-only run (8 JPEGs at 800px wide) completed in 17 requests and delivered
+`control/design-qa-20260910.md`; four of its eight images still failed the route's image
+reader because full-page captures are 5,000-9,000px tall and the reader refuses anything
+over 2000px on either axis — tile evidence to ≤2000px both ways. Its three findings were
+confirmed by measurement at the parent; two mobile concerns were checked and are not
+defects. Report-only by owner instruction; nothing applied.
+
 ## Open questions
 
 1. Should the problem panel keep its eleven guide links, or become decoration
