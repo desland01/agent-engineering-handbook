@@ -3,13 +3,14 @@
 One file per purpose, named by what it is. The date lives on the file's first line and in
 git, never in the file name. A new round of the same work **overwrites** the file; the
 previous round is in git history. Nothing here is ever suffixed with a date, a letter or
-"final".
+"final". Handoffs and other read-once files are not kept here at all: they go to
+`~/ephemera/` (`handbook-handoff.md`), where everything is deleted 48 hours after it was
+last touched.
 
 | File | What it is |
 | --- | --- |
 | `plan.md` | The plan of record for the design system and the handbook. Rewritten as it changes. |
 | `tickets.md` | The executable ticket graph derived from the plan. |
-| `handoff.md` | The current handoff: every owner instruction, its status, what is open, how to run things. Supersedes itself. |
 | `patterns.md` | Composition patterns extracted from the reference sites; input to design work. |
 | `skill-evals.md` | Whether the skills are used and working, from run records; updated when an eval runs. |
 | `design-notes.md` | Design decisions and the delegation record, running. |
