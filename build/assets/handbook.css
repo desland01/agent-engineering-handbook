@@ -349,9 +349,12 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 /* The rail: sections, place on the map, evidence and neighbours (wide screens). */
 .rail { display: none; }
 @media (min-width: 1100px) {
-  /* The rail flows with the article. It used to be sticky with its own
-     max-height and overflow, which gave every reader page a second scrollbar
-     as soon as the rail outgrew the viewport — and it always did. */
+  /* The rail flows with the article. handbook.js then makes it a card that holds
+     once its bottom reaches the foot of the screen; the offset has to be measured,
+     because a bottom-anchored sticky element taller than the viewport never
+     engages, and a top-anchored one strands its lower blocks off-screen. Without
+     the script the rail just scrolls with the article, which is why nothing here
+     positions it. */
   .rail { display: block; align-self: start; font-size: var(--text-base); }
 }
 /* Rail headings act as labels: the mono label treatment. */
