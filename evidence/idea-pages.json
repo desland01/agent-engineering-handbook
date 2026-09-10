@@ -69,7 +69,7 @@
         "body": "This approach fits work where you cannot or should not run the application locally for every review. A preview gives the agent-built change a place to be inspected from outside your own machine. When local review already covers each change, this argument alone does not establish a need for preview deployments."
       },
       "fit": {
-        "heading": "Deployment needs separate authorization",
+        "heading": "Previews are argued for, not measured",
         "body": "Theo presents an argument for previews, rather than a measured result from comparing review workflows. Setting them up can involve deployments, which remain outside the authorization of this writing task. The idea still applies to planning an agent's review environment, with deployment handled under its own authorization."
       }
     },
@@ -177,7 +177,7 @@
         "body": "This pays when the same project rules have to be explained verbally to every new engineer. The repeated explanation identifies knowledge that the codebase could make available to newcomers and their agents. Do not assume every rejected contribution exposes missing automation, since that is the strong framing Theo qualifies."
       },
       "fit": {
-        "heading": "Theo disputes equal effectiveness without engineering experience",
+        "heading": "Theo doubts non-engineers contribute equally",
         "body": "Boris also claims non-engineers can contribute as effectively as engineers, and Theo explicitly calls that a reach. Theo supports turning knowledge into project infrastructure but says Boris takes that argument further than he would. Preserve the practical effort to make knowledge available without treating equal effectiveness or every rejection as established facts."
       }
     },
@@ -285,7 +285,7 @@
         "body": "This fits new projects, newly agent-enabled repositories, and teams tempted to install large plugin collections in advance. The early attempts reveal whether the default setup already handles the work or lacks specific project context. It does not call for removing existing safeguards or withholding instructions that already govern the task."
       },
       "fit": {
-        "heading": "Testing defaults does not restrict authorized tool authoring",
+        "heading": "This is about plugins, not writing your own tools",
         "body": "This advice concerns project steering and plugin adoption, rather than every activity involving a skill or instruction file. Authorized skill authoring remains a separate activity governed by current workspace rules rather than the video's preference. The approach still applies when you are testing how much additional project context a new setup actually needs."
       }
     },

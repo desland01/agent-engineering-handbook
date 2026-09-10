@@ -79,7 +79,27 @@ The handbook is the proving ground: every change below runs through the gate.
 5. **Motion.** The typed prompt, the drafting trace, the reveals and seams exist. The
    rewritten skill decides whether a pinned, scrubbed study earns the 44 KB of GSAP; if it
    does, one, on the investigations page.
-6. **Repeated headings elsewhere.** Guides share "When to apply / Implementation /
+6. **Headings that read right alone** (owner, 2026-09-10: "Repeated fixes spend tokens"
+   read alone means the reverse of its section). Rule in `ARCHITECT.md`: a heading states
+   the section's claim in a plain-verb clause, up to eight words; instruct for a claim,
+   never for a subject. Done for the 76 idea headings (astra rewrite, 72 changed,
+   `control/review-headings-20260910.md`). The eval: a different route reads the headings
+   with bodies withheld and writes what each must claim; mismatches are rewritten before
+   the page lands. Applies to every heading the site writes from here on, including B3.
+7. **Front-facing copy carries no jargon** (owner: "understand exactly what we're saying in
+   under 5 seconds from any viewpoint"). Rule in `ARCHITECT.md`; `check-render.js` flags
+   code spans, hashes and file paths in leads, band heads, tiles, shelves, studies and
+   tiers. Green after the two guide shelves were rewritten in words.
+8. **Composition patterns from the references** (owner: "scan those examples and find
+   mechanical patterns that break the AI out of the slop"). Delivered:
+   `control/patterns-20260910.md` — 29 patterns from two parallel astra scans of the six
+   references, each with the mechanism, the default it breaks, a checkable property and
+   its transfer to the handbook. Both scans' first picks converge on the same move: give
+   the content families genuinely different widths and reading axes (contracted reading
+   lane, change the reading axis, change column count, ragged directories) instead of one
+   card grid dressed six ways. These are the input to B3 and to the A-series skill
+   rewrites; nothing from them is applied yet.
+9. **Repeated headings elsewhere.** Guides share "When to apply / Implementation /
    Acceptance / Failure modes and maintenance"; skills share five section names. Those are
    document templates the owner chose, not copied instructions — but the rule is the rule.
    Decision needed (§6); the check covers idea pages until then.
@@ -146,7 +166,9 @@ Nothing in a row above waits on the row below. Everything visual passes the gate
   with no high finding and no reviewer verdict of "looks like every AI site."
 - The handbook home page passes the same, and the owner's own QA pass finds nothing on the
   list from today.
-- `check.sh` green: structure, rendered, headings, sentences, scroll.
+- `check.sh` green: structure, rendered, headings, sentences, scroll, jargon.
+- Every new heading passes the heading-only read by a different route.
+- The skill question is answered by evidence, not assertion: `control/skill-evals-20260910.md` carries the run records and the C4 result.
 - The controlled comparison shows the rewritten skills beating no-skill and current-skill
   output on the blind review; if they do not, the skills are wrong and we say so.
 - The owner would send the link to Theo, Matt Pocock and Boris Cherny.

@@ -84,3 +84,16 @@ Headings with the most uncertainty:
 - “Better documentation does not guarantee equal newcomer performance” (tip-14, fit): This keeps the performance warning clear. It leaves the separate warning about borrowed book context and public preferences to the body.
 - “Make the corrections automatic” (tip-08, apply, kept): The action is clear alone, though the heading does not name the corrections. Your exact wording is preserved.
 - “Make shared contributions visible” (tip-17, apply, kept): The heading clearly asks for visibility, though the body specifies documentation for reviews.
+
+## The heading-only read — glm-5.3-flash, bodies withheld (2026-09-10)
+
+A different route was given only the 76 headings (`control/review-headings-20260910-reader.json` is its output: one line per heading of what the section must claim, plus a confidence). Fable compared each line with the section.
+
+- 74 headings read as clear, 2 as ambiguous (tip-09 fit, tip-04 fit).
+- Contradicts or misses the section: **1** — tip-04 fit, "Deployment needs separate authorization" (a heading astra kept), read as being about authorization; the section says previews are argued for, not measured. Rewritten: "Previews are argued for, not measured".
+- Ambiguous but both readings correct: tip-09 fit; simplified to "Theo doubts non-engineers contribute equally".
+- Read correctly but jargon-heavy against the five-second rule: tip-15 fit ("authorized tool authoring"); rewritten "This is about plugins, not writing your own tools".
+- Expectation drifted from the first sentence but the section carries the claim later (tip-08 fit, tip-17 apply, tip-10 fit): kept.
+- Noted for the body, not the heading: tip-05 fit opens with `FILE_HOST_TOKEN` and `curl --fail-with-body over HTTP PUT` on a reader page; the jargon check covers front-facing selectors only. Open copy item.
+
+Result after the three rewrites: 76 of 76 headings state a claim a heading-only reader reproduces.

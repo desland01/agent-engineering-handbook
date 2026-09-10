@@ -1,0 +1,612 @@
+[
+ {
+  "n": 1,
+  "page": "tip-01-ci-feedback-loop",
+  "key": "said",
+  "heading": "Agents can retrieve check failures without you",
+  "expectation": "The section claims that coding agents are able to fetch CI or check failures on their own, without a human passing the results to them.",
+  "confidence": "clear"
+ },
+ {
+  "n": 2,
+  "page": "tip-01-ci-feedback-loop",
+  "key": "apply",
+  "heading": "Let agents run checks and read failures",
+  "expectation": "The section advises granting agents the ability to run project checks themselves and to read the resulting failure output.",
+  "confidence": "clear"
+ },
+ {
+  "n": 3,
+  "page": "tip-01-ci-feedback-loop",
+  "key": "useful",
+  "heading": "Stop relaying check failures by hand",
+  "expectation": "The section claims that manually copying check failures to an agent is unnecessary work you should stop doing.",
+  "confidence": "clear"
+ },
+ {
+  "n": 4,
+  "page": "tip-01-ci-feedback-loop",
+  "key": "fit",
+  "heading": "The sponsor's performance claims remain unverified",
+  "expectation": "The section cautions that the sponsor's claims about performance have not been verified, so the reader should not treat them as proven.",
+  "confidence": "clear"
+ },
+ {
+  "n": 5,
+  "page": "tip-02-two-browser-e2e",
+  "key": "said",
+  "heading": "Theo's chat test caught failures early",
+  "expectation": "The section reports that an end-to-end chat test run by Theo caught failures at an early stage.",
+  "confidence": "clear"
+ },
+ {
+  "n": 6,
+  "page": "tip-02-two-browser-e2e",
+  "key": "apply",
+  "heading": "Test that the other person receives it",
+  "expectation": "The section advises testing that a message or action sent by one side is actually received by the other side, rather than only testing the sending side.",
+  "confidence": "clear"
+ },
+ {
+  "n": 7,
+  "page": "tip-02-two-browser-e2e",
+  "key": "useful",
+  "heading": "Separate checks can miss broken interactions",
+  "expectation": "The section claims that testing each component in isolation can fail to detect bugs that appear only in the interaction between them.",
+  "confidence": "clear"
+ },
+ {
+  "n": 8,
+  "page": "tip-02-two-browser-e2e",
+  "key": "fit",
+  "heading": "The recalled test has no implementation here",
+  "expectation": "The section clarifies that the test Theo recalled in the story does not exist in this handbook's accompanying code or examples.",
+  "confidence": "clear"
+ },
+ {
+  "n": 9,
+  "page": "tip-03-automation-multiplies-agents",
+  "key": "said",
+  "heading": "Shared automation can speed up every agent",
+  "expectation": "The section claims that automation shared across the team benefits all agents working concurrently, speeding each of them up.",
+  "confidence": "clear"
+ },
+ {
+  "n": 10,
+  "page": "tip-03-automation-multiplies-agents",
+  "key": "apply",
+  "heading": "Fix shared delays before adding more agents",
+  "expectation": "The section advises removing shared bottlenecks or delays before scaling up the number of concurrent agents.",
+  "confidence": "clear"
+ },
+ {
+  "n": 11,
+  "page": "tip-03-automation-multiplies-agents",
+  "key": "useful",
+  "heading": "Concurrent agents benefit from removing shared delays",
+  "expectation": "The section claims that when several agents run at once, eliminating a shared delay improves throughput for all of them.",
+  "confidence": "clear"
+ },
+ {
+  "n": 12,
+  "page": "tip-03-automation-multiplies-agents",
+  "key": "fit",
+  "heading": "The automation gains have not been measured",
+  "expectation": "The section cautions that the claimed speedups from the automation have not actually been measured.",
+  "confidence": "clear"
+ },
+ {
+  "n": 13,
+  "page": "tip-04-preview-environments",
+  "key": "said",
+  "heading": "Remote agent work makes previews more valuable",
+  "expectation": "The section claims that when agents work remotely rather than locally, preview environments become more valuable to the workflow.",
+  "confidence": "clear"
+ },
+ {
+  "n": 14,
+  "page": "tip-04-preview-environments",
+  "key": "apply",
+  "heading": "Give agents previews they can reach and test",
+  "expectation": "The section advises providing preview environments that agents can access and verify on their own.",
+  "confidence": "clear"
+ },
+ {
+  "n": 15,
+  "page": "tip-04-preview-environments",
+  "key": "useful",
+  "heading": "Previews help when local review is impractical",
+  "expectation": "The section claims preview environments are most useful when reviewing changes locally is not practical.",
+  "confidence": "clear"
+ },
+ {
+  "n": 16,
+  "page": "tip-04-preview-environments",
+  "key": "fit",
+  "heading": "Deployment needs separate authorization",
+  "expectation": "The section notes that deploying preview environments is an externally-visible action requiring separate authorization, which is out of scope here.",
+  "confidence": "ambiguous",
+  "alternate": "The section claims that in real deployments, creating preview environments requires a separate approval step from the development work itself."
+ },
+ {
+  "n": 17,
+  "page": "tip-05-custom-file-upload-skill",
+  "key": "said",
+  "heading": "Theo built a tool for agent uploads",
+  "expectation": "The section reports that Theo built a custom tool so agents could upload files.",
+  "confidence": "clear"
+ },
+ {
+  "n": 18,
+  "page": "tip-05-custom-file-upload-skill",
+  "key": "apply",
+  "heading": "Confirm existing tools cannot upload before building",
+  "expectation": "The section advises verifying that no existing tool can already perform the upload before investing in a custom one.",
+  "confidence": "clear"
+ },
+ {
+  "n": 19,
+  "page": "tip-05-custom-file-upload-skill",
+  "key": "useful",
+  "heading": "Build upload tools only for recurring gaps",
+  "expectation": "The section claims custom upload tooling is justified only when the gap recurs, not for one-off needs.",
+  "confidence": "clear"
+ },
+ {
+  "n": 20,
+  "page": "tip-05-custom-file-upload-skill",
+  "key": "fit",
+  "heading": "Upload instructions do not prove successful uploads",
+  "expectation": "The section cautions that giving an agent instructions for uploading does not demonstrate the upload actually succeeded.",
+  "confidence": "clear"
+ },
+ {
+  "n": 21,
+  "page": "tip-06-skill-authoring-reward",
+  "key": "said",
+  "heading": "Theo finds small agent tools rewarding",
+  "expectation": "The section reports that Theo personally finds writing small tools for agents satisfying or worthwhile.",
+  "confidence": "clear"
+ },
+ {
+  "n": 22,
+  "page": "tip-06-skill-authoring-reward",
+  "key": "apply",
+  "heading": "Replace one recurring workaround with a small tool",
+  "expectation": "The section suggests picking one workaround you repeat often and replacing it with a small purpose-built tool.",
+  "confidence": "clear"
+ },
+ {
+  "n": 23,
+  "page": "tip-06-skill-authoring-reward",
+  "key": "useful",
+  "heading": "Try small tools when bigger efforts discourage you",
+  "expectation": "The section claims small tool projects are a good entry point when larger automation efforts feel daunting or demotivating.",
+  "confidence": "clear"
+ },
+ {
+  "n": 24,
+  "page": "tip-06-skill-authoring-reward",
+  "key": "fit",
+  "heading": "Theo's enjoyment does not establish productivity gains",
+  "expectation": "The section cautions that Theo finding the work enjoyable is not evidence that such tools improve productivity.",
+  "confidence": "clear"
+ },
+ {
+  "n": 25,
+  "page": "tip-07-team-buy-in",
+  "key": "said",
+  "heading": "Theo sees more support for tooling work",
+  "expectation": "The section reports that Theo observes growing team support for spending time on tooling work.",
+  "confidence": "clear"
+ },
+ {
+  "n": 26,
+  "page": "tip-07-team-buy-in",
+  "key": "apply",
+  "heading": "Ask for limited time to improve shared tools",
+  "expectation": "The section advises requesting a bounded amount of time, rather than open-ended commitment, to work on shared tools.",
+  "confidence": "clear"
+ },
+ {
+  "n": 27,
+  "page": "tip-07-team-buy-in",
+  "key": "useful",
+  "heading": "Recheck assumptions that managers oppose tooling work",
+  "expectation": "The section claims you should question the assumption that management will reject tooling work, since support may be greater than expected.",
+  "confidence": "clear"
+ },
+ {
+  "n": 28,
+  "page": "tip-07-team-buy-in",
+  "key": "fit",
+  "heading": "Does your team welcome time spent on tools?",
+  "expectation": "The section poses a reflective question asking whether your own team would support time spent on tooling, implying the answer varies.",
+  "confidence": "clear"
+ },
+ {
+  "n": 29,
+  "page": "tip-08-fix-class-loops",
+  "key": "said",
+  "heading": "Repeated failures waste tokens",
+  "expectation": "The section claims that when agents keep failing on the same class of mistake, the retry loop consumes tokens wastefully.",
+  "confidence": "clear"
+ },
+ {
+  "n": 30,
+  "page": "tip-08-fix-class-loops",
+  "key": "apply",
+  "heading": "Make the corrections automatic",
+  "expectation": "The section advises turning corrections for recurring mistakes into automated checks or fixes rather than repeating them manually.",
+  "confidence": "clear"
+ },
+ {
+  "n": 31,
+  "page": "tip-08-fix-class-loops",
+  "key": "useful",
+  "heading": "Automate corrections that keep returning in reviews",
+  "expectation": "The section claims review comments that recur across changes are good candidates for automation.",
+  "confidence": "clear"
+ },
+ {
+  "n": 32,
+  "page": "tip-08-fix-class-loops",
+  "key": "fit",
+  "heading": "Overly broad checks can reject good changes",
+  "expectation": "The section cautions that automated checks written too broadly may reject legitimate changes.",
+  "confidence": "clear"
+ },
+ {
+  "n": 33,
+  "page": "tip-19-custom-lint-economics",
+  "key": "said",
+  "heading": "Cheaper rule writing can make checks worthwhile",
+  "expectation": "The section claims that agents make writing custom lint rules cheap enough that checks previously not worth the cost become worthwhile.",
+  "confidence": "clear"
+ },
+ {
+  "n": 34,
+  "page": "tip-19-custom-lint-economics",
+  "key": "apply",
+  "heading": "Reassess the cost of rejected check ideas",
+  "expectation": "The section advises revisiting check ideas you previously rejected as too expensive, since the cost calculation has changed.",
+  "confidence": "clear"
+ },
+ {
+  "n": 35,
+  "page": "tip-19-custom-lint-economics",
+  "key": "useful",
+  "heading": "Revisit manual checks once automation becomes affordable",
+  "expectation": "The section claims manual checks should be revisited for automation when the cost of automating them drops.",
+  "confidence": "clear"
+ },
+ {
+  "n": 36,
+  "page": "tip-19-custom-lint-economics",
+  "key": "fit",
+  "heading": "Custom checks still need maintenance and review",
+  "expectation": "The section cautions that custom checks carry ongoing maintenance and review costs even when cheap to create.",
+  "confidence": "clear"
+ },
+ {
+  "n": 37,
+  "page": "tip-09-domain-knowledge-as-infra",
+  "key": "said",
+  "heading": "Unwritten project knowledge holds newcomers back",
+  "expectation": "The section claims that project knowledge existing only in people's heads slows down newcomers, including new agents.",
+  "confidence": "clear"
+ },
+ {
+  "n": 38,
+  "page": "tip-09-domain-knowledge-as-infra",
+  "key": "apply",
+  "heading": "Record recurring corrections for everyone's agents",
+  "expectation": "The section advises writing down corrections you make repeatedly so all agents and teammates benefit.",
+  "confidence": "clear"
+ },
+ {
+  "n": 39,
+  "page": "tip-09-domain-knowledge-as-infra",
+  "key": "useful",
+  "heading": "Write down project rules you keep explaining",
+  "expectation": "The section claims rules you find yourself explaining repeatedly should be written down once for everyone.",
+  "confidence": "clear"
+ },
+ {
+  "n": 40,
+  "page": "tip-09-domain-knowledge-as-infra",
+  "key": "fit",
+  "heading": "Theo disputes equal effectiveness without engineering experience",
+  "expectation": "The section reports Theo's disagreement with a claim that documentation or tooling makes agents equally effective regardless of engineering experience.",
+  "confidence": "ambiguous",
+  "alternate": "The section quotes Theo disputing that a non-engineer, given the same written knowledge, would work as effectively as an experienced engineer."
+ },
+ {
+  "n": 41,
+  "page": "tip-10-newcomer-questions-signal",
+  "key": "said",
+  "heading": "Newcomer questions reveal unclear project guidance",
+  "expectation": "The section claims that questions from newcomers, human or agent, signal gaps or ambiguity in the project's written guidance.",
+  "confidence": "clear"
+ },
+ {
+  "n": 42,
+  "page": "tip-10-newcomer-questions-signal",
+  "key": "apply",
+  "heading": "Answer newcomer questions and fix their causes",
+  "expectation": "The section advises both answering newcomer questions and updating the underlying guidance so the question does not recur.",
+  "confidence": "clear"
+ },
+ {
+  "n": 43,
+  "page": "tip-10-newcomer-questions-signal",
+  "key": "useful",
+  "heading": "Repeated confusion points to missing project guidance",
+  "expectation": "The section claims that the same confusion arising repeatedly indicates documentation or guidance is missing.",
+  "confidence": "clear"
+ },
+ {
+  "n": 44,
+  "page": "tip-10-newcomer-questions-signal",
+  "key": "fit",
+  "heading": "Make questions safe without requiring daily quotas",
+  "expectation": "The section cautions that encouraging questions should not take the form of mandatory question quotas; safety to ask matters more than volume.",
+  "confidence": "clear"
+ },
+ {
+  "n": 45,
+  "page": "tip-11-own-your-instructions",
+  "key": "said",
+  "heading": "Theo recommends writing agent instructions yourself",
+  "expectation": "The section reports Theo's recommendation that you author your agent instructions yourself rather than accepting generated ones unedited.",
+  "confidence": "clear"
+ },
+ {
+  "n": 46,
+  "page": "tip-11-own-your-instructions",
+  "key": "apply",
+  "heading": "Revise instructions yourself after observing agent behavior",
+  "expectation": "The section advises personally editing your instruction files based on what you observe the agent actually doing.",
+  "confidence": "clear"
+ },
+ {
+  "n": 47,
+  "page": "tip-11-own-your-instructions",
+  "key": "useful",
+  "heading": "Revisit generated instructions you have never revised",
+  "expectation": "The section suggests auditing instruction files that were generated once and never personally reviewed or edited.",
+  "confidence": "clear"
+ },
+ {
+  "n": 48,
+  "page": "tip-11-own-your-instructions",
+  "key": "fit",
+  "heading": "Theo's writing preference does not override your instructions",
+  "expectation": "The section clarifies that Theo's stated preference is advice, not a rule that overrides your own project's instructions or judgment.",
+  "confidence": "clear"
+ },
+ {
+  "n": 49,
+  "page": "tip-12-steering-pushback",
+  "key": "said",
+  "heading": "Written rules can guide agents to refuse requests",
+  "expectation": "The section claims that written project rules can cause agents to push back on or refuse requests that violate those rules.",
+  "confidence": "clear"
+ },
+ {
+  "n": 50,
+  "page": "tip-12-steering-pushback",
+  "key": "apply",
+  "heading": "Write down recurring refusals and their reasons",
+  "expectation": "The section advises documenting the requests you routinely decline, along with the reasons, in your project instructions.",
+  "confidence": "clear"
+ },
+ {
+  "n": 51,
+  "page": "tip-12-steering-pushback",
+  "key": "useful",
+  "heading": "Explain project boundaries when unwanted requests recur",
+  "expectation": "The section claims that when agents repeatedly make unwanted requests, stating the project boundary in writing resolves it.",
+  "confidence": "clear"
+ },
+ {
+  "n": 52,
+  "page": "tip-12-steering-pushback",
+  "key": "fit",
+  "heading": "Written refusal rules can be bypassed",
+  "expectation": "The section cautions that written refusal rules are not guaranteed enforcement and can be circumvented.",
+  "confidence": "clear"
+ },
+ {
+  "n": 53,
+  "page": "tip-13-type-safe-composition",
+  "key": "said",
+  "heading": "Connected data rules can check whole application paths",
+  "expectation": "The section claims that when data definitions are connected through the type system, checks can validate entire paths through the application rather than isolated pieces.",
+  "confidence": "clear"
+ },
+ {
+  "n": 54,
+  "page": "tip-13-type-safe-composition",
+  "key": "apply",
+  "heading": "Reuse data definitions instead of copying them",
+  "expectation": "The section advises sharing a single data definition across layers instead of duplicating it in multiple places.",
+  "confidence": "clear"
+ },
+ {
+  "n": 55,
+  "page": "tip-13-type-safe-composition",
+  "key": "useful",
+  "heading": "Connect duplicated data definitions when they drift apart",
+  "expectation": "The section claims that duplicated definitions that have diverged should be connected or unified, since drift causes bugs.",
+  "confidence": "clear"
+ },
+ {
+  "n": 56,
+  "page": "tip-13-type-safe-composition",
+  "key": "fit",
+  "heading": "You need not adopt Theo's chosen technologies",
+  "expectation": "The section clarifies that the principle matters more than the specific technologies Theo used, which you are free to skip.",
+  "confidence": "clear"
+ },
+ {
+  "n": 57,
+  "page": "tip-14-zero-context-docs",
+  "key": "said",
+  "heading": "Written project knowledge reduces repeated explanations to agents",
+  "expectation": "The section claims that documenting project knowledge eliminates the need to re-explain the same things to agents each session.",
+  "confidence": "clear"
+ },
+ {
+  "n": 58,
+  "page": "tip-14-zero-context-docs",
+  "key": "apply",
+  "heading": "Test whether project files explain enough to newcomers",
+  "expectation": "The section advises verifying your project files by checking whether a newcomer, with no other context, can work from them alone.",
+  "confidence": "clear"
+ },
+ {
+  "n": 59,
+  "page": "tip-14-zero-context-docs",
+  "key": "useful",
+  "heading": "First tasks reveal explanations missing from project files",
+  "expectation": "The section claims that a newcomer's first tasks are the best way to discover what the project files fail to explain.",
+  "confidence": "clear"
+ },
+ {
+  "n": 60,
+  "page": "tip-14-zero-context-docs",
+  "key": "fit",
+  "heading": "Better documentation does not guarantee equal newcomer performance",
+  "expectation": "The section cautions that improving documentation does not ensure newcomers will perform as well as experienced members.",
+  "confidence": "clear"
+ },
+ {
+  "n": 61,
+  "page": "tip-15-minimal-context-calibration",
+  "key": "said",
+  "heading": "Try default tools before adding more",
+  "expectation": "The section claims that the default setup should be tried first before adding extra tools or context.",
+  "confidence": "clear"
+ },
+ {
+  "n": 62,
+  "page": "tip-15-minimal-context-calibration",
+  "key": "apply",
+  "heading": "Add only what observed agent failures show missing",
+  "expectation": "The section advises adding tools or context only when an observed agent failure demonstrates the gap.",
+  "confidence": "clear"
+ },
+ {
+  "n": 63,
+  "page": "tip-15-minimal-context-calibration",
+  "key": "useful",
+  "heading": "Test new setups before installing extra tools",
+  "expectation": "The section claims a fresh setup should be tested as-is before assuming extra tools are needed.",
+  "confidence": "clear"
+ },
+ {
+  "n": 64,
+  "page": "tip-15-minimal-context-calibration",
+  "key": "fit",
+  "heading": "Testing defaults does not restrict authorized tool authoring",
+  "expectation": "The section clarifies that recommending a test-first approach does not forbid writing your own tools where authorized.",
+  "confidence": "clear"
+ },
+ {
+  "n": 65,
+  "page": "tip-16-steer-not-map",
+  "key": "said",
+  "heading": "File locations alone cannot guide good decisions",
+  "expectation": "The section claims that listing file locations does not help an agent make good decisions; decision guidance is what matters.",
+  "confidence": "clear"
+ },
+ {
+  "n": 66,
+  "page": "tip-16-steer-not-map",
+  "key": "apply",
+  "heading": "Write decision guidance beyond listing file locations",
+  "expectation": "The section advises writing instructions that explain how to decide, not just where things live.",
+  "confidence": "clear"
+ },
+ {
+  "n": 67,
+  "page": "tip-16-steer-not-map",
+  "key": "useful",
+  "heading": "Revise instructions dominated by directory lists",
+  "expectation": "The section suggests rewriting instruction files that consist mostly of directory listings.",
+  "confidence": "clear"
+ },
+ {
+  "n": 68,
+  "page": "tip-16-steer-not-map",
+  "key": "fit",
+  "heading": "Brief file location guidance can still help",
+  "expectation": "The section concedes that short file-location references still have some value, qualifying the main claim.",
+  "confidence": "clear"
+ },
+ {
+  "n": 69,
+  "page": "tip-17-career-leverage",
+  "key": "said",
+  "heading": "Improving others' contributions may help your career",
+  "expectation": "The section claims that work improving other people's output, such as shared tooling, can advance your own career.",
+  "confidence": "clear"
+ },
+ {
+  "n": 70,
+  "page": "tip-17-career-leverage",
+  "key": "apply",
+  "heading": "Make shared contributions visible",
+  "expectation": "The section advises ensuring your shared-improvement work is visible to those who evaluate you.",
+  "confidence": "clear"
+ },
+ {
+  "n": 71,
+  "page": "tip-17-career-leverage",
+  "key": "useful",
+  "heading": "Consider team improvements when recognizing senior work",
+  "expectation": "The section claims that evaluating senior engineers should include the improvements they made for the whole team, not just their individual output.",
+  "confidence": "clear"
+ },
+ {
+  "n": 72,
+  "page": "tip-17-career-leverage",
+  "key": "fit",
+  "heading": "Employers may not reward shared tooling work",
+  "expectation": "The section cautions that employers do not necessarily reward shared tooling work, qualifying the career-leverage claim.",
+  "confidence": "clear"
+ },
+ {
+  "n": 73,
+  "page": "tip-18-solo-onboarding",
+  "key": "said",
+  "heading": "Theo's solo projects outgrew his own understanding",
+  "expectation": "The section reports that Theo's solo-built projects grew beyond what he could hold in his own head.",
+  "confidence": "clear"
+ },
+ {
+  "n": 74,
+  "page": "tip-18-solo-onboarding",
+  "key": "apply",
+  "heading": "Document solo projects for someone new to contribute",
+  "expectation": "The section advises documenting your solo project as if a newcomer were about to contribute to it.",
+  "confidence": "clear"
+ },
+ {
+  "n": 75,
+  "page": "tip-18-solo-onboarding",
+  "key": "useful",
+  "heading": "Add guidance when solo code outpaces your memory",
+  "expectation": "The section claims that once your solo codebase exceeds what you remember, written guidance becomes necessary.",
+  "confidence": "clear"
+ },
+ {
+  "n": 76,
+  "page": "tip-18-solo-onboarding",
+  "key": "fit",
+  "heading": "Your solo project may still fit your memory",
+  "expectation": "The section qualifies the advice by noting that a small enough solo project may not yet need this documentation.",
+  "confidence": "clear"
+ }
+]
