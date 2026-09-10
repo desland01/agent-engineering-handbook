@@ -481,12 +481,28 @@ def idea_tile(i, prefix=''):
             f'</article></li>')
 
 
+# The mono caption that sits inside each skill's drawing: the loop it closes,
+# as the artwork's own label rather than a line placed under it.
+SKILL_CAPTIONS = {
+    'agent-feedback-engineering': 'FAILURE \u2192 CHECK',
+    'agent-ready-workspaces': 'SETUP \u2192 PREVIEW \u2192 PROOF',
+    'agent-context-calibration': 'MISSING \u2192 PLACED',
+    'agent-tool-adapters': 'GAP \u2192 ADAPTER \u2192 VERIFIED',
+}
+
+
 def skill_tile(sk, prefix=''):
-    return (f'<li class="tile skill"><span class="art" aria-hidden="true">{SKILLS[sk["name"]]}</span>'
+    """One skill as a tall hairline cell: its drawing at a size that carries,
+    the caption inside the drawing, then the title, the use, the honest count
+    and the routes. Four of these in a 2x2 are the skills figure."""
+    cap = SKILL_CAPTIONS.get(sk['name'], '')
+    return (f'<li class="tile skill"><span class="art" aria-hidden="true">{SKILLS[sk["name"]]}'
+            f'<span class="cap">{cap}</span></span>'
             f'<a class="t" href="{escape(prefix + sk["href"])}">{escape(sk["title"])}</a>'
             f'<p class="when">{escape(sk["use"])}</p>'
-            f'<p class="fed"><span class="n">{sk["fed_by"]}</span> {"idea" if sk["fed_by"] == 1 else "ideas"} feed it</p>'
-            f'<span class="dir"><a href="{GITHUB}/tree/HEAD/{escape(sk["dir"])}">{escape(sk["dir"])}/</a></span></li>')
+            f'<p class="fed"><span class="n">{sk["fed_by"]}</span> {"idea feeds" if sk["fed_by"] == 1 else "ideas feed"} it</p>'
+            f'<span class="routes"><span class="more">Open the skill <span aria-hidden="true">&#8594;</span></span>'
+            f'<span class="dir"><a href="{GITHUB}/tree/HEAD/{escape(sk["dir"])}">{escape(sk["dir"])}/</a></span></span></li>')
 
 
 def guide_tile(g, home, prefix=''):
@@ -679,8 +695,25 @@ def guides_index(idx, home):
                     f'<span class="count">{span}</span></div>'
                     f'<ul class="tiles guides" role="list">{tiles}</ul></div></section>')
     hub = home['hubs']['guides']
+    # The track: thirteen stages on one rail, grouped by source. The first
+    # stage of each group carries the group's mono label above the rail.
+    stages = ''
+    for s_ in home['shelves']:
+        for k, n in enumerate(s_['guides']):
+            g = guide_by_n[n]
+            seg = f'<span class="seg" aria-hidden="true">+ {escape(s_["title"])}</span>' if k == 0 else ''
+            stages += (f'<li class="stage" data-shelf="{escape(s_["id"])}">{seg}<span class="bar" aria-hidden="true"></span>'
+                       f'<span class="art" aria-hidden="true">{GUIDES[n]}</span>'
+                       f'<a class="t" href="{escape(g["path"])}"><span class="n" aria-hidden="true">{n}</span>'
+                       f'<span class="sr-only">Guide {n}: </span>{escape(g["title"])}</a>'
+                       f'<p class="when">{escape(home["use_when"][n])}</p></li>')
+    track = ('<section class="band track-band" aria-labelledby="track-h"><div class="wrap">'
+             f'{marker("The track")}<h2 id="track-h">Thirteen stages, in the order they were adapted</h2>'
+             '<p class="tier-lead">Scroll the track. Each stage is one guide; the labels above the rail say which source it came from.</p></div>'
+             '<div class="wrap"><div class="track-row" data-row="of" tabindex="0" role="region" aria-label="The thirteen guides as a track">'
+             f'<ol class="track" role="list">{stages}</ol></div></div></section>')
     body = (site_head('', 'guides.html') +
-            hub_head('Guides', hub) +
+            hub_head('Guides', hub) + track +
             f'<div class="band shelves-band">{shelves}</div>{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
     (OUT / 'guides.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'], 'guides.html'))

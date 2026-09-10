@@ -321,12 +321,24 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 /* Four skills: a hairline grid led by each drawing. */
 .tiles.cards { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 @media (min-width: 640px) { .tiles.cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1080px) { .tiles.cards.skills { grid-template-columns: repeat(4, minmax(0, 1fr)); } .tiles.cards:not(.skills) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1080px) { .tiles.cards:not(.skills) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tiles.cards .tile { box-shadow: 0 0 0 1px var(--border); position: relative; display: flex; flex-direction: column; gap: 10px; padding: 22px 22px 20px; background: var(--bg); transition: background-color var(--hover-ms) ease-out; }
 .tiles.cards .tile:hover, .tiles.cards .tile:focus-within { background: var(--surface); }
 .tiles.cards .art { display: block; color: var(--accent-text); }
-.tiles.cards .tile.skill .art { width: 52px; height: 52px; }
-.tiles.cards .tile.skill .art svg { width: 100%; height: 100%; }
+/* The skills figure: Augment's loops. A 2x2 of tall hairline cells, each
+   carrying its drawing at a size that does visual work, with a mono caption
+   inside the drawing's box naming the loop it closes. It was four small cards
+   in a row with 52px glyphs; the same four skills now read as four figures. */
+.tiles.cards.skills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 639px) { .tiles.cards.skills { grid-template-columns: minmax(0, 1fr); } }
+.tiles.cards .tile.skill { padding: 28px 28px 24px; gap: 12px; }
+.tiles.cards .tile.skill .art { position: relative; width: 100%; height: 190px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); margin-bottom: 8px; }
+.tiles.cards .tile.skill .art svg { width: 128px; height: 128px; }
+.tiles.cards .tile.skill .art .cap { position: absolute; left: 14px; bottom: 12px; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); }
+.tiles.cards .tile.skill a.t { font-size: 1.35rem; font-weight: 500; letter-spacing: -0.025em; }
+.tiles.cards .tile.skill .when { font-size: var(--text-base); max-width: 40ch; }
+.tiles.cards .tile.skill .routes { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; margin-top: auto; padding-top: 10px; }
+.tiles.cards .tile.skill .routes .dir { margin-top: 0; padding-top: 0; }
 .tiles.cards .tile.report .art { width: 100%; max-width: 190px; color: var(--muted-fg); }
 .tiles.cards .tile.report .art svg { width: 100%; height: auto; }
 .tiles.cards a.t { font-size: 1.1rem; font-weight: 600; line-height: 1.28; letter-spacing: -0.02em; color: var(--fg); text-decoration: none; }
@@ -690,3 +702,31 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .tier { padding-block: 40px 56px; border-top: 1px solid var(--border); }
 .tier h2 { font-size: var(--text-xl); margin: 14px 0 6px; }
 .tier-lead { color: var(--muted-fg); max-width: 60ch; margin-bottom: 22px; }
+
+
+/* ------------------------------------------------------------ the track
+   The thirteen guides as a pipeline: one hairline rail, an accent stage bar
+   per guide, the guide's drawing hung from the bar by a dotted vertical, and
+   a mono group label above the rail where a new source begins. It scrolls
+   sideways as a native region with the same controls as the ideas row. */
+.track-band { padding-block: 40px 8px; border-bottom: 0; }
+.track-band .tier-lead { color: var(--muted-fg); max-width: 60ch; margin: 6px 0 22px; }
+.track-row { overflow-x: auto; scroll-snap-type: x proximity; padding-top: 30px; }
+.track-row:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; }
+.track { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: 78vw; width: max-content; position: relative; padding-top: 22px; border-top: 1px solid var(--border-strong); }
+@media (min-width: 560px) { .track { grid-auto-columns: 262px; } }
+.stage { position: relative; scroll-snap-align: start; padding: 22px 20px 18px 0; margin-right: 24px; }
+.stage .bar { position: absolute; left: 0; top: -23px; width: calc(100% - 8px); height: 3px; background: var(--primary); }
+.stage::before { content: ""; position: absolute; left: 20px; top: -20px; height: 34px; border-left: 1px dotted var(--border-strong); }
+.stage .seg { position: absolute; left: 0; top: -54px; white-space: nowrap; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--accent-text); }
+.stage .art { display: grid; place-items: center; width: 56px; height: 56px; margin-left: -8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--accent-text); position: relative; z-index: 1; }
+.stage .art svg { width: 30px; height: 30px; }
+.stage a.t { display: block; margin-top: 14px; font-size: 1.05rem; font-weight: 500; line-height: 1.28; letter-spacing: -0.015em; color: var(--fg); text-decoration: none; }
+.stage a.t::after { content: ""; position: absolute; inset: 0; }
+.stage a.t:hover { color: var(--link); }
+.stage a.t .n { display: block; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); margin-bottom: 6px; }
+.stage .when { color: var(--dim-fg); font-size: var(--text-sm); line-height: 1.45; margin-top: 8px; }
+.track-row { overscroll-behavior: contain; scrollbar-width: none; }
+.track-row::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.track-row.is-overflowing { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+.track-row.is-at-end { -webkit-mask-image: none; mask-image: none; }

@@ -239,6 +239,9 @@ def main():
         text = ip.read_text()
         check('youtube.com/watch' in text, f'ideas/{ip.name}: no link to the video moment')
     check(guides_html.count('class="tile guide"') == 13, f'guides.html: expected 13 guide tiles, found {guides_html.count("class=\"tile guide\"")}')
+    # The track above the shelves: thirteen stages on one rail, four source labels.
+    check(guides_html.count('class="stage"') == 13, f'guides.html: expected 13 track stages, found {guides_html.count("class=\"stage\"")}')
+    check(guides_html.count('class="seg"') == 4, f'guides.html: expected 4 source labels on the track, found {guides_html.count("class=\"seg\"")}')
     for g in guides:
         check(f'href="guides/{g.name}"' in guides_html, f'guides.html: no tile links to guides/{g.name}')
 

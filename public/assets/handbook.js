@@ -153,7 +153,7 @@
      more to see when there is not. Without this script the regions simply do
      not fade, which costs nothing: they still scroll. */
   function overflowFades() {
-    var regions = list('.rail, .ideas-row');
+    var regions = list('.rail, .ideas-row, .track-row');
     if (!regions.length) { return; }
     function update() {
       regions.forEach(function (el) {
