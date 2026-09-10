@@ -13,3 +13,9 @@ __pycache__/
 
 build/node_modules/
 build/package-lock.json
+
+# Local agent installations and workspace state are not handbook sources.
+.agents/
+.claude/
+.serena/
+skills-lock.json

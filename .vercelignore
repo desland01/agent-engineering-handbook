@@ -9,3 +9,9 @@
 /.build-deps/
 **/__pycache__/
 **/*.pyc
+/.agents/
+/.claude/
+/.serena/
+/skills-lock.json
+/.scratch/
+/control/
