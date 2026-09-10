@@ -217,15 +217,53 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .edition { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); font-size: var(--text-sm); color: var(--dim-fg); max-width: 52ch; }
 .edition .num { color: var(--muted-fg); }
 
-.pick { background: var(--fill); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 22px 8px; }
-@media (min-width: 980px) { .pick { padding: 26px 28px 10px; } }
+/* The problem panel, as a drawn schedule.
+
+   It was a bordered box of eight rows separated by rules, which read as a
+   table of contents when it is the one place on the home page that answers
+   "which guide do I need?". It is now the vocabulary's drafting-guide figure:
+   a dashed spine down the left, a mono [01]-[08] marker on every row, and one
+   accent trace that draws down the spine as the panel passes through view.
+   The links are untouched - it is a graphic that routes, not a picture of one. */
+.pick { background: var(--fill); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 20px 20px; }
+@media (min-width: 980px) { .pick { padding: 26px 26px 24px; } }
 .pick h2 { font-size: 1.25rem; margin-bottom: 4px; }
-.pick > p { color: var(--muted-fg); font-size: var(--text-sm); margin-bottom: 12px; }
-.pick ol { list-style: none; }
-.pick li { display: grid; gap: 8px; padding: 13px 0; border-top: 1px solid var(--border); }
+.pick > p { color: var(--muted-fg); font-size: var(--text-sm); margin-bottom: 16px; }
+
+/* The spine: a dashed drafting guide, with the accent trace drawn over it. */
+.pick ol { list-style: none; position: relative; padding-left: 46px; }
+.pick ol::before, .pick ol::after { content: ""; position: absolute; left: 15px; top: 4px; bottom: 4px; width: 1px; }
+.pick ol::before { background: repeating-linear-gradient(var(--border) 0 4px, transparent 4px 9px); }
+.pick ol::after { background: var(--primary); transform: scaleY(0); transform-origin: top; opacity: 0.85; }
+
+.pick li { display: grid; gap: 8px; padding: 13px 0; border-top: 1px solid var(--border); position: relative; }
+.pick li:first-child { border-top: 0; padding-top: 4px; }
 @media (min-width: 640px) { .pick li { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; } }
 .pick .q { font-weight: 600; line-height: 1.35; font-size: var(--text-sm); }
 .pick .a { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* The marker sits on the spine, in the gutter the list is padded for. */
+.pick .ix {
+  position: absolute; left: -46px; top: 15px; width: 32px;
+  font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: 0.02em;
+  color: var(--dim-fg); background: var(--bg); padding: 2px 0; text-align: left;
+}
+.pick li:first-child .ix { top: 6px; }
+
+/* One slow dash flow, and the trace drawing down the spine, both driven by the
+   panel's own progress through the viewport - so nothing animates on load and
+   nothing runs while the panel is off screen. Browsers without scroll-driven
+   animations get the finished drawing, which is the same picture at rest. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .pick ol::after { animation: pick-trace linear both; animation-timeline: view(); animation-range: entry 60% cover 55%; }
+    .pick ol::before { animation: pick-dash 3.2s linear infinite; }
+    .pick .ix { animation: pick-mark linear both; animation-timeline: view(); animation-range: entry 65% cover 60%; }
+  }
+}
+@keyframes pick-trace { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes pick-dash { to { background-position-y: 9px; } }
+@keyframes pick-mark { 0%, 55% { color: var(--dim-fg); } 100% { color: var(--accent-text); } }
 
 /* Bands: one rule between sections, the head always left-aligned. */
 .band { padding-block: 56px; border-bottom: 1px solid var(--border); }
@@ -235,8 +273,34 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 
 /* The nineteen ideas: icon tiles on dashed guides, each with its [nn] marker. */
 .ideas { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-@media (min-width: 700px) { .ideas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1080px) { .ideas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 700px) { .ideas:not(.track) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1080px) { .ideas:not(.track) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* The nineteen ideas on the home page: one horizontal track the reader swipes.
+   The home page used to show three of them and route out for the rest; the row
+   carries the whole set, in order, and still routes out to the grid. The
+   wrapper scrolls and takes the focus; the track is the list. Snapping is
+   proximity rather than mandatory so a flick can cross several cards and a
+   half-shown card at the end still signals there is more. */
+.ideas-row { overflow-x: auto; scroll-snap-type: x proximity; scroll-padding-left: 1px; }
+.ideas-row:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 3px; }
+.ideas.track { grid-auto-flow: column; grid-auto-columns: 78vw; width: max-content; max-width: none; }
+@media (min-width: 560px) { .ideas.track { grid-auto-columns: 300px; } }
+@media (min-width: 1080px) { .ideas.track { grid-auto-columns: 336px; } }
+.ideas.track > li { scroll-snap-align: start; }
+
+/* Previous/next and the counter, added by handbook.js and absent without it. */
+.row-controls { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+.row-controls button {
+  display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px;
+  border: 1px solid var(--border-strong); border-radius: 0; background: transparent;
+  color: var(--fg); cursor: pointer; font-size: 15px; line-height: 1;
+  transition: border-color var(--hover-ms) ease-out, background-color var(--hover-ms) ease-out;
+}
+.row-controls button:hover:not(:disabled) { border-color: var(--fg); background: var(--surface-2); }
+.row-controls button:disabled { opacity: 0.34; cursor: default; }
+.row-controls .count { font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg); }
+.row-controls .count b { color: var(--accent-text); font-weight: 500; }
 .tile.idea { box-shadow: 0 0 0 1px var(--border); position: relative; display: flex; flex-direction: column; gap: 9px; height: 100%; padding: 20px 20px 18px; background: var(--bg); transition: background-color var(--hover-ms) ease-out; }
 .tile.idea:hover, .tile.idea:focus-within { background: var(--surface); }
 .tile.idea .ix { position: absolute; top: 18px; right: 18px; color: var(--dim-fg); letter-spacing: 0.08em; }
@@ -420,14 +484,28 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
    rather than the browser's default slab. The rail scrolls vertically, code
    blocks and wide tables horizontally; the behaviour should not differ between
    them just because the axis does. */
-.rail, .table-scroll, .reader pre {
+.rail, .table-scroll, .reader pre, .ideas-row {
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* old Edge */
 }
 .rail::-webkit-scrollbar,
 .table-scroll::-webkit-scrollbar,
-.reader pre::-webkit-scrollbar { width: 6px; height: 6px; }
+.ideas-row::-webkit-scrollbar,
+.reader pre::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* A scrollbar is a poor way to say "there is more": it is browser chrome
+   dropped into a composition that draws everything else itself. The regions
+   fade out at the edge they overflow instead, which says the same thing in the
+   page's own voice and disappears the moment there is nothing more to show.
+   A fade is decoration, not an affordance, so the two regions a reader might
+   not know to scroll keep a real control: the rows have previous/next, and
+   tables and code blocks stay focusable scroll regions reachable by keyboard. */
+.rail { --fade: 28px; }
+.rail.is-overflowing { -webkit-mask-image: linear-gradient(#000 calc(100% - var(--fade)), transparent); mask-image: linear-gradient(#000 calc(100% - var(--fade)), transparent); }
+.rail.is-at-end { -webkit-mask-image: none; mask-image: none; }
+.ideas-row.is-overflowing { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
+.ideas-row.is-at-end { -webkit-mask-image: none; mask-image: none; }
 .rail::-webkit-scrollbar-track,
 .table-scroll::-webkit-scrollbar-track,
 .reader pre::-webkit-scrollbar-track { background: transparent; }

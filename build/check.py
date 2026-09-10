@@ -202,9 +202,15 @@ def main():
     skills_html = (PUBLIC / 'skills.html').read_text() if (PUBLIC / 'skills.html').is_file() else ''
     reports_html = (PUBLIC / 'investigations.html').read_text() if (PUBLIC / 'investigations.html').is_file() else ''
     check(index.count('class="tile skill"') == 4, f'index.html: expected 4 skill tiles, found {index.count("class=\"tile skill\"")}')
-    taste = re.search(r'<ol class="ideas taste"[^>]*>(.*?)</ol>', index, re.S)
-    n_taste = taste.group(1).count('<li>') if taste else 0
-    check(0 < n_taste < 19, f'index.html: expected a taste of the ideas (1–18 tiles), found {n_taste}')
+    # The home page carries all nineteen ideas as one horizontal row inside a
+    # focusable scroll region, and still routes out to the grid. Previous/next
+    # and the counter are script-added, so the markup must not contain them.
+    row = re.search(r'<div class="ideas-row"[^>]*>\s*<ol class="ideas track"[^>]*>(.*?)</ol>', index, re.S)
+    n_row = row.group(1).count('class="tile idea"') if row else 0
+    check(n_row == 19, f'index.html: expected all 19 ideas in the row, found {n_row}')
+    check(row and 'role="region"' in index.split('<ol class="ideas track"')[0][-300:],
+          'index.html: the ideas row is not a labelled, focusable scroll region')
+    check('row-controls' not in index, 'index.html: row controls are rendered in markup; they must be script-added')
     pick = re.search(r'<div class="pick">.*?<ol[^>]*>(.*?)</ol>', index, re.S)
     n_pick = pick.group(1).count('<li>') if pick else 0
     check(n_pick == 8, f'index.html: expected 8 problem rows, found {n_pick}')

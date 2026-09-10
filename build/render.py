@@ -510,12 +510,20 @@ def landing(idx, home, frames):
                                  ('skills', 'skills', '#skills'), ('reports', 'investigations', '#reports'),
                                  ('frames', 'frames', 'evidence.html')])
 
+    # Each row gets its drafting marker. The panel reads as a drawn schedule of
+    # eight situations rather than a table, and the markers give the accent
+    # trace something to pass as the panel scrolls through view.
     pick = ''.join(
-        f'<li><span class="q">{escape(q)}</span>'
+        f'<li><span class="ix" aria-hidden="true">[{n:02d}]</span>'
+        f'<span class="q">{escape(q)}</span>'
         f'<span class="a">{"".join(guide_chip(label, path) for label, path in links)}</span></li>'
-        for q, links in idx['problems'])
+        for n, (q, links) in enumerate(idx['problems'], 1))
 
-    taste = ''.join(idea_tile(i) for i in idx['ideas'][:3])
+    # All nineteen, as one horizontally scrolling track. The wrapper is the
+    # scroll region and carries the focus and the label; the track inside it is
+    # the list. Previous/next and the counter are added by handbook.js, so
+    # without JavaScript this is still a swipeable, arrow-key-scrollable row.
+    row = ''.join(idea_tile(i) for i in idx['ideas'])
     skills = ''.join(skill_tile(sk) for sk in idx['skills'])
     report_by_path = {r['path']: r for r in idx['reports']}
     shelves = ''.join(
@@ -550,9 +558,11 @@ def landing(idx, home, frames):
 </div></header>
 
 <section class="band" id="ideas" aria-labelledby="ideas-h"><div class="wrap">
-  {band_head('The nineteen ideas', 'ideas-h', home['ideas_heading'], 'The first three, in order. Each idea has its own page with what was said, how to apply it, when it is useful and its qualification.')}
-  <ol class="ideas taste" role="list">{taste}</ol>
-  <p class="route">{more('ideas.html', f'All {counts["ideas"]} ideas')}</p>
+  {band_head('The nineteen ideas', 'ideas-h', home['ideas_heading'], 'Swipe or scroll the row for all nineteen. Each opens its own page with what was said, how to apply it, when it is useful and its qualification.')}
+  <div class="ideas-row" data-row="of" tabindex="0" role="region" aria-label="The nineteen ideas, in order">
+    <ol class="ideas track" role="list">{row}</ol>
+  </div>
+  <p class="route">{more('ideas.html', f'All {counts["ideas"]} ideas as a grid')}</p>
 </div></section>
 
 <section class="band" id="skills" aria-labelledby="skills-h"><div class="wrap">

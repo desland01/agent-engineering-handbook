@@ -128,7 +128,10 @@ shows one taste of each section, and routes out. The full sets live on their own
    page holding the set (the build fails if a count disagrees with the set), and the edition
    line. Right: the problem panel, eight rows — situation on the left, numbered tags naming
    the guide(s) that answer it. A drawn hairline grid sits behind, masked to fade.
-3. **Ideas** — the first three, in order, as icon tiles, then `ALL 19 IDEAS →`.
+3. **Ideas** — all nineteen, in order, as one horizontal row the reader swipes or
+   arrows through: a focusable scroll region with proximity snapping, fading at the
+   edge it overflows, with previous/next and an `01 of 19` counter added by the script
+   (and honestly absent without it). Then `ALL 19 IDEAS AS A GRID →`.
 4. **Skills** — all four, as a hairline row. They are the deliverable and fit in one row.
    Each tile's title opens the skill's page (`skills/<name>/`); the directory line keeps
    linking to GitHub.

@@ -106,10 +106,13 @@ below, so a 320px phone keeps 288px of content.
   header's title and the column with the GitHub link. The rail holds beside the article
   and takes its own scroll when it is taller than the screen, the ordinary
   table-of-contents pattern; `overscroll-behavior: contain` stops that scroll chaining
-  into the page at either end, so the two sides move independently. Its scrollbar is thin
-  and appears only when the rail actually overruns: on a tall desktop the investigation,
-  README and adoption rails fit and show none. Below 1100px the rail is gone and the
-  column is centred, unchanged.
+  into the page at either end, so the two sides move independently. It shows no
+  scrollbar. When it overruns, its last 28px fade to the ground instead, and the fade
+  lifts once the rail is scrolled to its end, so it never implies more content than
+  there is; on a tall desktop the investigation, README and adoption rails fit and show
+  no fade at all. The same rule covers every scroll region on the site — wide tables,
+  code blocks and the ideas row — none draws browser chrome. Below 1100px the rail is
+  gone and the column is centred, unchanged.
 - **Long titles:** guide 11's title is 68 characters. It wraps in the chapter row, in the
   previous/next card, in the rail and in the page title; nothing truncates.
 
