@@ -169,6 +169,27 @@ async function main() {
         }
 
         checks++;
+        // Reveal: after scrolling the whole page, nothing may remain hidden.
+        const stuck = await page.evaluate(async () => {
+          // The site scrolls smoothly; a harness must not depend on where an
+          // animation happens to be when it retargets. Scroll instantly, in
+          // half-viewport steps so every element is fully inside the observer's
+          // root at some stop, and give the observer a frame at each.
+          document.documentElement.style.scrollBehavior = 'auto';
+          const step = Math.max(1, Math.floor(window.innerHeight / 2));
+          const max = document.documentElement.scrollHeight;
+          for (let y = 0; y <= max; y += step) {
+            window.scrollTo(0, y);
+            await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          }
+          await new Promise((r) => setTimeout(r, 700));
+          const left = Array.from(document.querySelectorAll('.reveal-pending'));
+          return left.slice(0, 3).map((el) => el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).trim().split(/\s+/).join('.') : ''))
+            .concat(left.length > 3 ? ['+' + (left.length - 3) + ' more'] : []);
+        });
+        if (stuck.length) {
+          failures.push(pagePath + ' @' + vp.width + ': reveal — ' + stuck.length + ' element(s) never revealed: ' + stuck.join(', '));
+        }
         if (consoleErrors.length) {
           failures.push(pagePath + ' @' + vp.width + ': console — ' + consoleErrors.join(' | '));
         }

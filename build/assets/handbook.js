@@ -170,8 +170,40 @@
     onScroll(update);
   }
 
+  // ----------------------------------------------------------- reveals
+  /* Fade-and-rise on entering the viewport, once, siblings staggered. Anything
+     already on screen when this runs is shown immediately so the first
+     screen never flashes; under reduced motion nothing is touched. */
+  // A card inside a horizontal row can sit off screen sideways for ever, so a
+  // vertical observer would never reveal it; the row reveals as one unit and
+  // its cards are excluded.
+  var REVEAL = '.band-head, .section-head, .tiles > li, .ideas:not(.track) > li, .shelves > li, .study, .tier, ' +
+               '.hub-next, .pick li, .gallery .frame, .guide-seq, .study .findings > li, .ledger li, ' +
+               '.ideas-row, .track-row';
+  function reveals() {
+    if ((reduced && reduced.matches) || !('IntersectionObserver' in window)) { return; }
+    var pending = list(REVEAL).filter(function (el) {
+      return el.getBoundingClientRect().top >= window.innerHeight;
+    });
+    pending.forEach(function (el) { el.classList.add('reveal-pending'); });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) { return; }
+        var el = entry.target;
+        var siblings = pending.filter(function (o) { return o.parentNode === el.parentNode; });
+        var i = siblings.indexOf(el);
+        el.style.transitionDelay = Math.min(i < 0 ? 0 : i, 7) * 60 + 'ms';
+        el.classList.add('reveal-in');
+        el.classList.remove('reveal-pending');
+        io.unobserve(el);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+    pending.forEach(function (el) { io.observe(el); });
+  }
+
   headerMenu();
   railCurrentSection();
   rows();
   overflowFades();
+  reveals();
 })();

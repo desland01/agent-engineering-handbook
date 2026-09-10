@@ -49,10 +49,12 @@ the map from any page; the four section links and the "More" menu reach every pa
 
 | Screen | First | Second | Third | Primary action |
 |---|---|---|---|---|
-| Map | title + problem panel | counts strip | guide shelves | a chip in the problem panel or a chapter row |
+| Map | title + problem panel | counts strip, then the ideas row | skills loops, guide shelves, the ledger | a chip in the problem panel, a card in the row, or a shelf row |
 | Guide | context line + drawing + title | deck paragraph | rail (sections, place) or the section disclosure | read; next guide |
 | Skill page | context line (`SKILL` · All four skills) + drawing + title | the description deck, then the skill's sections and references | rail (sections, This skill, In the guides, Adopt) or the section disclosure | read; adopt via the raw `SKILL.md`, GitHub or the adoption page |
-| Skills / Investigations index | marker + title + lead | the four skill tiles / the three report cards | the closing route out of the section | open a skill page or a report |
+| Skills index | marker + title + lead | the four loops (drawing, caption, title) | the closing route | open a skill page |
+| Guides index | marker + title + lead | the track (previous/next, `01 OF 13`) | the shelves, then the closing route | open a stage or a shelf tile |
+| Investigations index | marker + title + lead | three full-viewport studies | the closing route | Read the full report |
 | Investigation / other page | context line + title | deck paragraph | sections | read; header menu |
 | Gallery | title + lead | timestamp strip | frames in two columns, then the closing route | open a frame's moment, image or guide |
 | Not found | heading | one sentence | four links | the map |

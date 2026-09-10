@@ -111,9 +111,18 @@ the same hue with more contrast. Link underlines fade to 40 % of the link colour
   `box-shadow: 0 0 0 1px var(--border)`, so neighbouring cells meet on one hairline and a
   partly filled last row shows ground instead of an orphan block. The one soft mark on
   the page is the hero's drawn hairline grid, masked to fade out.
-- **Motion:** border and background colour on hover, `--hover-ms` 140ms ease-out; smooth
-  in-page scrolling. Under `prefers-reduced-motion: reduce` both become instant. Nothing
-  animates on load; the current-section marker in the rail changes without transition.
+- **Motion.** Things enter the page by fading in and rising 14px, once, as they scroll
+  into view, siblings 60ms apart; tiles, routing rows and track stages lift 2px on
+  hover; the problem panel's accent trace draws itself down the spine and the ideas'
+  markers turn accent as it passes, driven by the panel's own progress through the
+  viewport. Three rules keep this honest. The `js` class is set in the `<head>` before
+  first paint, so without the script nothing is ever hidden. Anything already on screen
+  when the script runs is shown at once, so the first screen never flashes. Cards inside
+  a horizontal row are never revealed individually — they can sit off screen sideways
+  for ever — the row reveals as one unit. Under `prefers-reduced-motion: reduce` the
+  page is simply there: no reveals, no lifts, no trace. `build/check-render.js` scrolls
+  every page and fails if any element is still hidden at the end. The design language's
+  earlier rule of *at most one slow dash flow* is superseded by this paragraph.
 
 ## Hierarchy of the site
 
@@ -122,9 +131,10 @@ shows one taste of each section, and routes out. The full sets live on their own
 
 1. **Header** — brand with the orange mark, five mono section links (Ideas, Guides, Skills,
    Investigations, Frames), a "More" menu listing every page, and "GitHub".
-2. **Opening, two columns from 980px** — left: the title with one italic accent word, the
-   one-sentence lead, two square buttons (`Browse the nineteen ideas` → `ideas.html`,
-   `All 13 guides` → `guides.html`), the counts as five mono badges that each route to the
+2. **Opening, two columns from 980px** — left: the title with one italic accent word
+   (*Theo's advice, turned into a **system** you can run* — the accent word is
+   `title_em` in `home.json`), the lead, two square buttons (`Read the ideas` →
+   `ideas.html`, `Open the guides` → `guides.html`), the counts as five mono badges that each route to the
    page holding the set (the build fails if a count disagrees with the set), and the edition
    line. Right: the problem panel, eight rows — situation on the left, numbered tags naming
    the guide(s) that answer it. A drawn hairline grid sits behind, masked to fade.
@@ -141,7 +151,13 @@ shows one taste of each section, and routes out. The full sets live on their own
    shelves (`Report 01`, title, one line from the README), then `ALL 3 INVESTIGATIONS →`.
 7. **Frames** — the twelve timestamps as a mono strip, each opening its frame in the
    gallery, then `OPEN THE GALLERY →`. No stills on the home page.
-8. **Closing** — what was checked, and attribution with tag links to the index pages.
+8. **Closing** — the ledger and the credits. *What was checked, and what was not* is a
+   hairline list of six rows, each a mono status the page can defend — `RUN`, `LIMIT`,
+   `NOT RUN`, `UNVERIFIED` — and one sentence; only `RUN` takes the accent. Attribution
+   is a definition list (author, sources, endorsement, snapshot) with the full paragraph
+   demoted to a footnote and the tag links to the index pages. The rule this implements:
+   **no block text on the home page** — where explanation is needed it is structured,
+   typographic and visual, never two columns of prose.
 
 Each band opens with a section marker: a mono label in a bordered pill with a hairline
 rule running from it. That is the only pill on the page.

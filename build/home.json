@@ -1,35 +1,52 @@
 {
   "_comment": "Landing-page data that is not already in README.md: the title and lead, the short header attribution, the source-grouped shelves and each guide's one-line use-when. Everything else on the landing page (problem table, guide titles, investigations, skills, the 19 ideas, the attribution and what-was-checked paragraphs) is parsed from README.md; frames come from evidence/frame-manifest.json. Inline `code` spans in descriptions are rendered as <code> so long paths and revision hashes can wrap.",
-  "title": "Build better coding environments for agents",
-  "lead": "Turn a repeated correction into an executable check, a confusing decision into discoverable knowledge, and a missing operation into a usable tool.",
+  "title": "Theo's advice, turned into a system you can run",
+  "lead": "Nineteen ideas from his video, thirteen guides that state their own limits, four skills you can drop into any agent, and three repositories read line by line. Every claim carries the check behind it, or says plainly that it has none.",
   "basis_short": "An independent public edition by Desmond Landry (@desland01), built from Theo's video and direct inspection of three repositories. Theo, Matt Pocock and Boris Cherny do not endorse it.",
   "shelves": [
     {
       "id": "guides-video",
       "title": "From Theo's video",
       "description": "Eight guides adapted from the July 21, 2026 video. Quotes in these guides are from the video; Boris quotes are Boris as quoted by Theo.",
-      "guides": ["01", "02", "03", "04", "05", "06", "07", "08"],
+      "guides": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08"
+      ],
       "investigation": "github-inspection.md"
     },
     {
       "id": "guides-melee",
       "title": "From the Melee for Mac snapshot",
       "description": "Two guides adapted from `tools/verify.py`, `docs/code-map.md` and related tooling in t3dotgg/melee4mac at head `a276aeb70f9879204d891d967f1c9442523568e1`.",
-      "guides": ["09", "10"],
+      "guides": [
+        "09",
+        "10"
+      ],
       "investigation": "github-inspection.md"
     },
     {
       "id": "guides-course-video-manager",
       "title": "From Course Video Manager",
       "description": "Two guides adapted from Matt Pocock's course-video-manager snapshot `4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8`.",
-      "guides": ["11", "12"],
+      "guides": [
+        "11",
+        "12"
+      ],
       "investigation": "matt-pocock-inspection.md"
     },
     {
       "id": "guides-boris-cherny",
       "title": "From Boris Cherny's public work",
       "description": "One guide generalised from the json-schema-to-typescript CI (fixtures, built-artifact smoke tests, fuzzing, a real-world corpus and conformance checks).",
-      "guides": ["13"],
+      "guides": [
+        "13"
+      ],
       "investigation": "boris-cherny-inspection.md"
     }
   ],
@@ -52,12 +69,22 @@
   "reports_description": "Each report distinguishes inspected code, author-reported results, remote CI records and local execution, and links pinned snapshots wherever possible. Open PRs are separated from merged work.",
   "skills_heading": "Four portable skills",
   "skills_description": "Standalone directories for any agent setup that reads Markdown instructions: `SKILL.md`, two reference files and `agents/openai.yaml`. Each title opens the skill's page, which links the file as shipped; each directory line opens it on GitHub. Adopt one for the failure you actually have — [how to install or fold one into an existing skill](adoption.md).",
-  "ideas_heading": "Nineteen ideas from the video, in order",
+  "ideas_heading": "Nineteen ideas, in the order they were said",
   "ideas_description": "Distinct takeaways, including qualified opinions. Each timestamp opens the video at that moment; each idea names the guide that implements it. Speaker attribution, evidence type and caveats are in the [detailed extraction](evidence/video-research.md) and the [structured ideas file](evidence/video-tips.json).",
   "frame_guides": {
     "_comment": "Frame seconds -> the guide that applies what the frame shows; used by the gallery's 'applied in' link.",
-    "164": "04", "214": "01", "247": "02", "310": "04", "343": "03", "383": "06",
-    "403": "06", "494": "01", "612": "05", "754": "05", "884": "05", "1021": "07"
+    "164": "04",
+    "214": "01",
+    "247": "02",
+    "310": "04",
+    "343": "03",
+    "383": "06",
+    "403": "06",
+    "494": "01",
+    "612": "05",
+    "754": "05",
+    "884": "05",
+    "1021": "07"
   },
   "frames_heading": "Twelve frames from the video",
   "frames_description": "Extracted with ffmpeg and captioned to separate what is visible from what is narrated. Each opens the [gallery](evidence.html), which has full-size images, observations and extraction hashes.",
@@ -202,5 +229,58 @@
     "_comment": "Meta descriptions for pages whose own opening prose does not describe the page well enough on its own. Every other page derives its description from its first paragraph.",
     "index.html": "An evidence-backed handbook for building coding environments agents work well in: nineteen ideas, thirteen guides, four portable skills and three repository investigations.",
     "404.html": "That page is not in the handbook. Routes to the ideas, guides, skills, investigations and the handbook index."
+  },
+  "title_em": "system",
+  "ideas_band": "Swipe the row. Or open the full set sorted by what is behind each idea: a practice he runs, a directive he gives, or an opinion he offers as one.",
+  "ledger": {
+    "_comment": "The closing ledger: what was run, what was not, and what is only a claim. Each row is [status, text]; status is one of RUN, LIMIT, NOT RUN, UNVERIFIED and must agree with README.md's What was checked and validation.md.",
+    "rows": [
+      [
+        "RUN",
+        "The lint demonstration: the unwanted import passes without its rule, is rejected with it, and the supported import still passes."
+      ],
+      [
+        "RUN",
+        "The Melee verifier: its original nine tests and its current fifteen pass."
+      ],
+      [
+        "RUN",
+        "A synthetic comparison that reproduces the verifier's completeness gap, and the repair."
+      ],
+      [
+        "LIMIT",
+        "Those are verifier tests against mocked builds. No real game build was run."
+      ],
+      [
+        "NOT RUN",
+        "The public applications, the upload service and the private agent systems."
+      ],
+      [
+        "UNVERIFIED",
+        "Sponsor performance claims, and the universal career and productivity claims."
+      ]
+    ],
+    "credits": [
+      [
+        "Author",
+        "Desmond Landry",
+        "@desland01"
+      ],
+      [
+        "Sources",
+        "Theo, Matt Pocock, Boris Cherny",
+        "@t3dotgg · @mattpocock · @bcherny"
+      ],
+      [
+        "Endorsement",
+        "None of them endorses this handbook",
+        ""
+      ],
+      [
+        "Snapshot",
+        "September 9, 2026",
+        "later pull requests are later evidence"
+      ]
+    ]
   }
 }

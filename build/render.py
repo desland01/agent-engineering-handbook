@@ -256,7 +256,7 @@ def document(title, prefix, body, description='', path=''):
     full_title = f'{title} · {SITE_NAME}'
     return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<meta name="color-scheme" content="dark">{desc}'
+            f'<meta name="color-scheme" content="dark"><script>document.documentElement.classList.add("js")</script>{desc}'
             f'{social(path, full_title, description)}'
             f'<link rel="icon" href="data:,"><title>{escape(full_title)}</title>'
             f'<link rel="stylesheet" href="{prefix}assets/handbook.css">'
@@ -578,15 +578,24 @@ def landing(idx, home, frames):
     closing_links = [('README.md', 'Handbook index'), ('adoption.md', 'Adopting a skill'), ('prompts.md', 'Task prompts'),
                      ('validation.md', 'Validation'), ('examples/recurring-rule/README.md', 'Runnable lint example'),
                      ('CONTRIBUTING.md', 'Contributing'), (GITHUB, 'GitHub repository')]
-    title_html = escape(home['title']).replace('agents', '<em>agents</em>', 1)
+    em = home.get('title_em', '')
+    title_html = escape(home['title']).replace(em, f'<em>{em}</em>', 1) if em else escape(home['title'])
 
+    # The closing ledger: every row a status the page can defend, so the
+    # foot of the page is a record rather than two columns of prose.
+    ledger = ''.join(
+        f'<li><span class="st st-{escape(s.lower().replace(" ", "-"))}">{escape(s)}</span><span class="what">{escape(w)}</span></li>'
+        for s, w in home['ledger']['rows'])
+    credits = ''.join(
+        f'<div><dt>{escape(k)}</dt><dd>{escape(v)}{(" <span class=" + chr(34) + "h" + chr(34) + ">" + escape(x) + "</span>") if x else ""}</dd></div>'
+        for k, v, x in home['ledger']['credits'])
     body = f"""{site_head('', 'index.html')}
 <main id="main">
 <header class="opening"><div class="wrap">
   <div class="opening-copy">
     <h1>{title_html}</h1>
     <p class="lead">{escape(home['lead'])}</p>
-    <div class="actions"><a class="btn primary" href="ideas.html">Browse the nineteen ideas</a><a class="btn" href="guides.html">All 13 guides</a></div>
+    <div class="actions"><a class="btn primary" href="ideas.html">Read the ideas</a><a class="btn" href="guides.html">Open the guides</a></div>
     <ul class="contents" role="list" aria-label="Contents">{contents}</ul>
     <p class="edition"><span class="num">Edition of {EDITION_DATE}.</span> {escape(home['basis_short'])} <a href="#attribution">Full attribution</a> is at the end of the page.</p>
   </div>
@@ -598,11 +607,11 @@ def landing(idx, home, frames):
 </div></header>
 
 <section class="band" id="ideas" aria-labelledby="ideas-h"><div class="wrap">
-  {band_head('The nineteen ideas', 'ideas-h', home['ideas_heading'], 'Swipe or scroll the row for all nineteen. Each opens its own page with what was said, how to apply it, when it is useful and its qualification.')}
+  {band_head('The nineteen ideas', 'ideas-h', home['ideas_heading'], home['ideas_band'])}
   <div class="ideas-row" data-row="of" tabindex="0" role="region" aria-label="The nineteen ideas, in order">
     <ol class="ideas track" role="list">{row}</ol>
   </div>
-  <p class="route">{more('ideas.html', f'All {counts["ideas"]} ideas as a grid')}</p>
+  <p class="route">{more('ideas.html', f'All {counts["ideas"]}, sorted by what is behind them')}</p>
 </div></section>
 
 <section class="band" id="skills" aria-labelledby="skills-h"><div class="wrap">
@@ -629,9 +638,14 @@ def landing(idx, home, frames):
 </div></section>
 
 <section class="wrap closing" id="checked">
-  <div><h2>What was checked</h2>{''.join(f'<p>{p_}</p>' for p_ in idx['checked'])}</div>
-  <div id="attribution"><h2>Attribution</h2><p>{idx['attribution']}</p>
-    <p>Frames are short excerpts from the video, reproduced for identification and commentary; they remain © Theo / their original owners. Full attribution in <a href="ATTRIBUTION.md">ATTRIBUTION.md</a>.</p>
+  <div class="ledger-col"><h2>What was checked, and what was not</h2>
+    <ol class="ledger" role="list">{ledger}</ol>
+    <p class="route">{more('validation.html', 'The full validation record')}</p>
+  </div>
+  <div id="attribution" class="credits-col"><h2>Attribution</h2>
+    <dl class="credits">{credits}</dl>
+    <p class="attr">{idx['attribution']}</p>
+    <p class="attr">Frames are short excerpts from the video, reproduced for identification and commentary; they remain © Theo / their original owners. Full attribution in <a href="ATTRIBUTION.md">ATTRIBUTION.md</a>.</p>
     <ul>{''.join(f'<li><a class="chip" href="{escape(u)}">{escape(t)}</a></li>' for u, t in closing_links)}</ul>
   </div>
 </section>

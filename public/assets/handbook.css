@@ -384,6 +384,22 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .grid-frames .open { color: var(--dim-fg); }
 
 .closing { padding-block: 56px 72px; display: grid; gap: 40px; }
+/* The ledger: the foot of the page as a record, not prose. Each row is a
+   mono status the page can defend - RUN, LIMIT, NOT RUN, UNVERIFIED - and one
+   sentence. Only RUN takes the accent; the others stay quiet, which is the
+   honest hierarchy. The credits are a definition list for the same reason. */
+.ledger { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 4px; }
+.ledger li { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; align-items: start; padding: 13px 16px; background: var(--bg); box-shadow: 0 0 0 1px var(--border); }
+.ledger .st { justify-self: start; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); text-transform: uppercase; line-height: 1; padding: 5px 7px; border: 1px solid var(--border-strong); border-radius: var(--radius); color: var(--dim-fg); white-space: nowrap; }
+.ledger .st-run { color: var(--accent-text); border-color: color-mix(in oklab, var(--accent-text) 45%, transparent); background: color-mix(in oklab, var(--accent-text) 12%, transparent); }
+.ledger .what { color: var(--muted-fg); font-size: var(--text-sm); line-height: 1.5; margin: 0; }
+.closing .ledger-col .route { margin-top: 16px; }
+.credits { display: grid; gap: 0; margin: 4px 0 18px; border-top: 1px solid var(--border); }
+.credits > div { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.credits dt { font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); text-transform: uppercase; color: var(--dim-fg); padding-top: 3px; }
+.credits dd { margin: 0; color: var(--fg); font-size: var(--text-sm); }
+.credits dd .h { display: block; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--dim-fg); margin-top: 2px; }
+.closing .attr { font-size: var(--text-xs); color: var(--dim-fg); }
 @media (min-width: 900px) { .closing { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px; } }
 .closing h2 { font-size: var(--text-xl); letter-spacing: -0.025em; margin-bottom: 12px; }
 .closing p { color: var(--muted-fg); font-size: var(--text-sm); margin-bottom: 10px; }
@@ -730,3 +746,19 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .track-row::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .track-row.is-overflowing { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 40px), transparent); }
 .track-row.is-at-end { -webkit-mask-image: none; mask-image: none; }
+
+
+/* ---------------------------------------------------------------- motion
+   Things enter the page by fading in and rising 14px, once, as they scroll
+   into view; siblings arrive 60ms apart. The `js` class is set in the head
+   before first paint, so without the script nothing is ever hidden, and the
+   script shows anything already on screen at once, so nothing above the fold
+   flashes. Under reduced motion the page is simply there. */
+.js .reveal-pending { opacity: 0; transform: translateY(14px); }
+.js .reveal-in { opacity: 1; transform: none; transition: opacity 560ms cubic-bezier(.2,.7,.2,1), transform 560ms cubic-bezier(.2,.7,.2,1); }
+.tiles > li, .shelves > li > a, .hub-next li > a, .stage, .ledger li { transition: transform var(--hover-ms) ease-out, background-color var(--hover-ms) ease-out, border-color var(--hover-ms) ease-out; }
+.tiles > li:hover, .shelves > li > a:hover, .hub-next li > a:hover, .stage:hover { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal-pending, .js .reveal-in { opacity: 1; transform: none; transition: none; }
+  .tiles > li:hover, .shelves > li > a:hover, .hub-next li > a:hover, .stage:hover { transform: none; }
+}

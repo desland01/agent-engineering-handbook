@@ -577,6 +577,17 @@ note 8 (6/7/6, not 6/7/5). T4's script was unexecuted in the sandbox (no browser
 ran green at the parent first time, then was proved to fail when the rule it guards was
 broken.
 
+**Fleet gap, 2026-09-10 15:18.** A fourth ticket (T9, the motion system) was admitted
+under the new current release `skill-packs-20260910b` but ended `blocked` with
+`run_observer_error` after zero model requests. Both required Charts reported
+`available: false`: that release has no `charts/core-skills/bundles` directory at all,
+so no Chart can be delivered to any worker on it. The route is unavailable until the
+release carries its Charts; the assignment was small and fully specified, so it was done
+at the parent instead. Also learned: `~/.nautilus/current` moved between dispatches, and a
+workspace is only exempt from the installation-home overlap check when it sits under the
+*current* release's `var/workspaces` — a workspace built under the previous release is
+refused with `workspace_overlaps_installation_home`.
+
 ## Open questions
 
 1. Should the problem panel keep its eleven guide links, or become decoration
