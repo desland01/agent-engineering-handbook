@@ -1,13 +1,13 @@
 {
   "_comment": "Landing-page data that is not already in README.md: the title and lead, the short header attribution, the source-grouped shelves and each guide's one-line use-when. Everything else on the landing page (problem table, guide titles, investigations, skills, the 19 ideas, the attribution and what-was-checked paragraphs) is parsed from README.md; frames come from evidence/frame-manifest.json. Inline `code` spans in descriptions are rendered as <code> so long paths and revision hashes can wrap.",
-  "title": "Theo's advice, turned into a system you can run",
-  "lead": "Nineteen ideas from his video, thirteen guides that state their own limits, four skills you can drop into any agent, and three repositories read line by line. Every claim carries the check behind it, or says plainly that it has none.",
+  "title": "Build a codebase agents can work in",
+  "lead": "Turn recurring agent mistakes into checks, clear instructions and usable tools. This handbook connects nineteen video ideas to thirteen guides, four portable skills and three source investigations. Each guide states what its checks can prove.",
   "basis_short": "An independent public edition by Desmond Landry (@desland01), built from Theo's video and direct inspection of three repositories. Theo, Matt Pocock and Boris Cherny do not endorse it.",
   "shelves": [
     {
       "id": "guides-video",
-      "title": "From Theo's video",
-      "description": "Eight guides adapted from the July 21, 2026 video. Quotes in these guides are from the video; Boris quotes are Boris as quoted by Theo.",
+      "title": "Theo's video",
+      "description": "Eight guides adapted from the July 21, 2026 video. All quotations come from the video, including Boris's words as quoted by Theo.",
       "guides": [
         "01",
         "02",
@@ -22,8 +22,8 @@
     },
     {
       "id": "guides-melee",
-      "title": "From the Melee for Mac snapshot",
-      "description": "Two guides adapted from `tools/verify.py`, `docs/code-map.md` and related tooling in t3dotgg/melee4mac at head `a276aeb70f9879204d891d967f1c9442523568e1`.",
+      "title": "Melee for Mac",
+      "description": "Two guides adapted from `tools/verify.py`, `docs/code-map.md` and related tools in t3dotgg/melee4mac at revision `a276aeb70f9879204d891d967f1c9442523568e1`.",
       "guides": [
         "09",
         "10"
@@ -32,8 +32,8 @@
     },
     {
       "id": "guides-course-video-manager",
-      "title": "From Course Video Manager",
-      "description": "Two guides adapted from Matt Pocock's course-video-manager snapshot `4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8`.",
+      "title": "Matt Pocock's Course Video Manager",
+      "description": "Two guides adapted from Matt Pocock's course-video-manager at revision `4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8`.",
       "guides": [
         "11",
         "12"
@@ -42,8 +42,8 @@
     },
     {
       "id": "guides-boris-cherny",
-      "title": "From Boris Cherny's public work",
-      "description": "One guide generalised from the json-schema-to-typescript CI (fixtures, built-artifact smoke tests, fuzzing, a real-world corpus and conformance checks).",
+      "title": "Boris Cherny's public work",
+      "description": "One guide adapted from json-schema-to-typescript CI checks: fixtures, built-artifact smoke tests, fuzzing, a real-world corpus and conformance checks.",
       "guides": [
         "13"
       ],
@@ -51,25 +51,25 @@
     }
   ],
   "use_when": {
-    "01": "For a developer on a team where the same mistake keeps coming back.",
-    "02": "For a team whose product has one path that must never silently break.",
-    "03": "When work happens in several worktrees or machines and a person or agent needs to inspect the actual change.",
-    "04": "When you repeatedly carry CI errors from a web page back into an agent prompt.",
-    "05": "When an agent or newcomer repeatedly misses a project decision, convention or non-obvious fact.",
-    "06": "For closing a specific gap between what your agent needs to do and what its existing tools can do.",
-    "07": "When teammates or agents repeatedly get stuck on the same first task.",
-    "08": "When agents repeatedly invent mismatched data shapes between storage, APIs and the interface.",
-    "09": "Make “done” mean a checked artifact, not a finished command.",
-    "10": "Find where to change code in an unfamiliar codebase, and wrap external tools so their failures are safe.",
-    "11": "You are adding a command, route or agent verb to a codebase that already has a glossary and a deployed API.",
-    "12": "You run a pipeline with slow, expensive steps and want to reuse prior work, resume after crashes, and never accept a truncated artifact.",
-    "13": "When a generator, parser, migration, transformation or widely used library has failures that ordinary fixtures miss."
+    "01": "When your team keeps correcting the same mistake instead of checking for it automatically.",
+    "02": "When your product has a critical user journey that must never break silently.",
+    "03": "When people or agents need to inspect changes across different worktrees or machines.",
+    "04": "When you keep copying CI errors from a web page into an agent prompt.",
+    "05": "When agents or newcomers keep missing project decisions, conventions or facts that are easy to overlook.",
+    "06": "When your agent needs an operation that its current tools do not support.",
+    "07": "When teammates or agents keep getting stuck on the same first task.",
+    "08": "When agents create mismatched data shapes across storage, APIs and the user interface.",
+    "09": "When a finished command leaves you unsure whether the output meets its requirements.",
+    "10": "When you need to navigate unfamiliar code and handle failures from external tools safely.",
+    "11": "When you add a command, route or agent operation to a codebase with a glossary and deployed API.",
+    "12": "When slow, expensive work needs reusable outputs, recovery after crashes and checks for truncated artifacts.",
+    "13": "When ordinary fixtures miss failures in a generator, parser, migration, transformation or widely used library."
   },
-  "reports_heading": "Three repository investigations",
-  "reports_description": "Each report distinguishes inspected code, author-reported results, remote CI records and local execution, and links pinned snapshots wherever possible. Open PRs are separated from merged work.",
-  "skills_heading": "Four portable skills",
-  "skills_description": "A skill is a plain directory any agent that reads Markdown can load. Adopt the one that matches the failure you actually have; loading all four for every task makes each of them worse.",
-  "ideas_heading": "Nineteen ideas, in the order they were said",
+  "reports_heading": "Check the sources behind the guides",
+  "reports_description": "The three reports separate inspected code, author reports, remote CI records and local runs. They link to pinned snapshots where possible and distinguish open pull requests from merged work.",
+  "skills_heading": "Choose a skill for the problem you have",
+  "skills_description": "Each skill is a folder of instructions for an agent setup that reads Markdown. Choose the one you need rather than loading all four for every task.",
+  "ideas_heading": "Start with the advice behind the methods",
   "ideas_description": "Distinct takeaways, including qualified opinions. Each timestamp opens the video at that moment; each idea names the guide that implements it. Speaker attribution, evidence type and caveats are in the [detailed extraction](evidence/video-research.md) and the [structured ideas file](evidence/video-tips.json).",
   "frame_guides": {
     "_comment": "Frame seconds -> the guide that applies what the frame shows; used by the gallery's 'applied in' link.",
@@ -86,141 +86,141 @@
     "884": "05",
     "1021": "07"
   },
-  "frames_heading": "Twelve frames from the video",
-  "frames_description": "Extracted with ffmpeg and captioned to separate what is visible from what is narrated. Each opens the [gallery](evidence.html), which has full-size images, observations and extraction hashes.",
+  "frames_heading": "See what was on screen",
+  "frames_description": "Twelve frames extracted with ffmpeg separate visible evidence from narration. Each opens the [gallery](evidence.html) for full-size images, observations and extraction hashes.",
   "_hubs_comment": "Copy for the five section pages. A band on the home page introduces a set to someone scrolling past it; a section page addresses someone who has arrived at that set, so each carries its own heading, lead, browser title and meta description rather than reusing the band's. `next` is the closing route: where a reader who has finished this set should go, as [href, label, why] rows.",
   "hubs": {
     "ideas": {
-      "title": "Nineteen ideas, sorted by what's behind them",
-      "h1": "What Theo does, what he tells you to do, and what he's still working out",
-      "lead": "Nineteen ideas from the July 21, 2026 video, sorted by what is behind each one — a practice he runs, a directive he gives, or an opinion he offers as one. Every idea opens the video at the second it was said.",
-      "description": "Nineteen ideas from Theo's agent engineering video, sorted into what he actually does, what he tells you to do, and what he offers as opinion. Each timestamped.",
+      "title": "The evidence behind Theo's advice",
+      "h1": "What backs Theo's advice?",
+      "lead": "Explore nineteen ideas from Theo's July 21, 2026 video, grouped by practice, advice and opinion. Each idea links to the moment in the video where it was said.",
+      "description": "Explore nineteen ideas from Theo's video, grouped by what he does, what he tells you to do and what he offers as opinion. Each links to its video moment.",
       "tiers": [
         {
           "key": "does",
-          "label": "01 / What he does",
+          "label": "01 / Practice",
           "heading": "What he actually does",
-          "lead": "Backed by something Theo did: a practice he runs, or a story from a real codebase."
+          "lead": "Theo describes practices he uses and recounts his experience of work in real codebases."
         },
         {
           "key": "says",
-          "label": "02 / What he tells you",
+          "label": "02 / Advice",
           "heading": "What he tells you to do",
-          "lead": "Directives — Theo's own, and Boris's as Theo quoted and endorsed them on camera."
+          "lead": "Theo gives his own advice and quotes Boris, with endorsement or qualifications where recorded."
         },
         {
           "key": "thinks",
-          "label": "03 / Still working out",
-          "heading": "What he's still working out",
-          "lead": "Offered as opinion, and flagged as opinion. The video says so itself for several of these."
+          "label": "03 / Opinion",
+          "heading": "What he offers as opinion",
+          "lead": "These ideas are offered as opinion, including several the video explicitly qualifies as such. This group also includes the sponsor segment, whose performance claims remain unverified."
         }
       ],
       "next": [
         [
           "guides.html",
-          "The thirteen guides",
-          "the methods these ideas turn into"
+          "Implementation guides",
+          "turn an idea into a method you can apply"
         ],
         [
           "evidence.html",
-          "The twelve frames",
-          "what was visible on screen while they were said"
+          "Video frames",
+          "see what appeared on screen at these moments"
         ]
       ]
     },
     "guides": {
-      "title": "Thirteen implementation guides",
-      "h1": "Thirteen guides, and what each one does not prove",
-      "lead": "Each guide names one recurring failure, gives a method concrete enough to run this week, says who it fits, and states the limits of what it verifies. They are grouped by the source each was adapted from: the video, two repository snapshots, and Boris Cherny's public work.",
-      "description": "Thirteen implementation guides for agent coding environments. Each gives a concrete method, the situations it fits, and the limits of what it actually verifies.",
+      "title": "Methods for recurring agent problems",
+      "h1": "Find a method for the failure you face",
+      "lead": "Each of the thirteen guides gives a concrete method, when to use it and what it can verify. Browse by source: the video, the Melee and Course Video Manager snapshots, or Boris Cherny's public work.",
+      "description": "Find thirteen guides for recurring problems in agent coding environments. Each explains a method, when to use it and the limits of what it verifies.",
       "next": [
         [
           "prompts.html",
           "Task prompts",
-          "the input and expected evidence for every guide"
+          "define the input and expected evidence for each guide"
         ],
         [
           "examples/recurring-rule/README.html",
-          "The runnable example",
-          "guide 01 as a lint rule you can execute"
+          "Run the lint example",
+          "try the executable companion to guide 01"
         ],
         [
           "skills.html",
-          "The four skills",
-          "the same methods, packaged for an agent"
+          "Portable skills",
+          "give an agent instructions drawn from these methods"
         ]
       ]
     },
     "skills": {
-      "title": "Four portable agent skills",
-      "h1": "Four skills, portable to any agent setup",
-      "lead": "A skill here is a plain directory any agent that reads Markdown can load: the instructions themselves, two reference files, and OpenAI-compatible interface metadata. Adopt the one that matches the failure you actually have. Loading all four for every task makes each of them worse.",
-      "description": "Four portable agent skills as plain Markdown directories: feedback engineering, agent-ready workspaces, context calibration and tool adapters. Adopt one, not all four.",
+      "title": "Portable instructions for coding agents",
+      "h1": "Give your agent the instructions it needs",
+      "lead": "Choose the skill that fits your problem rather than loading all four for every task. Each is a Markdown folder with instructions, two reference files and OpenAI-compatible interface metadata. Use it with an agent setup that reads Markdown.",
+      "description": "Choose from four Markdown skills for agent feedback, workspace setup, project context and tool adapters. Each includes instructions, references and interface metadata.",
       "next": [
         [
           "adoption.html",
-          "Adopting a skill",
-          "how to install one or fold it into a skill you already run"
+          "Install a skill",
+          "add one or combine it with a skill you already use"
         ],
         [
           "guides.html",
-          "The thirteen guides",
-          "the reasoning each skill was distilled from"
+          "Implementation guides",
+          "read the methods behind the instructions"
         ]
       ]
     },
     "investigations": {
-      "title": "Three repository investigations",
-      "h1": "Three repositories, read rather than summarised",
-      "lead": "Each report separates the code that was actually inspected from the results its author reported, remote CI records from runs on this machine, and open pull requests from merged work. Source snapshots are pinned wherever the repository allowed it.",
-      "description": "Three repository investigations that separate inspected code from author-reported results, remote CI records from local runs, and open pull requests from merged work.",
+      "title": "Source investigations behind the handbook",
+      "h1": "Follow the guides back to the source",
+      "lead": "Three reports distinguish inspected code, author-reported results, remote CI records and local runs. Each separates open pull requests from merged work and links pinned source snapshots where possible. Work under an account is not necessarily written by that person.",
+      "description": "Read three source investigations separating inspected code, author reports, remote CI records and local runs. Open pull requests are distinguished from merged work.",
       "_findings_comment": "The findings shown on each study of investigations.html, edited from the report's own takeaway section: github-inspection.md -> 'What to take away', matt-pocock-inspection.md -> 'How this changes our guides', boris-cherny-inspection.md -> 'What this adds to the implementation package'. One sentence each, at most 22 words, beginning with a noun phrase.",
       "findings": {
         "github-inspection.md": [
-          "A completion contract names the real output, the completeness its inputs need, and the outcome the consumer actually sees.",
-          "Recurring mistakes belong in existing lint, type, test and build boundaries, with both rejection and legitimate success proved.",
-          "Explicit ownership isolates agent writes and test state, hides provider quirks behind adapters, and verifies remote artifact access.",
-          "Calibrated knowledge keeps decisions beside their code, and evidence carries provenance: local run, CI, author report or untested hardware."
+          "A completion contract specifies the real output, how complete its inputs must be and the outcome its consumer sees.",
+          "Recurring mistakes need checks at existing lint, type, test and build boundaries that reject bad changes and accept valid ones.",
+          "Explicit ownership separates agent writes and test state, contains provider quirks in adapters and checks remote access to artifacts.",
+          "Project decisions stay beside relevant code, while evidence distinguishes local runs, remote CI, author reports and untested hardware."
         ],
         "matt-pocock-inspection.md": [
-          "Domain vocabulary, durable decisions, bounded modules and callable agent APIs became the guide on speaking a codebase's language.",
-          "Output identity, resumable work and result-format recovery became the guide on artifacts that survive an interruption.",
-          "The most transferable habit is to make a desired outcome easy to invoke and hard to misreport."
+          "Shared vocabulary, lasting decisions, bounded modules and callable agent APIs inform the guide to speaking a codebase's language.",
+          "Output identity, resumable work and recovery from malformed results inform the guide to artifacts that survive interruptions.",
+          "The report recommends making the intended outcome easy to request and hard to misreport."
         ],
         "boris-cherny-inspection.md": [
-          "Guide 13's layered validation tests the public output, reproduces novel failures, and preserves meaningful baselines.",
-          "The same work is measured before and after a change, so improvement is a comparison rather than an impression.",
-          "Lessons the guides already cover, like lint, adapters and native loading, become supporting references in the four skills."
+          "Guide 13 adapts layered validation to test public output, reproduce new failures and preserve meaningful baselines.",
+          "Before-and-after measurements compare the same work to establish whether a change improved the result.",
+          "Existing lessons on lint, adapters and native loading provide supporting references for the four skills."
         ]
       },
       "next": [
         [
           "guides.html",
-          "The thirteen guides",
-          "five of them were adapted from these repositories"
+          "Implementation guides",
+          "read the five guides adapted from the inspected repositories"
         ],
         [
           "validation.html",
-          "Validation and provenance",
-          "how every claim on this site was checked"
+          "Checks and source records",
+          "see what was checked and what remains unverified"
         ]
       ]
     },
     "frames": {
-      "title": "Twelve frames from the video",
-      "h1": "The video, with visible evidence",
-      "lead": "Twelve frames extracted with ffmpeg and inspected at full resolution. Each caption separates what is visible in the frame from what the speaker only describes — a post on screen is not a live demonstration.",
-      "description": "Twelve frames extracted from Theo's agent engineering video, captioned to separate what is visible on screen from what the speaker only describes.",
+      "title": "Video frames and what they show",
+      "h1": "See the evidence in the video frames",
+      "lead": "Twelve frames were extracted with ffmpeg and inspected at full resolution. Captions distinguish what appears on screen from what the speaker describes. A visible post does not establish that a live demonstration took place.",
+      "description": "Inspect twelve full-size frames from Theo's video. Captions distinguish what appears on screen from what the speaker describes, with extraction commands and hashes.",
       "next": [
         [
           "ideas.html",
-          "The nineteen ideas",
-          "the takeaways these moments belong to"
+          "Video ideas",
+          "read the takeaways from these moments"
         ],
         [
           "validation.html",
-          "Validation and provenance",
-          "extraction commands and SHA-256 hashes"
+          "Checks and source records",
+          "inspect the extraction commands and SHA-256 hashes"
         ]
       ]
     }
@@ -230,34 +230,34 @@
     "index.html": "An evidence-backed handbook for building coding environments agents work well in: nineteen ideas, thirteen guides, four portable skills and three repository investigations.",
     "404.html": "That page is not in the handbook. Routes to the ideas, guides, skills, investigations and the handbook index."
   },
-  "title_em": "system",
-  "ideas_band": "Swipe the row. Or open the full set sorted by what is behind each idea: a practice he runs, a directive he gives, or an opinion he offers as one.",
+  "title_em": "codebase",
+  "ideas_band": "Browse the ideas in video order, or open the full set grouped by practice, advice and opinion.",
   "ledger": {
     "_comment": "The closing ledger: what was run, what was not, and what is only a claim. Each row is [status, text]; status is one of RUN, LIMIT, NOT RUN, UNVERIFIED and must agree with README.md's What was checked and validation.md.",
     "rows": [
       [
         "RUN",
-        "The lint demonstration: the unwanted import passes without its rule, is rejected with it, and the supported import still passes."
+        "The lint demo accepts the unwanted import without its rule, rejects it with the rule and accepts the supported import."
       ],
       [
         "RUN",
-        "The Melee verifier: its original nine tests and its current fifteen pass."
+        "The Melee verifier passed its original nine tests and the current set of fifteen."
       ],
       [
         "RUN",
-        "A synthetic comparison that reproduces the verifier's completeness gap, and the repair."
+        "A synthetic comparison reproduced the completeness gap: the original verifier accepted incomplete source metrics, while the repaired version rejected them."
       ],
       [
         "LIMIT",
-        "Those are verifier tests against mocked builds. No real game build was run."
+        "The verifier tests used mocked builds and establish verifier behavior only. No real game build was run."
       ],
       [
         "NOT RUN",
-        "The public applications, the upload service and the private agent systems."
+        "The public applications, upload service and private agent systems were not executed for this research."
       ],
       [
         "UNVERIFIED",
-        "Sponsor performance claims, and the universal career and productivity claims."
+        "Sponsor performance claims and universal claims about careers and productivity have not been verified."
       ]
     ],
     "credits": [
@@ -273,13 +273,13 @@
       ],
       [
         "Endorsement",
-        "None of them endorses this handbook",
+        "Theo, Matt Pocock and Boris Cherny do not endorse this handbook.",
         ""
       ],
       [
         "Snapshot",
         "September 9, 2026",
-        "later pull requests are later evidence"
+        "later pull requests are identified as later evidence"
       ]
     ]
   }

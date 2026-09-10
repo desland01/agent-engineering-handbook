@@ -34,9 +34,9 @@ from icons import IDEAS, SKILLS, GUIDES, INVESTIGATIONS
 REPO = Path(__file__).resolve().parent.parent
 # The claim line of each investigation, copied verbatim from COPY.md.
 CLAIMS = {
-    'github-inspection.md': "Ten of the thirteen guides trace back to this fork. It is where the video's advice met code that had to work.",
-    'matt-pocock-inspection.md': 'A codebase with a glossary and one transport. The two guides on domain language and durable artifacts came from reading it.',
-    'boris-cherny-inspection.md': "A compiler tested five different ways. Guide 13's layered validation is that method, generalised.",
+    'github-inspection.md': "Ten of the thirteen guides draw on the video and this investigation of T3 Code and Melee. The report connects advice to inspected code.",
+    'matt-pocock-inspection.md': 'A glossary and one HTTP transport give this codebase a shared language. Its source informed two guides on domain language and durable artifacts.',
+    'boris-cherny-inspection.md': "Guide 13 adapts five validation methods: fixtures, built-artifact smoke tests, fuzzing, real-world schemas and conformance checks. Tests were inspected, not run locally.",
 }
 OUT = REPO / 'public'
 ASSETS = REPO / 'build/assets'
@@ -463,7 +463,7 @@ def hub_next(hub, prefix=''):
         f'<span class="k">{escape(why)}</span></a></li>'
         for href, label, why in hub['next'])
     return ('<section class="hub-next" aria-labelledby="hub-next-h"><div class="wrap">'
-            f'{marker("Next")}<h2 id="hub-next-h">Where to go from here</h2>'
+            f'{marker("Next")}<h2 id="hub-next-h">Choose your next step</h2>'
             f'<ul role="list">{rows}</ul></div></section>')
 
 
@@ -484,10 +484,10 @@ def idea_tile(i, prefix=''):
 # The mono caption that sits inside each skill's drawing: the loop it closes,
 # as the artwork's own label rather than a line placed under it.
 SKILL_CAPTIONS = {
-    'agent-feedback-engineering': 'FAILURE \u2192 CHECK',
-    'agent-ready-workspaces': 'SETUP \u2192 PREVIEW \u2192 PROOF',
-    'agent-context-calibration': 'MISSING \u2192 PLACED',
-    'agent-tool-adapters': 'GAP \u2192 ADAPTER \u2192 VERIFIED',
+    'agent-feedback-engineering': 'MISTAKE \u2192 CHECK',
+    'agent-ready-workspaces': 'SETUP \u2192 PREVIEW \u2192 CHECK',
+    'agent-context-calibration': 'CONTEXT \u2192 RIGHT PLACE',
+    'agent-tool-adapters': 'GAP \u2192 TOOL \u2192 CHECK',
 }
 
 
@@ -595,7 +595,7 @@ def landing(idx, home, frames):
   <div class="opening-copy">
     <h1>{title_html}</h1>
     <p class="lead">{escape(home['lead'])}</p>
-    <div class="actions"><a class="btn primary" href="ideas.html">Read the ideas</a><a class="btn" href="guides.html">Open the guides</a></div>
+    <div class="actions"><a class="btn primary" href="ideas.html">Explore the ideas</a><a class="btn" href="guides.html">Find a guide</a></div>
     <ul class="contents" role="list" aria-label="Contents">{contents}</ul>
     <a class="prompt" href="skills.html" aria-label="The four skills, each invoked as a slash command"><span aria-hidden="true"><span class="ps">&#8811;</span> <span class="typed" data-lines="{escape('|'.join('/' + sk['name'] for sk in idx['skills']))}">/{escape(idx['skills'][0]['name'])}</span><span class="cursor">&#9612;</span></span></a>
     <p class="edition"><span class="num">Edition of {EDITION_DATE}.</span> {escape(home['basis_short'])} <a href="#attribution">Full attribution</a> is at the end of the page.</p>
@@ -621,7 +621,7 @@ def landing(idx, home, frames):
 </div></section>
 
 <section class="band" id="guides" aria-labelledby="guides-h"><div class="wrap">
-  {band_head('Implementation', 'guides-h', 'Thirteen implementation guides', 'Grouped by the source each was adapted from. Each guide gives a concrete method, fitting use cases and verification limits.')}
+  {band_head('Implementation', 'guides-h', 'Find a guide for your next change', 'Thirteen guides grouped by source, each with a method, fitting use cases and verification limits.')}
   <ul class="shelves" role="list">{shelves}</ul>
   <p class="route">{more('guides.html', f'All {counts["guides"]} guides')}</p>
 </div></section>
@@ -723,8 +723,8 @@ def guides_index(idx, home):
                        f'<span class="sr-only">Guide {n}: </span>{escape(g["title"])}</a>'
                        f'<p class="when">{escape(home["use_when"][n])}</p></li>')
     track = ('<section class="band track-band" aria-labelledby="track-h"><div class="wrap">'
-             f'{marker("The track")}<h2 id="track-h">Thirteen stages, in the order they were adapted</h2>'
-             '<p class="tier-lead">Scroll the track. Each stage is one guide; the labels above the rail say which source it came from.</p></div>'
+             f'{marker("The track")}<h2 id="track-h">Browse the guides by source</h2>'
+             '<p class="tier-lead">Scroll across the thirteen guides and use the labels above them to identify each source.</p></div>'
              '<div class="wrap"><div class="track-row" data-row="of" tabindex="0" role="region" aria-label="The thirteen guides as a track">'
              f'<ol class="track" role="list">{stages}</ol></div></div></section>')
     body = (site_head('', 'guides.html') +
@@ -781,8 +781,8 @@ def skills_index(idx, home):
     # What every skill page carries, said once here rather than four times. The
     # instruction to adopt one rather than all four now opens the page, where a
     # reader meets it before choosing, and the adoption route closes it.
-    adopt = ('<p class="route">Each title opens that skill\'s own page, which holds its raw '
-             '<code>SKILL.md</code> exactly as shipped, both reference files and its directory on GitHub.</p>')
+    adopt = ('<p class="route">Open a skill to read its instructions and both reference files. The page links its unchanged '
+             '<code>SKILL.md</code> and its directory on GitHub.</p>')
     hub = home['hubs']['skills']
     body = (site_head('', 'skills.html') +
             hub_head('Portable skills', hub) +

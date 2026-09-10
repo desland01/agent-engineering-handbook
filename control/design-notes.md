@@ -626,6 +626,16 @@ over 2000px on either axis — tile evidence to ≤2000px both ways. Its three f
 confirmed by measurement at the parent; two mobile concerns were checked and are not
 defects. Report-only by owner instruction; nothing applied.
 
+**gpt-6-astra copy run, 2026-09-10.** Completed and delivered 98 JSON fields and 15
+renderer literals rewritten, with a before/after/why table for every one, American
+spelling made consistent (the count favoured it 41:2), every meta description 148-167
+characters. Its `deliverable.patch` came back empty because my task named the *parent
+repo's* commit hash as the diff base and the worker's checkout has its own root commit;
+the worker reported this exactly and did not guess. The patch was generated at the parent
+from the workspace (`git diff HEAD -- build/home.json build/render.py`), applied cleanly,
+and passed both checkers in isolation. Lesson: give a worker a base it can resolve — its
+own `HEAD` — never a hash from another repository.
+
 ## Open questions
 
 1. Should the problem panel keep its eleven guide links, or become decoration
