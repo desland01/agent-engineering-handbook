@@ -280,6 +280,12 @@ def main():
         check('href="SKILL.md"' in text, f'skills/{s}/index.html: no link to the copied SKILL.md')
         check(f'/tree/HEAD/skills/{s}' in text, f'skills/{s}/index.html: no link to its GitHub directory')
         check('href="../../adoption.html"' in text, f'skills/{s}/index.html: no link to the adoption page')
+        # The page's h1 is the skill's own title, never a reference file's.
+        fm = (PUBLIC / 'skills' / s / 'SKILL.md').read_text().split('---')[1]
+        own_title = re.search(r'^name:\s*(.+)$', fm, re.M).group(1).strip()
+        h1 = re.search(r'<h1>(.*?)</h1>', text, re.S); h1 = re.sub(r'<[^>]+>', '', h1.group(1)).strip() if h1 else ''
+        check(bool(h1) and 'Reference' not in h1 and h1.lower() != '', f'skills/{s}/index.html: h1 is {h1!r}')
+        check(not re.search(r'<h1>[^<]*(?:checks that protect|worked implementation)', text), f'skills/{s}/index.html: h1 carries a reference title')
     check(skills_html.count('class="tile skill"') == 4, f'skills.html: expected 4 skill tiles, found {skills_html.count("class=\"tile skill\"")}')
     for s in skills:
         check(f'href="skills/{s}/"' in skills_html, f'skills.html: no tile opens skills/{s}/')

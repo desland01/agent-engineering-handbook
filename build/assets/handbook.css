@@ -285,7 +285,10 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .band-head > p { color: var(--muted-fg); max-width: 66ch; margin-top: 10px; font-size: var(--text-sm); }
 
 /* The nineteen ideas: icon tiles on dashed guides, each with its [nn] marker. */
-.ideas { list-style: none; display: grid; gap: 1px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+/* No container border: each tile paints its own hairline, so a tier of seven
+   shows ground after its last tile instead of two outlined empties - the same
+   rule the guide shelves already follow. */
+.ideas { list-style: none; display: grid; gap: 1px; background: var(--bg); }
 @media (min-width: 700px) { .ideas:not(.track) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1080px) { .ideas:not(.track) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 

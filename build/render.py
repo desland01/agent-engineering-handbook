@@ -465,7 +465,7 @@ def hub_next(hub, prefix=''):
         f'<span class="k">{escape(why)}</span></a></li>'
         for href, label, why in hub['next'])
     return ('<section class="hub-next" aria-labelledby="hub-next-h"><div class="wrap">'
-            f'{marker("Next")}<h2 id="hub-next-h">Choose your next step</h2>'
+            f'<h2 id="hub-next-h">Choose your next step</h2>'
             f'<ul role="list">{rows}</ul></div></section>')
 
 
@@ -531,7 +531,9 @@ def report_row(r, n, prefix=''):
 
 
 def band_head(label, heading_id, heading, description):
-    return (f'<div class="band-head">{marker(label)}'
+    # No eyebrow above the heading (owner rule, 2026-09-10): the label that used
+    # to sit in a mono pill here is dropped; the heading carries the section.
+    return (f'<div class="band-head">'
             f'<h2 id="{heading_id}">{escape(heading)}</h2><p>{inline(description)}</p></div>')
 
 
@@ -662,7 +664,7 @@ def landing(idx, home, frames):
 def hub_head(marker_label, hub, tail=''):
     """The head of a section page: marker, the page's own h1 and its lead."""
     return ('<main id="main"><header class="section-head"><div class="wrap">'
-            f'{marker(marker_label)}<h1>{escape(hub["h1"])}</h1>'
+            f'<h1>{escape(hub["h1"])}</h1>'
             f'<p class="lead">{inline(hub["lead"])}</p>{tail}</div></header>')
 
 
@@ -680,7 +682,7 @@ def ideas_index(idx, home):
         tiles = ''.join(idea_tile(i) for i in ideas)
         sections += (f'<section class="tier" id="tier-{escape(tier["key"])}" '
                      f'aria-labelledby="tier-{escape(tier["key"])}-h"><div class="wrap">'
-                     f'{marker(tier["label"])}'
+                     f''
                      f'<h2 id="tier-{escape(tier["key"])}-h">{escape(tier["heading"])}</h2>'
                      f'<p class="tier-lead">{escape(tier["lead"])}</p>'
                      f'<ol class="ideas" role="list">{tiles}</ol></div></section>')
@@ -725,7 +727,7 @@ def guides_index(idx, home):
                        f'<span class="sr-only">Guide {n}: </span>{escape(g["title"])}</a>'
                        f'<p class="when">{escape(home["use_when"][n])}</p></li>')
     track = ('<section class="band track-band" aria-labelledby="track-h"><div class="wrap">'
-             f'{marker("The track")}<h2 id="track-h">Browse the guides by source</h2>'
+             f'<h2 id="track-h">Browse the guides by source</h2>'
              '<p class="tier-lead">Scroll across the thirteen guides and use the labels above them to identify each source.</p></div>'
              '<div class="wrap"><div class="track-row" data-row="of" tabindex="0" role="region" aria-label="The thirteen guides as a track">'
              f'<ol class="track" role="list">{stages}</ol></div></div></section>')
@@ -844,14 +846,14 @@ def skill_page(sk, idx, home):
         rid = ref_anchor(ref.name)
         ref_lines = ref.read_text().splitlines()
         # The reference's own h1 titles the section; it does not repeat inside it.
-        title = ref.stem
+        ref_title = ref.stem
         h1_at = next((i for i, l in enumerate(ref_lines) if l.startswith('# ')), None)
         if h1_at is not None:
-            title = inline(ref_lines[h1_at][2:].strip())
+            ref_title = inline(ref_lines[h1_at][2:].strip())
             ref_lines = ref_lines[:h1_at] + ref_lines[h1_at + 1:]
         # The badge marks a document boundary; the rail's list keeps the plain words.
-        label = f'<span class="kind">Reference</span> {title}'
-        plain = f'Reference: {title}'
+        label = f'<span class="kind">Reference</span> {ref_title}'
+        plain = f'Reference: {ref_title}'
         frag, _ = md_convert(re.sub(r'(?m)^(#{1,5}) ', r'#\1 ', '\n'.join(ref_lines)))
         frag = re.sub(r'id="', f'id="{rid}-', frag)
         frag = re.sub(r'href="#', f'href="#{rid}-', frag)

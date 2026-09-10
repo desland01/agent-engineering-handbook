@@ -184,6 +184,42 @@ async function main() {
           const after = await page.evaluate(() => window.scrollY);
           if (after - box.before < 50) failures.push(pagePath + ' @' + vp.width + ': scroll capture — ' + sel + ' swallows the vertical wheel (page moved ' + (after - box.before) + 'px)');
         }
+        // Slop: the rules that break a model's defaults, as measurements. Taken
+        // from gpt-taste's pre-flight and the owner's design language: these do
+        // not judge taste, they prove the page did not fall into the standard
+        // AI-page habits. Each failure names the rule and the measured value.
+        const slop = await page.evaluate(() => {
+          const out = [];
+          const lines = (el) => { const r = document.createRange(); r.selectNodeContents(el); const tops = new Set(); for (const b of r.getClientRects()) tops.add(Math.round(b.top)); return tops.size; };
+          const lineWidths = (el) => { const r = document.createRange(); r.selectNodeContents(el); const m = {}; for (const b of r.getClientRects()) { const k = Math.round(b.top); m[k] = (m[k] || 0) + b.width; } return Object.values(m); };
+          // 1. Headlines: an h1 holds in three lines or fewer; its last line is not an orphan.
+          for (const h of document.querySelectorAll('h1')) {
+            const n = lines(h); if (n > 3) out.push('headline — h1 "' + h.textContent.trim().slice(0, 40) + '" wraps to ' + n + ' lines (max 3)');
+            const w = lineWidths(h); if (w.length > 1 && w[w.length - 1] < 0.3 * w[0]) out.push('headline — h1 "' + h.textContent.trim().slice(0, 40) + '" ends in an orphan line (' + Math.round(w[w.length - 1]) + 'px of ' + Math.round(w[0]) + 'px)');
+          }
+          // 2. Headings are not clipped by their box.
+          for (const h of document.querySelectorAll('h1, h2, h3')) if (h.scrollWidth > h.clientWidth + 1) out.push('headline — "' + h.textContent.trim().slice(0, 40) + '" is clipped horizontally');
+          // 3. One figure per band, never the same figure in two adjacent bands (home page bands).
+          const bands = [...document.querySelectorAll('main > section.band, main > header.opening')];
+          const figureOf = (b) => { const el = b.querySelector('.ideas-row, .track-row, .tiles, .shelves, .timestamps, .pick, .ledger, .study, .tier'); if (!el) return null; return [...el.classList].filter((c) => !/^(is-|reveal)/.test(c)).sort().join('.'); };
+          for (let i = 1; i < bands.length; i++) { const a = figureOf(bands[i - 1]), b = figureOf(bands[i]); if (a && b && a === b) out.push('composition — adjacent bands share the figure "' + a + '"'); }
+          // 4. A band whose only drawing is its focal visual gives it a size that carries.
+          for (const b of document.querySelectorAll('main > section')) { const svgs = [...b.querySelectorAll('svg')]; if (svgs.length === 1) { const w = svgs[0].getBoundingClientRect().width; if (w < 96) out.push('figure — the only drawing in #' + (b.id || b.className) + ' is ' + Math.round(w) + 'px wide (min 96)'); } }
+          // 5. No enclosed empty grid cells: a bordered grid's last row is full, or the container draws no outline.
+          // Measured by geometry, not by the computed track list: auto-fit grids report
+          // tracks they have collapsed. An outlined empty exists only when the container
+          // draws a border and its last row of items stops short of its right edge.
+          for (const g of document.querySelectorAll('ul, ol')) { const cs = getComputedStyle(g); if (cs.display !== 'grid' || parseFloat(cs.borderLeftWidth) === 0 || parseFloat(cs.borderRightWidth) === 0) continue; const items = [...g.children]; if (items.length < 2) continue; const gr = g.getBoundingClientRect(); const bottoms = items.map((i) => Math.round(i.getBoundingClientRect().top)); const lastTop = Math.max(...bottoms); const lastRow = items.filter((i) => Math.round(i.getBoundingClientRect().top) === lastTop); const right = Math.max(...lastRow.map((i) => i.getBoundingClientRect().right)); const inner = gr.right - parseFloat(cs.borderRightWidth) - parseFloat(cs.paddingRight); if (inner - right > 8) out.push('grid — ' + (g.className || g.tagName) + ' outlines empty space after its last row (' + Math.round(inner - right) + 'px, ' + lastRow.length + ' item(s) in the row)'); }
+          // 6. Buttons and primary actions are legible: text contrast against their own background.
+          const lum = (c) => { const m = c.match(/\d+(\.\d+)?/g); if (!m) return null; const [r, g, b] = m.slice(0, 3).map((v) => { v = v / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+          for (const el of document.querySelectorAll('.btn, .row-controls button')) { const s = getComputedStyle(el); let bg = s.backgroundColor, p = el; while (bg === 'rgba(0, 0, 0, 0)' && p.parentElement) { p = p.parentElement; bg = getComputedStyle(p).backgroundColor; } const l1 = lum(s.color), l2 = lum(bg); if (l1 === null || l2 === null) continue; const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); if (ratio < 4.5) out.push('contrast — "' + el.textContent.trim().slice(0, 30) + '" text/background ' + ratio.toFixed(2) + ':1 (min 4.5)'); }
+          // 8. No eyebrow above a heading: no small uppercase label as the element right before an h1/h2.
+          for (const h of document.querySelectorAll('h1, h2')) { const prev = h.previousElementSibling; if (!prev) continue; const s = getComputedStyle(prev); const small = parseFloat(s.fontSize) <= 13 && (s.textTransform === 'uppercase' || /mono/i.test(s.fontFamily)); if (small && prev.textContent.trim().length > 0 && prev.textContent.trim().length < 40 && !prev.querySelector('a') && !/^\[\d+\]$/.test(prev.textContent.trim())) out.push('eyebrow — "' + prev.textContent.trim().slice(0, 30) + '" sits above "' + h.textContent.trim().slice(0, 30) + '"'); }
+          // 7. No emoji anywhere in the rendered text.
+          if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(document.body.innerText)) out.push('emoji — rendered text contains an emoji');
+          return out;
+        });
+        for (const s of slop) failures.push(pagePath + ' @' + vp.width + ': slop — ' + s);
         // Reveal: after scrolling the whole page, nothing may remain hidden.
         const stuck = await page.evaluate(async () => {
           // The site scrolls smoothly; a harness must not depend on where an
