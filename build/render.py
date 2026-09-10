@@ -929,16 +929,19 @@ def idea_page(i, idx, home):
     parts = [('said', 'What was said', tip['source_claim_paraphrase']), ('apply', 'How to apply it', tip['how_to_apply']),
              ('useful', 'When it is useful', tip['when_useful']), ('qualification', 'Qualification', tip['caveat'])]
     article = ''
+    toc_entries = []
     for key, label, raw in parts:
         written = (layer or {}).get('fit' if key == 'qualification' else key)
+        toc_entries.append((key, written['heading'] if written else label))
         if written:
             paras = ''.join(f'<p>{inline(p_)}</p>' for p_ in written['body'].split('\n\n') if p_.strip())
             article += f'<h2 id="{key}">{escape(written["heading"])}</h2>{paras}'
         else:
             article += f'<h2 id="{key}" data-unwritten="true">{label}</h2><p>{escape(raw)}</p>'
+    # The rail lists the sections under the headings the page actually carries.
     toc = ('<nav class="toc" aria-label="Sections of this page"><ol>'
-           '<li><a href="#said">What was said</a></li><li><a href="#apply">How to apply it</a></li>'
-           '<li><a href="#useful">When it is useful</a></li><li><a href="#qualification">Qualification</a></li></ol></nav>')
+           + ''.join(f'<li><a href="#{key}">{escape(heading)}</a></li>' for key, heading in toc_entries)
+           + '</ol></nav>')
     rail = ('<aside class="rail" aria-label="Page tools">'
             f'<div><h2>On this page</h2>{toc}</div>'
             f'<div class="place"><h2>This idea</h2><p><span class="n">{i["n"]:02d}</span> of {len(ideas)} · <a href="{prefix}ideas.html">All nineteen</a></p>'
