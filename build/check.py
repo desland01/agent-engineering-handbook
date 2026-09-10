@@ -224,6 +224,28 @@ def main():
         check(f'href="evidence.html#frame-{f["seconds"]}"' in index, f'index.html: no link to frame-{f["seconds"]}')
 
     idea_pages = sorted((PUBLIC / 'ideas').glob('*.html')) if (PUBLIC / 'ideas').is_dir() else []
+    # The instruction is not the output (ARCHITECT.md, 2026-09-10). A schema field
+    # name is not a heading, and one copied sentence is not a section: every
+    # idea page's four sections carry a heading naming their subject and at
+    # least three written sentences; no heading repeats across pages.
+    heading_pages = {}
+    for ip in idea_pages:
+        text = ip.read_text()
+        art = re.search(r'<article>(.*?)</article>', text, re.S)
+        body = art.group(1) if art else ''
+        check('data-unwritten' not in body, f'ideas/{ip.name}: a section still carries the schema label instead of written copy')
+        sections = re.findall(r'<h2 id="(said|apply|useful|qualification)"[^>]*>(.*?)</h2>(.*?)(?=<h2 |$)', body, re.S)
+        check(len(sections) == 4, f'ideas/{ip.name}: expected four sections, found {len(sections)}')
+        for key, heading, rest in sections:
+            h = re.sub(r'<[^>]+>', '', heading).strip()
+            prose = re.sub(r'<[^>]+>', ' ', rest)
+            sentences = len(re.findall(r'[.!?](\s|$)', prose))
+            check(sentences >= 3, f'ideas/{ip.name}#{key}: {sentences} sentence(s); at least three are required')
+            check(h.lower() not in ('what was said', 'how to apply it', 'when it is useful', 'qualification'),
+                  f'ideas/{ip.name}#{key}: heading {h!r} is the schema label')
+            heading_pages.setdefault(h.lower(), set()).add(ip.name)
+    for h, pages_with in heading_pages.items():
+        check(len(pages_with) <= 2, f'idea pages: heading {h!r} repeats on {len(pages_with)} pages; a repeated heading is a label, not a heading')
     check(len(idea_pages) == 19, f'expected 19 idea pages in public/ideas, found {len(idea_pages)}')
     n_ideas = ideas_html.count('class="tile idea"')
     check(n_ideas == 19, f'ideas.html: expected 19 idea tiles, found {n_ideas}')

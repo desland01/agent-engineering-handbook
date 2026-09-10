@@ -417,6 +417,8 @@ def enrich(idx):
         sk['fed_by'] = 0
         sk['fed'] = []
         sk['guides'] = []
+    layer_path = REPO / 'evidence/idea-pages.json'
+    idx['idea_pages'] = json.loads(layer_path.read_text())['pages'] if layer_path.is_file() else {}
     skill_by_name = {sk['name']: sk for sk in idx['skills']}
     guide_by_n = {g['n']: g for g in idx['guides']}
     for n, i in enumerate(idx['ideas'], 1):
@@ -916,10 +918,24 @@ def idea_page(i, idx, home):
     seq_links += seq(next_i, 'next', 'Next idea') or f'<a class="next" href="{prefix}guides.html"><span class="k">After the last idea</span>The thirteen guides</a>'
 
     rail_seq = seq_links.replace('class="prev"', '').replace('class="next"', '')
-    article = (f'<h2 id="said">What was said</h2><p>{escape(tip["source_claim_paraphrase"])}</p>'
-               f'<h2 id="apply">How to apply it</h2><p>{escape(tip["how_to_apply"])}</p>'
-               f'<h2 id="useful">When it is useful</h2><p>{escape(tip["when_useful"])}</p>'
-               f'<h2 id="qualification">Qualification</h2><p>{escape(tip["caveat"])}</p>')
+    # The authored layer: a heading and a written section for each of the four
+    # parts, from evidence/idea-pages.json. The extraction record's fields are
+    # the evidence behind that writing, not the writing itself; when the layer
+    # is absent for an idea the page falls back to the raw fields under the
+    # schema's own names, and build/check.py refuses that page - the fallback
+    # exists so the site still builds while the writing is in progress, never
+    # so the labels can ship.
+    layer = idx.get('idea_pages', {}).get(tip['id'])
+    parts = [('said', 'What was said', tip['source_claim_paraphrase']), ('apply', 'How to apply it', tip['how_to_apply']),
+             ('useful', 'When it is useful', tip['when_useful']), ('qualification', 'Qualification', tip['caveat'])]
+    article = ''
+    for key, label, raw in parts:
+        written = (layer or {}).get('fit' if key == 'qualification' else key)
+        if written:
+            paras = ''.join(f'<p>{inline(p_)}</p>' for p_ in written['body'].split('\n\n') if p_.strip())
+            article += f'<h2 id="{key}">{escape(written["heading"])}</h2>{paras}'
+        else:
+            article += f'<h2 id="{key}" data-unwritten="true">{label}</h2><p>{escape(raw)}</p>'
     toc = ('<nav class="toc" aria-label="Sections of this page"><ol>'
            '<li><a href="#said">What was said</a></li><li><a href="#apply">How to apply it</a></li>'
            '<li><a href="#useful">When it is useful</a></li><li><a href="#qualification">Qualification</a></li></ol></nav>')
