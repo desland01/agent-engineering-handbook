@@ -49,7 +49,7 @@ GITHUB = 'https://github.com/desland01/agent-engineering-handbook'
 # link needs; leave it empty and none of them are emitted, because a canonical
 # pointing at the wrong origin is worse than no canonical at all. build/check.py
 # enforces that this is all-or-nothing across the 54 pages.
-SITE_URL = ''
+SITE_URL = 'https://agent-engineering-handbook.dev'
 EDITION_DATE = 'September 9, 2026'
 SITE_NAME = 'Agent Engineering Handbook'
 
