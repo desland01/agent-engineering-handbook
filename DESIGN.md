@@ -245,8 +245,14 @@ its `og:url` must agree. A `rel="canonical"` is the one absolute href the no-net
 check permits, since it names an address rather than fetching one.
 
 **Idea pages** (`ideas/NN-slug.html`, nineteen of them). Each idea is disclosed in full on
-the reader shell: the drawing, the title, then *What was said*, *How to apply it*, *When it
-is useful* and *Qualification* from the structured extraction, with a rail carrying the
+the reader shell: the drawing, the title, then four written sections — what was claimed
+and by whom, what to do about it, where it pays and where it does not, and the honest
+qualification — each under a heading that names its subject (*Agent multipliers*,
+*Shared steps first*, *Unmeasured output gains*), never the schema's field name. The
+writing lives in `evidence/idea-pages.json`, an authored layer over the extraction record;
+the record's fields stay the evidence behind it. `build/check.py` refuses a page whose
+heading is a schema label, repeats across pages, or whose section runs under three
+sentences (the "instruction is not the output" rule). The rail carries the
 evidence badge and speaker, the video moment and segment, the guide and skill it leads to,
 the previous and next idea, and the source files. This is where the nineteen tiles' compact
 form pays off: the tile is the disclosure control, the page is the content.
