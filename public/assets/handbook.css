@@ -38,7 +38,7 @@
   --text-base: 1rem;
   --text-read: 1.0625rem;   /* reader body at 760px and above */
   --text-lg: 1.15rem;
-  --text-xl: 1.55rem;       /* section headings */
+  --text-xl: 1.85rem;       /* section headings: 44 > 29.6 > 22.4 > 17 is ~1.3-1.5x per step */
   --text-2xl: 2rem;
   --title-home: clamp(2.4rem, 1.3rem + 3.6vw, 4.05rem);
   --title-page: clamp(1.8rem, 1.1rem + 2.6vw, 2.75rem);
@@ -76,8 +76,11 @@ body {
   min-width: 300px;
 }
 h1, h2, h3, h4 { margin: 0; overflow-wrap: break-word; line-height: 1.2; }
+/* Weight descends with level. It used to invert - h3 and h4 at 650 under an
+   h2 at 500 - so a subsection read as more emphatic than the section holding
+   it. Size does the work now; weight only confirms it. */
 h1, h2 { font-weight: 500; letter-spacing: -0.028em; }
-h3, h4 { font-weight: 650; letter-spacing: -0.01em; }
+h3, h4 { font-weight: 500; letter-spacing: -0.018em; }
 p { margin: 0 0 0.95em; }
 a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: color-mix(in oklab, var(--link) 40%, transparent); text-underline-offset: 0.2em; }
 a:hover { text-decoration-color: currentColor; }
@@ -378,8 +381,11 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 @media (min-width: 1100px) {
   /* The rail leads on the left; the article follows. Both columns sit at the
      page's edges so they line up with the header and the footer. */
-  .reader { grid-template-columns: 248px minmax(0, var(--measure)); column-gap: 72px;
-    justify-content: space-between; align-items: start; padding-block: 48px 80px; }
+  /* The rail keeps the page's left edge, in line with the header's brand; the
+     reading column follows it at a fixed gap rather than being pushed to the
+     far edge, which at 1440 left the two sides 250px apart. */
+  .reader { grid-template-columns: 248px minmax(0, var(--measure)); column-gap: 56px;
+    justify-content: start; align-items: start; padding-block: 48px 80px; }
   .reader > .col { grid-column: 2; grid-row: 1; }
   .reader > .rail { grid-column: 1; grid-row: 1; }
 }
@@ -462,10 +468,17 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 /* The article itself. */
 .reader article { min-width: 0; }
 .reader article > p:first-child { color: var(--muted-fg); font-size: 1.08em; line-height: 1.55; margin-bottom: 1.4em; }
-.reader h2 { font-size: var(--text-xl); margin: 2em 0 0.6em; padding-top: 1em; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
+.reader h2 { font-size: var(--text-xl); line-height: 1.15; margin: 2.4em 0 0.55em; padding-top: 1em; border-top: 1px solid var(--border); scroll-margin-top: 24px; }
 .reader article > h2:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
-.reader h3 { font-size: 1.18em; margin: 1.8em 0 0.5em; scroll-margin-top: 24px; }
-.reader h4 { font-size: 1.02em; margin: 1.5em 0 0.4em; }
+.reader h3 { font-size: 1.32em; line-height: 1.22; margin: 1.9em 0 0.45em; scroll-margin-top: 24px; }
+.reader h4 { font-size: 1.1em; margin: 1.6em 0 0.4em; }
+
+/* On a skill page the appended reference files are whole documents, not the
+   next section of the same argument. Their heading keeps the h2 level but
+   wears a mono badge and sits under a heavier gap, so "a different document
+   starts here" and "the next part" no longer look identical. */
+.skill-ref > h2 { margin-top: 3.2em; padding-top: 1.4em; border-top-color: var(--border-strong); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.skill-ref > h2 .kind { font-family: var(--font-mono); font-size: var(--label-size); font-weight: 500; text-transform: uppercase; letter-spacing: var(--label-track); color: var(--accent-text); border: 1px solid color-mix(in oklab, var(--accent-text) 45%, transparent); background: color-mix(in oklab, var(--accent-text) 12%, transparent); border-radius: var(--radius); padding: 4px 8px; line-height: 1; }
 .reader p, .reader li, .reader td, .reader th { overflow-wrap: anywhere; }
 .reader ul, .reader ol { padding-left: 1.5em; margin: 0 0 1.1em; }
 .reader li { margin: 0.4em 0; }

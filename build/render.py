@@ -726,16 +726,19 @@ def skill_page(sk, idx, home):
         rid = ref_anchor(ref.name)
         ref_lines = ref.read_text().splitlines()
         # The reference's own h1 titles the section; it does not repeat inside it.
-        label = f'Reference: {ref.stem}'
+        title = ref.stem
         h1_at = next((i for i, l in enumerate(ref_lines) if l.startswith('# ')), None)
         if h1_at is not None:
-            label = f'Reference: {inline(ref_lines[h1_at][2:].strip())}'
+            title = inline(ref_lines[h1_at][2:].strip())
             ref_lines = ref_lines[:h1_at] + ref_lines[h1_at + 1:]
+        # The badge marks a document boundary; the rail's list keeps the plain words.
+        label = f'<span class="kind">Reference</span> {title}'
+        plain = f'Reference: {title}'
         frag, _ = md_convert(re.sub(r'(?m)^(#{1,5}) ', r'#\1 ', '\n'.join(ref_lines)))
         frag = re.sub(r'id="', f'id="{rid}-', frag)
         frag = re.sub(r'href="#', f'href="#{rid}-', frag)
         refs_html += f'<section class="skill-ref" id="{rid}"><h2 id="{rid}-h">{label}</h2>{frag}</section>'
-        ref_entries.append((0, rid + '-h', label))
+        ref_entries.append((0, rid + '-h', plain))
     entries = flat_toc(toc) + ref_entries
 
     toc_html = toc_flat(entries)
