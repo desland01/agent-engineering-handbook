@@ -94,9 +94,9 @@ below, so a 320px phone keeps 288px of content.
   `auto-fill` at a 250px minimum (one column at 320/390, two or three at 768, four at
   1440). Ideas: one column below 900px. Frames: two across, three from 640, four from
   1000.
-- **Map, 900px and above:** guide shelves become a sticky heading column (300px) beside
-  the chapter list; the full-width shelves put the heading and its provenance side by
-  side.
+- **Guides index, 900px and above:** each shelf head puts its title, its provenance and
+  its count side by side in one row; below that they stack. The map itself carries
+  routing rows rather than shelf heads, so nothing there is sticky.
 - **Reader, below 1100px:** one centred column of at most 39rem; the section disclosure
   under the title; applied frames after the article in a grid of 220px-minimum
   thumbnails. Previous/next stack below 640px. The body is 16px below 760px and 17px
