@@ -86,6 +86,16 @@ actually dispatched. Check them while building, and let the pilot prove them:
   argument.
 - A relocated or edited plan needs a new plan id. Reusing the id after the first run blocks
   with `plan_changed_since_first_run`.
+- A checker reads only its own workspace. Copies are single files and each must be a declared
+  artifact, so a worker's output *tree* can never reach the check. Give the worker one
+  declared artifact carrying everything the check needs, and keep the static reference copy
+  inside the checker's own workspace. A checker pointed at a path outside it does not fail
+  loudly: the directory reads as empty, and the report accuses the worker of delivering
+  nothing.
+
+The last one is why the pilot matters more than the review of the plan. Every fault above
+produces a refusal that names a runtime constant, not a mistake in the work, and none of them
+is visible in a plan that looks correct on the page.
 
 An item that resolves outside the batch is not in the batch. Resolve every path before
 editing; if it lands outside the tree the batch is scoped to, leave it, record it, report it.
