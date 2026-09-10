@@ -530,7 +530,7 @@ index f9a3d23..ebba020 100644
        || before.purposeHash !== entry.purposeHash
 diff --git a/tests/product-skills.test.ts b/tests/product-skills.test.ts
 new file mode 100644
-index 0000000..659038a
+index 0000000..5eab8a0
 --- /dev/null
 +++ b/tests/product-skills.test.ts
 @@ -0,0 +1,189 @@
@@ -720,7 +720,7 @@ index 0000000..659038a
 +  assert.ok(assertSkillPackage(root, sealed));
 +  // The declaration as the release actually ships it, not a hand-written copy.
 +  const limits = JSON.parse(readFileSync(resolve(process.cwd(), 'release/skill-content-limits.json'), 'utf8'));
-+  const bounds = assertSkillContentBounds(root, sealed, limits);
++  const bounds = assertSkillContentBounds(root, sealed, limits.limits);
 +  assert.ok(bounds.libraryBytes < 262144, `vendor bytes must not enter the authored library count (got ${bounds.libraryBytes})`);
 +}));
 diff --git a/tests/skill-capacity.test.ts b/tests/skill-capacity.test.ts

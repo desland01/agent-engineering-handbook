@@ -184,6 +184,6 @@ test('local content-size limits govern authored skills, not manufacturer bundles
   assert.ok(assertSkillPackage(root, sealed));
   // The declaration as the release actually ships it, not a hand-written copy.
   const limits = JSON.parse(readFileSync(resolve(process.cwd(), 'release/skill-content-limits.json'), 'utf8'));
-  const bounds = assertSkillContentBounds(root, sealed, limits);
+  const bounds = assertSkillContentBounds(root, sealed, limits.limits);
   assert.ok(bounds.libraryBytes < 262144, `vendor bytes must not enter the authored library count (got ${bounds.libraryBytes})`);
 }));
