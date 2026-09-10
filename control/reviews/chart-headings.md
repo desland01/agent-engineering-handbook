@@ -49,14 +49,32 @@ where cheap). No Opus route exists in the worker fleet (routes: glm-5.3-flash, g
 claude-fable-5-1, grok-4.5), so an Opus *worker* remains unavailable and no model identifier
 was invented to fake one.
 
-## Blocker met and cleared
+## What the pilot was for, and where I broke it
 
-`tickets-start` reserved both attempts, then every attempt refused with
-`workspace_overlaps_installation_home`: the harness had been built under
-`~/.nautilus/architect/workspace/`, inside the installation home the runtime protects. The
-whole harness was relocated to `<release>/var/workspaces/chart-headings/` and re-prepared;
-the packet, checker and originals stay outside every worker's write scope. The first owner
-(`294ce001`) holds the two refused attempts and is superseded by the relocated plan.
+Owner correction, mid-run: "Instead of fixing manually, you should have fixed how the agent's
+harness was built so that we have good checkers... That's the point of Pilot First: not to
+give up after they fail on the first try. It's to pilot it, fix what didn't work, pilot it
+again... Not 'pilot it, didn't work, okay I'll just do it myself.'" This is the site's own
+tip-08: a correction that recurs becomes an executable check, never a repeated manual fix.
+
+Two failures of that kind, both mine:
+
+1. **The content defect was hand-fixed.** The pilot's page headings carried semicolons and ran
+   to ten words. I edited them myself and put a warning in PROCEDURE.md. A warning in prose is
+   not a gate. Corrected: the eight-word, no-semicolon limit on any example heading written
+   inside an instruction is now a check in `checker/check.py`, proved to refuse a ten-word
+   semicolon example and to pass a short one (`check.test.py`, 8 scenarios, 2 accept 6 refuse),
+   and the worker task states the limit.
+2. **The harness itself was never piloted.** I built it and launched it at 67 Charts, then
+   repaired infrastructure one failure at a time: the checker capsule refused for empty
+   `requiredCharts`/`tools`/`declaredOutputs`; a worker input read from the checker workspace
+   refused as `forbidden read from a checker workspace`; every attempt refused with
+   `workspace_overlaps_installation_home` because the harness sat under `~/.nautilus/`; then
+   `plan_changed_since_first_run` after relocating under the same plan id. Corrected: one
+   parameterised generator (`make-recipe.py --plan-id --half`) builds the pilot and the batch
+   from the same code, so the machine proved on two Charts is the machine that runs on 67; the
+   harness now runs a pilot plan (`ch-pilot-1`, two Charts including the known-bad `explainer`)
+   through prepare, run, checker and acceptance before the halves are dispatched.
 
 ## Publication
 
