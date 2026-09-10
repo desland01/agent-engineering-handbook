@@ -58,7 +58,8 @@ when it needs no intervention, not when you are tired of it.
 > installation home; capsules with empty required charts, tools or declared outputs; a tool set
 > outside the anchor set; a worker input read from the checker's own workspace; a checker whose
 > argv named the files the check itself creates, so the environment digest changed between
-> freeze and verify; a relocated plan reusing its old id; and a checker pointed at directories
+> freeze and verify; a relocated plan reusing its old id; a release digest read from a symlink
+> that moved mid-build; and a checker pointed at directories
 > outside its own sandbox, which read as empty so the report accused the worker of delivering
 > nothing. A two-item pilot surfaces all of
 > them in one pass, and each was invisible until a plan was actually dispatched.
