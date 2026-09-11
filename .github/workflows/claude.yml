@@ -1,0 +1,43 @@
+# Mention @claude in an issue or pull request comment and Claude answers or makes the
+# change on the branch. Same subscription token as the review workflow.
+#
+# GitHub runs comment-triggered workflows only from the default branch, so this file
+# does nothing until it is merged to main.
+name: Claude
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: read
+
+jobs:
+  claude:
+    name: Answer the mention
+    if: |
+      contains(github.event.comment.body, '@claude') ||
+      contains(github.event.review.body, '@claude')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Is the subscription token set
+        id: guard
+        env:
+          TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then echo 'ready=yes' >> "$GITHUB_OUTPUT"; else echo 'ready=no' >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v6
+        if: steps.guard.outputs.ready == 'yes'
+        with:
+          fetch-depth: 1
+      - uses: anthropics/claude-code-action@v1
+        if: steps.guard.outputs.ready == 'yes'
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

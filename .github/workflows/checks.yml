@@ -1,0 +1,47 @@
+# The gate. Everything here is deterministic: it renders the site from its sources,
+# runs the repository's own checks, and fails when the committed pages have drifted
+# from what the sources produce. No model runs in this workflow.
+#
+# `merge_group` is here so the same checks report when a pull request is queued.
+# Without it a merge queue waits forever for a check that never starts.
+name: Checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Render and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r build/requirements.txt
+      - name: Layout and naming rules
+        run: python build/check.py --layout
+      - name: Check the checks
+        run: python build/check.test.py
+      - name: Render the site from its sources
+        run: python build/render.py
+      - name: Content and structure checks
+        run: python build/check.py
+      - name: Committed pages match their sources
+        run: |
+          changes="$(git status --porcelain --untracked-files=all -- public)"
+          if [ -n "$changes" ]; then
+            echo "$changes"
+            echo 'The committed pages differ from what the sources render.'
+            echo 'Run: python build/render.py  — then commit public/.'
+            exit 1
+          fi
