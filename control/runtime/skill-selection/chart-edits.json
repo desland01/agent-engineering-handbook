@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "recorded": "2026-09-11",
+  "release": "/Users/thebeast/.nautilus/current/release",
+  "edits": [
+    {
+      "path": "charts/operating.md",
+      "note": "The chart every run composes first.",
+      "before_sha256": "29495e751d757f83d0dcefe6946b1243437cf0eb01fd76125d1edd97a7d5900f",
+      "after_sha256": "140f1ab0415f5fd46ef52ca45f693b45016c0fb2c1a17ce321f4830f93d33a88",
+      "before_bytes": 1777,
+      "after_bytes": 2221,
+      "replacements": [
+        {
+          "before": "Complete the authorized task in the supplied workspace. Follow the task's exact outcome, scope, constraints, and output requirements. Choose the methods needed to complete it within those requirements.",
+          "after": "Complete the authorized task in the supplied workspace. Follow the task's exact outcome, scope, constraints, and output requirements.\n\nBefore the first substantive action, read the available skill catalog and name the skills this task needs. More than one is the ordinary answer: work spanning research and implementation, or design and copy, takes a chain, where the earlier skill's output is the next one's input. Name them in the order they apply and load each one where it applies, not all at the start. A skill you selected and never invoked is a defect, not a saving. When nothing in the catalog fits, say what you looked for and continue.",
+          "why": "'Choose the methods needed to complete it' asks for nothing measurable and reads as one method; the replacement makes selection a step, says several is normal, and makes an unused selection a defect."
+        }
+      ]
+    },
+    {
+      "path": "charts/core-skills/CORE.md",
+      "note": "The skill chart, composed into every marker.",
+      "before_sha256": "69b90ffcbfa777211e1fe0a1af346c24da56af1895f588bc81de552f27a1fc55",
+      "after_sha256": "cc0e7b28e5880a4ddeeee54d987ad307c1427c5ee9782164a9de0f6332d1c898",
+      "before_bytes": 5225,
+      "after_bytes": 6211,
+      "replacements": [
+        {
+          "before": "The selected runtime exposes native skill descriptions and loads bodies on demand. Use\nthe applicable method for the current deliverable. An explicit user request selects a\nuser-only workflow even when it is absent from the proactive catalog. Verify its native\nentry before reporting it missing; preserve its invocation flags. Do not load an old\ncatalog, every body or legacy memory as an additional instruction hierarchy.",
+          "after": "The selected runtime exposes native skill descriptions and loads bodies on demand. An\nexplicit user request selects a user-only workflow even when it is absent from the\nproactive catalog. Verify its native entry before reporting it missing; preserve its\ninvocation flags. Do not load an old catalog, every body or legacy memory as an\nadditional instruction hierarchy.",
+          "why": "'Use the applicable method for the current deliverable' is singular by construction; the selection rule replaces it in its own section below."
+        },
+        {
+          "before": "\n## Classification and capacity\n",
+          "after": "\n## Most tasks need more than one method\n\nRead the catalog at intake, before the first substantive action, and name every method the\ntask needs. The ordinary answer is several. A long or composite assignment is a chain \u2014\nplan, then implement, then review \u2014 where each stage's output is the next stage's input.\nState the chain before starting and load each method at the point it applies rather than\nall at once. Invoking none of the methods you named is the failure this step exists to\nprevent; where nothing in the catalog fits, say what you looked for and continue.\n\n## A worker is given its methods, not left to guess\n\nDelegated work carries the same selection, made by the parent. The capsule names the\nworker's methods in the order they apply, beside the assignment, inputs, write ownership,\nlimits, deliverable and completion evidence. Admission refuses a method the parent does not\nitself require, so the parent selects for the whole assignment tree before the first\ndispatch rather than discovering a missing method at hand-off.\n\n## Classification and capacity\n",
+          "why": "The selection step and the delegation rule, in the chart every worker already reads for skill loading. Charts are not counted against the skill library, which has 810 bytes left."
+        }
+      ]
+    }
+  ]
+}
