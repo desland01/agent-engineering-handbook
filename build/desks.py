@@ -62,7 +62,11 @@ def _desk(ox):
 
 
 def _robot(key, cx, w, base=DESK_TOP):
-    """One of the home page's robots, standing on the slab at the keyboard."""
+    """One of the home page's robots, standing on the slab at the keyboard.
+
+    Drawn quieter than on the home page, and with its accent pixel dropped to the
+    same ink as its body: in this picture the subject is the empty chair, so the
+    robot must not be the brightest thing in the frame."""
     h = w * 28 / 40
     x, y = cx - w / 2, base - h
     svg = ROBOTS.get(key)
@@ -72,21 +76,22 @@ def _robot(key, cx, w, base=DESK_TOP):
                 '<rect x="8" y="22" width="4" height="4" fill="currentColor"/>'
                 '<rect x="28" y="22" width="4" height="4" fill="currentColor"/></g>')
     inner = svg[svg.index('>') + 1:svg.rindex('</svg>')]
+    inner = inner.replace('var(--accent-text,#f37a3b)', 'currentColor')
     return (f'<g transform="translate({x},{y}) scale({w / 40})" fill="currentColor" '
-            f'shape-rendering="crispEdges">{inner}</g>')
+            f'fill-opacity=".5" shape-rendering="crispEdges">{inner}</g>')
 
 
 def _chair(cx, s=1.0, flip=False, turn=-8):
     """An office chair seen from the side, standing on the floor, with nobody in
     it. It is drawn turned a few degrees — the angle a chair keeps after someone
     pushes it back and walks off."""
-    body = ('<g fill="none" stroke="currentColor" stroke-opacity=".55" stroke-width="1.6" '
+    body = ('<g fill="none" stroke="currentColor" stroke-opacity=".85" stroke-width="1.8" '
             'stroke-linecap="round" stroke-linejoin="round">'
             '<path d="M6 0v30a5 5 0 0 0 5 5h17"/>'          # the back, and the seat's near edge
             '<path d="M8 35h30a3 3 0 0 1 0 6H14a6 6 0 0 1-6-6z"/>'   # the seat
             '<path d="M22 41v14"/><path d="M8 58h28"/>'      # the column and the base
             '<path d="M14 55l-6 3M30 55l6 3"/>'
-            '<path d="M10 6h-3M10 14h-3" stroke-opacity=".3"/></g>')
+            '<path d="M10 6h-3M10 14h-3" stroke-opacity=".45"/></g>')
     sx = -1 if flip else 1
     return (f'<g transform="translate({cx},{FLOOR - 58 * s}) scale({sx * s},{s}) '
             f'rotate({turn} 22 30)">{body}</g>')
@@ -197,29 +202,39 @@ def _interview(ox, T, key):
     return ''.join(a)
 
 
-def desks():
-    T = PERIOD
-    p = []
-    a = p.append
-    a(f'<svg class="desks-loop" viewBox="0 0 {VIEW_W} {VIEW_H}" role="img" '
-      'aria-label="Three empty workstations — a streaming desk, a course desk and an interview set. '
-      'Every chair is pushed back and unoccupied while small robots work at the desks and the screens '
-      'keep landing green checks on their own.">')
-    a('<defs><pattern id="desks-dots" width="24" height="24" patternUnits="userSpaceOnUse">'
-      '<circle cx="1" cy="1" r="1" fill="currentColor" fill-opacity=".12"/></pattern></defs>')
-    a(f'<rect width="{VIEW_W}" height="{VIEW_H}" fill="url(#desks-dots)"/>')
+def _station(i, T):
+    name, status, key = STATIONS[i]
+    build = (_stream, _course, _interview)[i]
+    return (f'<svg class="desks-loop" viewBox="0 0 {PANEL_W} {VIEW_H}" role="img" aria-label="{ALT[i]}">'
+            '<defs><pattern id="desks-dots-' + str(i) + '" width="24" height="24" patternUnits="userSpaceOnUse">'
+            '<circle cx="1" cy="1" r="1" fill="currentColor" fill-opacity=".12"/></pattern></defs>'
+            f'<rect width="{PANEL_W}" height="{VIEW_H}" fill="url(#desks-dots-{i})"/>'
+            + _hair(0, 0, PANEL_W, PANEL_H, rx=4, op='.18')
+            + _floor(0) + build(0, T, key)
+            + _label(18, PANEL_H + 26, name)
+            + _label(PANEL_W - 18, PANEL_H + 26, status, size=11, anchor='end', cls='lbl sub')
+            + '</svg>')
 
-    for i, ((name, status, key), build) in enumerate(zip(STATIONS, (_stream, _course, _interview))):
-        ox = i * (PANEL_W + GAP)
-        a('<g class="station">')
-        a(_hair(ox, 0, PANEL_W, PANEL_H, rx=4, op='.18'))
-        a(_floor(ox))
-        a(build(ox, T, key))
-        a(_label(ox + 18, PANEL_H + 26, name))
-        a(_label(ox + PANEL_W - 18, PANEL_H + 26, status, size=11, anchor='end', cls='lbl sub'))
-        a('</g>')
-    a('</svg>')
-    return ''.join(p)
+
+ALT = [
+    'A streaming desk with the chair pushed back and nobody in it. A small robot works at '
+    'the keyboard, the chat column keeps scrolling and the screen keeps landing green checks; '
+    'the on-air lamp is dark.',
+    'A course desk with the chair pushed back and nobody in it. A small robot works at the '
+    'keyboard while the playhead crosses the edit timeline and the screen lands green checks.',
+    'An interview set: two chairs turned towards each other across a microphone, both empty, '
+    'a lamp still on, and a screen at the side still landing green checks.',
+]
+
+
+def desks():
+    """The three stations, as three drawings in one scrolling row. They are separate
+    so each is a scroll-snap target on a phone; they share one period, and each
+    starts its own SMIL clock at page load, so they stay in step."""
+    return ('<div class="desks-row" tabindex="0" role="group" '
+            'aria-label="Three empty workstations">'
+            + ''.join(_station(i, PERIOD) for i in range(3))
+            + '</div>')
 
 
 if __name__ == '__main__':

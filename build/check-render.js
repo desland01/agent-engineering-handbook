@@ -234,6 +234,24 @@ async function main() {
             else if (/\b[0-9a-f]{12,40}\b/.test(txt)) out.push('jargon — revision hash in front-facing copy: "' + txt.slice(0, 50) + '"');
             else if (/\b[\w-]+\/[\w.-]+\.(?:py|md|ts|js|json|yaml|yml)\b/.test(txt)) out.push('jargon — file path in front-facing copy: "' + txt.slice(0, 50) + '"');
           }
+          // 10. A band's seam does not run over its own content. The dithered seam is
+          // drawn by .band::after at the foot of the band, so a band whose padding is
+          // tighter than the seam puts the seam on top of whatever ends the band - the
+          // row controls on the guides track did exactly that.
+          for (const band of document.querySelectorAll('.band')) {
+            const seam = getComputedStyle(band, '::after');
+            if (seam.content === 'none' || seam.display === 'none') continue;
+            const seamH = parseFloat(seam.height); if (!seamH) continue;
+            const seamTop = band.getBoundingClientRect().bottom - seamH;
+            for (const el of band.querySelectorAll('a, button, p, h2, h3, li')) {
+              const r = el.getBoundingClientRect();
+              if (r.height === 0 || r.width === 0) continue;
+              if (r.bottom > seamTop + 1 && r.top < band.getBoundingClientRect().bottom) {
+                out.push('seam — the band seam runs over "' + (el.textContent.trim().slice(0, 30) || el.tagName) + '" in .' + band.className.split(' ').join('.'));
+                break;
+              }
+            }
+          }
           // 7. No emoji anywhere in the rendered text.
           if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(document.body.innerText)) out.push('emoji — rendered text contains an emoji');
           return out;
