@@ -69,8 +69,8 @@ stale artifact that fails, and an unchanged second run. This checks the actual f
 it does not require tests asserting that policy sentences contain particular words.
 
 This handbook uses the same pattern: Vercel runs `build/render.py` and `build/check.py`
-from the editable sources on deployment. The optional GitHub workflow in
-`build/handbook-workflow.example.yml` detects stale committed pages, but is not installed
-in this research snapshot because the publishing token lacks workflow permission.
+from the editable sources on deployment. The GitHub workflow in
+`.github/workflows/checks.yml` runs them again on every pull request, detects a committed
+page that no longer matches its source, and blocks the merge until it is regenerated.
 Human ownership of meaning remains explicit; a scheduled language-model rewrite is not
 needed to keep generated facts current.

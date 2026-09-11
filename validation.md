@@ -116,7 +116,9 @@ The integrated output matched the inspected build before this validation note wa
 The existing package check passed all 27 HTML pages. Design and interaction instructions
 remain contributor source files and are excluded from the published output.
 
-GitHub Actions is enabled on the repository, but the publishing token lacks its workflow
-permission. An optional freshness workflow is retained under
-`build/handbook-workflow.example.yml`; it is not an installed CI check. Vercel runs the
-renderer and package check on deployment.
+GitHub Actions runs the freshness check on every pull request and on every push to the
+main branch, from `.github/workflows/checks.yml`. It renders the pages from their sources,
+runs the layout, content and self-tests, and fails when a committed page differs from what
+its source produces. A repository rule requires that check before a pull request can merge,
+and refuses a push made straight to the main branch. Vercel runs the renderer and package
+check again on deployment.
