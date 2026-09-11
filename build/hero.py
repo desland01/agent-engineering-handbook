@@ -32,10 +32,10 @@ N = 5                    # one robot per agent on the track
 
 # Geometry, in the 1040 x 640 viewBox.
 TRACK_TOP, TRACK_BOTTOM = 92, 560
-TRACK_LEFT, TRACK_RIGHT = 318, 828       # inside the codebase's right edge / agents centre
+TRACK_LEFT, TRACK_RIGHT = 404, 828       # clear of the codebase's right edge / agents centre
 R_CORNER = 28
 GATE_X = 512
-CODE_X, CODE_Y, CODE_W, CODE_H = 64, 148, 300, 356
+CODE_X, CODE_Y, CODE_W, CODE_H = 64, 148, 330, 356
 AGENT_X, AGENT_W, AGENT_H, AGENT_GAP = 672, 312, 66, 12
 AGENTS = [('claude', 'Claude'), ('codex', 'Codex'), ('gemini', 'Gemini'), ('kimi', 'Kimi'), ('zai', 'Z.ai')]
 AGENT_Y0 = 142
@@ -46,7 +46,7 @@ IVORY = '#f7f3ef'
 _MONO = 'font-family="var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace)" letter-spacing=".12em"'
 
 
-def _label(x, y, text, size=15, anchor='start', cls='lbl'):
+def _label(x, y, text, size=20, anchor='start', cls='lbl'):
     return (f'<text class="{cls}" x="{x}" y="{y}" font-size="{size}" text-anchor="{anchor}" {_MONO} '
             f'fill="currentColor">{text}</text>')
 
@@ -73,14 +73,83 @@ def _fractions():
     return d_gate / total, d_code_top / total, d_agents / total, cells
 
 
-def _keyed(attr, points, T, begin=0.0, discrete=True):
-    """An <animate> values/keyTimes pair from (fraction, value) points."""
+# Easing for the things that are events rather than travel. A catch, a rule being
+# written, a layer lighting up: each arrives quickly and leaves slowly, which is how
+# a real flash of attention behaves. Constant-rate fades are the tell of generated
+# motion. Travel — the track dashes, the typing — stays linear on purpose, and a
+# terminal cursor stays discrete: a cursor that eases is a cursor that is wrong.
+EASE_OUT = '0 0 .2 1'     # quick arrival, settling
+EASE_IN = '.5 0 1 1'      # slow release
+
+
+def _keyed(attr, points, T, begin=0.0, discrete=True, ease=False):
+    """An <animate> values/keyTimes pair from (fraction, value) points.
+
+    With `ease`, every interval that rises toward a peak uses EASE_OUT and every
+    interval that falls away from one uses EASE_IN, so a flash snaps in and decays
+    instead of ramping symmetrically."""
     pts = sorted(dict(points).items())
     kt = ';'.join(f'{t:.4f}' for t, _ in pts)
     vals = ';'.join(str(v) for _, v in pts)
     mode = ' calcMode="discrete"' if discrete else ''
+    if ease and not discrete and len(pts) > 1:
+        def rank(v):
+            try:
+                return float(v)
+            except ValueError:
+                return 0.0
+        splines = [EASE_OUT if rank(pts[i + 1][1]) >= rank(pts[i][1]) else EASE_IN
+                   for i in range(len(pts) - 1)]
+        mode = f' calcMode="spline" keySplines="{";".join(splines)}"'
     b = f' begin="{begin:.3f}s"' if begin else ''
     return f'<animate attributeName="{attr}" values="{vals}" keyTimes="{kt}"{mode} dur="{T}s"{b} repeatCount="indefinite"/>'
+
+
+# How fast a robot covers the track. It is not one speed: a robot eases as it comes
+# into the check, is held for a beat while the check reads it, and is released. That
+# hesitation is what makes the catch the loudest moment in the loop without adding a
+# single new element to the drawing. PACE_DIP is how much of its normal speed a robot
+# keeps at the gate; PACE_BEFORE / PACE_AFTER are how far either side the slowing runs,
+# as fractions of the lap.
+PACE_DIP, PACE_BEFORE, PACE_AFTER = 0.34, 0.075, 0.055
+PACE_KNOTS = 48           # samples emitted as keyPoints/keyTimes
+
+
+def _pace(f_gate):
+    """Return (keyPoints, keyTimes, time_at).
+
+    `time_at(f)` converts a distance fraction along the track into the lap fraction at
+    which a robot reaches it. Every event keyed to a place on the track — the catch, the
+    filing, each codebase layer — goes through it, so the drawing stays in step with the
+    motion instead of drifting once the speed stops being uniform."""
+    samples = 720
+
+    def rate(f):
+        d = (f - f_gate + 0.5) % 1.0 - 0.5          # signed distance to the gate
+        span = PACE_BEFORE if d < 0 else PACE_AFTER
+        if abs(d) >= span:
+            return 1.0
+        # a raised cosine, so the robot arrives and leaves smoothly rather than stepping
+        return 1.0 - (1.0 - PACE_DIP) * (0.5 * (1 + cos(pi * d / span)))
+
+    # time is the integral of 1/rate over distance, normalised to one lap
+    ts, acc = [0.0], 0.0
+    for i in range(samples):
+        acc += 1.0 / rate((i + 0.5) / samples)
+        ts.append(acc)
+    ts = [t / acc for t in ts]
+
+    def time_at(f):
+        if f >= 1.0:
+            return 1.0
+        x = (f % 1.0) * samples
+        i = min(int(x), samples - 1)
+        return ts[i] + (ts[i + 1] - ts[i]) * (x - i)
+
+    pts = [i / PACE_KNOTS for i in range(PACE_KNOTS + 1)]
+    return (';'.join(f'{p:.4f}' for p in pts),
+            ';'.join(f'{time_at(p):.4f}' for p in pts),
+            time_at)
 
 
 def _pulse_points(centres, rise=0.004, fall=0.06, peak='1'):
@@ -124,7 +193,13 @@ def _robot(key, x, y, w, chest=None):
 
 
 def hero():
-    f_gate, f_in, f_agents, f_cells = _fractions()
+    d_gate, d_in, d_agents, d_cells = _fractions()
+    key_points, key_times, time_at = _pace(d_gate)
+    # Places on the track are distances; everything that has to happen *when a robot is
+    # there* is a time. The two stopped being the same number the moment the robots
+    # gained a pace, so every distance crosses over here, once.
+    f_gate, f_in, f_agents = time_at(d_gate), time_at(d_in), time_at(d_agents)
+    f_cells = [time_at(c) for c in d_cells]
     T = PERIOD
     parts = []
     a = parts.append
@@ -163,7 +238,7 @@ def hero():
         if i:
             a(f'<line x1="{CODE_X}" y1="{y:.0f}" x2="{CODE_X + CODE_W}" y2="{y:.0f}" stroke="currentColor" stroke-opacity=".2"/>')
         a(_label(CODE_X + 16, y + 26, name, cls='lbl cell'))
-        a(_label(CODE_X + 16, y + 45, sub, size=12.5, cls='lbl sub'))
+        a(_label(CODE_X + 16, y + 45, sub, size=18, cls='lbl sub'))
         bars = {0: [(0, 64), (0, 40), (0, 52)], 1: [(0, 110), (0, 86)], 2: [(0, 46), (56, 46), (112, 46)], 3: [(0, 130), (0, 96), (0, 72)]}[i]
         by = y + 58
         for j, (bx, bw) in enumerate(bars):
@@ -172,11 +247,11 @@ def hero():
         # each layer brightens for a moment as a change reaches it - the codebase being written to
         layer_hits = [((k / N) + f_cells[i]) % 1.0 for k in range(N)]
         a(f'<rect x="{CODE_X}" y="{y:.0f}" width="{CODE_W}" height="{ch:.0f}" fill="currentColor" opacity="0">'
-          + _keyed('opacity', _pulse_points(layer_hits, rise=0.003, fall=0.035, peak='.06'), T, discrete=False) + '</rect>')
+          + _keyed('opacity', _pulse_points(layer_hits, rise=0.003, fall=0.035, peak='.06'), T, discrete=False, ease=True) + '</rect>')
     # the CHECKS cell: when a caught mistake is filed, the border flashes and a new rule bar
     # writes itself in orange, settles to ivory, and fades before the lap ends
     a(f'<rect x="{CODE_X}" y="{CODE_Y}" width="{CODE_W}" height="{ch:.0f}" rx="4" fill="none" stroke="{ACCENT}" stroke-width="1.5" opacity="0">'
-      + _keyed('opacity', _pulse_points(file_times, fall=0.03, peak='.9'), TT, discrete=False) + '</rect>')
+      + _keyed('opacity', _pulse_points(file_times, fall=0.03, peak='.9'), TT, discrete=False, ease=True) + '</rect>')
     for j, t0 in enumerate(file_times):
         bx, by = CODE_X + 16 + 96, CODE_Y + 58 + j * 11
         t_settle, t_end = min(t0 + 0.03, 0.998), min(t0 + 0.16, 0.999)
@@ -187,7 +262,7 @@ def hero():
     # a CI status light in the CHECKS cell: orange while a mistake is being caught
     a(f'<circle cx="{CODE_X + CODE_W - 22}" cy="{CODE_Y + 22}" r="4" fill="{IVORY}">'
       + _keyed('fill', _step_points(IVORY, catch_times, 0.03, ACCENT), TT) + '</circle>')
-    a(_label(CODE_X + CODE_W - 34, CODE_Y + 26, 'CI', size=11, anchor='end', cls='lbl sub ci'))
+    a(_label(CODE_X + CODE_W - 34, CODE_Y + 26, 'CI', size=18, anchor='end', cls='lbl sub ci'))
     a(_label(CODE_X, CODE_Y - 16, 'THE CODEBASE'))
     a('</g>')
 
@@ -198,7 +273,7 @@ def hero():
     a(f'<path d="M{gx - 30},{gy - 22} l6,6 l12,-13" fill="none" stroke="{IVORY}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'
       + _keyed('stroke', _step_points(IVORY, catch_times, 0.012, ACCENT), TT) + '</path>')
     a(f'<rect x="{gx - gs/2 - 7}" y="{gy - gs/2 - 7}" width="{gs + 14}" height="{gs + 14}" rx="6" fill="none" stroke="{ACCENT}" stroke-width="1.5" opacity="0">'
-      + _keyed('opacity', _pulse_points(catch_times, rise=0.001, fall=0.012), TT, discrete=False) + '</rect>')
+      + _keyed('opacity', _pulse_points(catch_times, rise=0.001, fall=0.012), TT, discrete=False, ease=True) + '</rect>')
     # the dot burst: twelve dots that fly out from the gate and fade, once per catch
     for d in range(12):
         ang = 2 * pi * d / 12
@@ -210,7 +285,7 @@ def hero():
             tr[min(c + 0.0152, 0.9995)] = '0 0'
         trs = sorted(tr.items())
         a(f'<circle cx="{gx + dx * 46:.1f}" cy="{gy + dy * 46:.1f}" r="2" fill="{ACCENT}" opacity="0">'
-          + _keyed('opacity', _pulse_points(catch_times, rise=0.0005, fall=0.015, peak='.9'), TT, discrete=False)
+          + _keyed('opacity', _pulse_points(catch_times, rise=0.0005, fall=0.015, peak='.9'), TT, discrete=False, ease=True)
           + f'<animateTransform attributeName="transform" type="translate" values="{";".join(v for _, v in trs)}" '
             f'keyTimes="{";".join(f"{t:.4f}" for t, _ in trs)}" dur="{TT}s" repeatCount="indefinite"/></circle>')
     a(_label(gx, gy + gs / 2 + 26, 'THE CHECK', anchor='middle'))
@@ -224,8 +299,8 @@ def hero():
         a(f'<line x1="{AGENT_X}" y1="{y + 24}" x2="{AGENT_X + AGENT_W}" y2="{y + 24}" stroke="currentColor" stroke-opacity=".2"/>')
         for d in range(3):
             a(f'<circle cx="{AGENT_X + 14 + d * 10}" cy="{y + 12}" r="2.2" fill="currentColor" fill-opacity=".35"/>')
-        a(_label(AGENT_X + AGENT_W - 14, y + 17, name.upper(), size=12, anchor='end', cls='lbl name'))
-        a(f'<text x="{AGENT_X + 16}" y="{y + 52}" font-size="14" {_MONO} fill="currentColor" fill-opacity=".8">&#8811;</text>')
+        a(_label(AGENT_X + AGENT_W - 14, y + 17, name.upper(), size=18, anchor='end', cls='lbl name'))
+        a(f'<text class="lbl prompt" x="{AGENT_X + 16}" y="{y + 52}" font-size="20" {_MONO} fill="currentColor" fill-opacity=".8">&#8811;</text>')
         # the prompt line types itself out over the lap, at a different phase per agent, and clears
         w = [150, 118, 176, 132, 160][i]
         ph = i / len(AGENTS)
@@ -265,7 +340,9 @@ def hero():
         # the whole robot changes colour: orange while it carries the mistake, ivory otherwise
         body = body.replace('fill="currentColor" shape-rendering="crispEdges">', f'fill="{IVORY}" shape-rendering="crispEdges">'
                             + _keyed('fill', list(pts_fill.items()), T * LAPS, begin=begin), 1)
-        a(f'<g>{body}<animateMotion dur="{T}s" begin="{begin:.3f}s" repeatCount="indefinite" calcMode="linear"><mpath href="#hero-track"/></animateMotion></g>')
+        a(f'<g>{body}<animateMotion dur="{T}s" begin="{begin:.3f}s" repeatCount="indefinite" '
+          f'calcMode="linear" keyPoints="{key_points}" keyTimes="{key_times}">'
+          '<mpath href="#hero-track"/></animateMotion></g>')
     a('</g>')
     a('</svg>')
     return ''.join(parts)

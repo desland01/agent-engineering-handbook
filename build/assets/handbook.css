@@ -209,13 +209,25 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 .desks-figure .lbl.sub { font-size: 12px; }
 .hero-figure .lbl.cell { fill: var(--muted-fg); }
 @media (max-width: 979px) { .hero-figure { max-width: 720px; } }
+/* The figure's text is drawn in viewBox units, so what a reader actually gets is the
+   unit size times the figure's render scale — 0.62 at full width, 0.49 at the narrow end
+   of the two-column layout. The sizes above are set for the wide case. In the narrow
+   band the same sizes would land near 8px, so the figure carries fewer things, larger:
+   the four cell sub-captions come off and the labels go up. Sizes here are units. */
+@media (min-width: 980px) and (max-width: 1199px) {
+  .hero-figure .lbl { font-size: 24px; }
+  .hero-figure .lbl.name { font-size: 22px; }
+  .hero-figure .lbl.prompt { font-size: 24px; }
+  .hero-figure .lbl.sub { display: none; }
+}
 /* Below tablet width the figure is a third of its desktop size, so the captions are
    re-set for that size: labels larger, sub-captions off. CSS wins over the SVG's
    presentation attributes, so the same drawing serves both. */
 @media (max-width: 640px) {
   .hero-figure { margin-inline: calc(-1 * var(--gutter)); max-width: none; }
-  .hero-figure .lbl { font-size: 24px; }
-  .hero-figure .lbl.name { font-size: 18px; }
+  .hero-figure .lbl { font-size: 30px; }
+  .hero-figure .lbl.name { font-size: 27px; }
+  .hero-figure .lbl.prompt { font-size: 28px; }
   .hero-figure .lbl.sub, .hero-figure .lbl.track { display: none; }
 }
 @media print { .hero-figure, .desks-figure { display: none; } }
@@ -932,6 +944,13 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 /* ------------------------------------------------------------------ */
 .study { min-height: 100svh; display: grid; align-content: center; padding-block: 64px; border-top: 1px solid var(--border); }
 .study-figure { margin: 0; }
+/* A diagram used as a tile mark is a few hundred pixels wide; its captions cannot
+   be read there at any size the drawing would survive, so they come off and the
+   tile's own title carries the naming. The figure keeps them. */
+.art svg.diagram text { display: none; }
+/* At phone width the diagram takes the gutters too, so its captions get every
+   pixel available; see the unit note in build/icons.py. */
+@media (max-width: 640px) { .study-figure { margin-inline: calc(-1 * var(--gutter)); } }
 .study-figure svg { display: block; width: 100%; height: auto; color: var(--accent-text); }
 /* B5. The diagram is revealed by a left-to-right sweep scrubbed by the
    figure's own passage through the viewport, following the order the drawing

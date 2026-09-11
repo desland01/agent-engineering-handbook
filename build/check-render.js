@@ -254,6 +254,25 @@ async function main() {
           }
           // 7. No emoji anywhere in the rendered text.
           if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(document.body.innerText)) out.push('emoji — rendered text contains an emoji');
+          // 8. Text inside a drawing is measured at the size the reader gets, not the
+          // size it was authored at. An inline SVG carries its own coordinate system, so
+          // a caption set to 12.5 "px" inside a 1040-wide viewBox drawn 593px wide lands
+          // at 7.1px on the page. Twice this check's threshold was missed by raising the
+          // authored number and never converting it: the figure's scale is the whole bug.
+          // Words must clear 10px; a single glyph (a prompt chevron, an arrow) may be
+          // smaller because nobody reads it as a word.
+          for (const svg of document.querySelectorAll('svg[viewBox]')) {
+            const vb = svg.getAttribute('viewBox').split(/[ ,]+/).map(Number);
+            const box = svg.getBoundingClientRect();
+            if (!vb[2] || !box.width) continue;
+            const scale = box.width / vb[2];
+            for (const t of svg.querySelectorAll('text')) {
+              const word = t.textContent.trim();
+              if (word.length < 2 || getComputedStyle(t).display === 'none') continue;
+              const px = parseFloat(getComputedStyle(t).fontSize) * scale;
+              if (px < 10) out.push('figure text — "' + word.slice(0, 24) + '" renders at ' + px.toFixed(1) + 'px (min 10); the drawing is scaled to ' + scale.toFixed(2));
+            }
+          }
           return out;
         });
         for (const s of slop) failures.push(pagePath + ' @' + vp.width + ': slop — ' + s);
