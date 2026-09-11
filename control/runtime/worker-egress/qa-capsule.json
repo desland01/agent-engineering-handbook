@@ -1,0 +1,57 @@
+{
+  "version": 5,
+  "id": "astra-visualizer-qa",
+  "releaseDigest": "<digest of the release that carries the sandbox ceiling>",
+  "workspaceRoot": "/Users/thebeast/nautilus-work/astra-visualizer-qa/worker",
+  "allowWrite": [
+    "/Users/thebeast/nautilus-work/astra-visualizer-qa/worker"
+  ],
+  "allowRead": [
+    "/Users/thebeast/ranger-painting-full-build"
+  ],
+  "inputs": {},
+  "requiredCharts": [
+    "nautilus-core:precise",
+    "nautilus-core:qa",
+    "nautilus-core:browser"
+  ],
+  "skillPlan": [
+    {
+      "chart": "nautilus-core:precise",
+      "purpose": "wording of the assignment and the evidence report"
+    },
+    {
+      "chart": "nautilus-core:browser",
+      "purpose": "driving the pages and capturing what each step showed"
+    },
+    {
+      "chart": "nautilus-core:qa",
+      "purpose": "exercising the flow as a user and recording reproducible defects"
+    }
+  ],
+  "tools": [
+    "Bash",
+    "Read",
+    "Write",
+    "Glob",
+    "Grep",
+    "Skill"
+  ],
+  "modelRoute": "gpt-6-astra",
+  "provider": "local-proxy",
+  "network": {
+    "allowedDomains": [
+      "www.rangerpainting.com"
+    ],
+    "allowLocalBinding": false
+  },
+  "limits": {
+    "maxSeconds": null,
+    "maxRequests": null
+  },
+  "declaredOutputs": [
+    "/Users/thebeast/nautilus-work/astra-visualizer-qa/worker/output/qa-report.md",
+    "/Users/thebeast/nautilus-work/astra-visualizer-qa/worker/output/findings.json"
+  ],
+  "expiresAt": null
+}

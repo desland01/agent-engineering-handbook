@@ -1,0 +1,1365 @@
+--- a/src/capsule-schema.mjs
++++ b/src/capsule-schema.mjs
+@@ -1,4 +1,4 @@
+-// Capsule declaration schema, versions 1 through 3 (explicit contract; unknown fields refused).
++// Capsule declaration schema, versions 1 through 5 (explicit contract; unknown fields refused).
+ // Version 2 adds optional roleId. Version 3 allows paired null duration/expiry,
+ // subject to explicit release permission; versions 1/2 retain finite lifetimes.
+ // Version 4 adds the explicit no-request-cap opt-in `limits.maxRequests: null`,
+@@ -7,6 +7,9 @@
+ // Version 5 adds the required `skillPlan`: the ordered, justified skills this run
+ // selected, each already in requiredCharts. Order is the chain order. Versions 1-4
+ // carry no plan and keep their exact behaviour, including an unused required Chart.
++// Version 5 also adds the optional `network` egress declaration and permits `allowRead`
++// entries outside the workspace. Both narrow an Anchor `sandbox` ceiling and are refused
++// outright by a release that declares none (capsule-admission.mjs, capsuleSandboxScopes).
+ // Dependency-free: node builtins only. See CAPSULES.md for the full contract.
+ 
+ import {
+@@ -17,6 +20,13 @@
+ 
+ export const CAPSULE_SCHEMA_VERSION = 5;
+ export const CAPSULE_SCHEMA_VERSIONS = [1, 2, 3, 4, 5];
++// The contract version that may declare egress.
++const EGRESS = [5];
++// An exact host ('www.example.com', 'localhost') or one leading wildcard label
++// ('*.example.com'). No scheme, path, port or bare '*': a destination the declaration
++// cannot name is a destination the run does not reach.
++const LABEL = '[a-z0-9]([a-z0-9-]*[a-z0-9])?';
++const HOST = new RegExp('^(\\*\\.)?' + LABEL + '(\\.' + LABEL + ')*$');
+ const SHA256 = /^[a-f0-9]{64}$/;
+ const ID = /^[a-z0-9][a-z0-9._-]{2,127}$/;
+ const CHART = /^[a-z0-9][a-z0-9._:-]*$/;
+@@ -44,6 +54,7 @@
+   const allowedFields = ['version', 'id', 'parentId', 'releaseDigest', 'workspaceRoot', 'allowWrite', 'allowRead', 'inputs', 'requiredCharts', 'tools', 'modelRoute', 'provider', 'limits', 'declaredOutputs', 'expiresAt'];
+   if (raw.version >= 2) allowedFields.push('roleId');
+   if (raw.version >= 5) allowedFields.push('skillPlan');
++  if (EGRESS.includes(raw.version)) allowedFields.push('network');
+   for (const key of Object.keys(raw)) {
+     if (!allowedFields.includes(key)) fail(errors, key, 'unknown field; the version ' + raw.version + ' contract is explicit and refuses undeclared fields');
+   }
+@@ -228,6 +239,37 @@
+     }
+   }
+ 
++  // network: the hosts this run may reach, or absence meaning none. Parsed here for
++  // shape only; whether the release grants them is capsule-admission's decision.
++  let network;
++  if (raw.network !== undefined) {
++    if (typeOf(raw.network) !== 'object') {
++      fail(errors, 'network', 'expected an object with allowedDomains and an optional allowLocalBinding');
++    } else {
++      for (const key of Object.keys(raw.network)) {
++        if (!['allowedDomains', 'allowLocalBinding'].includes(key)) fail(errors, 'network.' + key, 'unknown field; the network contract declares allowedDomains and allowLocalBinding only');
++      }
++      const domains = [];
++      if (!Array.isArray(raw.network.allowedDomains) || raw.network.allowedDomains.length === 0) {
++        fail(errors, 'network.allowedDomains', 'expected a non-empty array of hosts; a network block that names no destination is not a grant');
++      } else {
++        for (const entry of raw.network.allowedDomains) {
++          if (typeof entry !== 'string' || !HOST.test(entry) || entry === '*') {
++            fail(errors, 'network.allowedDomains[]', 'expected an exact host or one leading wildcard label, got ' + JSON.stringify(entry));
++          } else if (domains.includes(entry)) {
++            fail(errors, 'network.allowedDomains[]', 'duplicate host: ' + entry);
++          } else {
++            domains.push(entry);
++          }
++        }
++      }
++      if (raw.network.allowLocalBinding !== undefined && typeof raw.network.allowLocalBinding !== 'boolean') {
++        fail(errors, 'network.allowLocalBinding', 'expected a boolean, or absence meaning false');
++      }
++      if (domains.length) network = {allowedDomains: domains, allowLocalBinding: raw.network.allowLocalBinding === true};
++    }
++  }
++
+   // expiry: an explicit UTC instant.
+   const noDeadline = raw.version >= 3 && limits.maxSeconds === null && raw.expiresAt === null;
+   if (raw.version >= 3 && ((limits.maxSeconds === null) !== (raw.expiresAt === null))) fail(errors, 'limits', 'no-deadline runs require both maxSeconds and expiresAt to be null');
+@@ -256,6 +298,7 @@
+       ...(raw.provider !== undefined ? {provider: raw.provider} : {}),
+       limits,
+       declaredOutputs,
++      ...(network !== undefined ? {network} : {}),
+       expiresAt: raw.expiresAt,
+     },
+   };
+--- a/src/capsule-admission.mjs
++++ b/src/capsule-admission.mjs
+@@ -54,6 +54,12 @@
+   }
+   if (!routeDelegated && child.modelRoute !== parent.modelRoute) push('modelRoute', child.modelRoute + ' != parent ' + parent.modelRoute + ' and no bound role lists it as eligible');
+   if (child.releaseDigest !== parent.releaseDigest) push('releaseDigest', 'child release binding differs from parent');
++  for (const domain of child.network?.allowedDomains ?? []) {
++    if (!(parent.network?.allowedDomains ?? []).some(entry => domainCovered(entry, domain))) {
++      push('network', 'child host ' + domain + ' is outside the parent egress (' + ((parent.network?.allowedDomains ?? []).join(', ') || 'none') + ')');
++    }
++  }
++  if (child.network?.allowLocalBinding === true && parent.network?.allowLocalBinding !== true) push('network', 'child claims local binding the parent does not hold');
+   if (parent.expiresAt !== null && (child.expiresAt === null || Date.parse(child.expiresAt) > Date.parse(parent.expiresAt))) push('expiresAt', child.expiresAt + ' is after parent ' + parent.expiresAt);
+   if (parent.roleId !== undefined && child.roleId !== parent.roleId) push('roleId', 'child must retain the parent role and its aggregate allowance');
+   const parentCharts = new Set(parent.requiredCharts);
+@@ -175,7 +181,7 @@
+     // A null request cap is admitted only as the explicit, versioned opt-in
+     // pair: capsule schema 4 plus Anchor taskLifetime version 2 permission.
+     const requestsWithin = capsule.limits.maxRequests === null
+-      ? capsule.version === 4 && context.anchorLimits.allowUnlimitedRequests === true
++      ? UNLIMITED_REQUEST_VERSIONS.includes(capsule.version) && context.anchorLimits.allowUnlimitedRequests === true
+       // A finite capsule request cap is always within an explicitly unbounded
+       // Anchor (anchorLimits.maxRequests === null): unlimited never forces null.
+       : context.anchorLimits.maxRequests === null || capsule.limits.maxRequests <= context.anchorLimits.maxRequests;
+@@ -201,7 +207,8 @@
+ // Capsule schema versions that may declare the paired no-deadline form
+ // (maxSeconds: null with expiresAt: null). Version 3 introduced it; version 4
+ // retains it alongside the no-request-cap opt-in.
+-const NO_DEADLINE_VERSIONS = [3, 4];
++const NO_DEADLINE_VERSIONS = [3, 4, 5];
++const UNLIMITED_REQUEST_VERSIONS = [4, 5];
+ 
+ export function capsuleRunLimits(capsule, anchorLimits, now = new Date().toISOString()) {
+   // Shared cap calculation: null only as the explicit, doubly-authorized opt-in.
+@@ -223,22 +230,58 @@
+   };
+ }
+ 
+-// Sandbox write/read scopes: intersection of the capsule scope with the
+-// runtime's own workspace scope. A capsule entry outside the runtime scope is
+-// a widening attempt and is refused, never silently clipped.
+-export function capsuleSandboxScopes(capsule, runtimeWriteScope) {
++// Does a ceiling entry cover a declared host? An exact host covers only itself; a
++// '*.example.com' ceiling covers any host under example.com, wildcard or not. The apex
++// is not covered by its own wildcard, matching the sandbox runtime's own reading.
++export function domainCovered(ceiling, declared) {
++  if (ceiling === declared) return true;
++  if (!ceiling.startsWith('*.')) return false;
++  const probe = declared.startsWith('*.') ? declared.slice(2) : declared;
++  return probe.endsWith(ceiling.slice(1));
++}
++
++// Sandbox write/read scopes: intersection of the capsule scope with the runtime's own
++// workspace scope. A capsule entry outside the runtime scope is a widening attempt and is
++// refused, never silently clipped.
++//
++// `anchorSandbox` is the release ceiling (release/anchor.json `sandbox`). It is the only
++// thing that can place a read outside the workspace or any network destination inside the
++// run. A release that declares no ceiling keeps the previous behaviour exactly: reads stay
++// inside the runtime scope and the run reaches nothing.
++export function capsuleSandboxScopes(capsule, runtimeWriteScope, anchorSandbox = undefined) {
+   for (const scope of capsule.allowWrite) {
+     if (!subtreeContains(runtimeWriteScope, scope)) {
+       throw new Error('capsule_scope_widens_runtime: ' + scope + ' is outside the runtime write scope ' + runtimeWriteScope);
+     }
+   }
++  const readableRoots = anchorSandbox?.readableRoots ?? [];
+   const reads = [capsule.workspaceRoot, ...(capsule.allowRead ?? []), ...Object.keys(capsule.inputs ?? {})];
+   for (const scope of reads) {
+-    if (!subtreeContains(runtimeWriteScope, scope)) throw new Error('capsule_read_widens_runtime: ' + scope);
++    if (subtreeContains(runtimeWriteScope, scope)) continue;
++    // Outside the run's own workspace: readable only where the release says so, and
++    // readable only — allowWrite was already bound to the runtime scope above.
++    if (readableRoots.some(root => subtreeContains(root, scope))) continue;
++    throw new Error(anchorSandbox === undefined
++      ? 'capsule_read_widens_runtime: ' + scope
++      : 'capsule_read_widens_anchor: ' + scope + ' is outside every release readable root (' + (readableRoots.join(', ') || 'none') + ')');
+   }
+-  return {
+-    allowWrite: capsule.allowWrite,
+-    allowRead: reads,
+-    network: {allowedDomains: [], deniedDomains: [], allowLocalBinding: false},
+-  };
++  let network = {allowedDomains: [], deniedDomains: [], allowLocalBinding: false};
++  if (capsule.network !== undefined) {
++    const ceiling = anchorSandbox?.network;
++    if (!ceiling) throw new Error('capsule_network_unavailable_in_release: this release declares no sandbox network ceiling, so no capsule may declare egress');
++    for (const domain of capsule.network.allowedDomains) {
++      if (!(ceiling.allowedDomains ?? []).some(entry => domainCovered(entry, domain))) {
++        throw new Error('capsule_network_widens_anchor: ' + domain + ' is outside the release ceiling (' + ((ceiling.allowedDomains ?? []).join(', ') || 'none') + ')');
++      }
++    }
++    if (capsule.network.allowLocalBinding === true && ceiling.allowLocalBinding !== true) {
++      throw new Error('capsule_local_binding_widens_anchor: this release does not permit a run to bind or reach local services');
++    }
++    network = {
++      allowedDomains: [...capsule.network.allowedDomains],
++      deniedDomains: [],
++      allowLocalBinding: capsule.network.allowLocalBinding === true,
++    };
++  }
++  return {allowWrite: capsule.allowWrite, allowRead: reads, network};
+ }
+--- a/src/capsule-runtime.mjs
++++ b/src/capsule-runtime.mjs
+@@ -76,10 +76,10 @@
+ 
+ // Measures the version-3 binding facts against the actual launch. Pure apart from the
+ // parent and role store reads done by the caller.
+-export function measureBindingFacts({capsule, workspace, route, anchorTools, parentState, roleState = {trusted: true}}) {
++export function measureBindingFacts({capsule, workspace, route, anchorTools, anchorSandbox, parentState, roleState = {trusted: true}}) {
+   const tools = effectiveTools(capsule, anchorTools);
+   let scopes = null, scopeError = null;
+-  try { scopes = capsuleSandboxScopes(capsule, workspace); } catch (error) { scopeError = error.message; }
++  try { scopes = capsuleSandboxScopes(capsule, workspace, anchorSandbox); } catch (error) { scopeError = error.message; }
+   const role = capsule.roleId === undefined ? null : (roleState.trusted === true ? roleState.role.role : null);
+   // A declared but untrusted role measures every role fact false: missing required evidence never passes.
+   const roleFacts = capsule.roleId === undefined ? roleBindingFacts({capsule, role: null, route, tools})
+@@ -274,7 +274,7 @@
+   const roleState = capsule.roleId === undefined ? {trusted: true} : loadTrustedRole({root, workspace, roleId: capsule.roleId, declaration:Object.hasOwn(roleLocations,capsule.roleId)?roleLocations[capsule.roleId]:undefined});
+   const parentRoleId = parentState.parent?.capsule.roleId;
+   const parentRoleState = parentRoleId === undefined ? {trusted: false} : loadTrustedRole({root, workspace, roleId: parentRoleId, declaration:Object.hasOwn(roleLocations,parentRoleId)?roleLocations[parentRoleId]:undefined});
+-  const binding = measureBindingFacts({capsule, workspace, route, anchorTools: anchor.tools, parentState, roleState});
++  const binding = measureBindingFacts({capsule, workspace, route, anchorTools: anchor.tools, anchorSandbox: anchor.sandbox, parentState, roleState});
+   const verdict = watch(CAPSULE_BINDING_CONSTANTS, binding.facts, CAPSULE_BINDING_CONSTANTS.map(c => c.id));
+   if (!verdict.allowed) throw bindingRefusal('binding', {gaps: verdict.gaps, facts: binding.facts, detail: binding.detail});
+   const leasesDir = join(root, LEASES_DIR);
+@@ -331,7 +331,7 @@
+     admission: {facts: launch.admission.facts, outcomes: launch.admission.outcomes},
+     leasesDir,
+     tools: binding.tools,
+-    scopes: {allowWrite: binding.scopes.allowWrite, allowRead: binding.scopes.allowRead},
++    scopes: {allowWrite: binding.scopes.allowWrite, allowRead: binding.scopes.allowRead, network: binding.scopes.network},
+     limits: {maxSeconds: launch.limits.timeoutSeconds, maxRequests: requestLimit, secondsUntilExpiryAtAdmission: launch.limits.secondsUntilExpiry},
+     requestLimit,
+     requiredCharts: [...capsule.requiredCharts],
+@@ -343,7 +343,7 @@
+       return {kind: 'capsule_admitted', bindingVersion: CAPSULE_BINDING_VERSION, capsuleId: capsule.id, parentId: capsule.parentId ?? null, roleId: capsule.roleId ?? null,
+         declarationSha256: declaration.sha256, parentSha256: parentState.parent ? parentState.parent.sha256 : null, roleSha256: roleState.role ? roleState.role.sha256 : null,
+         allowance: allowance ? {roleId: allowance.roleId, reserved: allowance.reserved, spentBefore: allowance.spentBefore, max: allowance.max} : null,
+-        bindingFacts: binding.facts, admissionFacts: launch.admission.facts, tools: binding.tools, allowWrite: binding.scopes.allowWrite, allowRead: binding.scopes.allowRead,
++        bindingFacts: binding.facts, admissionFacts: launch.admission.facts, tools: binding.tools, allowWrite: binding.scopes.allowWrite, allowRead: binding.scopes.allowRead, network: binding.scopes.network,
+         limits: {maxSeconds: launch.limits.timeoutSeconds, maxRequests: requestLimit}, expiresAt: capsule.expiresAt, leases: launch.leases.leases.map(l => l.outputPath)};
+     },
+     // Terminal release with evidence. Releases only leases held by this capsule+run
+--- a/src/capsule-launch.mjs
++++ b/src/capsule-launch.mjs
+@@ -58,6 +58,6 @@
+ 
+ // Sandbox binding for the run: narrows existing scopes or refuses. This is the
+ // object the runtime patch assigns into its SandboxRuntimeConfig.
+-export function bindCapsuleScopes(capsule, runtimeWriteScope) {
+-  return capsuleSandboxScopes(capsule, runtimeWriteScope);
++export function bindCapsuleScopes(capsule, runtimeWriteScope, anchorSandbox = undefined) {
++  return capsuleSandboxScopes(capsule, runtimeWriteScope, anchorSandbox);
+ }
+--- a/src/task-lifetime.mjs
++++ b/src/task-lifetime.mjs
+@@ -46,7 +46,7 @@
+   }
+   const capsuleBound = capsule.limits.maxRequests;
+   if (capsuleBound === null) {
+-    if (!(capsule.version === 4 && unlimitedRequestsAuthorized(anchor))) {
++    if (!([4, 5].includes(capsule.version) && unlimitedRequestsAuthorized(anchor))) {
+       throw new Error('capsule_unlimited_requests_not_authorized');
+     }
+   } else if (!Number.isSafeInteger(capsuleBound) || capsuleBound <= 0) {
+--- a/src/provider.ts
++++ b/src/provider.ts
+@@ -10,6 +10,7 @@
+ import {join} from 'node:path';
+ import {hasExplicitModelOutput, modelOutputTokensFor} from './model-output.js';
+ import {selectModelRoute,modelEndpoint} from './model-routes.js';
++import {attachEgress} from './egress.mjs';
+ 
+ export function subscriptionToken():string {
+   // Read into this trusted process only. Never log, persist, or pass to a child.
+@@ -28,6 +29,9 @@
+ export interface ProviderOptions {
+   anchor:Anchor; token:string; model?:string;
+   expectedChartText?:string;
++  // The run's admitted egress, already narrowed against the release ceiling by
++  // capsuleSandboxScopes. Absent or empty keeps the unconditional CONNECT refusal.
++  egress?:{allowedDomains:string[];allowLocalBinding:boolean};
+   authorize:(model:string,count:number,outputTokens?:number,operation?:'messages'|'count_tokens')=>void|Promise<void>;
+   observe:(event:Record<string,unknown>)=>void;
+   // Tests can replace transport. Production has no user-selectable upstream.
+@@ -142,8 +146,10 @@
+     }catch{if(!res.headersSent)refuse(400,'request_failed');}
+     finally{inFlight--;}
+   });
+-  server.on('connect',(_req,socket)=>socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'));
+-  server.on('upgrade',(_req,socket)=>socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'));
++  // The model endpoint's own rules above are untouched: it still answers nothing but
++  // POST /v1/messages*. CONNECT is a separate event, and it tunnels only to hosts this
++  // run's capsule was granted. With no grant this is the previous unconditional refusal.
++  attachEgress(server,{allowedDomains:options.egress?.allowedDomains??[],allowLocalBinding:options.egress?.allowLocalBinding===true,observe:options.observe});
+   server.requestTimeout=150_000;server.headersTimeout=10_000;
+   await new Promise<void>((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
+   return {port:(server.address() as AddressInfo).port,capability,get requests(){return requests;},
+--- a/src/runtime.ts
++++ b/src/runtime.ts
+@@ -232,7 +232,7 @@
+     }
+     let config:SandboxRuntimeConfig={
+       filesystem:{denyRead:['/Users','/Volumes','/private/var','/private/tmp',resolve(release.root,'charts/domain-provenance'),resolve(release.root,'charts/sources')],allowRead:[workspace,resolve(release.root,'charts'),claude,...(capsuleRun?capsuleRun.scopes.allowRead:[]),...(diagnostics?.allowRead??[]),...(binding?[binding.executable]:[])],allowWrite:capsuleRun?capsuleRun.scopes.allowWrite:[workspace],denyWrite:[root,...[resolve(root,'var/workspaces')].filter(p=>!contained(p,workspace))]},
+-      network:{allowedDomains:[],deniedDomains:[],allowUnixSockets:[],allowAllUnixSockets:false,allowLocalBinding:false},
++      network:{allowedDomains:capsuleRun?.scopes.network.allowedDomains??[],deniedDomains:[],allowUnixSockets:[],allowAllUnixSockets:false,allowLocalBinding:capsuleRun?.scopes.network.allowLocalBinding===true},
+     };
+     if(projection){
+       config.filesystem.denyRead!.push(resolve(release.root,'charts/business-skills'));
+@@ -282,7 +282,7 @@
+         businessProvider=selectBusinessProvider(root,businessProviderScope,route.provider,workspace);
+         config.filesystem.denyRead!.push(businessProvider.sourcePath);config.filesystem.denyWrite!.push(businessProvider.sourcePath);
+       }
+-      provider=await startProvider({anchor:release.anchor,model:route.model,token:businessProvider?.token??routeToken(route,subscriptionToken),expectedChartText:charts.text,authorize:async(model,count,outputTokens,operation='messages')=>{
++      provider=await startProvider({anchor:release.anchor,model:route.model,token:businessProvider?.token??routeToken(route,subscriptionToken),expectedChartText:charts.text,egress:capsuleRun?{allowedDomains:capsuleRun.scopes.network.allowedDomains,allowLocalBinding:capsuleRun.scopes.network.allowLocalBinding===true}:undefined,authorize:async(model,count,outputTokens,operation='messages')=>{
+         await providerObservation;
+         await options.assertAuthority?.();
+         await assertSkillVisibility();
+--- a/src/release.ts
++++ b/src/release.ts
+@@ -34,6 +34,43 @@
+   }
+   visit(root); return files;
+ }
++// Hosts the ceiling may name: an exact host, or one leading wildcard label over a
++// registrable domain. A wildcard directly over a public suffix would grant most of the
++// internet in one entry, so it is refused. This is a guard against the obvious mistake,
++// not a public-suffix implementation; the list below is the common multi-label suffixes.
++const CEILING_LABEL=/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
++const PUBLIC_SUFFIXES=['co.uk','org.uk','ac.uk','gov.uk','com.au','net.au','org.au','co.nz','co.jp','co.za','com.br','com.mx','co.in','com.cn'];
++export function validateAnchorSandbox(value:unknown):void {
++  const bad=(detail:string):never=>{throw Error('invalid_sandbox: '+detail);};
++  if(!value||typeof value!=='object'||Array.isArray(value))bad('expected an object');
++  const sandbox=value as Record<string,unknown>;
++  if(Object.keys(sandbox).sort().join(',')!=='network,readableRoots,version')bad('expected exactly version, readableRoots and network');
++  if(sandbox.version!==1)bad('unsupported version '+JSON.stringify(sandbox.version));
++  if(!Array.isArray(sandbox.readableRoots))bad('readableRoots must be an array');
++  for(const root of sandbox.readableRoots as unknown[]){
++    if(typeof root!=='string'||!root.startsWith('/'))bad('readableRoots entries must be absolute paths');
++    const path=root as string;
++    if(path.includes('*')||path.includes('?'))bad('readableRoots entries are subtrees, not patterns: '+path);
++    if(path.split('/').includes('..')||path.split('/').includes('.'))bad('readableRoots entries must be canonical: '+path);
++  }
++  const network=sandbox.network as Record<string,unknown>;
++  if(!network||typeof network!=='object'||Array.isArray(network))bad('network must be an object');
++  if(Object.keys(network).sort().join(',')!=='allowLocalBinding,allowedDomains')bad('network expects exactly allowedDomains and allowLocalBinding');
++  if(typeof network.allowLocalBinding!=='boolean')bad('network.allowLocalBinding must be a boolean');
++  if(!Array.isArray(network.allowedDomains))bad('network.allowedDomains must be an array');
++  for(const entry of network.allowedDomains as unknown[]){
++    if(typeof entry!=='string'||!entry)bad('network.allowedDomains entries must be hosts');
++    const host=entry as string;
++    const wildcard=host.startsWith('*.');
++    const rest=wildcard?host.slice(2):host;
++    if(host==='*'||!rest||!rest.split('.').every(label=>CEILING_LABEL.test(label)))bad('not a host: '+host);
++    if(wildcard){
++      const labels=rest.split('.');
++      if(labels.length<2)bad('a wildcard over a public suffix grants too much: '+host);
++      if(PUBLIC_SUFFIXES.includes(rest.toLowerCase()))bad('a wildcard over a public suffix grants too much: '+host);
++    }
++  }
++}
+ export function validateAnchor(value:unknown):Anchor {
+   const a=value as Anchor;
+   if(!a||a.version!==1||typeof a.model!=='string'||!a.model||!Array.isArray(a.tools)||!a.tools.length)throw Error('invalid_anchor');
+@@ -46,6 +83,7 @@
+     if(!v1&&!v2)throw Error('invalid_task_lifetime');
+   }
+   if(a.modelRoutes!==undefined)validateModelRoutes(a.modelRoutes,a.model);
++  if(a.sandbox!==undefined)validateAnchorSandbox(a.sandbox);
+   const allowed=new Set(['Bash','Read','Write','Edit','Glob','Grep','Skill']);
+   if(a.tools.some(t=>!allowed.has(t))||new Set(a.tools).size!==a.tools.length)throw Error('unsupported_tool');
+   const unlimitedAuthorized=a.taskLifetime?.version===2&&a.taskLifetime.allowUnlimitedRequests===true;
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -21,7 +21,16 @@
+   /** Route-aware output bounds; per-model, never widening other routes. */
+   modelOutputRoutes?: {version: 1; routes: Array<{model: string; maxTokens: number}>};
+   governingReferences?: {version:1;entries:Array<{constantId:string;path:string;sha256:string;context:string;markers:string[]}>};
++  /** Ceiling for run scopes a capsule may narrow: paths outside the workspace it may read,
++   * and hosts it may reach. Absent means neither is available to any capsule. */
++  sandbox?: AnchorSandbox;
+ }
++export interface AnchorSandbox {
++  version:1;
++  /** Absolute subtrees a capsule may declare in allowRead. Read-only, always. */
++  readableRoots:string[];
++  network:{allowedDomains:string[];allowLocalBinding:boolean};
++}
+ export interface Markers {version:1; charts:Record<string,string[]>; attachments?:Record<string,{projectId:string;action:string}>}
+ export interface Release {
+   root:string; digest:string; files:Record<string,string>; anchor:Anchor; markers:Markers;
+--- a/src/ticket-harness.ts
++++ b/src/ticket-harness.ts
+@@ -32,6 +32,7 @@
+ import {join, relative, resolve, dirname} from 'node:path';
+ import {durableWriteJson, stableReadObject, canonicalAbsolute, contains, rejectSymlinkAncestors} from './switchover/fs-safe.js';
+ import {parseCapsule} from './capsule-schema.mjs';
++import {domainCovered} from './capsule-admission.mjs';
+ import {acquireProjectTransactionLock, ProjectLockError} from './project-lock.js';
+ import type {ProjectWorkSpec, CandidateRunner, ProjectWorkResult} from './project-work.js';
+ 
+@@ -40,8 +41,20 @@
+ export type TicketState =
+   | 'ready' | 'running' | 'checking' | 'repair' | 'accepted' | 'integrated' | 'blocked' | 'cancelled';
+ 
+-export type FailureClassification = 'behavioral' | 'missing_output' | 'infrastructure' | 'unknown';
++export type FailureClassification = 'behavioral' | 'missing_output' | 'infrastructure' | 'capsule_insufficient' | 'unknown';
+ 
++/** What a ticket cannot be satisfied without. Every entry is checked against the admitted
++ * capsule and the run record, never against the assignment's prose: a worker that could not
++ * do the work must not be able to describe its way to an acceptance. */
++export interface TicketRequirement {
++  /** The route that must have produced the artifacts. */
++  route?: string;
++  /** Declaration facts the capsule must carry before any attempt is launched. */
++  capsule?: {network?: string[]; read?: string[]; tools?: string[]};
++  /** Receipt keys the checker evidence must carry, each a measurement rather than a claim. */
++  receipts?: string[];
++}
++
+ export interface ArtifactCopy {
+   /** Declared worker artifact (absolute), copied to the checker input. */
+   from: string;
+@@ -95,6 +108,8 @@
+   model?: string;
+   /** Declared artifact file paths (absolute, inside the workspace). */
+   artifacts: string[];
++  /** What this ticket cannot be satisfied without; absent means no requirement. */
++  requires?: TicketRequirement;
+   acceptance: TicketAcceptance;
+   /** Accepted prerequisite artifacts copied into this worker workspace. */
+   dependencyInputs?: Array<{ticket:string;from:string;to:string}>;
+@@ -117,6 +132,10 @@
+   exitCode?: number | null;
+   reason?: string;
+   workspace?: string;
++  /** The route that ran. Read to hold a ticket to the route it named. */
++  model?: string;
++  /** Boundary and provider events; a refusal here outranks a 'completed' status. */
++  events?: Array<Record<string, unknown>>;
+ }
+ 
+ /** Options accepted by the existing runtime `run` (subset carried in a host request). */
+@@ -238,6 +257,10 @@
+   checksPassed: CheckReceipt[];
+   artifacts: Record<string, string>;
+   qualityReceipt?: {path: string; sha256: string; at: string};
++  /** The capsule revision a capsule_insufficient block was measured against. The ticket
++   * re-admits when this changes and only then: rewriting the task, the plan or the checker
++   * leaves it blocked. */
++  capsuleGate?: {capsuleSha: string};
+   defect?: {expected: string; actual: string; evidence: string[]; fingerprint: string; recurrence: number};
+   definitions?: {
+     taskSha: string;
+@@ -448,6 +471,7 @@
+       const absoluteArtifact = canonical(artifact, `${ticket.id} artifact`);
+       if (!contains(ticket.workspace, absoluteArtifact)) throw new Error(`invalid_plan: ${ticket.id} artifact outside its workspace: ${artifact}`);
+     }
++    validateRequires(ticket.id, (ticket as {requires?: unknown}).requires);
+     const acceptance = ticket.acceptance;
+     if (!acceptance || typeof acceptance.functional !== 'string' || !acceptance.functional.trim()
+       || typeof acceptance.craft !== 'string' || !acceptance.craft.trim()) {
+@@ -596,6 +620,90 @@
+   return JSON.parse(readFileSync(path).toString('utf8'));
+ }
+ 
++// ------------------------------------------------------- capsule requirement
++
++const REQUIREMENT_FIELDS = ['route', 'capsule', 'receipts'];
++const CAPSULE_REQUIREMENT_FIELDS = ['network', 'read', 'tools'];
++
++/** Plan-time shape check. A requirement the harness cannot evaluate is a plan defect, and
++ * it is refused when the plan is read rather than discovered after a worker has run. */
++function validateRequires(ticketId: string, requires: unknown): void {
++  if (requires === undefined) return;
++  const bad = (detail: string): never => {throw new Error(`invalid_plan: ${ticketId} requires ${detail}`);};
++  if (typeof requires !== 'object' || requires === null || Array.isArray(requires)) bad('must be an object');
++  const value = requires as Record<string, unknown>;
++  for (const key of Object.keys(value)) if (!REQUIREMENT_FIELDS.includes(key)) bad(`declares an unknown field ${key}`);
++  if (value.route !== undefined && (typeof value.route !== 'string' || !value.route.trim())) bad('route must be a route identifier');
++  if (value.receipts !== undefined) {
++    if (!Array.isArray(value.receipts) || !value.receipts.length) bad('receipts must be a non-empty array');
++    for (const key of value.receipts as unknown[]) if (typeof key !== 'string' || !key.trim()) bad('every receipt key must be a non-empty string');
++  }
++  if (value.capsule !== undefined) {
++    const capsule = value.capsule;
++    if (typeof capsule !== 'object' || capsule === null || Array.isArray(capsule)) bad('capsule must be an object');
++    for (const [key, entries] of Object.entries(capsule as Record<string, unknown>)) {
++      if (!CAPSULE_REQUIREMENT_FIELDS.includes(key)) bad(`capsule declares an unknown field ${key}`);
++      if (!Array.isArray(entries) || entries.length === 0) bad(`capsule.${key} must be a non-empty array`);
++      for (const entry of entries as unknown[]) if (typeof entry !== 'string' || !entry.trim()) bad(`capsule.${key} entries must be non-empty strings`);
++    }
++  }
++}
++
++/** What the ticket requires and the capsule does not grant, or null. The capsule is read
++ * with the real schema parser, never a second weaker reader. */
++function capsuleRequirementGap(ticket: TicketPlanTicket): string | null {
++  const required = ticket.requires?.capsule;
++  if (!required) return null;
++  let parsed;
++  try {
++    parsed = parseCapsule(JSON.parse(readFileSync(ticket.capsuleFile, 'utf8')));
++  } catch (error) {
++    return `capsule ${ticket.capsuleFile} is unreadable (${error instanceof Error ? error.message : 'unknown'})`;
++  }
++  if (!parsed.ok) return `capsule ${ticket.capsuleFile} does not parse: ${JSON.stringify(parsed.errors)}`;
++  const capsule = parsed.capsule as any;
++  for (const host of required.network ?? []) {
++    if (!(capsule.network?.allowedDomains ?? []).some((entry: string) => domainCovered(entry, host))) {
++      return `ticket requires network access to ${host}; capsule ${capsule.id} declares ${capsule.network ? 'network ' + capsule.network.allowedDomains.join(', ') : 'no network block'}`;
++    }
++  }
++  for (const path of required.read ?? []) {
++    const scopes = [capsule.workspaceRoot, ...(capsule.allowRead ?? [])];
++    if (!scopes.some((scope: string) => contains(scope, path))) {
++      return `ticket requires read access to ${path}; capsule ${capsule.id} declares allowRead ${(capsule.allowRead ?? []).join(', ') || 'none'}`;
++    }
++  }
++  for (const tool of required.tools ?? []) {
++    if (Array.isArray(capsule.tools) && !capsule.tools.includes(tool)) {
++      return `ticket requires the ${tool} tool; capsule ${capsule.id} declares ${capsule.tools.join(', ')}`;
++    }
++  }
++  return null;
++}
++
++// A refusal the run met at its own boundary. Recorded by the runtime; it outranks the
++// process's exit status, because a worker that was refused still exits however it likes.
++const BOUNDARY_EVENT_REASON = /(not_admitted|widens_anchor|widens_runtime|operation_not_permitted|sandbox_denied|EPERM|EACCES)/i;
++
++function boundaryRefusal(record: RunRecordLike | undefined): string | null {
++  for (const event of record?.events ?? []) {
++    if (event.kind === 'egress_request' && event.allowed === false) {
++      return String(event.reason ?? 'egress_refused') + (event.host ? ': ' + String(event.host) : '');
++    }
++    if (typeof event.reason === 'string' && BOUNDARY_EVENT_REASON.test(event.reason)) return event.reason;
++  }
++  return null;
++}
++
++/** The route that actually produced the artifacts, measured against the one the ticket named. */
++function routeGap(ticket: TicketPlanTicket, record: RunRecordLike | undefined): string | null {
++  const required = ticket.requires?.route;
++  if (!required) return null;
++  const actual = record?.model;
++  if (typeof actual !== 'string' || !actual) return `ticket requires route ${required}; the run record names no route`;
++  return actual === required ? null : `produced by ${actual}, ticket requires ${required}`;
++}
++
+ // ---------------------------------------------------------- classification
+ 
+ const INFRASTRUCTURE_REASON = /(capsule_|admission|provider|permission_|request_budget|business_provider|model_route|artifact_enforcement|boundary_|command_binding|command_|release_|runtime_platform|watch|allowance|lease)/i;
+@@ -621,9 +729,11 @@
+   evidenceDigest?: string;
+   checksCount?: number | null;
+   behavioral?: boolean;
++  /** The evidence is missing something only the required capability could produce. */
++  capsuleGap?: boolean;
+ }
+ 
+-function evaluateEvidence(binding: CheckerBinding, check: TicketAcceptanceCheck): CheckResult {
++function evaluateEvidence(binding: CheckerBinding, check: TicketAcceptanceCheck, receipts: string[] = []): CheckResult {
+   const evidencePath = resolve(binding.workspace, check.evidence);
+   let bytes: Buffer;
+   try {
+@@ -653,6 +763,15 @@
+       const failures = Array.isArray(parsed?.failures) ? parsed.failures.map((f:any)=>({id:f.id,expected:f.expected,actual:f.actual})) : [];
+       return {ok:false,detail:`checker evidence reports pass=${JSON.stringify(parsed?.pass ?? null)}; failures=${JSON.stringify(failures)}`,evidenceDigest:digest,behavioral:parsed?.pass===false&&count!==null&&count>0};
+     }
++    // A receipt is a measurement the run could only have made by doing the work. Its
++    // absence is a missing capability, not a quality defect, so it never routes to repair.
++    for (const key of receipts) {
++      const receipt = (parsed?.receipts ?? {})[key];
++      const empty = receipt === undefined || receipt === null || receipt === ''
++        || (Array.isArray(receipt) && receipt.length === 0)
++        || (typeof receipt === 'object' && !Array.isArray(receipt) && Object.keys(receipt).length === 0);
++      if (empty) return {ok: false, detail: `receipt_missing: ${key}`, evidenceDigest: digest, capsuleGap: true};
++    }
+     checksCount = count;
+     if (check.minChecks !== undefined && (checksCount === null || checksCount < check.minChecks!)) {
+       return {ok: false, detail: `checker discovered ${String(checksCount)} checks, acceptance requires at least ${check.minChecks}`, evidenceDigest: digest};
+@@ -804,6 +923,23 @@
+   });
+ }
+ 
++/** Has the capsule this ticket was blocked on actually been corrected? The recorded
++ * revision is the whole test: a new task, plan or checker leaves the ticket blocked. */
++function capsuleGateReopened(ticket: TicketPlanTicket, entry: TicketIndexEntry): boolean {
++  if (entry.state !== 'blocked' || entry.classification !== 'capsule_insufficient') return false;
++  const current = existsSync(ticket.capsuleFile) ? sha256File(ticket.capsuleFile) : 'absent';
++  return entry.capsuleGate?.capsuleSha !== current;
++}
++
++/** Block on the capsule and remember which revision was judged, so the only thing that
++ * can re-admit the ticket is a changed capsule. */
++async function blockOnCapsule(ctx: Ctx, ticket: TicketPlanTicket, entry: TicketIndexEntry, detail: string): Promise<void> {
++  const capsuleSha = existsSync(ticket.capsuleFile) ? sha256File(ticket.capsuleFile) : 'absent';
++  await ctx.writer.update(index => {index.tickets[entry.id]!.capsuleGate = {capsuleSha};});
++  await setState(ctx, entry, 'blocked', `capsule_insufficient: ${detail}`, 'capsule_insufficient');
++  await saveIndex(ctx);
++}
++
+ function definitionsUnchanged(ctx: Ctx, ticket: TicketPlanTicket, entry: TicketIndexEntry): boolean {
+   const definitions = entry.definitions;
+   if (!definitions) return true;
+@@ -1179,8 +1315,31 @@
+ /** Drive one ticket as far as its current evidence allows. Idempotent. */
+ async function driveTicket(ctx: Ctx, ticket: TicketPlanTicket): Promise<void> {
+   let entry = entryOf(ctx, ticket.id);
++
++  // A ticket blocked on its capsule re-admits only when the capsule itself changes. This is
++  // the deliberate inverse of definition_changed below: there, a changed definition blocks;
++  // here, a changed capsule is the single way forward, and nothing else is.
++  if (capsuleGateReopened(ticket, entry)) {
++    await ctx.writer.update(index => {
++      const record = index.tickets[entry.id]!;
++      delete record.capsuleGate;
++      delete record.definitions;
++    });
++    await setState(ctx, entry, 'ready', 'capsule_changed: the declaration was corrected; re-evaluating');
++    await saveIndex(ctx);
++    entry = entryOf(ctx, ticket.id);
++  }
++
+   if (['cancelled', 'blocked', 'accepted', 'integrated'].includes(entry.state)) return;
+ 
++  // Before anything is launched: can the capsule do what the ticket requires? A run that
++  // cannot is never started, so it never gets the chance to substitute something else.
++  const gap = capsuleRequirementGap(ticket);
++  if (gap) {
++    await blockOnCapsule(ctx, ticket, entry, gap);
++    return;
++  }
++
+   // Definitions must stay unchanged: a checker cannot approve its own changed definition.
+   if (entry.definitions && !definitionsUnchanged(ctx, ticket, entry)) {
+     await setState(ctx, entry, 'blocked', 'definition_changed: plan task/capsule/checker definitions differ from the accepted run inputs', 'infrastructure');
+@@ -1210,6 +1369,18 @@
+         const verdict = classifyWorkerOutcome(native, present);
+         await setState(ctx, entry, 'blocked', verdict.reason, verdict.classification);
+         await saveIndex(ctx);
++        return;
++      }
++      // The run finished and wrote its artifacts. Neither fact survives a refusal it met at
++      // the boundary, or artifacts produced by a route the ticket did not name.
++      const refusal = boundaryRefusal(native);
++      if (refusal) {
++        await blockOnCapsule(ctx, ticket, entry, `the run was refused at its boundary (${refusal}); its artifacts describe work it could not do`);
++        return;
++      }
++      const wrongRoute = routeGap(ticket, native);
++      if (wrongRoute) {
++        await blockOnCapsule(ctx, ticket, entry, wrongRoute);
+         return;
+       }
+       if (!entry.definitions) await recordDefinitions(ctx, ticket, entry);
+@@ -1275,7 +1446,7 @@
+       await setState(ctx, entry, 'blocked', native?.reason ?? 'checker_native_outcome_unresolved', native && INFRASTRUCTURE_REASON.test(native.reason ?? '') ? 'infrastructure' : 'unknown');
+       return;
+     }
+-    const evidence = evaluateEvidence(binding, check);
++    const evidence = evaluateEvidence(binding, check, ticket.requires?.receipts ?? []);
+     await ctx.writer.update(index => {
+       const current = index.tickets[entry.id]!;
+       const recordRef = current.checkerRuns[current.checkerRuns.length - 1]!;
+@@ -1289,6 +1460,9 @@
+       if(sha256Text(bytes)!==evidence.evidenceDigest)throw Error('checker_evidence_changed');
+       if(existsSync(archived)){if(sha256File(archived)!==evidence.evidenceDigest)throw Error('checker_archived_evidence_changed');}
+       else writeFileSync(archived,bytes,{mode:0o600,flag:'wx'});
++    }
++    if(!evidence.ok&&evidence.capsuleGap){
++      await blockOnCapsule(ctx,ticket,entry,evidence.detail);return;
+     }
+     if(!evidence.ok&&!evidence.behavioral){
+       await setState(ctx,entry,'blocked','checker_evidence_invalid: '+evidence.detail,'infrastructure');return;
+@@ -1428,6 +1602,9 @@
+     if (ctx.interrupted.has(ticket.id)) return false;
+     const entry = entryOf(ctx, ticket.id);
+     if (entry.state === 'ready') return satisfied(ticket);
++    // A ticket blocked on its capsule returns to the queue when, and only when, that
++    // capsule changes. driveTicket performs the transition and re-evaluates the gap.
++    if (entry.state === 'blocked') return capsuleGateReopened(ticket, entry) && satisfied(ticket);
+     return entry.state === 'repair' || entry.state === 'running' || entry.state === 'checking';
+   });
+ }
+--- /dev/null
++++ b/src/egress.mjs
+@@ -0,0 +1,93 @@
++// Run egress: the CONNECT path for a capsule that was granted named hosts.
++//
++// This module never decides what a run may reach. `capsuleSandboxScopes` already narrowed
++// the capsule's declaration against the release ceiling; the admitted list arrives here as
++// data. The only judgements made here are mechanical: is this target one of the admitted
++// hosts, on a web port, and not a local address the run was not granted. Everything else
++// is closed with the same 403 the model endpoint has always answered CONNECT with.
++//
++// Dependency-free: node builtins only.
++import net from 'node:net';
++import {domainCovered} from './capsule-admission.mjs';
++
++const WEB_PORTS = [80, 443];
++// Loopback, link-local and the RFC1918 ranges. A granted public hostname that resolves
++// into one of these is a rebinding attempt, not a destination the ceiling approved.
++const LOCAL_V4 = [/^127\./, /^10\./, /^192\.168\./, /^172\.(1[6-9]|2[0-9]|3[01])\./, /^169\.254\./, /^0\.0\.0\.0$/];
++
++export function isLocalAddress(host) {
++  const bare = host.replace(/^\[|\]$/g, '').toLowerCase();
++  if (bare === 'localhost' || bare === '::1' || bare === '::' || bare.startsWith('fe80:') || bare.startsWith('fc') || bare.startsWith('fd')) return true;
++  return LOCAL_V4.some(pattern => pattern.test(bare));
++}
++
++/**
++ * Resolve a CONNECT target against the run's admitted egress.
++ * @param {string|undefined} requestUrl the CONNECT request line target, "host:port"
++ * @param {{allowedDomains: string[], allowLocalBinding?: boolean}} policy
++ * @returns {{ok: true, host: string, port: number} | {ok: false, reason: string, host?: string, port?: number}}
++ */
++export function egressTarget(requestUrl, policy) {
++  if (typeof requestUrl !== 'string' || !requestUrl.includes(':')) return {ok: false, reason: 'egress_target_malformed'};
++  const separator = requestUrl.lastIndexOf(':');
++  const host = requestUrl.slice(0, separator);
++  const port = Number(requestUrl.slice(separator + 1));
++  if (!host || host.includes('/') || !Number.isSafeInteger(port)) return {ok: false, reason: 'egress_target_malformed'};
++  const bare = host.replace(/^\[|\]$/g, '');
++  if (!(policy.allowedDomains ?? []).some(entry => domainCovered(entry, bare))) return {ok: false, reason: 'egress_host_not_admitted', host: bare, port};
++  const local = isLocalAddress(host);
++  if (local && policy.allowLocalBinding !== true) return {ok: false, reason: 'egress_local_address_not_admitted', host: bare, port};
++  // A granted local service listens where it listens; a remote one is reached over the web.
++  if (!local && !WEB_PORTS.includes(port)) return {ok: false, reason: 'egress_port_not_admitted', host: bare, port};
++  if (local && (port < 1 || port > 65535)) return {ok: false, reason: 'egress_port_not_admitted', host: bare, port};
++  return {ok: true, host: bare, port};
++}
++
++/**
++ * Attach the CONNECT handler to a run-scoped HTTP server. With an empty admitted list this
++ * is exactly the previous behaviour: every CONNECT and every upgrade is refused.
++ * @param {import('node:http').Server} server
++ * @param {{allowedDomains: string[], allowLocalBinding?: boolean, observe: (event: Record<string, unknown>) => void}} policy
++ */
++export function attachEgress(server, policy) {
++  const observe = policy.observe ?? (() => {});
++  server.on('upgrade', (_req, socket) => socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'));
++  server.on('connect', (req, socket, head) => {
++    const verdict = egressTarget(req.url, policy);
++    if (!verdict.ok) {
++      observe({kind: 'egress_request', host: verdict.host ?? null, port: verdict.port ?? null, allowed: false, reason: verdict.reason, bytes: 0});
++      socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');
++      return;
++    }
++    let bytes = 0;
++    let settled = false;
++    const finish = (reason) => {
++      if (settled) return;
++      settled = true;
++      observe({kind: 'egress_request', host: verdict.host, port: verdict.port, allowed: true, ...(reason ? {reason} : {}), bytes});
++    };
++    const upstream = net.connect(verdict.port, verdict.host, () => {
++      // A public hostname that resolved onto a local address is refused after resolution,
++      // not before: the ceiling grants a name, never whatever that name points at today.
++      if (isLocalAddress(upstream.remoteAddress ?? '') && policy.allowLocalBinding !== true) {
++        upstream.destroy();
++        observe({kind: 'egress_request', host: verdict.host, port: verdict.port, allowed: false, reason: 'egress_resolved_local_address', bytes: 0});
++        socket.end('HTTP/1.1 403 Forbidden\r\n\r\n');
++        return;
++      }
++      socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
++      if (head && head.length) upstream.write(head);
++      socket.on('data', (chunk) => {bytes += chunk.length;});
++      upstream.on('data', (chunk) => {bytes += chunk.length;});
++      socket.pipe(upstream);
++      upstream.pipe(socket);
++    });
++    upstream.on('error', () => {
++      finish('egress_upstream_unreachable');
++      if (!socket.destroyed) socket.end('HTTP/1.1 502 Bad Gateway\r\n\r\n');
++    });
++    upstream.on('close', () => {finish(); socket.destroy();});
++    socket.on('error', () => {finish('egress_client_error'); upstream.destroy();});
++    socket.on('close', () => {finish(); upstream.destroy();});
++  });
++}
+--- /dev/null
++++ b/tests/capsules/capsule-egress.test.mjs
+@@ -0,0 +1,191 @@
++// Declared egress and external read scopes for a worker that must drive a browser.
++// Every grant narrows an Anchor ceiling; a capsule can never widen one. Node builtins only.
++import {test, describe} from 'node:test';
++import assert from 'node:assert/strict';
++
++import {parseCapsule, CAPSULE_SCHEMA_VERSION} from '../../src/capsule-schema.mjs';
++import {capsuleSandboxScopes, childSubsetViolations, capsuleRunLimits} from '../../src/capsule-admission.mjs';
++import {measureBindingFacts} from '../../src/capsule-runtime.mjs';
++
++const W = '0'.repeat(64);
++const SCOPE = '/Users/thebeast/.nautilus/releases/r/var/workspaces/astra-visualizer-qa';
++const REPO = '/Users/thebeast/ranger-painting-full-build';
++
++// The release ceiling. Absent from a release, no capsule may declare egress at all.
++const ANCHOR_SANDBOX = {
++  version: 1,
++  readableRoots: [REPO],
++  network: {allowedDomains: ['www.rangerpainting.com'], allowLocalBinding: true},
++};
++
++function capsule(overrides = {}) {
++  return {
++    version: 5,
++    id: 'astra-visualizer-qa',
++    releaseDigest: W,
++    workspaceRoot: SCOPE,
++    allowWrite: [SCOPE],
++    inputs: {},
++    requiredCharts: ['nautilus-core:precise'],
++    skillPlan: [{chart: 'nautilus-core:precise', purpose: 'wording of the findings'}],
++    tools: ['Bash', 'Read', 'Write', 'Skill'],
++    modelRoute: 'gpt-6-astra',
++    provider: 'local-proxy',
++    limits: {maxSeconds: null, maxRequests: null},
++    declaredOutputs: [SCOPE + '/output/qa-report.md'],
++    expiresAt: null,
++    ...overrides,
++  };
++}
++
++const parsed = (overrides) => {
++  const result = parseCapsule(capsule(overrides));
++  assert.equal(result.ok, true, 'expected a parsable declaration: ' + JSON.stringify(result.errors ?? []));
++  return result.capsule;
++};
++
++describe('the declaration contract carries egress', () => {
++  test('version 5 is the current contract and keeps every version 4 allowance', () => {
++    assert.equal(CAPSULE_SCHEMA_VERSION, 5);
++    // The v4 no-deadline and no-request-cap opt-ins survive the version bump.
++    const result = parseCapsule(capsule({limits: {maxSeconds: null, maxRequests: null}, expiresAt: null}));
++    assert.equal(result.ok, true);
++    assert.deepEqual(result.capsule.limits, {maxSeconds: null, maxRequests: null});
++  });
++
++  test('a version 4 capsule cannot declare a network block', () => {
++    const v4 = capsule({version: 4, network: {allowedDomains: ['www.rangerpainting.com']}}); delete v4.skillPlan;
++    const result = parseCapsule(v4);
++    assert.equal(result.ok, false);
++    assert.match(JSON.stringify(result.errors), /network/);
++  });
++
++  test('a declaration without a network block parses and means no egress', () => {
++    assert.equal(parsed().network, undefined);
++  });
++
++  test('an unusable domain pattern is refused at parse, not at connect time', () => {
++    for (const allowedDomains of [[], ['*'], [''], ['http://www.rangerpainting.com'], ['www.rangerpainting.com/resources'], [42]]) {
++      const result = parseCapsule(capsule({network: {allowedDomains}}));
++      assert.equal(result.ok, false, 'expected refusal for ' + JSON.stringify(allowedDomains));
++      assert.match(JSON.stringify(result.errors), /network/);
++    }
++  });
++
++  test('an exact host and a single wildcard label both parse', () => {
++    assert.deepEqual(parsed({network: {allowedDomains: ['www.rangerpainting.com', '*.rangerpainting.com']}}).network.allowedDomains,
++      ['www.rangerpainting.com', '*.rangerpainting.com']);
++    assert.equal(parsed({network: {allowedDomains: ['localhost'], allowLocalBinding: true}}).network.allowLocalBinding, true);
++  });
++});
++
++describe('the Anchor is the ceiling and the capsule narrows it', () => {
++  test('a granted domain reaches the run scopes', () => {
++    const scopes = capsuleSandboxScopes(parsed({network: {allowedDomains: ['www.rangerpainting.com']}}), SCOPE, ANCHOR_SANDBOX);
++    assert.deepEqual(scopes.network.allowedDomains, ['www.rangerpainting.com']);
++    assert.equal(scopes.network.allowLocalBinding, false, 'local binding stays off unless declared');
++  });
++
++  test('a domain outside the ceiling is refused, never clipped to the allowed subset', () => {
++    const declaration = parsed({network: {allowedDomains: ['www.rangerpainting.com', 'exfiltrate.example.com']}});
++    assert.throws(() => capsuleSandboxScopes(declaration, SCOPE, ANCHOR_SANDBOX), /capsule_network_widens_anchor: exfiltrate\.example\.com/);
++  });
++
++  test('a wildcard cannot swallow a host the ceiling did not grant', () => {
++    const declaration = parsed({network: {allowedDomains: ['*.com']}});
++    assert.throws(() => capsuleSandboxScopes(declaration, SCOPE, ANCHOR_SANDBOX), /capsule_network_widens_anchor/);
++  });
++
++  test('local binding needs its own grant', () => {
++    const ceiling = {...ANCHOR_SANDBOX, network: {...ANCHOR_SANDBOX.network, allowLocalBinding: false}};
++    const declaration = parsed({network: {allowedDomains: ['www.rangerpainting.com'], allowLocalBinding: true}});
++    assert.throws(() => capsuleSandboxScopes(declaration, SCOPE, ceiling), /capsule_local_binding_widens_anchor/);
++  });
++
++  test('a release with no sandbox ceiling refuses egress instead of ignoring it', () => {
++    const declaration = parsed({network: {allowedDomains: ['www.rangerpainting.com']}});
++    assert.throws(() => capsuleSandboxScopes(declaration, SCOPE, undefined), /capsule_network_unavailable_in_release/);
++  });
++});
++
++describe('reading the toolchain a browser run needs', () => {
++  test('an external read inside a ceiling root is granted read-only', () => {
++    const scopes = capsuleSandboxScopes(parsed({allowRead: [REPO]}), SCOPE, ANCHOR_SANDBOX);
++    assert.ok(scopes.allowRead.includes(REPO));
++    assert.deepEqual(scopes.allowWrite, [SCOPE], 'a read grant never becomes a write grant');
++  });
++
++  test('an external read outside every ceiling root is refused', () => {
++    const declaration = parsed({allowRead: ['/Users/thebeast/.nautilus/credentials']});
++    assert.throws(() => capsuleSandboxScopes(declaration, SCOPE, ANCHOR_SANDBOX), /capsule_read_widens_anchor/);
++  });
++
++  test('with no ceiling in the release the old refusal is unchanged', () => {
++    assert.throws(() => capsuleSandboxScopes({allowWrite: ['/scope'], workspaceRoot: '/scope', allowRead: ['/private']}, '/scope'), /read_widens_runtime/);
++  });
++});
++
++describe('delegation cannot widen what the parent holds', () => {
++  const base = {...parsed({network: {allowedDomains: ['www.rangerpainting.com']}}), inputs: {}};
++  const child = (network) => ({...base, id: 'child', parentId: base.id, network});
++
++  test('a child may narrow or drop its parent egress', () => {
++    assert.deepEqual(childSubsetViolations(child(undefined), base, base.tools), []);
++    assert.deepEqual(childSubsetViolations(child({allowedDomains: ['www.rangerpainting.com']}), base, base.tools), []);
++  });
++
++  test('a child may not add a host its parent never held', () => {
++    const violations = childSubsetViolations(child({allowedDomains: ['www.rangerpainting.com', 'other.example.com']}), base, base.tools);
++    assert.ok(violations.some(v => v.dimension === 'network'), JSON.stringify(violations));
++  });
++
++  test('a parent without egress cannot hand one down', () => {
++    const parentNoEgress = {...base, network: undefined};
++    const violations = childSubsetViolations(child({allowedDomains: ['www.rangerpainting.com']}), parentNoEgress, base.tools);
++    assert.ok(violations.some(v => v.dimension === 'network'), JSON.stringify(violations));
++  });
++});
++
++describe('a contract bump keeps the allowances the previous contract had', () => {
++  const ANCHOR = {maxSeconds: 1800, maxRequests: 100, allowNoDeadline: true, allowUnlimitedRequests: true};
++  test('a version 5 long run is admitted exactly like a version 4 one', () => {
++    const v4raw = capsule({version: 4}); delete v4raw.skillPlan;
++    const v4 = parseCapsule(v4raw).capsule;
++    const v5 = parsed();
++    assert.deepEqual(capsuleRunLimits(v5, ANCHOR, '2026-09-11T15:00:00Z'), capsuleRunLimits(v4, ANCHOR, '2026-09-11T15:00:00Z'));
++    // The release's own finite cap still constrains an uncapped capsule, at both versions.
++    assert.deepEqual(capsuleRunLimits(v5, ANCHOR, '2026-09-11T15:00:00Z'), {timeoutSeconds: null, maxRequests: 100, secondsUntilExpiry: null});
++    const uncapped = {...ANCHOR, maxRequests: null};
++    assert.deepEqual(capsuleRunLimits(v5, uncapped, '2026-09-11T15:00:00Z'), {timeoutSeconds: null, maxRequests: null, secondsUntilExpiry: null});
++  });
++  test('an unauthorised release still refuses the no-deadline run at version 5', () => {
++    assert.throws(() => capsuleRunLimits(parsed(), {maxSeconds: 1800, maxRequests: 100}, '2026-09-11T15:00:00Z'), /not_authorized/);
++  });
++});
++
++describe('an ungranted egress refuses the launch, it does not fail at connect time', () => {
++  const route = {model: 'gpt-6-astra', provider: 'local-proxy'};
++  const tools = ['Bash', 'Read', 'Write', 'Skill'];
++  const measure = (anchorSandbox, overrides) => measureBindingFacts({
++    capsule: parsed(overrides), workspace: SCOPE, route, anchorTools: tools, anchorSandbox, parentState: {trusted: true},
++  });
++
++  test('a granted run binds its scopes and carries the hosts into the sandbox', () => {
++    const binding = measure(ANCHOR_SANDBOX, {network: {allowedDomains: ['www.rangerpainting.com']}, allowRead: [REPO]});
++    assert.equal(binding.facts.scopes_narrow_runtime, true);
++    assert.deepEqual(binding.scopes.network.allowedDomains, ['www.rangerpainting.com']);
++    assert.ok(binding.scopes.allowRead.includes(REPO));
++  });
++
++  test('the same capsule against a release with no ceiling fails the binding fact', () => {
++    const binding = measure(undefined, {network: {allowedDomains: ['www.rangerpainting.com']}});
++    assert.equal(binding.facts.scopes_narrow_runtime, false);
++    assert.match(binding.detail.scopeError, /capsule_network_unavailable_in_release/);
++  });
++
++  test('a host outside the ceiling fails the binding fact and names the host', () => {
++    const binding = measure(ANCHOR_SANDBOX, {network: {allowedDomains: ['exfiltrate.example.com']}});
++    assert.equal(binding.facts.scopes_narrow_runtime, false);
++    assert.match(binding.detail.scopeError, /capsule_network_widens_anchor: exfiltrate\.example\.com/);
++  });
++});
+--- /dev/null
++++ b/tests/capsules/capsule-egress-tunnel.test.mjs
+@@ -0,0 +1,133 @@
++// The run's egress path: which destinations a granted capsule may reach, and the refusal
++// shape for everything else. Node builtins only.
++import {test, describe} from 'node:test';
++import assert from 'node:assert/strict';
++import http from 'node:http';
++import net from 'node:net';
++import {once} from 'node:events';
++
++import {egressTarget, attachEgress} from '../../src/egress.mjs';
++
++const POLICY = {allowedDomains: ['www.rangerpainting.com', '*.staging.rangerpainting.com'], allowLocalBinding: false};
++const LOCAL = {allowedDomains: ['localhost', '127.0.0.1'], allowLocalBinding: true};
++
++describe('what a granted run may reach', () => {
++  test('an admitted host on a web port is a target', () => {
++    assert.deepEqual(egressTarget('www.rangerpainting.com:443', POLICY), {ok: true, host: 'www.rangerpainting.com', port: 443});
++    assert.deepEqual(egressTarget('www.rangerpainting.com:80', POLICY), {ok: true, host: 'www.rangerpainting.com', port: 80});
++  });
++
++  test('a wildcard grant admits a subdomain and nothing above it', () => {
++    assert.equal(egressTarget('preview.staging.rangerpainting.com:443', POLICY).ok, true);
++    assert.equal(egressTarget('staging.rangerpainting.com:443', POLICY).ok, false);
++  });
++
++  test('a host the capsule never named is refused', () => {
++    const verdict = egressTarget('exfiltrate.example.com:443', POLICY);
++    assert.equal(verdict.ok, false);
++    assert.equal(verdict.reason, 'egress_host_not_admitted');
++  });
++
++  test('a port that is not the web is refused even on an admitted host', () => {
++    for (const url of ['www.rangerpainting.com:22', 'www.rangerpainting.com:5432', 'www.rangerpainting.com:0']) {
++      assert.equal(egressTarget(url, POLICY).reason, 'egress_port_not_admitted', url);
++    }
++  });
++
++  test('a granted local service is reachable on the port it listens on, and only then', () => {
++    assert.deepEqual(egressTarget('localhost:3000', LOCAL), {ok: true, host: 'localhost', port: 3000});
++    assert.equal(egressTarget('localhost:3000', {allowedDomains: ['localhost'], allowLocalBinding: false}).reason, 'egress_local_address_not_admitted');
++    assert.equal(egressTarget('localhost:70000', LOCAL).reason, 'egress_port_not_admitted');
++  });
++
++  test('a malformed target is refused rather than guessed', () => {
++    for (const url of ['', 'www.rangerpainting.com', 'http://www.rangerpainting.com:443', ':443', undefined]) {
++      assert.equal(egressTarget(url, POLICY).ok, false, String(url));
++    }
++  });
++
++  test('a loopback or private literal needs the local-binding grant', () => {
++    for (const host of ['127.0.0.1', '10.0.0.5', '192.168.1.9', '172.16.4.4', '169.254.169.254', '[::1]']) {
++      const open = egressTarget(host + ':443', {allowedDomains: [host.replace(/[[\]]/g, '')], allowLocalBinding: false});
++      assert.equal(open.ok, false, host + ' must not be reachable without the grant');
++      assert.equal(open.reason, 'egress_local_address_not_admitted');
++    }
++    assert.equal(egressTarget('127.0.0.1:443', LOCAL).ok, true);
++  });
++});
++
++describe('the tunnel itself', () => {
++  test('an admitted CONNECT reaches the origin and a refused one is closed', async (t) => {
++    const origin = net.createServer((socket) => {
++      socket.on('data', (chunk) => socket.write('origin saw: ' + chunk.toString()));
++    });
++    origin.listen(0, '127.0.0.1');
++    await once(origin, 'listening');
++    const originPort = origin.address().port;
++
++    const events = [];
++    const proxy = http.createServer();
++    attachEgress(proxy, {
++      allowedDomains: ['127.0.0.1'],
++      allowLocalBinding: true,
++      observe: (event) => events.push(event),
++    });
++    proxy.listen(0, '127.0.0.1');
++    await once(proxy, 'listening');
++    const proxyPort = proxy.address().port;
++    t.after(() => {proxy.close(); origin.close();});
++
++    const connect = (target) => new Promise((resolve) => {
++      const socket = net.connect(proxyPort, '127.0.0.1', () => {
++        socket.write('CONNECT ' + target + ' HTTP/1.1\r\nHost: ' + target + '\r\n\r\n');
++      });
++      let buffer = '';
++      socket.on('data', (chunk) => {
++        buffer += chunk.toString();
++        if (buffer.includes('200 Connection Established') && !buffer.includes('origin saw')) socket.write('hello');
++        if (buffer.includes('origin saw')) {socket.end(); resolve(buffer);}
++      });
++      socket.on('close', () => resolve(buffer));
++      socket.on('error', () => resolve(buffer));
++    });
++
++    const allowed = await connect('127.0.0.1:' + originPort);
++    assert.match(allowed, /200 Connection Established/);
++    assert.match(allowed, /origin saw: hello/);
++
++    const refused = await connect('exfiltrate.example.com:443');
++    assert.match(refused, /403 Forbidden/);
++    assert.doesNotMatch(refused, /200 Connection Established/);
++
++    // Every attempt is on the record, allowed or not: an egress that leaves no trace is
++    // not an auditable one. The tunnel's own record is written when it closes, so the two
++    // records are asserted as a set, not in arrival order.
++    const deadline = Date.now() + 2000;
++    while (events.length < 2 && Date.now() < deadline) await new Promise((r) => setTimeout(r, 10));
++    assert.equal(events.length, 2, JSON.stringify(events));
++    assert.ok(events.every((e) => e.kind === 'egress_request'));
++    const tunnelled = events.find((e) => e.allowed === true);
++    const blocked = events.find((e) => e.allowed === false);
++    assert.ok(tunnelled, 'the admitted tunnel is recorded');
++    assert.ok(tunnelled.bytes > 0, 'the record carries the transferred byte count');
++    assert.equal(blocked.reason, 'egress_host_not_admitted');
++    assert.equal(blocked.host, 'exfiltrate.example.com');
++  });
++
++  test('a server with no admitted host keeps the unconditional refusal', async (t) => {
++    const proxy = http.createServer();
++    attachEgress(proxy, {allowedDomains: [], allowLocalBinding: false, observe: () => {}});
++    proxy.listen(0, '127.0.0.1');
++    await once(proxy, 'listening');
++    t.after(() => proxy.close());
++    const port = proxy.address().port;
++    const answer = await new Promise((resolve) => {
++      const socket = net.connect(port, '127.0.0.1', () => socket.write('CONNECT www.rangerpainting.com:443 HTTP/1.1\r\n\r\n'));
++      let buffer = '';
++      socket.on('data', (chunk) => {buffer += chunk.toString();});
++      socket.on('close', () => resolve(buffer));
++      socket.on('error', () => resolve(buffer));
++    });
++    assert.match(answer, /403 Forbidden/);
++  });
++});
+--- /dev/null
++++ b/tests/ticket-capsule-gate.test.ts
+@@ -0,0 +1,206 @@
++// A ticket that names what it needs cannot be satisfied by a run that did not have it.
++//
++// The defect this covers, observed 2026-09-11: a browser-QA assignment was delegated into a
++// capsule with no network and no read scope, every probe was refused by the boundary, the
++// run still ended `completed`, and the work was then done another way. Each test below is
++// one route by which that outcome must become a block that names the capsule field to fix.
++//
++// Unit evidence: injected run doubles and the real harness, schema parser and record store.
++// No model adapter is called.
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {spawnSync} from 'node:child_process';
++import {realpathSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
++import {tmpdir} from 'node:os';
++import {join} from 'node:path';
++import {createHash} from 'node:crypto';
++import {runTicketPlan, validateTicketPlan} from '../src/ticket-harness.js';
++import type {TicketPlan} from '../src/ticket-harness.js';
++import {createRunRecordStore} from '../src/run-record-store.js';
++
++const sha256 = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
++const RELEASE_DIGEST = 'a'.repeat(64);
++const EXPIRES = '2027-01-01T00:00:00Z';
++const HOST = 'www.rangerpainting.com';
++const TASK = 'Drive the site in a browser and report what the flow does.';
++const index = (root: string) => JSON.parse(readFileSync(join(root, 'var', 'tickets', 'qa-plan', 'index.json'), 'utf8'));
++
++interface Fixture {root: string; proj: string; ws: string; planPath: string; capsuleFile: string; taskFile: string}
++
++function fixture(requires: any, capsuleNetwork?: {allowedDomains: string[]; allowLocalBinding?: boolean}): Fixture {
++  const root = realpathSync(mkdtempSync(join(tmpdir(), 'ticket-gate-')));
++  const proj = join(root, 'proj');
++  const ws = join(root, 'checker');
++  mkdirSync(join(proj, 'tickets'), {recursive: true});
++  mkdirSync(join(root, 'var', 'runs'), {recursive: true});
++  mkdirSync(ws, {recursive: true});
++  writeFileSync(join(proj, 'SPEC.md'), 'QA the visualizer flow.');
++  const taskFile = join(proj, 'tickets', 'qa.task.md');
++  writeFileSync(taskFile, TASK + '\n');
++  const capsuleFile = join(proj, 'tickets', 'qa.capsule.json');
++  writeFileSync(capsuleFile, JSON.stringify({
++    version: capsuleNetwork ? 5 : 1, id: 'astra-visualizer-qa', releaseDigest: RELEASE_DIGEST,
++    workspaceRoot: proj, allowWrite: [proj], inputs: {[taskFile]: sha256(readFileSync(taskFile))},
++    requiredCharts: ['local-task'], ...(capsuleNetwork ? {skillPlan: [{chart: 'local-task', purpose: 'drive the flow'}]} : {}),
++    tools: ['Bash', 'Read', 'Write'], modelRoute: 'gpt-6-astra',
++    limits: {maxSeconds: 600, maxRequests: 10}, declaredOutputs: [join(proj, 'qa-report.md'), join(proj, 'report.json')],
++    expiresAt: EXPIRES, ...(capsuleNetwork ? {network: capsuleNetwork} : {}),
++  }, null, 2));
++  writeFileSync(join(ws, 'checker-capsule.json'), JSON.stringify({
++    version: 1, id: 'qa-checker', releaseDigest: RELEASE_DIGEST, workspaceRoot: ws, allowWrite: [ws],
++    requiredCharts: ['local-task'], modelRoute: 'command-local', limits: {maxSeconds: 120, maxRequests: 1},
++    declaredOutputs: [ws], expiresAt: EXPIRES,
++  }, null, 2));
++  const plan: TicketPlan = {
++    version: 1, id: 'qa-plan', goal: 'The visualizer flow is QA-ed in a browser.',
++    specRef: join(proj, 'SPEC.md'),
++    tickets: [{
++      id: 'qa', needs: [], result: 'qa-report.md describes the measured flow.',
++      workspace: proj, taskFile, capsuleFile, artifacts: [join(proj, 'qa-report.md'), join(proj, 'report.json')],
++      ...(requires ? {requires} : {}),
++      acceptance: {
++        functional: 'The report describes the flow.',
++        craft: 'Findings are located and concrete.',
++        checker: {workspace: ws, capsuleTemplate: join(ws, 'checker-capsule.json')},
++        checks: [{
++          id: 'report-shape',
++          command: ['/bin/sh', '-c', 'cp report.json evidence.json'],
++          copies: [{from: join(proj, 'report.json'), to: 'report.json'}],
++          evidence: 'evidence.json',
++        }],
++      },
++    } as any],
++  };
++  const planPath = join(root, 'plan.json');
++  writeFileSync(planPath, JSON.stringify(plan, null, 2));
++  return {root, proj, ws, planPath, capsuleFile, taskFile};
++}
++
++/** A worker double that "succeeds": it writes the declared artifact and completes. Its run
++ * record can carry boundary events, exactly as the native record does. */
++function worker(f: Fixture, {events = [] as any[], model = 'gpt-6-astra', evidence = '{"pass":true,"checks":1}'} = {}) {
++  const calls: any[] = [];
++  const run = async (opts: any) => {
++    calls.push(opts);
++    if (opts.adapter === 'command') {
++      const exec = spawnSync(opts.command[0], opts.command.slice(1), {cwd: opts.workspace, encoding: 'utf8'});
++      const store = createRunRecordStore(f.root, opts.runId);
++      const record = {id: store.id, status: exec.status === 0 ? 'completed' : 'blocked', startedAt: new Date().toISOString(),
++        releaseDigest: 'test', chartDigest: 'test', taskDigest: 'test', workspace: opts.workspace,
++        adapter: opts.adapter, modelRequests: 0, events: [], limits: [], exitCode: exec.status ?? 1};
++      store.save(record as any);
++      return record as any;
++    }
++    writeFileSync(join(f.proj, 'qa-report.md'), 'The flow was exercised.\n');
++    writeFileSync(join(f.proj, 'report.json'), evidence);
++    const store = createRunRecordStore(f.root, opts.runId);
++    const record = {id: store.id, status: 'completed', startedAt: new Date().toISOString(),
++      releaseDigest: 'test', chartDigest: 'test', taskDigest: 'test', workspace: opts.workspace,
++      adapter: opts.adapter, modelRequests: 1, events, limits: [], exitCode: 0, model};
++    store.save(record as any);
++    return record as any;
++  };
++  return {run, calls};
++}
++
++const workerCalls = (calls: any[]) => calls.filter(c => c.adapter !== 'command');
++
++test('a ticket whose capsule cannot reach what it requires never launches a worker', async (t) => {
++  const f = fixture({capsule: {network: [HOST]}});
++  t.after(() => rmSync(f.root, {recursive: true, force: true}));
++  const {run, calls} = worker(f);
++  const summary = await runTicketPlan(f.root, f.planPath, {run, checker: run});
++  const ticket = summary.tickets[0]!;
++  assert.equal(ticket.state, 'blocked');
++  assert.equal(ticket.classification, 'capsule_insufficient');
++  assert.match(ticket.reason!, new RegExp(HOST.replace(/\./g, '\\.')));
++  assert.match(ticket.reason!, /network/);
++  assert.equal(workerCalls(calls).length, 0, 'no model run may start against a capsule that cannot do the work');
++});
++
++test('the block clears only when the capsule changes, not when the task or the plan does', async (t) => {
++  const f = fixture({capsule: {network: [HOST]}});
++  t.after(() => rmSync(f.root, {recursive: true, force: true}));
++  const first = worker(f);
++  await runTicketPlan(f.root, f.planPath, {run: first.run, checker: first.run});
++
++  // Rewriting the assignment to describe a workaround changes nothing.
++  writeFileSync(f.taskFile, TASK + '\nIf the browser is unavailable, describe the flow from the source instead.\n');
++  const second = worker(f);
++  const retry = await runTicketPlan(f.root, f.planPath, {run: second.run, checker: second.run});
++  assert.equal(retry.tickets[0]!.state, 'blocked');
++  assert.equal(retry.tickets[0]!.classification, 'capsule_insufficient');
++  assert.equal(workerCalls(second.calls).length, 0);
++
++  // Granting the capsule what the ticket requires is the one thing that re-admits it.
++  const capsule = JSON.parse(readFileSync(f.capsuleFile, 'utf8'));
++  capsule.version = 5;
++  capsule.network = {allowedDomains: [HOST]};
++  capsule.skillPlan = [{chart: 'local-task', purpose: 'drive the flow'}];
++  capsule.inputs = {[f.taskFile]: sha256(readFileSync(f.taskFile))};
++  writeFileSync(f.capsuleFile, JSON.stringify(capsule, null, 2));
++  const third = worker(f);
++  const fixed = await runTicketPlan(f.root, f.planPath, {run: third.run, checker: third.run});
++  assert.equal(workerCalls(third.calls).length, 1, 'the corrected capsule launches the work');
++  assert.ok(['accepted', 'checking'].includes(fixed.tickets[0]!.state), fixed.tickets[0]!.state);
++});
++
++test('a completed run that was refused at the boundary is not an accepted run', async (t) => {
++  const f = fixture({capsule: {network: [HOST]}}, {allowedDomains: [HOST]});
++  t.after(() => rmSync(f.root, {recursive: true, force: true}));
++  const {run, calls} = worker(f, {events: [
++    {kind: 'egress_request', host: HOST, port: 443, allowed: false, reason: 'egress_host_not_admitted', bytes: 0},
++  ]});
++  const summary = await runTicketPlan(f.root, f.planPath, {run, checker: run});
++  assert.equal(workerCalls(calls).length, 1, 'the run was allowed to start: its capsule declared the host');
++  assert.equal(summary.tickets[0]!.state, 'blocked');
++  assert.equal(summary.tickets[0]!.classification, 'capsule_insufficient');
++  assert.match(summary.tickets[0]!.reason!, /egress_host_not_admitted/);
++});
++
++test('artifacts produced by another route do not satisfy a ticket that names its route', async (t) => {
++  const f = fixture({route: 'gpt-6-astra'});
++  t.after(() => rmSync(f.root, {recursive: true, force: true}));
++  const {run} = worker(f, {model: 'claude-opus-5'});
++  const summary = await runTicketPlan(f.root, f.planPath, {run, checker: run});
++  assert.equal(summary.tickets[0]!.state, 'blocked');
++  assert.equal(summary.tickets[0]!.classification, 'capsule_insufficient');
++  assert.match(summary.tickets[0]!.reason!, /claude-opus-5/);
++  assert.match(summary.tickets[0]!.reason!, /gpt-6-astra/);
++});
++
++test('evidence without the receipt the ticket requires is a missing capability, not a pass', async (t) => {
++  const f = fixture({receipts: ['screenshots', 'urls']});
++  t.after(() => rmSync(f.root, {recursive: true, force: true}));
++  const {run} = worker(f, {evidence: '{"pass":true,"checks":1}'});
++  const summary = await runTicketPlan(f.root, f.planPath, {run, checker: run});
++  assert.equal(summary.tickets[0]!.state, 'blocked');
++  assert.equal(summary.tickets[0]!.classification, 'capsule_insufficient');
++  assert.match(summary.tickets[0]!.reason!, /receipt_missing: screenshots/);
++});
++
++test('an empty receipt is not a receipt', async (t) => {
++  const f = fixture({receipts: ['urls']});
++  t.after(() => rmSync(f.root, {recursive: true, force: true}));
++  const {run} = worker(f, {evidence: '{"pass":true,"checks":1,"receipts":{"urls":[]}}'});
++  const summary = await runTicketPlan(f.root, f.planPath, {run, checker: run});
++  assert.equal(summary.tickets[0]!.state, 'blocked');
++  assert.match(summary.tickets[0]!.reason!, /receipt_missing: urls/);
++});
++
++test('a measured receipt accepts the ticket', async (t) => {
++  const f = fixture({receipts: ['urls']});
++  t.after(() => rmSync(f.root, {recursive: true, force: true}));
++  const {run} = worker(f, {evidence: '{"pass":true,"checks":1,"receipts":{"urls":["https://www.rangerpainting.com/resources"]}}'});
++  const summary = await runTicketPlan(f.root, f.planPath, {run, checker: run});
++  assert.ok(['accepted', 'checking'].includes(summary.tickets[0]!.state), summary.tickets[0]!.state + ': ' + summary.tickets[0]!.reason);
++  assert.notEqual(summary.tickets[0]!.classification, 'capsule_insufficient');
++});
++
++test('a malformed requirement is refused when the plan is read, not when it runs', async (t) => {
++  for (const requires of [{route: 42}, {capsule: {network: 'www.rangerpainting.com'}}, {receipts: [7]}, {unknown: true}]) {
++    const f = fixture(requires);
++    t.after(() => rmSync(f.root, {recursive: true, force: true}));
++    assert.throws(() => validateTicketPlan(f.planPath), /invalid_plan/, JSON.stringify(requires));
++  }
++});
+--- /dev/null
++++ b/tests/sandbox-anchor.test.ts
+@@ -0,0 +1,53 @@
++// The release ceiling for run egress and external reads. It is the only thing that can put
++// a destination or an outside path inside a run, so a malformed ceiling refuses the release
++// rather than resolving to "grant nothing" or, worse, "grant everything".
++import test from 'node:test';
++import assert from 'node:assert/strict';
++import {readFileSync} from 'node:fs';
++import {validateAnchor} from '../src/release.js';
++
++const anchor = JSON.parse(readFileSync('release/anchor.json', 'utf8'));
++const sandbox = {
++  version: 1,
++  readableRoots: ['/Users/thebeast/ranger-painting-full-build'],
++  network: {allowedDomains: ['www.rangerpainting.com', '*.staging.rangerpainting.com'], allowLocalBinding: false},
++};
++
++test('a well-shaped ceiling is carried through', () => {
++  const validated = validateAnchor({...anchor, sandbox});
++  assert.deepEqual(validated.sandbox, sandbox);
++  // An empty ceiling is meaningful: it grants nothing, explicitly.
++  assert.deepEqual(validateAnchor({...anchor, sandbox: {version: 1, readableRoots: [], network: {allowedDomains: [], allowLocalBinding: false}}}).sandbox!.network.allowedDomains, []);
++});
++
++test('a release with no ceiling keeps its previous shape', () => {
++  assert.equal(validateAnchor(anchor).sandbox, undefined);
++});
++
++test('a malformed ceiling refuses the release', () => {
++  const bad = [
++    null, true, {},
++    {...sandbox, version: 2},
++    {...sandbox, extra: true},
++    {version: 1, readableRoots: [], network: {allowedDomains: [], allowLocalBinding: false}, unknown: 1},
++    {...sandbox, readableRoots: ['relative/path']},
++    {...sandbox, readableRoots: ['/Users/x/..']},
++    {...sandbox, readableRoots: ['/Users/**']},
++    {...sandbox, readableRoots: '/Users/x'},
++    {...sandbox, network: {allowedDomains: ['www.rangerpainting.com']}},
++    {...sandbox, network: {allowedDomains: 'www.rangerpainting.com', allowLocalBinding: false}},
++    {...sandbox, network: {allowedDomains: [42], allowLocalBinding: false}},
++    {...sandbox, network: {allowedDomains: ['https://www.rangerpainting.com'], allowLocalBinding: false}},
++    {...sandbox, network: {allowedDomains: ['www.rangerpainting.com'], allowLocalBinding: 'yes'}},
++  ];
++  for (const candidate of bad) assert.throws(() => validateAnchor({...anchor, sandbox: candidate}), /invalid_sandbox/, JSON.stringify(candidate));
++});
++
++test('the ceiling cannot open the whole internet in one entry', () => {
++  // A release may grant a site. Granting every host under a public suffix, or every host at
++  // all, is not a ceiling, and the owner has to name what the business actually reaches.
++  for (const domain of ['*', '*.com', '*.co.uk', '*.io']) {
++    assert.throws(() => validateAnchor({...anchor, sandbox: {...sandbox, network: {allowedDomains: [domain], allowLocalBinding: false}}}), /invalid_sandbox/, domain);
++  }
++  assert.doesNotThrow(() => validateAnchor({...anchor, sandbox: {...sandbox, network: {allowedDomains: ['*.rangerpainting.com'], allowLocalBinding: false}}}));
++});
