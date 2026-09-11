@@ -204,8 +204,9 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
    page's one moving figure; at rest (reduced motion, print) it is the same drawing. */
 .hero-figure { margin: 0; color: var(--fg); }
 .hero-figure svg { display: block; width: 100%; height: auto; }
-.hero-figure .lbl { text-transform: uppercase; fill: var(--muted-fg); }
-.hero-figure .lbl.sub { fill: var(--muted-fg); fill-opacity: .8; letter-spacing: .08em; }
+.hero-figure .lbl, .desks-figure .lbl { text-transform: uppercase; fill: var(--muted-fg); }
+.hero-figure .lbl.sub, .desks-figure .lbl.sub { fill: var(--muted-fg); fill-opacity: .8; letter-spacing: .08em; }
+.desks-figure .lbl.sub { font-size: 12px; }
 .hero-figure .lbl.cell { fill: var(--muted-fg); }
 @media (max-width: 979px) { .hero-figure { max-width: 720px; } }
 /* Below tablet width the figure is a third of its desktop size, so the captions are
@@ -217,7 +218,28 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
   .hero-figure .lbl.name { font-size: 18px; }
   .hero-figure .lbl.sub, .hero-figure .lbl.track { display: none; }
 }
-@media print { .hero-figure { display: none; } }
+@media print { .hero-figure, .desks-figure { display: none; } }
+
+/* The three empty workstations, on the page carrying the career-level claim. Wide
+   content scrolls in its own region rather than shrinking to an unreadable strip,
+   the same rule the idea row follows. */
+.desks-figure { margin: 22px 0 4px; color: var(--fg); overflow-x: auto; overscroll-behavior-x: contain; }
+.desks-figure svg { display: block; width: 100%; height: auto; }
+/* Three stations do not fit the reading measure at a legible size, so on wide
+   screens the figure runs into the empty space to the right of the column. Below
+   the two-column breakpoint it keeps its natural size and scrolls in its own
+   region, the same rule the nineteen-idea row follows. */
+/* The figure is drawn at 1020 units wide but rendered narrower, so its captions
+   are re-set per band to land at the vocabulary's 11px mono label size. */
+@media (min-width: 1240px) { .desks-figure { width: calc(100% + 232px); } }
+@media (min-width: 980px) and (max-width: 1239px) {
+  .desks-figure { width: calc(100% + 120px); }
+  .desks-figure .lbl { font-size: 15px; } .desks-figure .lbl.sub { font-size: 13px; }
+}
+@media (max-width: 979px) {
+  .desks-figure svg { min-width: 620px; }
+  .desks-figure .lbl { font-size: 18px; } .desks-figure .lbl.sub { font-size: 16px; }
+}
 .opening h1 { font-size: var(--title-home); line-height: 1.04; letter-spacing: -0.032em; max-width: 15ch; margin-bottom: 22px; text-wrap: balance; }
 .opening h1 em { font-style: italic; color: var(--accent-text); }
 .opening .lead { font-size: 1.15rem; line-height: 1.5; color: var(--muted-fg); max-width: 44ch; margin-bottom: 26px; }

@@ -31,6 +31,7 @@ import markdown
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from icons import IDEAS, SKILLS, GUIDES, INVESTIGATIONS
 from hero import hero  # the animated hero loop
+from desks import desks  # the three empty workstations
 
 REPO = Path(__file__).resolve().parent.parent
 # The claim line of each investigation, copied verbatim from COPY.md.
@@ -52,6 +53,11 @@ GITHUB = 'https://github.com/desland01/agent-engineering-handbook'
 # enforces that this is all-or-nothing across the 54 pages.
 SITE_URL = 'https://agent-engineering-handbook.dev'
 EDITION_DATE = 'September 9, 2026'
+
+# Idea 18 is the video's own career-level claim: that building an environment where
+# code lands well is the skill worth having. The empty-workstations drawing is that
+# claim's punchline, so it appears on that page and nowhere else.
+DESKS_ON_IDEA = 18
 SITE_NAME = 'Agent Engineering Handbook'
 
 # Directories and files that are renderer *inputs*. public/, build/ and any
@@ -1005,7 +1011,9 @@ def idea_page(i, idx, home):
             f'<header class="page-head"><p class="context"><span class="n">Idea {i["n"]:02d}</span> <span>of {len(ideas)}</span> '
             f'<span aria-hidden="true">·</span> <a href="{prefix}ideas.html">The nineteen ideas</a></p>'
             f'<span class="art" aria-hidden="true">{IDEAS[f"{i["n"]:02d}"]}</span>'
-            f'<h1>{escape(i["idea"])}</h1></header>'
+            f'<h1>{escape(i["idea"])}</h1>'
+            + (f'<figure class="desks-figure">{desks()}</figure>' if i['n'] == DESKS_ON_IDEA else '') +
+            f'</header>'
             f'<details class="toc-mobile"><summary>On this page</summary>{toc}</details>'
             f'<article>{article}</article>'
             f'<nav class="guide-seq" aria-label="Idea sequence">{seq_links}</nav>'

@@ -18,8 +18,11 @@
   };
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
   // The hero loop is SMIL, which CSS cannot stop: pause it when motion is reduced.
-  var heroLoop = document.querySelector('.hero-loop');
-  if (heroLoop && reduced && reduced.matches && heroLoop.pauseAnimations) { heroLoop.pauseAnimations(); heroLoop.setCurrentTime(2.5); }
+  if (reduced && reduced.matches) {
+    Array.prototype.forEach.call(document.querySelectorAll('.hero-loop, .desks-loop'), function (svg) {
+      if (svg.pauseAnimations) { svg.pauseAnimations(); svg.setCurrentTime(2.5); }
+    });
+  }
 
   // ---------------------------------------------------------- header menu
   function headerMenu() {
