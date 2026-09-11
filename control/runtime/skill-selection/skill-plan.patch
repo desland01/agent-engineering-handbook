@@ -1,0 +1,194 @@
+--- a/src/capsule-schema.mjs
++++ b/src/capsule-schema.mjs
+@@ -4,6 +4,9 @@
+ // Version 4 adds the explicit no-request-cap opt-in `limits.maxRequests: null`,
+ // which is honored only with the paired Anchor taskLifetime version 2 permission
+ // (see task-lifetime.mjs). Versions 1-3 keep finite request bounds unchanged.
++// Version 5 adds the required `skillPlan`: the ordered, justified skills this run
++// selected, each already in requiredCharts. Order is the chain order. Versions 1-4
++// carry no plan and keep their exact behaviour, including an unused required Chart.
+ // Dependency-free: node builtins only. See CAPSULES.md for the full contract.
+ 
+ import {
+@@ -12,8 +15,8 @@
+   subtreeContains,
+ } from './capsule-paths.mjs';
+ 
+-export const CAPSULE_SCHEMA_VERSION = 4;
+-export const CAPSULE_SCHEMA_VERSIONS = [1, 2, 3, 4];
++export const CAPSULE_SCHEMA_VERSION = 5;
++export const CAPSULE_SCHEMA_VERSIONS = [1, 2, 3, 4, 5];
+ const SHA256 = /^[a-f0-9]{64}$/;
+ const ID = /^[a-z0-9][a-z0-9._-]{2,127}$/;
+ const CHART = /^[a-z0-9][a-z0-9._:-]*$/;
+@@ -40,6 +43,7 @@
+ 
+   const allowedFields = ['version', 'id', 'parentId', 'releaseDigest', 'workspaceRoot', 'allowWrite', 'allowRead', 'inputs', 'requiredCharts', 'tools', 'modelRoute', 'provider', 'limits', 'declaredOutputs', 'expiresAt'];
+   if (raw.version >= 2) allowedFields.push('roleId');
++  if (raw.version >= 5) allowedFields.push('skillPlan');
+   for (const key of Object.keys(raw)) {
+     if (!allowedFields.includes(key)) fail(errors, key, 'unknown field; the version ' + raw.version + ' contract is explicit and refuses undeclared fields');
+   }
+@@ -148,6 +152,30 @@
+       else tools.push(tool);
+     }
+   }
++  // skillPlan: the skills this run selected, in the order they apply. Every entry names a
++  // Chart the capsule already requires, and says what it is for; a plan is not a second
++  // place to grant a Chart. Absence is refused in version 5 because "which skills does this
++  // work need" is a question with an answer, and the empty answer is a claim, not a default.
++  const skillPlan = [];
++  if (raw.version >= 5) {
++    if (!Array.isArray(raw.skillPlan) || raw.skillPlan.length === 0) {
++      fail(errors, 'skillPlan', 'expected a non-empty ordered array of {chart, purpose}; the selected skills are declared, not inferred');
++    } else {
++      const seen = new Set();
++      for (const entry of raw.skillPlan) {
++        if (typeOf(entry) !== 'object') { fail(errors, 'skillPlan[]', 'expected {chart, purpose}, got ' + typeOf(entry)); continue; }
++        const extra = Object.keys(entry).filter(key => key !== 'chart' && key !== 'purpose');
++        if (extra.length) fail(errors, 'skillPlan[]', 'unknown field ' + extra.join(', ') + '; an entry declares chart and purpose only');
++        if (typeof entry.chart !== 'string' || !CHART.test(entry.chart)) { fail(errors, 'skillPlan[].chart', 'expected a chart identifier, got ' + JSON.stringify(entry.chart)); continue; }
++        if (typeof entry.purpose !== 'string' || entry.purpose.trim().length === 0) fail(errors, 'skillPlan[].purpose', 'expected what ' + entry.chart + ' is for in this run');
++        if (seen.has(entry.chart)) { fail(errors, 'skillPlan[]', 'duplicate chart ' + entry.chart + '; a chain names each skill once'); continue; }
++        seen.add(entry.chart);
++        if (!requiredCharts.includes(entry.chart)) fail(errors, 'skillPlan[]', 'planned chart ' + entry.chart + ' is not in requiredCharts; the plan selects among the Charts the capsule carries');
++        else skillPlan.push({chart: entry.chart, purpose: String(entry.purpose)});
++      }
++    }
++  }
++
+   if (typeof raw.modelRoute !== 'string' || raw.modelRoute.length === 0) fail(errors, 'modelRoute', 'expected the selected model route, e.g. "glm-5.3-flash"');
+   if (raw.provider !== undefined && (typeof raw.provider !== 'string' || raw.provider.length === 0)) fail(errors, 'provider', 'expected a provider name when present');
+ 
+@@ -160,11 +188,11 @@
+       const value = raw.limits[key];
+       // The paired no-deadline opt-in exists in versions 3 and 4; the versioned
+       // pairing rule below refuses a lone null.
+-      if ((raw.version === 3 || raw.version === 4) && key === 'maxSeconds' && value === null) { limits[key] = null; continue; }
++      if (raw.version >= 3 && key === 'maxSeconds' && value === null) { limits[key] = null; continue; }
+       // The no-request-cap opt-in: explicit null, distinct from absence (the
+       // field is required) and from 0 (always refused). Version-gated so every
+       // historical finite declaration keeps its unchanged enforcement.
+-      if (raw.version === 4 && key === 'maxRequests' && value === null) { limits[key] = null; continue; }
++      if (raw.version >= 4 && key === 'maxRequests' && value === null) { limits[key] = null; continue; }
+       if (typeof value !== 'number' || !Number.isSafeInteger(value) || value <= 0) {
+         fail(errors, 'limits.' + key, 'expected a positive integer, got ' + JSON.stringify(value));
+       } else limits[key] = value;
+@@ -201,8 +229,8 @@
+   }
+ 
+   // expiry: an explicit UTC instant.
+-  const noDeadline = (raw.version === 3 || raw.version === 4) && limits.maxSeconds === null && raw.expiresAt === null;
+-  if ((raw.version === 3 || raw.version === 4) && ((limits.maxSeconds === null) !== (raw.expiresAt === null))) fail(errors, 'limits', 'no-deadline runs require both maxSeconds and expiresAt to be null');
++  const noDeadline = raw.version >= 3 && limits.maxSeconds === null && raw.expiresAt === null;
++  if (raw.version >= 3 && ((limits.maxSeconds === null) !== (raw.expiresAt === null))) fail(errors, 'limits', 'no-deadline runs require both maxSeconds and expiresAt to be null');
+   if (!noDeadline && (typeof raw.expiresAt !== 'string' || !ISO_UTC.test(raw.expiresAt) || Number.isNaN(Date.parse(raw.expiresAt)))) {
+     fail(errors, 'expiresAt', 'expected a UTC instant like "2026-09-06T01:46:57Z"');
+   }
+@@ -222,6 +250,7 @@
+       ...(allowRead.length ? {allowRead} : {}),
+       inputs,
+       requiredCharts,
++      ...(raw.version >= 5 ? {skillPlan} : {}),
+       ...(tools.length ? {tools} : {}),
+       modelRoute: raw.modelRoute,
+       ...(raw.provider !== undefined ? {provider: raw.provider} : {}),
+--- a/src/capsule-admission.mjs
++++ b/src/capsule-admission.mjs
+@@ -64,6 +64,12 @@
+   for (const chart of child.requiredCharts) {
+     if (!parentCharts.has(chart)) push('requiredCharts', 'child requires chart ' + chart + ' that the parent does not');
+   }
++  // A worker plans inside the skills its parent already carries. The parent selects for the
++  // whole assignment tree before the first dispatch; a skill discovered mid-flight is a
++  // refusal here, not a widening.
++  for (const entry of child.skillPlan ?? []) {
++    if (!parentCharts.has(entry.chart)) push('skillPlan', 'child plans ' + entry.chart + ', which the parent does not require; the parent selects for the whole tree before dispatching');
++  }
+   const parentTools = new Set(parent.tools ?? anchorTools ?? []);
+   if (child.tools === undefined && parent.tools !== undefined && anchorTools === undefined) push('tools', 'child default tools cannot be measured without the Anchor tool set');
+   for (const tool of child.tools ?? anchorTools ?? []) {
+--- a/src/capsule-runtime.mjs
++++ b/src/capsule-runtime.mjs
+@@ -238,6 +238,19 @@
+       return {contextVersion: CAPSULE_CHART_CONTEXT_VERSION, charts, withoutContext: charts.filter(c => c.context === null).map(c => c.id), withoutSuccessfulInvocation: charts.filter(c => c.invocationSucceeded === 0).map(c => c.id), unresolvedInvocations: pending.size};
+     },
+   };
++}
++
++// The terminal skill-plan verdict. Invocation is only knowable after the run, so this is
++// measured once at termination and never per request: a request forwarded before the second
++// skill of a chain is invoked is legitimate. Invocation is the whole claim — a planned Chart
++// counts on one successful native Skill result, a failed invocation does not count, and a
++// required Chart outside the plan is unaffected. Whether the method shaped the work is not
++// measured here and is not asserted by this verdict.
++export function skillPlanVerdict(skillPlan, summary) {
++  const planned = (skillPlan ?? []).map(entry => entry.chart);
++  const missing = new Set(summary?.withoutSuccessfulInvocation ?? []);
++  const uninvoked = planned.filter(chart => missing.has(chart));
++  return {allInvoked: uninvoked.length === 0, uninvoked, planned, reason: uninvoked.length === 0 ? null : 'capsule_skill_plan_uninvoked'};
+ }
+ 
+ function bindingRefusal(stage, payload) {
+@@ -322,6 +335,7 @@
+     limits: {maxSeconds: launch.limits.timeoutSeconds, maxRequests: requestLimit, secondsUntilExpiryAtAdmission: launch.limits.secondsUntilExpiry},
+     requestLimit,
+     requiredCharts: [...capsule.requiredCharts],
++    skillPlan: (capsule.skillPlan ?? []).map(entry => ({...entry})),
+     charts: chartEvidenceTracker(capsule.requiredCharts),
+     // Whole seconds of allowance left at `nowMs`; <1 means the allowance is spent.
+     remainingSeconds(nowMs = Date.now()) { return expiresAtMs === null ? null : Math.floor((expiresAtMs - nowMs) / 1000); },
+--- a/src/runtime.ts
++++ b/src/runtime.ts
+@@ -30,7 +30,7 @@
+ import {selectModelRoute} from './model-routes.js';
+ import {routeToken} from './model-credentials.js';
+ import {commandBinding,applyCommandEnvironment} from './command-binding.js';
+-import {admitCapsuleRun,composeRequiredChartContext,chartEvidenceTracker,requestWithinLimit} from './capsule-runtime.mjs';
++import {admitCapsuleRun,composeRequiredChartContext,chartEvidenceTracker,requestWithinLimit,skillPlanVerdict} from './capsule-runtime.mjs';
+ import {CUSTOMER_SIMPLE_CHART,requiredChartsForCustomerPresentation} from './customer-presentation.js';
+ import {nativePermissionBinding,permissionLaunch} from './native-permission.mjs';
+ import {nativeEffectBinding,loadNativeEffectDeclaration,nativeEffectDeclarationPath,nativeEffectSession} from './native-effect-binding.mjs';
+@@ -430,7 +430,16 @@
+     }
+     // Context delivery is exact release bytes (enforced at the provider boundary above); Skill
+     // results are normalized equivalence only; application stays unverified.
+-    if(capsuleRun)record.events.push({kind:'capsule_required_charts',...capsuleRun.charts.summary()});
++    if(capsuleRun){
++      const chartSummary=capsuleRun.charts.summary();
++      record.events.push({kind:'capsule_required_charts',...chartSummary});
++      // A selected skill that was never invoked is a defect, not a saving: the run did not
++      // do what its capsule said it would. Charts outside the plan keep their present-only
++      // obligation, so no version 1-4 run changes status.
++      const plan=skillPlanVerdict(capsuleRun.skillPlan,chartSummary);
++      record.events.push({kind:'capsule_skill_plan',allInvoked:plan.allInvoked,planned:plan.planned,uninvoked:plan.uninvoked});
++      if(!plan.allInvoked)record.reason??=plan.reason!;
++    }
+     assertRelease(release,authority);
+     verifyRuntime(root);
+     if(isolation)createLinuxIsolation(release,root);
+--- a/tests/capsules/capsule-role.test.mjs
++++ b/tests/capsules/capsule-role.test.mjs
+@@ -64,9 +64,9 @@
+ });
+ 
+ describe('declaration versions', () => {
+-  test('binding is version 3 and schema accepts versions 1 through 4; roleId starts in version 2', () => {
++  test('binding is version 3 and schema accepts versions 1 through 5; roleId starts in version 2', () => {
+     assert.equal(CAPSULE_BINDING_VERSION, 3);
+-    assert.deepEqual(CAPSULE_SCHEMA_VERSIONS, [1, 2, 3, 4]);
++    assert.deepEqual(CAPSULE_SCHEMA_VERSIONS, [1, 2, 3, 4, 5]);
+     assert.deepEqual(CAPSULE_BINDING_CONSTANTS.map(c => c.id).slice(-4), ['role_trusted', 'role_obligations_retained', 'role_route_eligible', 'role_limits_within']);
+     assert.deepEqual(CAPSULE_ALLOWANCE_CONSTANTS.map(c => c.id), ['allowance_within']);
+     const v1raw = declaration('/w', {version: 1, inputs: {}}); delete v1raw.roleId; // JSON never carries an undefined key
+--- a/tests/capsules/capsule.test.mjs
++++ b/tests/capsules/capsule.test.mjs
+@@ -126,7 +126,7 @@
+     assert.deepEqual(parsed.capsule.limits, {maxSeconds: 1800, maxRequests: 100});
+   });
+   test('unknown fields, bad versions, bad digests and glob syntax are refused', () => {
+-    const parsed = parseCapsule({version: 5, id: 'x', allowWrite: ['/w'], declaredOutputs: [], requiredCharts: ['c'], limits: {maxSeconds: 1, maxRequests: 1}, modelRoute: 'm', workspaceRoot: '/w', releaseDigest: W, expiresAt: EXPIRY, extra: 1});
++    const parsed = parseCapsule({version: 6, id: 'x', allowWrite: ['/w'], declaredOutputs: [], requiredCharts: ['c'], limits: {maxSeconds: 1, maxRequests: 1}, modelRoute: 'm', workspaceRoot: '/w', releaseDigest: W, expiresAt: EXPIRY, extra: 1});
+     assert.equal(parsed.ok, false);
+     const fields = parsed.errors.map(e => e.field);
+     assert.ok(fields.includes('version'));

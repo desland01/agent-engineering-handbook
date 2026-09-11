@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "deliverable": "skill-selection",
+  "recorded": "2026-09-11",
+  "sourceTree": "/Users/thebeast/Documents/Codex/2026-09-04/ca/outputs/nautilus",
+  "appliesTo": {
+    "src/capsule-schema.mjs": "64e04a36c7500de47a79634186f8e081c2b7070709361e774d319e33e0e2509c",
+    "src/capsule-admission.mjs": "bf3815e1f4a04b7bfc1366270d6e5c76f327be17ba8a07812b9118182657fe02",
+    "src/capsule-runtime.mjs": "0f87327a60f0f0aa74d90ee54dd52d9df8276ad12116bb4742747cdcfdcb1a6c",
+    "src/runtime.ts": "3fe23a54fa52199b4d36d6e43bf35b03ffa7e6aa1ba51f8d9db4e85fd39b3670",
+    "tests/capsules/capsule-role.test.mjs": "164a6450a68f219105ffcb8ee6b5efaffd393b7721499f41c63de26e782fa96a",
+    "tests/capsules/capsule.test.mjs": "2c001ccbe476bae170dd4755f48bcd906e17076c0ce11e89e26dda470cb39edb"
+  },
+  "patch": {
+    "path": "skill-plan.patch",
+    "sha256": "5ac1ae0b19c9dc4f1306db427f29903f08a36989d3d32bcb3472469456ff5868"
+  },
+  "test": {
+    "path": "skill-plan.test.mjs",
+    "installsAt": "tests/capsules/skill-plan.test.mjs",
+    "sha256": "029262a7ab1d95087ebcc7abe2169573c479e7f0037ff2e7b8a687219c30a707"
+  },
+  "evidence": {
+    "red": "unpatched copy of the source tree with the test installed: tests/capsules/skill-plan.test.mjs 4 pass / 7 fail",
+    "applies": "git apply --check -p1 clean against the digests in appliesTo",
+    "green": "the patch applied to a fresh copy and the test installed: tests/capsules/*.test.mjs 118 pass / 0 fail",
+    "runner": "tsx --test on copies of src/ vendor/ tests/ outside the dirty source tree; no run touched the source tree or the selected release",
+    "proves": "the declaration contract and the terminal verdict as functions; the blocked status is read from runtime.ts:458 and not exercised, and semantic application is measured nowhere",
+    "knownFlake": "tests/capsules/lease-contention.test.mjs intermittently fails capsule_lease_store_busy under the full parallel run on the unpatched tree as well (1 of 3 unpatched, 0 of 3 patched, 5 of 5 standalone on each); capsule-leases.mjs is untouched by this patch"
+  },
+  "notApplied": "the source tree carried 5460 dirty entries on 2026-09-11; the patch is staged here until it is clean",
+  "charts": {
+    "edits": "chart-edits.json",
+    "files": [
+      "charts/operating.md",
+      "charts/core-skills/CORE.md"
+    ],
+    "published": false,
+    "note": "Chart bytes are not counted against the skill library; the library has 810 bytes of headroom and core sits at 50 of 50 skills."
+  },
+  "anchor": {
+    "constant": "N009",
+    "field": "skill_plan_applied",
+    "staged": false,
+    "note": "Travels with the release that carries the patch; measured once at termination, never per request."
+  },
+  "names": {
+    "verdict": "skillPlanVerdict -> {allInvoked, uninvoked, planned, reason}",
+    "reason": "capsule_skill_plan_uninvoked",
+    "note": "invocation, never semantic application; the per-Chart `invoked` count in chartEvidenceTracker is a different field"
+  }
+}
