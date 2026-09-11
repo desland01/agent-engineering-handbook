@@ -61,7 +61,7 @@ cd public && python3 -m http.server 8000    # http://localhost:8000
   [DESIGN.md](https://github.com/desland01/agent-engineering-handbook/blob/main/DESIGN.md); behaviour changes in [INTERACTIONS.md](https://github.com/desland01/agent-engineering-handbook/blob/main/INTERACTIONS.md).
 
 Vercel regenerates and checks the site from these sources on every deployment. Edit the
-source, regenerate locally and commit both. `build/handbook-workflow.example.yml` provides
-an optional GitHub Actions check for stale committed output; it is not installed because
-the publishing token lacks GitHub workflow permission. Review changes to meaning and
+source, regenerate locally and commit both. GitHub Actions runs the same check on every
+pull request, from `.github/workflows/checks.yml`. A committed page that no longer matches
+its source fails that check and blocks the merge. Review changes to meaning and
 source claims in the editable Markdown.
