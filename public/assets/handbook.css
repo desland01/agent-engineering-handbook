@@ -111,7 +111,7 @@ ul, ol { margin: 0; padding: 0; }
    zero minimum and long references may wrap anywhere. */
 .opening > *, .shelf > .wrap > *, .closing > *, .tile, .tile > *, .pick li > *, .site-head .wrap > *,
 .ideas li > *, .frame > *, .reader > *, .rail > *, .page-head > *, .guide-seq > * { min-width: 0; }
-code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { overflow-wrap: anywhere; }
+code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-wrap: anywhere; }
 
 /* Small shared pieces */
 .chip {
@@ -197,7 +197,27 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
   mask-image: radial-gradient(120% 80% at 30% 0%, #000 0%, transparent 72%);
 }
 .opening > .wrap { display: grid; gap: 40px; position: relative; }
-@media (min-width: 980px) { .opening { padding-block: 84px 76px; } .opening > .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr); gap: 72px; align-items: start; } }
+@media (min-width: 980px) { .opening { padding-block: 84px 64px; } .opening > .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1.18fr); gap: 56px 56px; align-items: center; } .opening .pick { grid-column: 1 / -1; } }
+
+/* The hero loop: one drawn system - codebase, check, agents - on one closed track,
+   animated in SMIL on a single shared period so the loop has no seam. It is the
+   page's one moving figure; at rest (reduced motion, print) it is the same drawing. */
+.hero-figure { margin: 0; color: var(--fg); }
+.hero-figure svg { display: block; width: 100%; height: auto; }
+.hero-figure .lbl { text-transform: uppercase; fill: var(--muted-fg); }
+.hero-figure .lbl.sub { fill: var(--muted-fg); fill-opacity: .8; letter-spacing: .08em; }
+.hero-figure .lbl.cell { fill: var(--muted-fg); }
+@media (max-width: 979px) { .hero-figure { max-width: 720px; } }
+/* Below tablet width the figure is a third of its desktop size, so the captions are
+   re-set for that size: labels larger, sub-captions off. CSS wins over the SVG's
+   presentation attributes, so the same drawing serves both. */
+@media (max-width: 640px) {
+  .hero-figure { margin-inline: calc(-1 * var(--gutter)); max-width: none; }
+  .hero-figure .lbl { font-size: 24px; }
+  .hero-figure .lbl.name { font-size: 18px; }
+  .hero-figure .lbl.sub, .hero-figure .lbl.track { display: none; }
+}
+@media print { .hero-figure { display: none; } }
 .opening h1 { font-size: var(--title-home); line-height: 1.04; letter-spacing: -0.032em; max-width: 15ch; margin-bottom: 22px; text-wrap: balance; }
 .opening h1 em { font-style: italic; color: var(--accent-text); }
 .opening .lead { font-size: 1.15rem; line-height: 1.5; color: var(--muted-fg); max-width: 44ch; margin-bottom: 26px; }
@@ -217,8 +237,6 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .contents a { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--muted-fg); text-decoration: none; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); transition: border-color var(--hover-ms) ease-out; }
 .contents a:hover { border-color: var(--border-strong); color: var(--fg); }
 .contents a span { color: var(--accent-text); font-weight: 600; letter-spacing: 0; }
-.edition { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); font-size: var(--text-sm); color: var(--dim-fg); max-width: 52ch; }
-.edition .num { color: var(--muted-fg); }
 
 /* The problem panel, as a drawn schedule.
 
@@ -348,7 +366,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
    comparison because the division between the lanes never moves. */
 .lanes { list-style: none; border-top: 1px solid var(--border); }
 .lanes .tile.skill { position: relative; display: grid; gap: 10px 56px; padding: 24px 0 22px; border-bottom: 1px solid var(--border); }
-.lanes .tile.skill > .art { position: relative; display: grid; place-items: center; height: 192px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--accent-text); transition: border-color var(--hover-ms) ease-out; }
+.lanes .tile.skill > .art { position: relative; display: grid; place-items: center; height: 192px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--fg); transition: border-color var(--hover-ms) ease-out; }
 .lanes .tile.skill > .art svg { width: 136px; height: 136px; }
 .lanes .tile.skill > .art .cap { position: absolute; left: 14px; bottom: 12px; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); }
 .lanes .tile.skill:hover > .art, .lanes .tile.skill:focus-within > .art { border-color: var(--border-strong); }
@@ -413,7 +431,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .file::before { content: ""; position: absolute; left: 28px; top: -22px; height: 22px; border-left: 1px solid var(--border-strong); }
 .file > a { display: grid; gap: 10px; align-content: start; height: 100%; padding: 22px 24px 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--fg); text-decoration: none; transition: border-color var(--hover-ms) ease-out, background-color var(--hover-ms) ease-out; }
 .file > a:hover { border-color: var(--border-strong); background: var(--surface); }
-.file .art { display: block; width: 100%; max-width: 480px; color: var(--accent-text); margin-bottom: 6px; }
+.file .art { display: block; width: 100%; max-width: 480px; color: var(--fg); margin-bottom: 6px; }
 .file .art svg { display: block; width: 100%; height: auto; }
 .file .t { font-weight: 600; font-size: 1.1rem; line-height: 1.28; letter-spacing: -0.02em; }
 .file-primary .t { font-size: 1.4rem; font-weight: 500; letter-spacing: -0.025em; }
@@ -485,7 +503,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 .tile.idea { box-shadow: 0 0 0 1px var(--border); position: relative; display: flex; flex-direction: column; gap: 9px; height: 100%; padding: 20px 20px 18px; background: var(--bg); transition: background-color var(--hover-ms) ease-out; }
 .tile.idea:hover, .tile.idea:focus-within { background: var(--surface); }
 .tile.idea .ix { position: absolute; top: 18px; right: 18px; color: var(--dim-fg); letter-spacing: 0.08em; }
-.tile.idea .art { display: block; width: 40px; height: 40px; color: var(--accent-text); }
+.tile.idea .art { display: block; width: 40px; height: 40px; color: var(--fg); }
 .tile.idea .art svg { width: 100%; height: 100%; }
 .tile.idea h3 { font-size: 1.02rem; font-weight: 600; line-height: 1.32; letter-spacing: -0.015em; padding-right: 44px; }
 .tile.idea .who { color: var(--dim-fg); font-size: var(--text-xs); }
@@ -502,7 +520,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 @media (min-width: 1080px) { .tiles.cards:not(.skills) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tiles.cards .tile { box-shadow: 0 0 0 1px var(--border); position: relative; display: flex; flex-direction: column; gap: 10px; padding: 22px 22px 20px; background: var(--bg); transition: background-color var(--hover-ms) ease-out; }
 .tiles.cards .tile:hover, .tiles.cards .tile:focus-within { background: var(--surface); }
-.tiles.cards .art { display: block; color: var(--accent-text); }
+.tiles.cards .art { display: block; color: var(--fg); }
 /* The skills figure: Augment's loops. A 2x2 of tall hairline cells, each
    carrying its drawing at a size that does visual work, with a mono caption
    inside the drawing's box naming the loop it closes. It was four small cards
@@ -543,7 +561,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail, .edition { 
 @media (min-width: 1080px) { .tiles.guides { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .tile.guide { box-shadow: 0 0 0 1px var(--border); position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; padding: 15px 16px; background: var(--bg); transition: background-color var(--hover-ms) ease-out; }
 .tile.guide:hover, .tile.guide:focus-within { background: var(--surface); }
-.tile.guide .glyph-box { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--border); border-radius: var(--radius); color: var(--accent-text); }
+.tile.guide .glyph-box { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--border); border-radius: var(--radius); color: var(--fg); }
 .tile.guide .glyph-box svg { width: 20px; height: 20px; }
 .tile.guide a.t { display: block; font-size: 0.95rem; font-weight: 600; line-height: 1.3; color: var(--fg); text-decoration: none; letter-spacing: -0.012em; }
 .tile.guide a.t::after { content: ""; position: absolute; inset: 0; }
@@ -865,7 +883,7 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 
 /* Reader pages: the drawing above the title (ideas, guides, investigations,
    skills) and the skill's deck line. */
-.page-head .art { display: block; width: 56px; height: 56px; color: var(--accent-text); margin: 10px 0 14px; }
+.page-head .art { display: block; width: 56px; height: 56px; color: var(--fg); margin: 10px 0 14px; }
 .page-head .art svg { width: 100%; height: 100%; }
 .page-head .art.wide { width: 190px; height: 95px; }
 .page-head .deck { color: var(--muted-fg); max-width: 58ch; margin: 12px 0 0; }
@@ -943,7 +961,7 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .stage .bar { position: absolute; left: 0; top: -23px; width: calc(100% - 8px); height: 3px; background: var(--primary); }
 .stage::before { content: ""; position: absolute; left: 20px; top: -20px; height: 34px; border-left: 1px dotted var(--border-strong); }
 .stage .seg { position: absolute; left: 0; top: -54px; white-space: nowrap; font-family: var(--font-mono); font-size: var(--label-size); text-transform: uppercase; letter-spacing: var(--label-track); color: var(--accent-text); }
-.stage .art { display: grid; place-items: center; width: 56px; height: 56px; margin-left: -8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--accent-text); position: relative; z-index: 1; }
+.stage .art { display: grid; place-items: center; width: 56px; height: 56px; margin-left: -8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--fg); position: relative; z-index: 1; }
 .stage .art svg { width: 30px; height: 30px; }
 .stage a.t { display: block; margin-top: 14px; font-size: 1.05rem; font-weight: 500; line-height: 1.28; letter-spacing: -0.015em; color: var(--fg); text-decoration: none; }
 .stage a.t::after { content: ""; position: absolute; inset: 0; }

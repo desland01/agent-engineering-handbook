@@ -43,7 +43,7 @@ SITE_NAME = 'Agent Engineering Handbook'
 SITE_URL = re.search(r"^SITE_URL = '([^']*)'", (REPO / 'build/render.py').read_text(),
                      re.M).group(1)
 sys.path.insert(0, str(REPO / 'build'))
-from icons import GUIDES, INVESTIGATIONS, SKILLS   # noqa: E402  (authored drawings)
+from icons import GUIDES, INVESTIGATIONS, SKILLS, canonical as icon_canonical   # noqa: E402  (authored drawings)
 
 failures = []
 
@@ -365,7 +365,7 @@ def main():
         if not page.is_file():
             continue
         text = page.read_text()
-        check(SKILLS[s] in text, f'skills/{s}/index.html: the skill\'s drawing is missing')
+        check(icon_canonical(SKILLS[s]) in icon_canonical(text), f'skills/{s}/index.html: the skill\'s drawing is missing')
         check('href="SKILL.md"' in text, f'skills/{s}/index.html: no link to the copied SKILL.md')
         check(f'/tree/HEAD/skills/{s}' in text, f'skills/{s}/index.html: no link to its GitHub directory')
         check('href="../../adoption.html"' in text, f'skills/{s}/index.html: no link to the adoption page')
@@ -414,7 +414,7 @@ def main():
     # 6d. Every guide page shows its own drawing.
     for g in guides:
         m = re.match(r'(\d\d)-', g.name)
-        check(m and GUIDES.get(m.group(1), '') and GUIDES[m.group(1)] in g.read_text(),
+        check(m and GUIDES.get(m.group(1), '') and icon_canonical(GUIDES[m.group(1)]) in icon_canonical(g.read_text()),
               f'guides/{g.name}: the guide\'s drawing is missing')
 
     if failures:

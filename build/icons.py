@@ -297,3 +297,57 @@ INVESTIGATIONS = {
         + '<path d="M124 41h8"/><path d="M129 38l3 3-3 3"/>'
         + cap(146, 42.6, 'TYPES', 'middle')),
 }
+
+
+# ------------------------------------------------------------ circuit-trace set
+# Generated 2026-09-11 through Higgsfield (Recraft V4.1, vector) from one prompt
+# template in the Sourcegraph / Augment circuit-trace idiom, post-processed to
+# currentColor plus one accent dot, and cropped to their content. The authored
+# drawings above are retained; a file in build/assets/icons replaces its entry.
+from pathlib import Path as _Path
+
+_ICON_DIR = _Path(__file__).resolve().parent / 'assets/icons'
+
+
+def _load(name, cls):
+    p = _ICON_DIR / f'{name}.svg'
+    if not p.exists():
+        return None
+    return p.read_text().replace('class="icon"', f'class="{cls}"', 1)
+
+
+import itertools as _it
+import re as _re
+
+_SEQ = _it.count(1)
+
+
+class _IconMap(dict):
+    """A drawing may be inlined several times on one page (the guides hub shows
+    each guide in its carousel and its shelf). The generated icons carry mask ids,
+    so every read hands out a copy whose ids are unique in the document."""
+
+    def __getitem__(self, key):
+        s = dict.__getitem__(self, key)
+        if 'mask id="' not in s:
+            return s
+        n = next(_SEQ)
+        return _re.sub(r'(k-[a-z0-9-]+?-\d+)(?=["\)])', lambda m: f'{m.group(1)}-{n}', s)
+
+
+for _k in list(IDEAS):
+    _s = _load(f'idea-{_k}', 'icon')
+    if _s: IDEAS[_k] = _s
+for _k in list(GUIDES):
+    _s = _load(f'guide-{_k}', 'glyph')
+    if _s: GUIDES[_k] = _s
+for _k in list(SKILLS):
+    _s = _load(f'skill-{_k}', 'icon')
+    if _s: SKILLS[_k] = _s
+IDEAS, GUIDES, SKILLS = _IconMap(IDEAS), _IconMap(GUIDES), _IconMap(SKILLS)
+
+
+def canonical(html):
+    """The same markup with the per-occurrence id suffixes removed, so a
+    drawing can be looked for in a page regardless of how many times it was read."""
+    return _re.sub(r'(k-[a-z0-9-]+?-\d+)-\d+(?=["\)])', r'\1', html)

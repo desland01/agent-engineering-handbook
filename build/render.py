@@ -30,6 +30,7 @@ import markdown
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from icons import IDEAS, SKILLS, GUIDES, INVESTIGATIONS
+from hero import hero  # the animated hero loop
 
 REPO = Path(__file__).resolve().parent.parent
 # The claim line of each investigation, copied verbatim from COPY.md.
@@ -648,13 +649,13 @@ def landing(idx, home, frames):
     <div class="actions"><a class="btn primary" href="ideas.html">Explore the ideas</a><a class="btn" href="guides.html">Find a guide</a></div>
     <ul class="contents" role="list" aria-label="Contents">{contents}</ul>
     <a class="prompt" href="skills.html" aria-label="The four skills, each invoked as a slash command"><span aria-hidden="true"><span class="ps">&#8811;</span> <span class="typed" data-lines="{escape('|'.join('/' + sk['name'] for sk in idx['skills']))}">/{escape(idx['skills'][0]['name'])}</span><span class="cursor">&#9612;</span></span></a>
-    <p class="edition"><span class="num">Edition of {EDITION_DATE}.</span> {escape(home['basis_short'])} <a href="#attribution">Full attribution</a> is at the end of the page.</p>
   </div>
+  <figure class="hero-figure">{hero()}</figure>
   <div class="pick">
     <h2 id="problems">Start with the problem you have</h2>
     <p>Each row names a situation and the guide that addresses it.</p>
     <figure class="pick-figure" aria-hidden="true">
-      <img src="assets/problem-loop.webp" width="1600" height="644" alt="" decoding="async">
+      <img src="assets/problem-loop.webp" width="1600" height="257" alt="" decoding="async">
     </figure>
     <ol role="list" aria-labelledby="problems">{pick}</ol>
   </div>
