@@ -71,7 +71,7 @@ already the handbook's.
 | `--border-strong` | `rgba(247,243,239,.26)` | secondary button, marker pill, hovered edge | 3.3 on `--bg` (non-text ≥ 3 ✓) |
 | `--fg` | `#f7f3ef` | headings, body, titles | 17.6 / 16.6 / 15.4 |
 | `--muted-fg` | `#b4afa8` | leads, use-when lines, captions, nav, rail text | 9.4 / 8.9 / 8.2 |
-| `--dim-fg` | `#948f89` | edition line, directory lines, speaker lines, rail labels | 6.9 / 6.5 / 6.0 |
+| `--dim-fg` | `#948f89` | directory lines, speaker lines, rail labels, figure sub-captions | 6.9 / 6.5 / 6.0 |
 | `--link` | `#f29764` | running links in prose | 8.9 / 8.4 / 7.8 |
 | `--accent-text` | `#f37a3b` | the italic headline word, numerals, timestamps, counts, drawings | 7.3 / 6.9 / 6.4 |
 | `--primary` | `#ea580c` | primary button, focus ring, brand mark, current-section marker, blockquote rule | 5.6 / 5.3 / 4.9 |
@@ -135,9 +135,11 @@ shows one taste of each section, and routes out. The full sets live on their own
    (*Theo's advice, turned into a **system** you can run* — the accent word is
    `title_em` in `home.json`), the lead, two square buttons (`Read the ideas` →
    `ideas.html`, `Open the guides` → `guides.html`), the counts as five mono badges that each route to the
-   page holding the set (the build fails if a count disagrees with the set), and the edition
-   line. Right: the problem panel, eight rows — situation on the left, numbered tags naming
-   the guide(s) that answer it. A drawn hairline grid sits behind, masked to fade.
+   page holding the set (the build fails if a count disagrees with the set). Right: the
+   animated hero loop. Below both, full width: the problem panel, eight rows — situation on
+   the left, numbered tags naming the guide(s) that answer it. A drawn hairline grid sits
+   behind, masked to fade. The attribution and the edition date are not repeated here; they
+   are in the closing credits and the footer, where a reader looks for them.
 3. **Ideas** — all nineteen, in order, as one horizontal row the reader swipes or
    arrows through: a focusable scroll region with proximity snapping, fading at the
    edge it overflows, with previous/next and an `01 of 19` counter added by the script
@@ -350,14 +352,29 @@ it carries:
   route into the gallery, which is where full-size evidence belongs.
 
 The 39 drawings (19 ideas, 4 skills, 13 guides, 3 investigations, all distinct) are
-authored stroke SVG in `build/icons.py`, inlined at build time in `currentColor`, so the
-page still loads nothing from the network.
+inlined at build time in `currentColor`, so the page still loads nothing from the network.
+Since September 11 the 36 icons are circuit-trace glyphs in the Sourcegraph idiom — one
+continuous warm-white line with a single orange dot — generated through Higgsfield
+(Recraft V4.1, vector) from one prompt template and a subject line per icon, then cropped
+to their content and recoloured; they live as files in `build/assets/icons/`, and the
+originally authored drawings in `build/icons.py` remain as the fallback for any icon
+without a file. The three investigation diagrams keep their authored form because they
+carry mono captions inside the artwork. The home page's problem panel is a dot-matrix
+halftone drawing from the same session (GPT Image 2.5, transparent), 1600×257, 76 KB.
+
+The hero is the site's one moving figure: an authored SVG loop (`build/hero.py`) showing
+the codebase as four hairline cells, five coding agents as little robots in terminal
+windows (`build/robots.py`, drawn by a delegated worker; brand marks from Simple Icons,
+CC0, Z.ai redrawn), and one closed track between them through a check gate. Every
+animation is SMIL on a single 12-second period, so the loop has no seam — verified by
+reading element positions at t and t + 12 s. It pauses under reduced motion and is the
+same drawing at rest.
 
 ## Not done, on purpose
 
 - No light theme (the print stylesheet flips to a light palette).
 - No search or filter; the map is small enough to scan and the header menu reaches every
   page.
-- No icons or illustration; the frames are the only imagery and they are evidence.
+- No photography; the frames are the only photographic imagery and they are evidence.
 - No web font, framework or build dependency beyond the pinned Markdown package. The one
   script is optional and every control works without it.
