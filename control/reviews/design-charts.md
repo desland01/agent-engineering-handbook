@@ -15,9 +15,9 @@ Four things, each traced to a defect that actually shipped:
    still unreadable, because the number moved in the drawing's units and nobody converted
    what the reader would get. The identical fault sat in the phone-width rule and in all
    three study diagrams — 45 instances, found only when a rendered check was finally written.
-2. **Generated artwork used where authored vector was required.** Two full rounds of image
-   generation, then every icon redrawn by hand. Exactly one generated asset survived into
-   the site. No Chart said when to generate and when to draw.
+2. **No Chart said anything about how an asset gets made.** Two full rounds of image
+   generation, then every icon redrawn by hand — with nothing written down about how that
+   call gets made or who makes it.
 3. **Motion with no specification.** 83 SMIL animations, every one linear or discrete, no
    easing anywhere. Separately, a figure about absence made the robot the brightest element
    and the empty chair the dimmest.
@@ -111,3 +111,37 @@ cleared nothing is a sharper warning than a hypothetical that was never tried.
 
 **2026-09-12, the session-binding claim.** Recorded above under "Never write inside the
 sealed payload".
+
+
+## The asset route is the owner's call — corrected 2026-09-12
+
+The first version of this correction read the icon rounds as evidence that generation loses
+on systematic design work, and wrote `design-implementation` to prefer drawing. The owner
+overruled it: that session was a toss-up, not a verdict, and they want more generation rather
+than less. Reading one project's two rounds as a general finding about a tool was the error,
+and it is the same shape as the fabricated caption size above — a conclusion of mine wearing
+the clothes of a measurement.
+
+The section now puts the choice where it belongs. Before any spend the model asks one
+question with a recommendation — generate, draw, or both — and waits. It never picks
+silently, and choosing the route yourself instead of asking is now one of the named defaults
+the Chart exists to break. **Both**, rendered side by side at delivered size, is the
+recommendation whenever the answer is close.
+
+The generate route names the manufacturer's own skills and requires their use:
+`higgsfield-generate` for images and video, `higgsfield-product-photoshoot` for product and
+ad creative, with the rest of the installed Higgsfield set named as available — and a
+prohibition on improvising the CLI, guessing model ids or reimplementing what the
+manufacturer documents. That is the product-skill category working as written: the local
+policy — spend limits, brand rules, approval gates — lives in this Core Chart, and the
+manufacturer's skill is called, never edited.
+
+The defect list survives, reframed. Uneven strokes, ground-colour cut-outs that are not
+transparency, subjects lost at 32px: each is a fault in the prompt, the model choice or the
+import, to be fixed and re-rolled. One weak round is not grounds to stop generating.
+
+Authoring run `39b0e8f6` wrote it; `adf83637` removed a scratch path that the first pass had
+left in the published text — the authoring scaffold showing up in the output, which is the
+very thing the handbook has a rule against. Released as `asset-routes-ask`, digest
+`41de91b4`, selected 2026-09-12. `design-implementation` is now `47f5fe55`. **17 bytes of
+library headroom remain.**
