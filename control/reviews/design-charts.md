@@ -11,9 +11,10 @@ Four things, each traced to a defect that actually shipped:
 
 1. **Figure text measured in the drawing's units instead of the reader's pixels.** A
    12.5-unit caption in a 1040-unit viewBox rendered 593px wide is 7.1px. A review flagged
-   it; the fix raised the unit number to 14 (8px) and shipped. The identical fault sat in
-   the phone-width rule and in all three study diagrams — 45 instances, found only when a
-   rendered check was finally written.
+   it; the fix raised the caption from 11 units to 12.5 — 6.3px to 7.1px — and shipped it
+   still unreadable, because the number moved in the drawing's units and nobody converted
+   what the reader would get. The identical fault sat in the phone-width rule and in all
+   three study diagrams — 45 instances, found only when a rendered check was finally written.
 2. **Generated artwork used where authored vector was required.** Two full rounds of image
    generation, then every icon redrawn by hand. Exactly one generated asset survived into
    the site. No Chart said when to generate and when to draw.
@@ -52,7 +53,7 @@ library over its byte limit.
 Published as `design-charts-role-first`, digest `b29d3468`, selected 2026-09-12. Counts
 unchanged at 50 core / 26 domain. Readback confirms all three open with their role.
 
-## Two findings worth acting on separately
+## One finding worth acting on separately
 
 **The skill library is full.** Its limit is 2,097,152 bytes and it stood at 2,096,342 — 810
 bytes of headroom, so no Core Chart could grow at all. An earlier session had already hit
@@ -60,15 +61,53 @@ this: a pending publication named `handbook-methods` sits abandoned with the sam
 `skill_content_library_bytes` refusal. Room was found by reclaiming 10,127 bytes of tool
 leftovers — `codebase-design/SKILL.md.predesc` and `grill-with-docs/SKILL.md.pretrim`, prior
 versions a local tool left inside the library, preserved in the predecessor release — and by
-cutting the three new bodies from 37,927 bytes to 27,047. That leaves 121 bytes free. The
-next correction to any Chart will be refused for bytes before it is refused for anything
-else, and that is a decision for the owner, not a thing to work around.
+cutting the three new bodies from 37,927 bytes to 27,047, which left 121 bytes free. The one
+correction made since — a single line, below — spent 78 of them, and **43 bytes remain**. The
+next change to any Chart will be refused for bytes before it is refused for anything else,
+and that is a decision for the owner, not a thing to work around.
 
-**A session is bound to the release it launched in.** Activating mid-session makes every
-`nautilus` command from that session refuse with `release_mismatch`, including `activate`
-itself. Plan an activation as the last runtime act of a session.
+## Never write inside the sealed payload
 
-One self-inflicted fault, recorded because it is easy to repeat: a worker workspace must go
-in `<release-root>/var/workspaces`, beside the sealed payload, never inside
-`<release-root>/release/var/`. Writing into the sealed tree changes its file map, and the
-release's own CLI then refuses to start.
+A worker workspace goes in `<release-root>/var/workspaces`, beside the sealed payload, never
+inside `<release-root>/release/var/`. The release digest is computed over the file map of
+`release/`, so adding a single file there breaks the seal and the release's own CLI refuses
+to start — its launcher runs `inspect` as a self-check before every command, so the whole
+runtime goes dark, `activate` included.
+
+**Corrected 2026-09-12.** This record first read that fault as "a session is bound to the
+release it launched in; activating mid-session makes every `nautilus` command refuse." That
+was wrong, and it was wrong in the expensive direction: it would have had everyone schedule
+activations around a constraint that does not exist. Every `release_mismatch` observed that
+day came from the broken seal above. Measured afterwards from the same session that did the
+activating: `nautilus inspect` answers correctly across two subsequent activations, including
+against `theo-version-capabilities`, a release published after that session started. A
+session is not bound to its launch release.
+
+## What happened next
+
+`theo-version-capabilities` was published on top of this work and selected on 2026-09-12, and
+`chart-caption-corrected` after it; the chain reads `design-charts-role-first →
+theo-version-capabilities → chart-caption-corrected`. `design-review` and `interaction-design`
+carried through every hop byte-identical at `4ade8e44` and `3e533969`; `design-implementation`
+is now `505d7198`, one line different from the `c09e3c8f` first published here. The sealed
+roster records authoring evidence for all three. A rollback therefore names
+`releases/chart-caption-corrected` as its expected current, and returning as far as
+`skill-plan-admitted` would discard that release's work as well as these Charts.
+
+## Corrections to this record
+
+**2026-09-12, the fabricated caption size.** This record first said the failed fix "raised
+the unit number to 14 (8px)". Nobody ever set 14. The hero review records the actual change
+as 11 → 12.5 units, which is 6.3px → 7.1px at this figure's scale. The arithmetic in the
+invented version was sound, which is exactly why it survived being written down: 14 units
+does render at about 8px. What made it false was the attribution — a number I supplied
+reading as a measurement somebody took. It reached the published `design-implementation`
+body as "14 units yields about 8px, still unreadable in the reported case". Corrected there
+through the same admitted path — authoring run `0a4a169f`, published as
+`chart-caption-corrected`, digest `afbd3e8c`, selected 2026-09-12 — as the single changed
+line in an otherwise byte-identical body, which cost 78 of the library's remaining bytes. The
+true numbers make the better instruction anyway: a fix that moved a caption 1.5 units and
+cleared nothing is a sharper warning than a hypothetical that was never tried.
+
+**2026-09-12, the session-binding claim.** Recorded above under "Never write inside the
+sealed payload".

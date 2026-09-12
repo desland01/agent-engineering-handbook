@@ -87,3 +87,22 @@ What can be shared now: the run-record table in §1 (raw JSON is in each `tmp-ru
 the four review records, and the check report (`build/check-report.cjs` emits
 `{version, pass, checks, failures}`). What cannot be shared yet: any claim that the design
 skills improve a page. That claim waits on C4.
+
+## 4. Theo harness execution — September 12, 2026
+
+Two narrow runtime corrections are now active. They are rows within T08 and T13, not completion of either whole ticket or the nineteen-ticket plan. Code was written by Opus in isolated checkouts, reviewed by Astra, checked independently, installed through the existing release API, and selected through the locked activation journal. The shared dirty source tree was not changed.
+
+| Run | Model | Required methods observed | Measured outcome |
+|---|---|---|---|
+| `9216ce74-33d6-4c4a-9f8a-74b2f3381227` | claude-opus-5 | precise, tdd, code-review: each available, invoked once, invocation succeeded once | Corrected-revision resume patch; 41 requests. Independent checker reproduced the red failure, then passed 48 candidate harness tests, 43 preserved baseline harness tests and 108 capsule tests. |
+| `1b36fc46-03b8-4124-9353-25794d3242de` | claude-opus-5 | precise, tdd, code-review: each available, invoked once, invocation succeeded once | Schema-owned no-deadline version capability; 85 requests. Independent checker reproduced the red failure, then passed 10 new capability tests, 48 harness tests and 122 preserved capsule tests. |
+| `288a9002-b13d-4f23-ace7-2e7895263515` | glm-5.3-flash | precise: available, invoked once, invocation succeeded once; v5 skill plan reported all invoked | Real admitted no-deadline v5 worker wrote marker A; 3 requests. |
+| `d1c684af-ff72-4316-a78f-168e28d9b2ec` | glm-5.3-flash | precise: available, invoked once, invocation succeeded once; v5 skill plan reported all invoked | Separate admitted v5 correction wrote marker B; 3 requests. |
+
+The live controller then rechecked B, accepted B's actual hash, and retained the original model-attempt identity. That establishes the repaired runtime behavior through real native interfaces. It does not establish semantic application of every skill: those event records still say `application: unverified`, and there was no controlled skill/no-skill comparison.
+
+The combined current-based build passed 48 harness tests, 132 capsule tests, typecheck and build. The active release is `/Users/thebeast/.nautilus/releases/theo-version-capabilities`, digest `d1a5d994bdfaf7ed8dde73dec09e9231f29e0bbbeac0cda165b9919231941522`. Existing Anchor and Chart bytes, including the newer role-first design Charts, were preserved. The previous `design-charts-role-first` release remains on disk.
+
+Evidence and current continuation state: [RUN.md](file:///Users/thebeast/.nautilus/releases/gsp-app-completion-kernel-fixes/var/workspaces/theo-ideas/astra-control/RUN.md). The [live proof](file:///Users/thebeast/.nautilus/releases/gsp-app-completion-kernel-fixes/var/workspaces/theo-ideas/astra-control/live-resume-fixed/final-proof.json), [activation receipt](file:///Users/thebeast/.nautilus/releases/gsp-app-completion-kernel-fixes/var/workspaces/theo-ideas/astra-control/activation-receipt.json), and per-row reviews there bind these statements to actual artifacts and runs.
+
+Cost and failure qualifications: a checker-startup failure was misclassified and triggered an unnecessary Opus repair, stopped with 72 requests; this is part of the effort, not hidden from the totals. Another verifier initially misread indented TAP. Both failed predecessors were retained and their criteria were not waived. A v5 live probe was refused before model execution until the actual schema/admission mismatch was fixed; it was not downgraded. Billing and a causal productivity gain from the skills were not measured.
