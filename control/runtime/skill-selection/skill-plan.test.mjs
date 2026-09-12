@@ -14,6 +14,8 @@ const SRC = process.env.NAUTILUS_SRC ?? resolve(dirname(fileURLToPath(import.met
 const {parseCapsule} = await import(SRC + '/capsule-schema.mjs');
 const runtime = await import(SRC + '/capsule-runtime.mjs');
 const {childSubsetViolations} = await import(SRC + '/capsule-admission.mjs');
+const {CAPSULE_CONSTANTS, watch} = await import(SRC + '/capsule-watch.mjs');
+const {effectiveRequestLimit} = await import(SRC + '/task-lifetime.mjs');
 const {chartEvidenceTracker} = runtime;
 
 const RELEASE = 'c'.repeat(64);
@@ -136,5 +138,34 @@ describe('4. a delegated worker plans inside its parent', () => {
     const parent = parseCapsule(declaration()).capsule;
     const child = parseCapsule(declaration({id: 'plan-capsule-child-2', parentId: parent.id, skillPlan: [PLAN[1]]})).capsule;
     assert.deepEqual(childSubsetViolations(child, parent, anchorTools), []);
+  });
+});
+
+// Every gate a version 5 capsule has to pass, not only the parser. A live run found these
+// the hard way: the parser accepted version 5 while admission's own Watch constant still
+// declared 4 the ceiling, so the first version 5 capsule was refused before it ran.
+describe('5. the gates outside the parser admit version 5', () => {
+  const admissionFacts = version => ({
+    capsule_version: version, scope_canonical: true, release_bound: true, inputs_verified: true,
+    within_expiry: true, outputs_unclaimed: true, declaration_disjoint: true,
+    child_within_parent: true, route_allowed: true, limits_within_anchor: true,
+  });
+  const required = Object.keys(admissionFacts(5));
+  test('the admission Watch admits version 5 and still refuses an unknown version', () => {
+    assert.equal(watch(CAPSULE_CONSTANTS, admissionFacts(5), required).allowed, true);
+    assert.equal(watch(CAPSULE_CONSTANTS, admissionFacts(6), required).allowed, false);
+    assert.equal(watch(CAPSULE_CONSTANTS, admissionFacts(4), required).allowed, true);
+  });
+  test('the no-request-cap opt-in carries forward to version 5 and no further back', () => {
+    const anchor = {maxRequests: null, taskLifetime: {version: 2, allowNoDeadline: true, allowUnlimitedRequests: true}};
+    const uncapped = version => effectiveRequestLimit({anchor, capsule: {version, limits: {maxRequests: null}}});
+    assert.equal(uncapped(5).maxRequests, null);
+    assert.equal(uncapped(4).maxRequests, null);
+    assert.throws(() => uncapped(3), /capsule_unlimited_requests_not_authorized/);
+  });
+  test('an Anchor without the paired permission still refuses an uncapped version 5 run', () => {
+    const anchor = {maxRequests: 100, taskLifetime: {version: 1, allowNoDeadline: true}};
+    assert.throws(() => effectiveRequestLimit({anchor, capsule: {version: 5, limits: {maxRequests: null}}}),
+      /capsule_unlimited_requests_not_authorized/);
   });
 });

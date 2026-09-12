@@ -108,6 +108,19 @@
    const parentTools = new Set(parent.tools ?? anchorTools ?? []);
    if (child.tools === undefined && parent.tools !== undefined && anchorTools === undefined) push('tools', 'child default tools cannot be measured without the Anchor tool set');
    for (const tool of child.tools ?? anchorTools ?? []) {
+@@ -167,9 +173,10 @@
+       // wall-clock deadline itself (anchorLimits.maxSeconds === null).
+       : context.anchorLimits.maxSeconds === null || capsule.limits.maxSeconds <= context.anchorLimits.maxSeconds;
+     // A null request cap is admitted only as the explicit, versioned opt-in
+-    // pair: capsule schema 4 plus Anchor taskLifetime version 2 permission.
++    // pair: capsule schema 4 or later plus Anchor taskLifetime version 2
++    // permission. Versions 1-3 never carried the opt-in and stay refused.
+     const requestsWithin = capsule.limits.maxRequests === null
+-      ? capsule.version === 4 && context.anchorLimits.allowUnlimitedRequests === true
++      ? capsule.version >= 4 && context.anchorLimits.allowUnlimitedRequests === true
+       // A finite capsule request cap is always within an explicitly unbounded
+       // Anchor (anchorLimits.maxRequests === null): unlimited never forces null.
+       : context.anchorLimits.maxRequests === null || capsule.limits.maxRequests <= context.anchorLimits.maxRequests;
 --- a/src/capsule-runtime.mjs
 +++ b/src/capsule-runtime.mjs
 @@ -238,6 +238,19 @@
@@ -138,6 +151,28 @@
      charts: chartEvidenceTracker(capsule.requiredCharts),
      // Whole seconds of allowance left at `nowMs`; <1 means the allowance is spent.
      remainingSeconds(nowMs = Date.now()) { return expiresAtMs === null ? null : Math.floor((expiresAtMs - nowMs) / 1000); },
+--- a/src/capsule-watch.mjs
++++ b/src/capsule-watch.mjs
+@@ -6,7 +6,7 @@
+ import {watch as sharedWatch, enforce as sharedEnforce} from './watch.js';
+ 
+ export const CAPSULE_CONSTANTS = [
+-  {id: 'capsule_version', statement: 'The capsule declares a supported contract version (1, 2, 3 or 4; the parser refuses every other version before measurement).', check: {field: 'capsule_version', kind: 'number', op: '<=', value: 4}},
++  {id: 'capsule_version', statement: 'The capsule declares a supported contract version (1 through 5; the parser refuses every other version before measurement). Version 5 additionally declares the skills the run selected, and is refused without them.', check: {field: 'capsule_version', kind: 'number', op: '<=', value: 5}},
+   {id: 'scope_canonical', statement: 'Every declared path is canonical under the explicit subtree grammar and no existing component is a symlink resolving outside its declared scope.', check: {field: 'scope_canonical', kind: 'boolean', op: '==', value: true}},
+   {id: 'release_bound', statement: 'The capsule is bound to the release it is launched against; an old run stays bound to its own release.', check: {field: 'release_bound', kind: 'boolean', op: '==', value: true}},
+   {id: 'inputs_verified', statement: 'Every declared input exists and hashes to its declared sha256 at launch time.', check: {field: 'inputs_verified', kind: 'boolean', op: '==', value: true}},
+--- a/src/task-lifetime.mjs
++++ b/src/task-lifetime.mjs
+@@ -46,7 +46,7 @@
+   }
+   const capsuleBound = capsule.limits.maxRequests;
+   if (capsuleBound === null) {
+-    if (!(capsule.version === 4 && unlimitedRequestsAuthorized(anchor))) {
++    if (!(capsule.version >= 4 && unlimitedRequestsAuthorized(anchor))) {
+       throw new Error('capsule_unlimited_requests_not_authorized');
+     }
+   } else if (!Number.isSafeInteger(capsuleBound) || capsuleBound <= 0) {
 --- a/src/runtime.ts
 +++ b/src/runtime.ts
 @@ -30,7 +30,7 @@
@@ -167,6 +202,25 @@
      assertRelease(release,authority);
      verifyRuntime(root);
      if(isolation)createLinuxIsolation(release,root);
+--- a/src/procedure-dispatch.ts
++++ b/src/procedure-dispatch.ts
+@@ -60,7 +60,15 @@
+   const maxRequests=effectiveRequestLimit({anchor:release.anchor,capsule:requestCapsule,role}).maxRequests;
+   // Capsule schema 4 carries the explicit no-request-cap opt-in; finite caps
+   // keep the historical version 3 declaration unchanged.
+-  await durableWriteJson(capsulePath,{version:maxRequests===null?4:3,id:'procedure-'+input.runId,roleId:role.id,releaseDigest:release.digest,workspaceRoot:workspace,allowWrite:[workspace],inputs:{[taskFile]:sha256(readFileSync(taskFile))},requiredCharts,tools:['Read','Skill'],modelRoute:route.model,provider:route.provider,limits:{maxSeconds,maxRequests},declaredOutputs:[workspace],expiresAt:maxSeconds===null?null:new Date(Date.now()+maxSeconds*1000).toISOString()});
++  // The task above orders exactly these three invocations. Declaring them as the run's skill
++  // plan makes that order measurable: a run that never invokes one ends blocked rather than
++  // completing with a procedure drafted outside the methods this dispatch exists to apply.
++  const skillPlan=[
++    {chart:'nautilus-core:precise',purpose:'hold the drafted procedure to exact scope, evidence and stated limits'},
++    {chart:'nautilus-core:operational-sop',purpose:'shape the source material into an operable procedure'},
++    {chart:'nautilus-core:create-skill',purpose:'meet the authoring and packaging contract the procedure is saved under'},
++  ];
++  await durableWriteJson(capsulePath,{version:5,id:'procedure-'+input.runId,roleId:role.id,releaseDigest:release.digest,workspaceRoot:workspace,allowWrite:[workspace],inputs:{[taskFile]:sha256(readFileSync(taskFile))},requiredCharts,skillPlan,tools:['Read','Skill'],modelRoute:route.model,provider:route.provider,limits:{maxSeconds,maxRequests},declaredOutputs:[workspace],expiresAt:maxSeconds===null?null:new Date(Date.now()+maxSeconds*1000).toISOString()});
+   lock.assertHeld();await durableWriteJson(join(store,input.runId+'.json'),{version:1,businessId:input.businessId,procedureId:input.procedureId,previousRevision:input.previousRevision,runId:input.runId,taskDigest:sha256(task)});
+   return {root,workspace,runId:input.runId,projectId:input.projectId,task,marker:'local-task',adapter:'claude',capsulePath,businessPrincipal:{businessId:input.businessId,actorId:input.actorId??authority.ownerId}};
+  }finally{await lock.release();}
 --- a/tests/capsules/capsule-role.test.mjs
 +++ b/tests/capsules/capsule-role.test.mjs
 @@ -64,9 +64,9 @@
