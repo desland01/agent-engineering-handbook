@@ -347,6 +347,13 @@ for _k in list(GUIDES):
 for _k in list(SKILLS):
     _s = _load(f'skill-{_k}', 'icon')
     if _s: SKILLS[_k] = _s
+# The three source-derived packages reuse the existing thematic drawing whose
+# loop matches their method (their captions in render.py name that loop); this
+# edition commissions no new artwork for them.
+SKILLS['agent-output-verification'] = SKILLS['agent-feedback-engineering']
+SKILLS['agent-artifact-recovery'] = SKILLS['agent-tool-adapters']
+SKILLS['agent-contract-consistency'] = SKILLS['agent-context-calibration']
+
 IDEAS, GUIDES, SKILLS = _IconMap(IDEAS), _IconMap(GUIDES), _IconMap(SKILLS)
 
 

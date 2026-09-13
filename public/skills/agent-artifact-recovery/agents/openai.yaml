@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Artifact Recovery"
+  short_description: "Resume interrupted work without repeating it"
+  default_prompt: "Use $agent-artifact-recovery to reconcile the artifacts left by this interrupted run — compare actual bytes against what was requested, validate receipts, and resume only the missing stage without repeating completed effects."
+policy:
+  allow_implicit_invocation: true

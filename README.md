@@ -17,23 +17,51 @@ The source-derived facts (what the video says, what the inspected repositories c
 are kept separate from author recommendations and from this edition's own local checks.
 See [validation.md](validation.md) for exactly what was run and what was not.
 
+Read the [live handbook](https://agent-engineering-handbook.dev/) or its
+[GitHub source](https://github.com/desland01/agent-engineering-handbook).
+
+## Ten lessons
+
+Ten short lessons are the canonical reading path. Work through them in order, or open
+the one that names your problem; each lesson links the exact video moment it came from.
+This table is generated from `build/lessons.json` between the markers below — see
+[CONTRIBUTING.md](CONTRIBUTING.md) for the sync command, and never edit it by hand.
+
+<!-- lessons:start -->
+| Lesson | Summary |
+|---|---|
+| [Stop fixing the same mistake twice](lessons/recurring-mistakes.md) | Catch a repeated mistake with a check that rejects it. |
+| [Stop babysitting your agent's CI failures](lessons/ci-feedback.md) | Give the agent access to the failed check and its logs. |
+| [Passing tests can still hide broken software](lessons/prove-it-works.md) | Verify the real result, not just a successful command. |
+| [Give every agent a working preview](lessons/working-previews.md) | Make the running change reachable from the agent’s environment. |
+| [Give your agent the tool it's missing](lessons/missing-tools.md) | Bridge a real capability gap with the smallest useful interface. |
+| [Write instructions that change agent behavior](lessons/useful-instructions.md) | Put decisions where the next task can use them. |
+| [Find what a fresh agent actually misses](lessons/fresh-agent.md) | Observe what is missing before expanding instructions. |
+| [One shared contract prevents mismatched code](lessons/shared-contracts.md) | Keep the language, types and runtime boundary in agreement. |
+| [Stop getting lost in your own code](lessons/codebase-navigation.md) | Make the codebase understandable when you return to it. |
+| [Improve the environment your agents work in](lessons/better-environments.md) | Choose a recurring obstacle worth removing for future work. |
+<!-- lessons:end -->
+
 ## Start with the problem you have
 
 | Current problem | Start here |
 |---|---|
-| You keep correcting the same mistake | [Recurring failures](guides/01-recurring-failures.md) and the [runnable lint example](examples/recurring-rule/README.md) |
-| Tests pass but the actual feature fails | [Critical journey tests](guides/02-critical-journey-tests.md) and [verification contracts](guides/09-verification-contracts.md) |
-| A new agent cannot run or inspect the app | [Preview workspaces](guides/03-preview-workspaces.md) |
-| You relay CI errors by hand | [CI feedback](guides/04-ci-feedback.md) |
-| Agents repeatedly miss project decisions | [Knowledge and instructions](guides/05-knowledge-and-instructions.md) |
-| The agent cannot perform a required operation | [Tool adapters](guides/06-tool-adapters.md) |
-| Your project is becoming hard to navigate | [Domain language and APIs](guides/11-domain-language-and-agent-apis.md), [codebase navigation](guides/10-codebase-navigation-and-tooling.md) |
-| Long jobs repeat expensive work or accept bad output | [Artifact identity and recovery](guides/12-artifact-identity-and-recovery.md) |
+| You keep correcting the same mistake | [Stop fixing the same mistake twice](lessons/recurring-mistakes.md) |
+| Tests pass but the actual feature fails | [Passing tests can still hide broken software](lessons/prove-it-works.md) |
+| A new agent cannot run or inspect the app | [Give every agent a working preview](lessons/working-previews.md) |
+| You relay CI errors by hand | [Stop babysitting your agent's CI failures](lessons/ci-feedback.md) |
+| Agents repeatedly miss project decisions | [Write instructions that change agent behavior](lessons/useful-instructions.md) |
+| The agent cannot perform a required operation | [Give your agent the tool it's missing](lessons/missing-tools.md) |
+| Your project is becoming hard to navigate | [Stop getting lost in your own code](lessons/codebase-navigation.md) |
+| Long jobs repeat expensive work or accept bad output | [Make pipeline artifacts reusable, resumable and honestly complete](guides/12-artifact-identity-and-recovery.md) |
 
-Read the [live handbook](https://agent-engineering-handbook.vercel.app/) or its [GitHub source](https://github.com/desland01/agent-engineering-handbook). The [map](https://agent-engineering-handbook.vercel.app/) is the shorter entry point: every guide, investigation, skill, idea and frame on one page, grouped by source. The
-[screenshot gallery](https://agent-engineering-handbook.vercel.app/evidence.html) contains **12 ffmpeg frames** with timestamps,
-observations and full-size images. A post visible on screen is distinguished from a live
-demonstration; several examples are narrated only.
+The last row opens the technical guide that goes deepest on that problem. Artifact
+recovery has no independent video lesson, so it is carried by
+[guide 12](guides/12-artifact-identity-and-recovery.md) and the
+[agent-artifact-recovery](skills/agent-artifact-recovery/SKILL.md) skill rather than a
+lesson of its own. The
+[runnable lint example](examples/recurring-rule/README.md) accompanies the first lesson
+and guide 01.
 
 ## All 13 implementation guides
 
@@ -73,11 +101,13 @@ local execution. They link to pinned source snapshots wherever possible. Finding
 under an account does not mean the account owner personally authored every change; open
 PRs are separated from merged work.
 
-## Four portable skills
+## Portable skills
 
 Standalone, portable skill directories you can adopt into any agent setup that reads
-Markdown instructions. Each keeps its reusable expertise and its owner-authorization
-boundaries, and ships scoped references plus OpenAI-compatible interface metadata.
+Markdown. Each keeps its reusable expertise and its owner-authorization boundaries, and
+ships scoped references plus OpenAI-compatible interface metadata. Availability below
+means the public package exists in this repository; it is not a claim that the skill
+has been evaluated in real trials.
 
 | Skill | Use it for |
 |---|---|
@@ -85,20 +115,26 @@ boundaries, and ships scoped references plus OpenAI-compatible interface metadat
 | [Agent-ready workspaces](skills/agent-ready-workspaces/SKILL.md) | Repair the setup, preview or outcome-check gap that blocks a fresh agent |
 | [Agent context calibration](skills/agent-context-calibration/SKILL.md) | Diagnose missing project knowledge and select the right place for it |
 | [Agent tool adapters](skills/agent-tool-adapters/SKILL.md) | Bridge a missing capability and verify the intended agent can use it |
+| [Agent output verification](skills/agent-output-verification/SKILL.md) | Judge whether a run's actual output satisfies what was asked |
+| [Agent artifact recovery](skills/agent-artifact-recovery/SKILL.md) | Resume interrupted work without repeating completed stages |
+| [Agent contract consistency](skills/agent-contract-consistency/SKILL.md) | Keep vocabulary, shared types and runtime behavior in agreement |
 
 Each directory includes `SKILL.md`, `references/implementation.md`,
 `references/source-patterns.md`, and `agents/openai.yaml` interface metadata whose
 default prompt references the skill's own `$skill-name`. See
 [adoption.md](adoption.md) for how to install one or combine it into an existing skill.
-Do not load all four for every task.
+Do not load all of them for every task.
 
 Use the relevant guide with your existing workflow today. [Task prompts](prompts.md)
 make the input and expected evidence concrete.
 
 ## The 19 useful video ideas, in order
 
-These are distinct takeaways, including qualified opinions. The table maps each to
-implementation guidance. See [detailed extraction](evidence/video-research.md) and
+Each of these observations now lives inside the lesson that covers it — see
+[Ten lessons](#ten-lessons) for the canonical reading path. This table remains the
+source-evidence reference: it maps every observation to the moment in the video where
+it was made and the guidance that implements it. See
+[detailed extraction](evidence/video-research.md) and
 [structured ideas](evidence/video-tips.json) for speaker attribution, evidence type and
 caveats.
 
@@ -132,6 +168,13 @@ Melee verifier's original nine tests and current fifteen tests pass; a separate
 synthetic comparison reproduces the completeness gap and the repair. These are verifier
 tests with mocked builds, not a real game build.
 
+For this edition, the ten-lesson catalog is checked at every build: the exact ten
+approved lesson IDs, all nineteen video observations covered exactly once, valid
+guide/skill relations, present source anchors and lesson prose, and a README lesson
+table that matches the manifest (see [validation.md](validation.md)). The per-skill
+evaluation suites shipped under each new package's `eval/` directory define their
+cases but have not been run in this edition.
+
 See [validation.md](validation.md) for the exact scope, screenshot hashes and
 rendered-page checks. The public applications, upload service and private agent systems
 were not executed. Sponsor claims and universal career/productivity claims remain
@@ -149,13 +192,14 @@ python3 -m pip install -r build/requirements.txt   # Markdown==3.10.3
 python3 build/render.py
 python3 build/check.py                             # links, counts, hashes
 
-# Preview locally (any static file server works):
-cd public && python3 -m http.server 8000
-# open http://localhost:8000
+# If the lesson set changed, regenerate the README table between its markers:
+python3 build/render.py --sync-readme
 ```
 
 `build/render.py` reads only the editable Markdown, assets and JSON — never `public/`
-— and rewrites `public/` from scratch, so rerunning cannot feed on its own output.
+— and rewrites `public/` from scratch, so rerunning cannot feed on its own output. An
+ordinary render verifies the README lesson table against `build/lessons.json` and fails
+on drift; only `--sync-readme` writes the README.
 
 Run the lint demo:
 
@@ -167,9 +211,15 @@ npm run demo        # detects the bad import; accepts the supported import
 
 ## Keep or rebuild this handbook
 
-The Markdown, images, JSON evidence and four skill directories are the editable
-sources; everything in `public/` is generated. `build/render.py` regenerates the pages
-and gallery using Python Markdown 3.10.3 (`build/requirements.txt` pins that
-dependency). See [CONTRIBUTING.md](CONTRIBUTING.md) for the update flow and
+The Markdown, images, JSON evidence, `lessons/` sources and seven skill directories are
+the editable sources; everything in `public/` is generated. `build/render.py`
+regenerates the pages and gallery using Python Markdown 3.10.3
+(`build/requirements.txt` pins that dependency). The lesson manifest
+(`build/lessons.json`) owns the lesson order and relations; the lesson Markdown owns
+the prose; `build/lesson_catalog.py` validates both — manifest shape and version, the
+exact approved lesson set and order, chapter assignment, source/guide/skill references,
+the nineteen legacy routes, per-lesson anchors and prose minimums — and fails the build
+when any of those specific checks is violated.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the update flow and
 [ATTRIBUTION.md](ATTRIBUTION.md) for source attribution. The original long-form video
 is not redistributed here and no complete transcript or repository clone is bundled.

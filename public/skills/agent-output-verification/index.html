@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><script>document.documentElement.classList.add("js")</script><meta name="description" content="Judge whether an agent run&#x27;s actual output satisfies what was asked — the real artifact exists, intermediate stages are complete, and the consumer"><link rel="canonical" href="https://agent-engineering-handbook.dev/skills/agent-output-verification/index.html"><meta property="og:url" content="https://agent-engineering-handbook.dev/skills/agent-output-verification/index.html"><meta property="og:type" content="website"><meta property="og:site_name" content="Agent Engineering Handbook"><meta property="og:title" content="Skill: Output verification · Agent Engineering Handbook"><meta property="og:description" content="Judge whether an agent run&#x27;s actual output satisfies what was asked — the real artifact exists, intermediate stages are complete, and the consumer"><meta name="twitter:card" content="summary"><meta name="twitter:description" content="Judge whether an agent run&#x27;s actual output satisfies what was asked — the real artifact exists, intermediate stages are complete, and the consumer"><link rel="icon" href="data:,"><title>Skill: Output verification · Agent Engineering Handbook</title><link rel="stylesheet" href="../../assets/handbook.css"><script src="../../assets/handbook.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><header class="site-head"><div class="wrap"><a class="brand" href="../../index.html"><span class="mark" aria-hidden="true"></span>Agent Engineering Handbook</a><nav class="primary" aria-label="Handbook sections"><a href="../../lessons.html">Lessons</a><a href="../../skills.html">Skills</a><a href="../../guides.html">Reference</a></nav><details class="menu"><summary><span class="l-wide">More</span><span class="l-narrow">Menu</span></summary><nav aria-label="All pages"><ul><li class="in-primary"><a href="../../index.html">Home</a></li><li class="in-primary"><a href="../../lessons.html">Lessons</a></li><li class="in-primary"><a href="../../skills.html">Skills</a></li><li class="in-primary"><a href="../../guides.html">Reference</a></li><li class="sep" role="presentation"></li><li><a href="../../README.html">Handbook index</a></li><li><a href="../../prompts.html">Task prompts</a></li><li><a href="../../adoption.html">Adopting a skill</a></li><li><a href="../../validation.html">Validation</a></li><li class="sep" role="presentation"></li><li><a href="../../github-inspection.html">Theo: T3 Code and Melee</a></li><li><a href="../../matt-pocock-inspection.html">Matt Pocock: Course Video Manager</a></li><li><a href="../../boris-cherny-inspection.html">Boris Cherny: public work</a></li><li class="sep" role="presentation"></li><li><a href="../../investigations.html">Investigations</a></li><li><a href="../../evidence.html">Frames</a></li><li><a href="../../evidence/video-research.html">Video notes</a></li><li class="sep" role="presentation"></li><li><a href="../../ATTRIBUTION.html">Attribution</a></li><li><a href="../../CONTRIBUTING.html">Contributing</a></li><li><a href="https://github.com/desland01/agent-engineering-handbook">GitHub repository</a></li></ul></nav></details><a class="repo" href="https://github.com/desland01/agent-engineering-handbook">GitHub</a></div></header><main id="main" class="wrap reader skill-page"><div class="col"><header class="page-head"><p class="context"><span class="n">SKILL</span> <span aria-hidden="true">·</span> <a href="../../skills.html">All skills</a></p><span class="art" aria-hidden="true"><svg class="icon" viewBox="338.8 334.9 1381.3 1381.3" aria-hidden="true" focusable="false"><defs><mask id="k-skill-agent-feedback-engineering-0-70"><rect x="0" y="0" width="2048" height="2048" fill="#fff"/><path fill="#000" d="M 1293.41 988.021 C 1352.69 1054.81 1448.99 1102.47 1538.26 1104.76 C 1549.35 1105.05 1560.8 1105.57 1571.77 1106.31 C 1581.4 1106.96 1587.76 1110.84 1587.01 1121.16 C 1584.96 1170.72 1590.16 1227.05 1585.07 1276 C 1576.14 1361.92 1532.47 1449.16 1469.23 1507.83 C 1427.05 1546.95 1376.4 1579.93 1325.97 1607.44 C 1320.48 1610.45 1301.91 1620.84 1296.53 1621.1 C 1159.05 1565.27 1039.64 1460.97 1007.3 1311.28 C 1004.33 1297.86 1002.34 1284.25 1001.34 1270.55 C 999.188 1240.45 1000.67 1208.36 1000.41 1178.02 C 1000.3 1164.8 998.33 1119.29 1004.65 1109.52 C 1011.41 1106.94 1020.95 1106.52 1028.05 1106.46 C 1111.93 1105.79 1193.82 1077.63 1257.66 1022.57 C 1270.15 1011.8 1282.6 1000.93 1293.41 988.021 z"/></mask></defs><g mask="url(#k-skill-agent-feedback-engineering-0-70)"><path fill="currentColor" d="M 1290.13 953.172 C 1307.8 954.075 1320.79 972.275 1333.42 984.146 C 1350 999.788 1368.03 1013.83 1387.25 1026.09 C 1428.14 1051.9 1474.25 1068.32 1522.25 1074.15 C 1545.95 1076.88 1575.22 1073.34 1596.8 1081.59 C 1604.7 1084.6 1614.19 1096.75 1615.67 1105.58 C 1619.47 1128.25 1616.7 1153.15 1617.6 1176.22 C 1617.5 1208.1 1618.77 1247.09 1615.96 1278.48 C 1611.18 1332.06 1589.93 1389.87 1563.57 1436.36 C 1517.15 1518.23 1445.9 1575.13 1365.02 1620.82 C 1345.94 1631.6 1319.38 1647.86 1298.37 1653.47 C 1290.37 1652.41 1279.43 1647.75 1272.08 1644.34 C 1151.54 1588.44 1042.19 1503.34 994.273 1375.71 C 984.171 1348.86 976.969 1321.02 972.79 1292.64 C 968.089 1259.47 969.793 1220.47 970.051 1186.35 C 970.234 1162.05 966.83 1119.48 974.976 1097.92 C 985.162 1070.96 1028.35 1077.02 1052.78 1075 C 1124.99 1069 1191.52 1041.36 1245.11 992.301 C 1256.25 982.102 1277.9 957.618 1290.13 953.172 z"/></g><path fill="currentColor" d="M 1423.24 1183.11 C 1442.1 1181.07 1451.54 1195.31 1437.24 1210.45 C 1424.43 1224.02 1411.55 1238.15 1398.89 1251.89 L 1317.6 1339.99 L 1268.44 1393.26 C 1259.21 1403.4 1249.85 1414.26 1240.1 1423.85 C 1236.8 1427.09 1232.67 1428.82 1228.1 1429.08 C 1225.4 1429.45 1222.49 1428.15 1220.47 1426.3 C 1191.7 1399.96 1160.47 1372.84 1132.27 1346.25 C 1123.38 1338.03 1105.05 1325.17 1116.06 1311.61 C 1118.47 1308.61 1122.08 1306.82 1125.92 1306.7 C 1136.11 1306.44 1156.91 1328.39 1165.29 1335.94 L 1228.48 1392.68 C 1240.5 1376.9 1262.02 1355.27 1275.95 1340.21 L 1363.67 1245.66 L 1397.77 1208.63 C 1404.64 1201.15 1415.36 1188.53 1423.24 1183.11 z"/><path fill="var(--accent-text,#f37a3b)" d="M 1509.17 1213.27 C 1525.64 1208.87 1542.56 1218.67 1546.95 1235.15 C 1551.34 1251.63 1541.53 1268.54 1525.05 1272.92 C 1508.58 1277.29 1491.68 1267.49 1487.3 1251.03 C 1482.92 1234.56 1492.7 1217.66 1509.17 1213.27 z"/><path fill="currentColor" d="M 1345.96 398.073 C 1350.31 397.495 1354.64 397.421 1358.69 399.346 C 1362.02 400.902 1364.52 403.821 1365.55 407.354 C 1366.52 410.719 1366.62 419.614 1366.61 423.32 C 1366.54 475.698 1366.53 528.067 1366.37 580.445 C 1366.35 587.18 1362.94 593.374 1355.66 594.292 C 1345.8 595.534 1335.9 595.11 1325.95 595.091 L 1279.26 595.102 L 1216.18 595.309 C 1201.05 595.359 1164.28 601.352 1166.73 578.152 C 1168.53 561.132 1205.92 565.594 1218.84 565.462 C 1249.62 565.211 1280.4 565.16 1311.18 565.308 C 1254.45 513.551 1156.6 474.782 1081.7 461.487 C 948.657 438.187 811.816 468.955 701.55 546.963 C 583.405 628.778 503.302 754.833 479.407 896.54 C 455.446 1033.06 486.884 1173.51 566.762 1286.79 C 644.523 1398.4 763.335 1474.67 897.194 1498.89 C 934.264 1506.16 970.054 1505.65 1006.92 1509.31 C 1013.5 1509.96 1021.01 1536.24 998.727 1537.32 C 979.638 1538.24 960.771 1537.15 941.637 1535.48 C 842.382 1527.35 747.389 1491.57 667.424 1432.22 C 550.016 1346.17 471.153 1217.41 447.86 1073.73 C 424.749 925.525 461.301 774.202 549.514 652.888 C 636.684 532.635 768.316 452.227 915.102 429.566 C 1040.63 411.033 1168.67 437.114 1276.95 503.267 C 1298.1 515.986 1316.71 530.02 1336.54 544.672 C 1336.9 505.47 1335.14 447.113 1337.38 406.907 C 1337.58 403.318 1342.9 400.031 1345.96 398.073 z"/></svg></span><h1>Output verification</h1><p class="deck">Judge whether a run&#x27;s actual output satisfies what was asked.</p></header><details class="toc-mobile"><summary>On this page</summary><nav class="toc" aria-label="Sections of this page"><ol><li class="d0"><a href="#define-the-accepted-output-first">Define the accepted output first</a></li><li class="d0"><a href="#check-in-order-endpoint-intermediates-outcome">Check in order: endpoint, intermediates, outcome</a></li><li class="d0"><a href="#turn-each-false-success-path-into-a-test">Turn each false-success path into a test</a></li><li class="d0"><a href="#name-what-the-check-did-not-cover">Name what the check did not cover</a></li><li class="d0"><a href="#input-output-contract">Input / output contract</a></li><li class="d0"><a href="#acceptance">Acceptance</a></li><li class="d0"><a href="#known-failure-cases">Known failure cases</a></li><li class="d0"><a href="#do-not-activate-when">Do not activate when</a></li><li class="d0"><a href="#ref-implementation-h">Reference: Output verification: applying the contract</a></li><li class="d0"><a href="#ref-source-patterns-h">Reference: Repository examples: verification contracts and their evidence limits</a></li></ol></nav></details><article><p>An exit code proves only what the command or test actually checked — often
+just that it ran without error, not that the work is done. Before accepting
+an agent's result, decide what artifact counts as done, then check the
+artifact itself — not the success message. That check need not be new: an
+existing check that already covers this output is enough, as long as the
+output it accepted is unchanged since it ran; the failure to avoid is reusing
+a green result for output that has since changed.</p>
+<h2 id="define-the-accepted-output-first">Define the accepted output first</h2>
+<p>Write down, before checking anything:</p>
+<ol>
+<li><strong>The artifact</strong> — the file or set of files that counts as done. Invoke the
+   tool so the real output is produced, not a progress, plan or dry-run mode. In
+   the source example, the build tool is pointed at the final executable and
+   report by name because its default target can report progress without
+   linking (<a href="https://github.com/desland01/agent-engineering-handbook/blob/main/guides/09-verification-contracts.md">guide 09</a>).</li>
+<li><strong>The expected properties</strong> — derived from the request: required duration,
+   row count, sections present, a semantic behavior. Use a reference hash only
+   when exact identity is genuinely required. <strong>A legitimate new output need
+   not equal the old bytes</strong>: if the request was a change, expect changed
+   output, and check the property the change implies instead of demanding a
+   historical hash match.</li>
+<li><strong>The false-success paths</strong> — the ways this task can look done while it is
+   not. Each one becomes a check — the smallest one that would catch it, reusing
+   existing tests where they already cover the path rather than building a new
+   suite for every accepted result.</li>
+</ol>
+<h2 id="check-in-order-endpoint-intermediates-outcome">Check in order: endpoint, intermediates, outcome</h2>
+<ol>
+<li><strong>The artifact exists on disk.</strong> A successful build log is not a file. Check
+   the path the consumer will read.</li>
+<li><strong>Intermediate completeness.</strong> A matching final result can hide incomplete
+   work: in the source case the linker substitutes original objects for
+   incomplete source units, so the final hash alone matched while the work was
+   unfinished. Your equivalents: every segment of a stitched video present,
+   every expected chapter in a transcript, no placeholder rows, every unit
+   reported complete.</li>
+<li><strong>The consumer-visible outcome.</strong> The artifact does what the requester
+   wanted: it opens, parses, plays, renders, or feeds the next stage. A
+   property the compiler or builder cannot see needs its own check.</li>
+</ol>
+<h2 id="turn-each-false-success-path-into-a-test">Turn each false-success path into a test</h2>
+<p>The source verifier's test suite has one test per deception: perfect progress
+with a wrong hash, a matching hash with incomplete sources, missing artifacts
+while the build "succeeded", invalid counts coerced from bad types, an empty
+project passing trivially. Write the smallest check that would have caught each
+path you enumerated, and confirm it rejects the bad case while a known-good
+case passes. Corrupt a disposable fixture deliberately and confirm the check
+notices.</p>
+<p><strong>Fail with a reason and a nonzero exit.</strong> One line naming what is wrong beats
+a traceback: whoever or whatever reads the log should learn what to fix.</p>
+<h2 id="name-what-the-check-did-not-cover">Name what the check did not cover</h2>
+<p>Separate partial-environment checks from full acceptance, and report the layer
+you actually exercised. The source project's CI runs its tool tests but
+explicitly cannot perform the final matching check, and its instructions forbid
+calling CI a matching build. An aggregate gate is not proof either: in the
+inspected compiler CI, the aggregate success job's expression omitted two of
+its declared dependencies, so a failed minimum-runtime job did not fail the
+aggregate. Trace the actual gate — the command, the configuration it loads,
+the expression that decides — before trusting its name.</p>
+<p>See <a href="#ref-implementation">implementation.md</a> for worked applications
+and <a href="#ref-source-patterns">source-patterns.md</a> for the pinned code and
+the limits of its evidence.</p>
+<h2 id="input-output-contract">Input / output contract</h2>
+<ul>
+<li><strong>Input</strong>: the requested change or deliverable, access to the produced
+  output and the command that produced it, and any recorded expectation
+  (manifest, recipe, prior version).</li>
+<li><strong>Output</strong>: an acceptance decision with the properties actually checked, the
+  rejected false-success paths with evidence, and an explicit list of what
+  remains unverified in this environment.</li>
+</ul>
+<h2 id="acceptance">Acceptance</h2>
+<p>The verdict is proportional to the risk: a generated report may need existence
+and one semantic property; a shipped binary may need existence, completeness of
+its intermediates, and identity against a recorded reference. Say which layer
+each check covered. A passing check establishes only what it measured.</p>
+<h2 id="known-failure-cases">Known failure cases</h2>
+<ul>
+<li>Treating exit code zero, or "the command finished", as completion — or
+  reusing a prior green check for output that changed after it ran.</li>
+<li>Demanding an old hash match for legitimately changed output — and the
+  opposite error: accepting a hash match as proof of completeness.</li>
+<li>Checking only the endpoint while an intermediate stage substituted or
+  skipped work.</li>
+<li>Trusting an aggregate gate name ("all checks", <code>ci-ok</code>) without reading its
+  expression, or counting skipped jobs as passing evidence.</li>
+<li>Rewriting the recorded expectation to obtain green instead of fixing the
+  output.</li>
+</ul>
+<h2 id="do-not-activate-when">Do not activate when</h2>
+<ul>
+<li>The task is encoding a recurring failure into a standing rule
+  (agent-feedback-engineering owns that).</li>
+<li>The work is interrupted and the goal is resuming without repeating completed
+  stages (agent-artifact-recovery).</li>
+<li>The gap is setup, previews or evidence delivery rather than judging a result
+  (agent-ready-workspaces).</li>
+<li>The request is a user-journey test suite for the product rather than
+  acceptance of one run's output.</li>
+<li>The gap is missing knowledge or steering rather than an unproven result
+  (agent-context-calibration), or a missing capability needs an interface
+  built for it (agent-tool-adapters).</li>
+</ul><section class="skill-ref" id="ref-implementation"><h2 id="ref-implementation-h"><span class="kind">Reference</span> Output verification: applying the contract</h2><p>The general method comes from the Melee for Mac verifier, studied in
+<a href="https://github.com/desland01/agent-engineering-handbook/blob/main/guides/09-verification-contracts.md">guide 09</a>,
+and from the layered-validation habit in
+<a href="https://github.com/desland01/agent-engineering-handbook/blob/main/guides/13-layered-validation.md">guide 13</a>.
+The pattern generalizes; the specific hashes, report formats and unit model do not.</p>
+<h3 id="ref-implementation-worked-case-a-generation-task-with-a-completeness-report">Worked case: a generation task with a completeness report</h3>
+<p>Suppose an agent is asked to transcribe a two-hour recording into chapters, and
+it reports the transcription command succeeded.</p>
+<ol>
+<li><strong>Artifact</strong>: the transcript file exists at the path the next stage reads.</li>
+<li><strong>Expected property</strong>: chapters covering the full requested span. Derive the
+   expected span from the request, not from the previous run — a legitimate
+   re-transcription can differ in wording, so a byte or line-count equality
+   check against the old file is the wrong expectation here.</li>
+<li><strong>Intermediates</strong>: every source segment consumed, no placeholder or empty
+   chapters. This is the Melee lesson: its verifier re-reads the build report
+   and requires every source unit complete, because the final executable can
+   be correct while hiding unfinished work behind substituted originals.</li>
+<li><strong>False-success paths</strong>: the command "succeeds" but writes nowhere; the
+   report claims counts the artifacts do not contain; an empty input passes
+   trivially. Check each deliberately, then keep the smallest check that would
+   have caught it.</li>
+<li><strong>Verdict wording</strong>: "verified existence, chapter coverage and segment
+   completeness locally; the final published form was not exercised here."</li>
+</ol>
+<h3 id="ref-implementation-worked-case-a-changed-output-honestly-checked">Worked case: a changed output, honestly checked</h3>
+<p>Suppose the request is to re-encode a video at a lower bitrate. The old file's
+hash is now the wrong expectation: matching it would mean nothing changed. The
+right expectations come from the request itself — a playable file exists, its
+duration still matches the source within tolerance, the bitrate is in the
+requested range. Reserve exact-hash identity for tasks whose whole point is
+byte-identical preservation. This mirrors the source distinction: Melee's
+matching check fits a preservation build; it is not a universal acceptance
+condition for renderers, refactors or generated code.</p>
+<h3 id="ref-implementation-worked-case-trusting-the-wrong-gate">Worked case: trusting the wrong gate</h3>
+<p>Suppose CI is green and a reviewer treats that as full validation. Read what
+the gate actually required. In the inspected <code>json-schema-to-typescript</code> CI,
+the aggregate job's success expression named only three of its five declared
+dependencies, and it ran with <code>always()</code> so other results were not counted.
+Branch protection might require more; that setting was not verified. The
+transferable action: trace the real command a merge depends on to the
+expression that decides it, and prove the gate rejects a relevant bad result
+in a disposable fixture before relying on it.</p>
+<h3 id="ref-implementation-proportionality-and-honest-reporting">Proportionality and honest reporting</h3>
+<ul>
+<li>Name the layer each check covered: source inspection, isolated fixture,
+  mocked command, local execution, remote CI.</li>
+<li>Reuse adequate existing checks instead of building a new suite for every
+  accepted result — provided the output those checks accepted is unchanged
+  since they last ran. State which prior check is being relied on and why it
+  still binds.</li>
+<li>If a property cannot be checked in the current environment (no game data, no
+  display, no production credentials), report it as unverified rather than
+  widening the claim.</li>
+<li>Partial-environment runs keep their own name. The source project's CI runs
+  tool tests and a library build while explicitly documenting that it cannot
+  perform the game-data matching check, and its instructions forbid reporting
+  CI as a matching build.</li>
+</ul>
+<h3 id="ref-implementation-relation-to-the-sibling-skills">Relation to the sibling skills</h3>
+<ul>
+<li>This skill judges <strong>one run's result</strong>. If the same failure has recurred and
+  the ask is a standing rule, hand off to agent-feedback-engineering.</li>
+<li>If the output is fine but earlier stages were interrupted and must be
+  resumed without repeating completed work, that is agent-artifact-recovery.</li>
+<li>If the artifact cannot reach its consumer (a path on another machine, an
+  unreadable attachment), the delivery gap is agent-ready-workspaces' or the
+  tool-adapter problem, not a verdict change.</li>
+</ul></section><section class="skill-ref" id="ref-source-patterns"><h2 id="ref-source-patterns-h"><span class="kind">Reference</span> Repository examples: verification contracts and their evidence limits</h2><p>All links below point at pinned commits captured during the original
+investigation recorded in the handbook's inspection reports. Unless a row says
+otherwise, the source was <strong>inspected and read, not executed</strong> by this
+edition.</p>
+<ul>
+<li><strong>Melee for Mac verifier</strong> (<code>t3dotgg/melee4mac</code>, head <code>a276aeb70f9879204d891d967f1c9442523568e1</code>):
+  <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/verify.py">tools/verify.py</a>
+  builds the named final executable and report, requires every source unit
+  complete in the report, and re-hashes the artifact against a recorded
+  manifest. Its comment states the reason: the linker can use original objects
+  for incomplete source units, so the final hash alone cannot prove the work
+  was finished. Its
+  <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/tests/test_verify.py">test suite</a>
+  has one test per false-success path, including
+  <code>test_perfect_progress_does_not_hide_hash_mismatch</code> and
+  <code>test_original_object_fallback_does_not_hide_incomplete_source</code>.
+  The earlier verifier commit
+  (<a href="https://github.com/doldecomp/melee/commit/035d9711623a32fbe891cffdcf44a91a550c1947">035d9711623a32fbe891cffdcf44a91a550c1947</a>)
+  checked build/diff success and a reference hash but not source completeness;
+  the follow-up
+  (<a href="https://github.com/t3dotgg/melee4mac/commit/74e73873038b821bbc46b0a18434e6b7cb556c0e">74e73873038b821bbc46b0a18434e6b7cb556c0e</a>)
+  closed that gap. <strong>Executed evidence, and its exact scope</strong>: the original
+  investigation ran both verifiers' test suites locally (9 and 15 tests
+  passing) and a synthetic comparison — mocked build/diff subprocesses,
+  synthetic bytes, no Nintendo data and no real game build — in which the
+  initial verifier accepted an incomplete-source fixture and the current
+  verifier rejected it. That run validates the Python verifier behavior only;
+  it does not certify a real Melee executable, gameplay or performance. The
+  commit is visible in the fork comparison with the upstream repository; that
+  visibility does not establish an upstream merge, and the visible integration
+  record is fork <a href="https://github.com/t3dotgg/melee4mac/pull/1">PR #1</a>.</li>
+<li><strong>Melee CI limits</strong>: at the same pinned head,
+  <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/.github/workflows/build.yml">.github/workflows/build.yml</a>
+  runs tool tests and a library build and explicitly cannot perform the
+  game-data matching check, and
+  <a href="https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/AGENTS.md">AGENTS.md</a>
+  forbids reporting CI as a matching build. Inspected source, not executed.</li>
+<li><strong>Aggregate gates can undercount</strong> (<code>bcherny/json-schema-to-typescript</code>,
+  commit <code>5caacfc53671f9c891bb4e2a78bccc6190ed3ef4</code>): the
+  <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/.github/workflows/ci.yml">CI workflow</a>
+  declares <code>ci-ok</code> as needing <code>build</code>, <code>bun</code>, <code>engines</code>, <code>fuzz</code> and <code>output</code>,
+  but its final expression requires success only from <code>build</code>, <code>fuzz</code> and
+  <code>output</code> (at the pinned line 170), and it runs with <code>always()</code>, so a failed
+  Bun or minimum-engine job does not fail the aggregate. Branch-protection
+  settings outside the repository were not verified. Inspected, not executed;
+  the project's fuzz, conformance and benchmark documentation
+  (<a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/test/fuzz/README.md">test/fuzz/README.md</a>,
+  <a href="https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/test/conformance/README.md">test/conformance/README.md</a>)
+  was read for its layered-check design, and its compiler suite was not run.</li>
+<li><strong>What each identifier proves</strong>: Course Video Manager's
+  <a href="https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/adr/0027-byte-hash-decides-the-send.md">ADR 0027</a>
+  records that a recipe hash names what a renderer was told to do while only
+  the digest of the produced bytes can establish identity of output — the
+  boundary between this skill (judge produced output) and recovery
+  (reconcile it). See the artifact-recovery skill's source patterns for that
+  side.</li>
+</ul>
+<p>Choose the invariant appropriate to the product. Exact bytes suit matching
+decompilation; they are not a universal acceptance condition for renderers,
+refactors or generated code. These sources are cited as research evidence;
+nothing from the repositories is bundled here, and the cited authors neither
+endorsed nor reviewed this skill.</p></section></article><p class="source-note"><a href="https://github.com/desland01/agent-engineering-handbook/blob/HEAD/skills/agent-output-verification/SKILL.md">SKILL.md on GitHub</a> · <a href="../../index.html">Home</a> · Agent Engineering Handbook, September 9, 2026</p></div><aside class="rail" aria-label="Page tools"><div><h2>On this page</h2><nav class="toc" aria-label="Sections of this page"><ol><li class="d0"><a href="#define-the-accepted-output-first">Define the accepted output first</a></li><li class="d0"><a href="#check-in-order-endpoint-intermediates-outcome">Check in order: endpoint, intermediates, outcome</a></li><li class="d0"><a href="#turn-each-false-success-path-into-a-test">Turn each false-success path into a test</a></li><li class="d0"><a href="#name-what-the-check-did-not-cover">Name what the check did not cover</a></li><li class="d0"><a href="#input-output-contract">Input / output contract</a></li><li class="d0"><a href="#acceptance">Acceptance</a></li><li class="d0"><a href="#known-failure-cases">Known failure cases</a></li><li class="d0"><a href="#do-not-activate-when">Do not activate when</a></li><li class="d0"><a href="#ref-implementation-h">Reference: Output verification: applying the contract</a></li><li class="d0"><a href="#ref-source-patterns-h">Reference: Repository examples: verification contracts and their evidence limits</a></li></ol></nav></div><div class="place"><h2>This skill</h2><p>From the original repository research</p><div class="use"></div></div><div class="leads"><h2>In the guides</h2><p><a class="chip" href="../../guides/09-verification-contracts.html"><span class="n">09</span> Verification contracts</a></p><p><a class="chip" href="../../guides/13-layered-validation.html"><span class="n">13</span> Validate the output through several useful views</a></p></div><div class="source"><h2>Adopt</h2><p><a href="SKILL.md">Raw SKILL.md as shipped</a></p><p><a href="https://github.com/desland01/agent-engineering-handbook/tree/HEAD/skills/agent-output-verification">Directory on GitHub <span aria-hidden="true">&#8599;</span></a></p><p><a href="../../adoption.html">How to install or combine</a></p></div></aside></main><footer class="site-foot"><div class="wrap"><p>An independent public edition by Desmond Landry (@desland01), built from Theo&#x27;s video and three original repository investigations. Theo, Matt Pocock and Boris Cherny do not endorse it. Frames are short excerpts from the video and remain © Theo / their original owners.</p><ul><li><a href="../../index.html">Home</a></li><li><a href="../../lessons.html">Lessons</a></li><li><a href="../../guides.html">Guides</a></li><li><a href="../../README.html">Handbook index</a></li><li><a href="../../ATTRIBUTION.html">Attribution</a></li><li><a href="../../CONTRIBUTING.html">Contributing</a></li><li><a href="https://github.com/desland01/agent-engineering-handbook">GitHub repository</a></li></ul></div></footer></body></html>

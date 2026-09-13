@@ -2,7 +2,7 @@
 
 Each guide is usable on its own: open the one that matches your current problem, supply its
 concrete input (a recurring error, a confusing first task, a failed CI job, a preview gap, a
-missing operation), and keep the rest unread until it applies. The four portable skills are
+missing operation), and keep the rest unread until it applies. The seven portable skills are
 optional packaging for the same ideas — you can adopt one directory, fold its method into a
 skill you already maintain, or simply follow the guide without installing anything.
 
@@ -38,7 +38,7 @@ network access after installation.
 
 Replace `agent-feedback-engineering` with whichever skill you want. You normally want one
 skill for the failure you actually have — the skills overlap deliberately and you should
-not load all four for every task.
+not load all of them for every task.
 
 ## Combining a skill into one you already maintain
 

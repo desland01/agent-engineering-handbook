@@ -3,5 +3,207 @@
   "framework": null,
   "outputDirectory": "public",
   "installCommand": "python3 -m pip install --target .build-deps -r build/requirements.txt",
-  "buildCommand": "PYTHONPATH=.build-deps python3 build/render.py && python3 build/check.py"
+  "buildCommand": "PYTHONPATH=.build-deps python3 build/render.py && python3 build/check.py",
+  "redirects": [
+    {
+      "source": "/ideas/19-solo-onboarding.html",
+      "destination": "/lessons/codebase-navigation.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/19-solo-onboarding",
+      "destination": "/lessons/codebase-navigation.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/18-career-leverage.html",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/18-career-leverage",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/17-steer-not-map.html",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/17-steer-not-map",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/16-minimal-context-calibration.html",
+      "destination": "/lessons/fresh-agent.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/16-minimal-context-calibration",
+      "destination": "/lessons/fresh-agent.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/15-zero-context-docs.html",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/15-zero-context-docs",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/14-type-safe-composition.html",
+      "destination": "/lessons/shared-contracts.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/14-type-safe-composition",
+      "destination": "/lessons/shared-contracts.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/13-steering-pushback.html",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/13-steering-pushback",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/12-own-your-instructions.html",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/12-own-your-instructions",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/11-newcomer-questions-signal.html",
+      "destination": "/lessons/codebase-navigation.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/11-newcomer-questions-signal",
+      "destination": "/lessons/codebase-navigation.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/10-domain-knowledge-as-infra.html",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/10-domain-knowledge-as-infra",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/09-custom-lint-economics.html",
+      "destination": "/lessons/recurring-mistakes.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/09-custom-lint-economics",
+      "destination": "/lessons/recurring-mistakes.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/08-fix-class-loops.html",
+      "destination": "/lessons/recurring-mistakes.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/08-fix-class-loops",
+      "destination": "/lessons/recurring-mistakes.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/07-team-buy-in.html",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/07-team-buy-in",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/06-skill-authoring-reward.html",
+      "destination": "/lessons/missing-tools.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/06-skill-authoring-reward",
+      "destination": "/lessons/missing-tools.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/05-custom-file-upload-skill.html",
+      "destination": "/lessons/missing-tools.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/05-custom-file-upload-skill",
+      "destination": "/lessons/missing-tools.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/04-preview-environments.html",
+      "destination": "/lessons/working-previews.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/04-preview-environments",
+      "destination": "/lessons/working-previews.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/03-automation-multiplies-agents.html",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/03-automation-multiplies-agents",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/02-two-browser-e2e.html",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/02-two-browser-e2e",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/01-ci-feedback-loop.html",
+      "destination": "/lessons/ci-feedback.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/01-ci-feedback-loop",
+      "destination": "/lessons/ci-feedback.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas.html",
+      "destination": "/lessons.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas",
+      "destination": "/lessons.html",
+      "permanent": true
+    }
+  ]
 }

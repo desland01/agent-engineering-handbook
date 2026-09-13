@@ -3,12 +3,42 @@
 Source-only guidance for contributors: how the Agent Engineering Handbook looks and why.
 It is never rendered or copied into `public/`. Every generated page — the map
 (`index.html`), the reader template behind the guides, investigations and other Markdown
-pages, the section pages (`ideas.html`, `guides.html`, `skills.html`, `investigations.html`),
-the four skill pages (`skills/<name>/index.html`), the frame gallery (`evidence.html`) and
-the not-found page — loads one stylesheet,
+pages, the section pages (`lessons.html`, `guides.html`, `skills.html`,
+`investigations.html`), the seven skill pages (`skills/<name>/index.html`), the ten lesson
+reader pages (`lessons/<id>.html`), the nineteen legacy alias pages (`ideas/…`), the frame
+gallery (`evidence.html`) and the not-found page — loads one stylesheet,
 `build/assets/handbook.css`, whose first block holds the tokens listed here. Page
 structure lives in `build/render.py`. Behaviour (journeys, states, keyboard, responsive
 decisions) is in [INTERACTIONS.md](INTERACTIONS.md).
+
+## The lesson edition
+
+The canonical reading path is now the ten lessons (`lessons/<id>.html`), and the home page
+routes to them first. Additions to the system, all using the existing tokens plus the
+additive `edition.css` block at the foot of `handbook.css`:
+
+- **Home actions** — one primary square button, `Start with lesson 1`, and a quieter
+  `Find my problem` beside it; the lesson count is a quiet line (`10 lessons` →
+  `lessons.html`), not a badge strip. The hero art moves below the problem rows on phones.
+- **Problem picker** — an unnumbered list of independent problems. Destination chips
+  explicitly say `Lesson 1` or `Guide 12`; row positions never introduce another sequence.
+  Its illustration uses recognizable browser, handbook and checklist objects, with HTML
+  captions explaining the progression. It is static, compact, and has descriptive alt text.
+- **Chapter directory** — the ten lessons as rows in their three chapters (mono range,
+  e.g. `Lessons 01–03`), each row an order mark, title and use-when line, one tap anywhere.
+- **Lessons index** (`lessons.html`) — three chapter sections of ten rows; the lesson's
+  summary collapses to the brief line on narrow screens.
+- **Lesson reader** — the accepted lesson prose renders as the article with its own
+  anchors and Sources section untouched; the rail adds *In the video* (the exact video
+  moments the lesson consolidates), read time, where it leads, its sequence position and
+  the shipped Markdown. Previous/next run lesson 1→10; the first points back at
+  `lessons.html`, the last at the guides.
+- **Legacy aliases** (`ideas.html`, `ideas/<n>-*.html`) — deliberately lightweight: one
+  line, the canonical lesson link, the original fragment anchors preserved, and a
+  permanent `vercel.json` redirect on every old route. They are routing, not content.
+- **Skills** — all seven as a hairline row; availability is read from the filesystem at
+  render time, and a planned-but-absent skill is named without a link, with an explicit
+  note that the evaluation suites are unrun.
 
 ## The one thing to remember
 
@@ -129,30 +159,28 @@ the same hue with more contrast. Link underlines fade to 40 % of the link colour
 The home page discloses progressively: it makes the promise, offers the entry by problem,
 shows one taste of each section, and routes out. The full sets live on their own pages.
 
-1. **Header** — brand with the orange mark, five mono section links (Ideas, Guides, Skills,
-   Investigations, Frames), a "More" menu listing every page, and "GitHub".
+1. **Header** — brand with the orange mark, three mono section links (Lessons, Skills,
+   Reference), a "More" menu for the original guides and sources, and "GitHub".
 2. **Opening, two columns from 980px** — left: the title with one italic accent word
-   (*Theo's advice, turned into a **system** you can run* — the accent word is
-   `title_em` in `home.json`), the lead, two square buttons (`Read the ideas` →
-   `ideas.html`, `Open the guides` → `guides.html`), the counts as five mono badges that each route to the
-   page holding the set (the build fails if a count disagrees with the set). Right: the
-   animated hero loop. Below both, full width: the problem panel, eight rows — situation on
-   the left, numbered tags naming the guide(s) that answer it. A drawn hairline grid sits
+   (the accent word is `title_em` in `home.json`), the lead, the primary button
+   (`Start with lesson 1` → the first lesson) with the quieter `Find my problem`
+   routing to the problem panel, and the quiet lesson count line. Right: the
+   animated hero loop, aligned with the opening copy. Below the copy in the left column:
+   eight problem rows linking to lessons or the deeper recovery guide. On phones the
+   problem rows precede the artwork. A drawn hairline grid sits
    behind, masked to fade. The attribution and the edition date are not repeated here; they
    are in the closing credits and the footer, where a reader looks for them.
-3. **Ideas** — all nineteen, in order, as one horizontal row the reader swipes or
-   arrows through: a focusable scroll region with proximity snapping, fading at the
-   edge it overflows, with previous/next and an `01 of 19` counter added by the script
-   (and honestly absent without it). Then `ALL 19 IDEAS AS A GRID →`.
-4. **Skills** — all four, as a hairline row. They are the deliverable and fit in one row.
-   Each tile's title opens the skill's page (`skills/<name>/`); the directory line keeps
-   linking to GitHub.
+3. **Lessons** — the chapter directory as routing rows (see *The lesson edition* above),
+   then `ALL 10 LESSONS →`.
+4. **Skills** — all seven, as a hairline row. Availability comes from the filesystem at
+   render time; a planned skill is named without a link. Each available tile's title opens
+   the skill's page (`skills/<name>/`); the directory line keeps linking to GitHub.
 5. **Guides** — the four source shelves as rows (range, title, count and investigation),
    each a route into `guides.html#shelf`, then `ALL 13 GUIDES →`.
 6. **Investigations** — the three reports as routing rows in the same form as the guide
    shelves (`Report 01`, title, one line from the README), then `ALL 3 INVESTIGATIONS →`.
-7. **Frames** — the twelve timestamps as a mono strip, each opening its frame in the
-   gallery, then `OPEN THE GALLERY →`. No stills on the home page.
+7. **Frames** — the original twelve frames remain in the gallery, linked from the menu
+   and source references. There is no separate homepage frames band.
 8. **Closing** — the ledger and the credits. *What was checked, and what was not* is a
    hairline list of six rows, each a mono status the page can defend — `RUN`, `LIMIT`,
    `NOT RUN`, `UNVERIFIED` — and one sentence; only `RUN` takes the accent. Attribution
@@ -169,8 +197,9 @@ downward at a different rate, so the density falls off the way an ordered dither
 rather than merely dimming. It is drawn in CSS; a generated raster was tried (GPT Image
 2.5 via Higgsfield, 5.5 credits) and came back opaque and soft, and did not earn a place.
 
-**Section pages.** `ideas.html` holds all nineteen ideas in three tiers; `guides.html`
-holds the thirteen guides under their shelves; `skills.html` holds the four skill tiles;
+**Section pages.** `lessons.html` holds the ten lessons under their three chapters;
+`guides.html` holds the thirteen guides under their shelves; `skills.html` holds the seven
+skill tiles;
 `investigations.html` holds the three reports as three full-viewport studies;
 `evidence.html` holds the twelve frames at full size. Each opens with the same
 marker-and-title head as a band, so a section page reads as the band unfolded rather than
@@ -259,7 +288,7 @@ evidence badge and speaker, the video moment and segment, the guide and skill it
 the previous and next idea, and the source files. This is where the nineteen tiles' compact
 form pays off: the tile is the disclosure control, the page is the content.
 
-**Skill pages** (`skills/<name>/index.html`, four of them — the deliverable given pages).
+**Skill pages** (`skills/<name>/index.html`, seven of them — the deliverable given pages).
 The page head carries the skill's drawing, the mono `SKILL` context line with a link to
 `skills.html`, the skill's own title and its frontmatter description as the deck. The body
 renders the skill's own instructions from `SKILL.md` (its h1 is not repeated), followed by
@@ -337,9 +366,10 @@ it carries:
   on `ideas.html`), each with its authored drawing, a `[nn]` marker, the speaker, when it
   is useful, the timestamp and an evidence badge; the title opens the idea's page. No video
   stills: the frames stay in the gallery.
-- **Four skills** — a hairline row led by each drawing, with an honest count
-  (`8 ideas feed it`) derived from `evidence/video-tips.json`; the title opens the skill's
-  page, the directory line opens GitHub. The same tiles, with the adoption summary, are
+- **Seven skills** — a hairline row led by each drawing, with an honest count
+  derived from `evidence/video-tips.json`; the title opens the skill's page, the directory
+  line opens GitHub. Availability is read from the filesystem at render time and a planned
+  skill is named without a link. The same tiles, with the adoption summary, are
   `skills.html`.
 - **Thirteen guides** — on the home page, the four shelves as routing rows; on
   `guides.html`, icon tiles grouped under mono `+ Source` shelf labels with the guide range

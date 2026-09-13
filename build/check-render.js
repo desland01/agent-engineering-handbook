@@ -15,11 +15,13 @@ const PORT = 0; // ephemeral
 
 const PAGES = [
   'index.html',
-  'ideas.html',
+  'lessons.html',
   'guides.html',
   'skills.html',
   'investigations.html',
   'evidence.html',
+  'lessons/recurring-mistakes.html',
+  'lessons/better-environments.html',
   'guides/01-recurring-failures.html',
   'skills/agent-feedback-engineering/index.html',
   'ideas/01-ci-feedback-loop.html',
@@ -27,7 +29,7 @@ const PAGES = [
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
-const HUBS = ['ideas.html', 'guides.html', 'skills.html', 'investigations.html', 'evidence.html'];
+const HUBS = ['lessons.html', 'guides.html', 'skills.html', 'investigations.html', 'evidence.html'];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -134,6 +136,69 @@ function countHubNext() {
   return { present: true, links: el.querySelectorAll('a[href]').length };
 }
 
+async function checkLessonJourney(browser, base, failures) {
+  const page = await browser.newPage();
+  let checks = 0;
+  const verify = (pass, detail) => { checks++; if (!pass) failures.push('lesson journey — ' + detail); };
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  try {
+    await page.setViewport({width: 390, height: 850});
+    await page.goto(base + '/', {waitUntil: 'networkidle0'});
+    verify(await page.evaluate(() => {
+      const copy = document.querySelector('.opening-copy');
+      const pick = document.querySelector('.opening .pick');
+      const hero = document.querySelector('.opening .hero-figure');
+      return copy && pick && hero && !!(copy.compareDocumentPosition(pick) & 4) && !!(pick.compareDocumentPosition(hero) & 4);
+    }), 'homepage reading order is not copy, problems, artwork');
+    await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.click('.actions .primary')]);
+    verify(page.url().endsWith('/lessons/recurring-mistakes.html'), 'primary action does not open lesson 1');
+    verify(await page.$eval('h1', (el) => el.textContent === 'Stop fixing the same mistake twice'), 'lesson 1 title differs');
+    const tabLimit = await page.$$eval('.site-head a, .site-head summary', (els) => els.length + 2);
+    let menuFocused = false;
+    for (let i = 0; i < tabLimit; i++) {
+      await page.keyboard.press('Tab');
+      menuFocused = await page.evaluate(() => document.activeElement.matches('details.menu > summary'));
+      if (menuFocused) break;
+    }
+    verify(menuFocused, 'menu summary cannot be reached by keyboard');
+    if (menuFocused) {
+      verify(await page.evaluate(() => { const s = getComputedStyle(document.activeElement); return (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none'; }), 'keyboard focus has no visible outline or shadow');
+      await page.keyboard.press('Enter');
+      verify(await page.$eval('details.menu', (el) => el.open), 'Enter does not open the menu');
+      await page.keyboard.press('Escape');
+      verify(await page.$eval('details.menu', (el) => !el.open), 'Escape does not close the menu');
+    }
+    await page.focus('.toc-mobile summary');
+    await page.keyboard.press('Enter');
+    verify(await page.$eval('.toc-mobile', (el) => el.open), 'keyboard cannot open lesson contents');
+    await page.keyboard.press('Enter');
+    verify(await page.$eval('.toc-mobile', (el) => !el.open), 'keyboard cannot close lesson contents');
+    await page.goto(base + '/lessons.html', {waitUntil: 'domcontentloaded'});
+    verify(await page.$$eval('.lesson-row', (els) => els.length === 10), 'index does not expose ten lessons');
+    verify(await page.$$eval('.lesson-row .min', (els) => els.length === 10 && els.every(el => /estimated/.test(el.textContent))), 'index reading estimates are missing or unqualified');
+    for (const name of ['agent-output-verification', 'agent-artifact-recovery', 'agent-contract-consistency']) {
+      const response = await fetch(base + '/skills/' + name + '/SKILL.md');
+      verify(response.ok && (await response.text()).includes('name: ' + name), 'raw skill download failed: ' + name);
+    }
+    await page.setJavaScriptEnabled(false);
+    await page.goto(base + '/', {waitUntil: 'domcontentloaded'});
+    verify(await page.$eval('.actions .primary', (el) => el.getBoundingClientRect().width > 0), 'primary action disappears without JavaScript');
+    verify(await page.$$eval('.reveal-pending', (els) => els.length === 0), 'content is stranded without JavaScript');
+    await page.setJavaScriptEnabled(true);
+    await page.emulateMediaFeatures([{name: 'prefers-reduced-motion', value: 'reduce'}]);
+    await page.goto(base + '/', {waitUntil: 'networkidle0'});
+    verify(await page.$eval('.hero-loop', (svg) => svg.animationsPaused()), 'hero does not pause for reduced motion');
+    verify(await page.evaluate(() => document.getAnimations().every(a => a.playState !== 'running')), 'CSS animation remains active under reduced motion');
+    verify(errors.length === 0, 'page errors: ' + errors.join(' | '));
+  } catch (error) {
+    verify(false, error.message);
+  } finally {
+    await page.close();
+  }
+  return checks;
+}
+
 async function main() {
   const failures = [];
   let checks = 0;
@@ -183,7 +248,7 @@ async function main() {
         checks++;
         // Scroll capture: a vertical wheel over a horizontal region must still
         // move the page. Measured 0px on four regions before the per-axis fix.
-        for (const sel of ['.ideas-row', '.track-row', '.table-scroll', '.reader pre']) {
+        for (const sel of ['.lesson-list', '.track-row', '.table-scroll', '.reader pre']) {
           const box = await page.evaluate((s) => {
             const el = document.querySelector(s); if (!el) return null;
             document.documentElement.style.scrollBehavior = 'auto';
@@ -309,6 +374,7 @@ async function main() {
         await page.close();
       }
     }
+    checks += await checkLessonJourney(browser, 'http://127.0.0.1:' + port, failures);
   } finally {
     if (browser) await browser.close().catch(() => {});
     server.close();

@@ -238,7 +238,11 @@ def hero():
         if i:
             a(f'<line x1="{CODE_X}" y1="{y:.0f}" x2="{CODE_X + CODE_W}" y2="{y:.0f}" stroke="currentColor" stroke-opacity=".2"/>')
         a(_label(CODE_X + 16, y + 26, name, cls='lbl cell'))
-        a(_label(CODE_X + 16, y + 45, sub, size=18, cls='lbl sub'))
+        # Sub-captions are authored at 20 units: the figure renders at a 0.52
+        # scale at full page width, so 18 units landed at 9.3px - under the 10px
+        # floor for words in a drawing. At 20 units the widest caption still fits
+        # its cell only with the tighter tracking set in handbook.css (.02em).
+        a(_label(CODE_X + 16, y + 45, sub, size=20, cls='lbl sub'))
         bars = {0: [(0, 64), (0, 40), (0, 52)], 1: [(0, 110), (0, 86)], 2: [(0, 46), (56, 46), (112, 46)], 3: [(0, 130), (0, 96), (0, 72)]}[i]
         by = y + 58
         for j, (bx, bw) in enumerate(bars):
@@ -262,7 +266,7 @@ def hero():
     # a CI status light in the CHECKS cell: orange while a mistake is being caught
     a(f'<circle cx="{CODE_X + CODE_W - 22}" cy="{CODE_Y + 22}" r="4" fill="{IVORY}">'
       + _keyed('fill', _step_points(IVORY, catch_times, 0.03, ACCENT), TT) + '</circle>')
-    a(_label(CODE_X + CODE_W - 34, CODE_Y + 26, 'CI', size=18, anchor='end', cls='lbl sub ci'))
+    a(_label(CODE_X + CODE_W - 34, CODE_Y + 26, 'CI', size=20, anchor='end', cls='lbl sub ci'))
     a(_label(CODE_X, CODE_Y - 16, 'THE CODEBASE'))
     a('</g>')
 
@@ -299,7 +303,7 @@ def hero():
         a(f'<line x1="{AGENT_X}" y1="{y + 24}" x2="{AGENT_X + AGENT_W}" y2="{y + 24}" stroke="currentColor" stroke-opacity=".2"/>')
         for d in range(3):
             a(f'<circle cx="{AGENT_X + 14 + d * 10}" cy="{y + 12}" r="2.2" fill="currentColor" fill-opacity=".35"/>')
-        a(_label(AGENT_X + AGENT_W - 14, y + 17, name.upper(), size=18, anchor='end', cls='lbl name'))
+        a(_label(AGENT_X + AGENT_W - 14, y + 17, name.upper(), size=20, anchor='end', cls='lbl name'))
         a(f'<text class="lbl prompt" x="{AGENT_X + 16}" y="{y + 52}" font-size="20" {_MONO} fill="currentColor" fill-opacity=".8">&#8811;</text>')
         # the prompt line types itself out over the lap, at a different phase per agent, and clears
         w = [150, 118, 176, 132, 160][i]

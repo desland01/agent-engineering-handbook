@@ -33,15 +33,18 @@ cd public && python3 -m http.server 8000    # http://localhost:8000
 | `README.md`, `adoption.md`, `prompts.md`, `validation.md` | Reader entry points |
 | `guides/` | The 13 implementation guides |
 | `*-inspection.md` | The three repository investigation reports, also listed on `investigations.html` |
-| `skills/` | Four portable skill directories: each `SKILL.md` and its `references/` render to `public/skills/<name>/index.html` (the raw files are also copied there verbatim) |
-| `ideas.html`, `guides.html`, `skills.html`, `investigations.html`, `evidence.html` | Generated section pages; the skills and investigations indexes are built from the README's skills and investigations lists plus `build/home.json` |
+| `lessons/` | The ten lesson Markdown sources; `build/lessons.json` owns their order, chapters, source tips and legacy aliases |
+| `skills/` | Seven portable skill directories: each `SKILL.md` and its `references/` render to `public/skills/<name>/index.html` (the raw files are also copied there verbatim) |
+| `lessons.html`, `guides.html`, `skills.html`, `investigations.html`, `evidence.html` | Generated section pages; the skills and investigations indexes are built from the README's skills and investigations lists plus `build/home.json`. `public/ideas/*` are lightweight legacy aliases of the lesson pages; `vercel.json` permanently redirects the old routes |
 | `evidence/` | Frame manifest, extracted ideas, verifier comparison |
 | `screenshots/` | The 12 frames (do not replace without updating `evidence/frame-manifest.json`) |
 | `examples/recurring-rule/` | Runnable lint demonstration (`npm ci --ignore-scripts && npm run demo`) |
 | `build/` | Renderer, checker, pinned requirements |
 | `build/assets/handbook.css` | The one stylesheet every page loads (tokens at the top) |
 | `build/assets/handbook.js` | The one script: closes the header menu on Escape or an outside tap, and marks the current section in the reader's rail. Every control works without it |
-| `build/home.json` | Landing-page data not already in `README.md`: title, lead, source-grouped shelves, each guide's use-when line, and the headings and descriptions the index pages open with |
+| `build/home.json` | Landing-page data not already in `README.md`: title, lead, chapter directory, each guide's use-when line, and the headings and descriptions the index pages open with |
+| `build/lesson_catalog.py` | The catalog seam: validates `build/lessons.json` against the ten approved lessons and the nineteen source tips, and syncs the README lesson table between its markers |
+| `build/lessons.json` | The lesson manifest: order, chapters, source tip coverage, legacy alias routes |
 | `DESIGN.md`, `INTERACTIONS.md` | Source-only design and behaviour guidance for contributors; never render or copy these into the website |
 | `public/` | Generated site — committed, never edited by hand |
 
@@ -54,9 +57,12 @@ cd public && python3 -m http.server 8000    # http://localhost:8000
   [ATTRIBUTION.md](ATTRIBUTION.md). Do not add third-party code or longer excerpts.
 - New pages should be added to `RENDER_MD` in `build/render.py` and linked from
   [README.md](README.md). The landing page is built from the README's own tables and
-  lists (problem table, guide list, investigations, skills, the 19 ideas) plus
-  `build/home.json`; a new guide needs a shelf entry and a use-when line there, and
-  `build/check.py` fails until the counts on the map match.
+  lists (problem table, guide list, investigations, skills) plus `build/home.json`;
+  a new guide needs a shelf entry and a use-when line there, and `build/check.py`
+  fails until the counts on the map match. Edit lesson prose in `lessons/` and its
+  metadata in `build/lessons.json`. The catalog validates the approved lesson set.
+  Only the generated README lesson table should not be edited by hand: regenerate it
+  with `python3 build/render.py --sync-readme`. An ordinary render refuses table drift.
 - Visual changes go through `build/assets/handbook.css` (and the page structure in `build/render.py`) and are recorded in
   [DESIGN.md](https://github.com/desland01/agent-engineering-handbook/blob/main/DESIGN.md); behaviour changes in [INTERACTIONS.md](https://github.com/desland01/agent-engineering-handbook/blob/main/INTERACTIONS.md).
 

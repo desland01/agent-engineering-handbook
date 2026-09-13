@@ -13,25 +13,39 @@ disclosure (menu or section list) that is open or closed.
 
 ## The journey
 
-**1. Arrive at the map** (`index.html`). First seen: the title and lead on the left, the
-problem panel on the right (from 980px) or directly below (phones). Second: the counts
-strip — five pills that say what is here and jump to it. The primary element is the
-title; the primary *action* is a problem row's chip or a chapter row.
+**1. Arrive at the map** (`index.html`). First seen: the title and lead on the left,
+the problem panel on the right (from 980px) or directly below (phones — before any hero
+art). The primary element is the title; the primary *action* is "Start with lesson 1"
+beside the quieter "Find my problem", with the lesson count as a quiet line, not a
+pill strip.
 
-**2. Choose by problem or by source.** The problem panel's eight rows name a situation
-and offer numbered chips for the guide(s) that address it. The four shelves list every
-guide under the source it was adapted from as a chapter list with a use-when line, so a
-reader can pick without opening each one. A chapter row is one click or tap anywhere on
-its surface.
+**2. Choose a lesson by problem or order.** The problem panel's eight rows name a
+situation and offer lesson chips (row 8 stays a guide chip: artifact recovery is
+deliberately guide-only). Below, the chapter directory lists the ten lessons in their
+three chapters, each row carrying the lesson's order mark, title and use-when line —
+the canonical reading path is one click per row.
 
-**3. Read a guide.** The page head says "Guide 02 · of 13 · From Theo's video" (the shelf
+**3. Read a lesson.** `lessons.html` is the lesson map: three chapter sections, ten
+rows. A lesson page keeps the accepted prose as the article (the author's own "## Sources"
+section carries the exact video citations, so no generated citation block is added on
+top), with the video moments the lesson consolidates listed as tip links in the rail
+("In the video"), the reading time, where it leads and its place in the sequence. The
+first lesson's "previous" is `lessons.html`; the last lesson's "next" is the guides.
+
+**3b. Arrive at an old idea route.** `ideas.html` and the nineteen `ideas/<n>-*.html`
+pages are lightweight aliases of their lessons: a short line, the canonical link to the
+lesson page, and the original fragment anchors (said / apply / useful / qualification)
+preserved so old deep links still land. `vercel.json` permanently redirects every old
+route to its lesson. No full old idea page remains as duplicate canonical content.
+
+**4. Read a guide.** The page head says "Guide 02 · of 13 · From Theo's video" (the shelf
 link returns to that group). From 1100px the rail beside the article lists the sections
 and marks the one on screen, names the guide's place and use-when, links the previous and
 next guide, shows up to two frames applied in the guide, and links the Markdown source.
 Below 1100px an "On this page" disclosure under the title opens the section list; the
 applied frames follow the article.
 
-**4. Reach the source, a frame or a skill.** Video timestamps open the video at that
+**5. Reach the source, a frame or a skill.** Video timestamps open the video at that
 moment in the same tab. Pinned repository links open the snapshot on GitHub. Evidence
 frames open the gallery at that frame, which offers the moment in the video, the
 full-size image and the guide that applies it. Skill titles open the skill's page
@@ -40,19 +54,23 @@ that cite it let the reader decide, and its Adopt block links the shipped `SKILL
 directory on GitHub and the adoption page. The section links reach `skills.html` and
 `investigations.html`, which hold every skill tile and every report card.
 
-**5. Return or continue.** Previous/next cards close every guide (the first guide's
+**6. Return or continue.** Previous/next cards close every guide (the first guide's
 "previous" is the guide shelves; the last guide's "next" is the investigations). The
 source line under them links the Markdown and the map. The brand in the header returns to
-the map from any page; the four section links and the "More" menu reach every page.
+the map from any page; the section links (Lessons, Skills, Reference) and the "More"
+menu reach every page.
 
 ## Hierarchy by screen
 
 | Screen | First | Second | Third | Primary action |
 |---|---|---|---|---|
-| Map | title + problem panel | counts strip, then the ideas row | skills loops, guide shelves, the ledger | a chip in the problem panel, a card in the row, or a shelf row |
+| Map | title + problem panel | "Start with lesson 1" / "Find my problem", then the chapter directory | skills row (all seven, availability from disk), guide rows, report rows | Start with lesson 1, or a chip in the problem panel |
+| Lessons index | marker + title + lead | three chapter sections of lesson rows | the closing route | open a lesson |
+| Lesson | context line + title | the accepted prose as the article | rail (On this page, This lesson: read time, In the video, Where it leads, Sequence, Source) or previous/next | read; next lesson |
+| Legacy idea alias | the idea's line | the canonical link to its lesson | the preserved fragment anchors | continue to the lesson |
 | Guide | context line + drawing + title | deck paragraph | rail (sections, place) or the section disclosure | read; next guide |
-| Skill page | context line (`SKILL` · All four skills) + drawing + title | the description deck, then the skill's sections and references | rail (sections, This skill, In the guides, Adopt) or the section disclosure | read; adopt via the raw `SKILL.md`, GitHub or the adoption page |
-| Skills index | marker + title + lead | the four loops (drawing, caption, title) | the closing route | open a skill page |
+| Skill page | context line (`SKILL` · skills index) + drawing + title | the description deck, then the skill's sections and references | rail (sections, This skill, In the guides, Adopt) or the section disclosure | read; adopt via the raw `SKILL.md`, GitHub or the adoption page |
+| Skills index | marker + title + lead | the seven skill tiles (availability from disk; planned skills are named without links) | the closing route | open a skill page |
 | Guides index | marker + title + lead | the track (previous/next, `01 OF 13`) | the shelves, then the closing route | open a stage or a shelf tile |
 | Investigations index | marker + title + lead | three full-viewport studies | the closing route | Read the full report |
 | Investigation / other page | context line + title | deck paragraph | sections | read; header menu |
@@ -178,7 +196,14 @@ below, so a 320px phone keeps 288px of content.
   block links the shipped `SKILL.md`, the GitHub directory and the adoption page, so the
   installer's route is kept rather than dropped.
 - **External links open in the same tab.** Unchanged.
-- **The nineteen ideas are on the map, not only linked.** Unchanged.
+- **The ten lessons are canonical; the nineteen ideas are their legacy aliases.** Old
+`ideas.html` and `ideas/<n>-*.html` routes render as lightweight alias pages and are
+permanently redirected to `lessons/<id>.html`; the original fragment anchors stay so
+deep links keep landing. The 19-idea table remains in the README as a source-evidence
+reference, not as site navigation.
+- **Skill availability is read from the filesystem at render time.** A tile exists only
+when `skills/<name>/SKILL.md` exists; planned skills are named without links, and the
+index says explicitly that the evaluation suites are unrun.
 - **One optional script.** Every behaviour is HTML and CSS first; the script is a
   convenience for the menu and the rail marker and can be removed without breaking any
   control.

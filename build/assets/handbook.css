@@ -206,6 +206,11 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 .hero-figure svg { display: block; width: 100%; height: auto; }
 .hero-figure .lbl, .desks-figure .lbl { text-transform: uppercase; fill: var(--muted-fg); }
 .hero-figure .lbl.sub, .desks-figure .lbl.sub { fill: var(--muted-fg); fill-opacity: .8; letter-spacing: .08em; }
+/* The hero's sub-captions are drawn at 20 units so they clear 10px at the
+   figure's 0.52 full-width render scale; at that size the widest one
+   ("TOOLS THE AGENT CAN CALL", 25 characters) only stays inside its 330-unit
+   cell with the tracking tightened to .02em. The desks figure keeps .08em. */
+.hero-figure .lbl.sub { letter-spacing: .02em; }
 .desks-figure .lbl.sub { font-size: 12px; }
 .hero-figure .lbl.cell { fill: var(--muted-fg); }
 @media (max-width: 979px) { .hero-figure { max-width: 720px; } }
@@ -291,74 +296,18 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 .pick h2 { font-size: 1.25rem; margin-bottom: 4px; }
 .pick > p { color: var(--muted-fg); font-size: var(--text-sm); margin-bottom: 16px; }
 
-/* The problem panel's own drawing: three repeated fixes converging on one check.
-   It is decorative and carries no information the rows do not, so it is aria-hidden
-   and alt-empty. It draws itself left to right as the panel crosses the viewport,
-   the same idea as the spine trace below and driven by the same timeline, so nothing
-   animates on load and nothing runs off screen. Without scroll-driven animations the
-   finished drawing is simply shown, which is the same picture at rest. */
-.pick-figure { margin: 0 0 18px; }
-.pick-figure img { display: block; width: 100%; height: auto; opacity: 0.9; }
-@media (min-width: 980px) {
-  .pick-figure { margin: 2px 0 22px; }
-  .pick-figure img { max-width: 620px; }
-}
-@media (min-width: 1200px) {
-  .pick-figure img { max-width: 760px; }
-}
-
-/* The spine: a dashed drafting guide, with the accent trace drawn over it. */
-.pick ol { list-style: none; position: relative; padding-left: 46px; }
-.pick ol::before, .pick ol::after { content: ""; position: absolute; left: 15px; top: 4px; bottom: 4px; width: 1px; }
-.pick ol::before { background: repeating-linear-gradient(var(--border) 0 4px, transparent 4px 9px); }
-.pick ol::after { background: var(--primary); transform-origin: top; opacity: 0.85; }
+/* A familiar problem, its lesson and a change to try. Labels remain HTML text. */
+.pick-figure { margin: 0 0 20px; }
+.pick-figure img { display: block; width: 100%; height: auto; }
+.pick-figure figcaption { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; text-align: center; font-size: var(--text-xs); color: var(--muted-fg); }
+.pick ul { list-style: none; padding-left: 0; }
+.pick .chip .n { white-space: nowrap; }
 
 .pick li { display: grid; gap: 8px; padding: 13px 0; border-top: 1px solid var(--border); position: relative; }
 .pick li:first-child { border-top: 0; padding-top: 4px; }
 @media (min-width: 640px) { .pick li { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; } }
 .pick .q { font-weight: 600; line-height: 1.35; font-size: var(--text-sm); }
 .pick .a { display: flex; flex-wrap: wrap; gap: 6px; }
-
-/* The marker sits on the spine, in the gutter the list is padded for. */
-.pick .ix {
-  position: absolute; left: -46px; top: 15px; width: 32px;
-  font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: 0.02em;
-  color: var(--dim-fg); background: var(--bg); padding: 2px 0; text-align: left;
-}
-.pick li:first-child .ix { top: 6px; }
-
-/* One slow dash flow, and the trace drawing down the spine, both driven by the
-   panel's own progress through the viewport - so nothing animates on load and
-   nothing runs while the panel is off screen. Browsers without scroll-driven
-   animations get the finished drawing, which is the same picture at rest. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    /* The trace's zero state lives here, with the animation that fills it,
-       so a browser without scroll-driven animations shows the finished trace
-       rather than none. */
-    .pick ol::after { transform: scaleY(0); animation: pick-trace linear both; animation-timeline: view(); animation-range: entry 60% cover 55%; }
-    .pick ol::before { animation: pick-dash 3.2s linear infinite; }
-    .pick .ix { animation: pick-mark linear both; animation-timeline: view(); animation-range: entry 65% cover 60%; }
-    /* The drawing is a raster, so it cannot stroke itself; a soft-edged mask sweeping
-       left to right reads the same way and costs nothing. It finishes before the spine
-       trace starts, so the panel resolves in one direction: drawing, then trace. */
-    .pick-figure img {
-      animation: pick-draw linear both;
-      animation-timeline: view();
-      animation-range: entry 45% cover 40%;
-    }
-  }
-}
-
-@keyframes pick-draw {
-  from { -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 0%, transparent 8%, transparent 100%);
-                 mask-image: linear-gradient(90deg, #000 0%, #000 0%, transparent 8%, transparent 100%); }
-  to   { -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 100%, transparent 108%, transparent 100%);
-                 mask-image: linear-gradient(90deg, #000 0%, #000 100%, transparent 108%, transparent 100%); }
-}
-@keyframes pick-trace { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes pick-dash { to { background-position-y: 9px; } }
-@keyframes pick-mark { 0%, 55% { color: var(--dim-fg); } 100% { color: var(--accent-text); } }
 
 /* Bands: a dithered seam between sections rather than a hard rule - the one
    transition idiom Augment and Sourcegraph share. Two layers of dots, 4px and
@@ -567,6 +516,13 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
    in a row with 52px glyphs; the same four skills now read as four figures. */
 .tiles.cards.skills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 639px) { .tiles.cards.skills { grid-template-columns: minmax(0, 1fr); } }
+/* Seven cards in two columns: the last row holds one card, and the grid's own
+   border would outline the empty second cell beside it. An odd last card spans
+   both columns so the final row is full; an even count is already full and is
+   untouched. Phones keep the one-column stack. */
+@media (min-width: 640px) {
+  .tiles.cards.skills > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
 .tiles.cards .tile.skill { padding: 28px 28px 24px; gap: 12px; }
 .tiles.cards .tile.skill .art { position: relative; width: 100%; height: 190px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); margin-bottom: 8px; }
 .tiles.cards .tile.skill .art svg { width: 128px; height: 128px; }
@@ -664,6 +620,10 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 .page-head .context a { color: var(--muted-fg); text-decoration-color: color-mix(in oklab, var(--muted-fg) 40%, transparent); }
 .page-head .context a:hover { color: var(--fg); }
 .page-head h1 { font-size: var(--title-page); line-height: 1.12; letter-spacing: -0.018em; }
+/* Lesson titles wrap to balanced lines, so a short final word cannot drop onto
+   an orphan line of its own. Scoped to lesson pages; other readers' headers
+   keep their own treatment. */
+.lesson-page .page-head h1 { text-wrap: balance; }
 
 /* Narrow screens: a native disclosure with the page's sections. */
 .toc-mobile { margin-bottom: 28px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
@@ -1049,3 +1009,190 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 .prompt .cursor { color: var(--accent-text); margin-left: 1px; animation: prompt-blink 1.1s steps(1) infinite; }
 @keyframes prompt-blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .prompt .cursor { animation: none; } }
+
+/* Source-only edition — additive stylesheet.
+   Loaded AFTER build/assets/handbook.css. It adds the components the
+   ten-lesson edition introduces and overrides only what the re-composed
+   homepage needs. Every rule reads the existing tokens: no new colour,
+   typeface, radius or shadow. Same-file selectors win over handbook.css
+   only because this file loads second and matches specificity. */
+
+/* ------------------------------------------------------- homepage opening
+   DOM order is copy, problems, figure, so a phone meets the problem links
+   before the optional artwork. From 980px the figure takes the tall right
+   lane and the problem panel sits directly under the opening copy on the
+   left, which shortens the first screen and ends the old full-width panel.
+   The figure aligns with the top of the opening copy (the wrap's
+   align-items: start); it is not vertically centered across both rows,
+   which previously left the upper right of the first screen empty. */
+.opening { padding-block: 40px 48px; }
+.opening > .wrap { grid-template-areas: "copy" "pick" "figure"; gap: 32px; }
+.opening-copy { grid-area: copy; }
+.opening .pick { grid-area: pick; margin-top: 4px; }
+.opening .hero-figure { grid-area: figure; }
+@media (min-width: 980px) {
+  .opening { padding-block: 72px 64px; }
+  .opening > .wrap {
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+    grid-template-areas: "copy figure" "pick figure";
+    gap: 44px 56px;
+    align-items: start;
+  }
+}
+
+/* The one count the homepage keeps: a quiet mono line under the actions,
+   replacing the five-badge contents strip (no longer rendered there). */
+.count-line {
+  margin: 0;
+  font-family: var(--font-mono); font-size: var(--label-size);
+  text-transform: uppercase; letter-spacing: var(--label-track);
+  color: var(--dim-fg);
+}
+.count-line a { color: inherit; text-decoration: none; }
+.count-line a:hover { color: var(--fg); }
+.count-line .n { color: var(--accent-text); font-weight: 600; letter-spacing: 0; }
+
+/* ------------------------------------------------------- lesson directory
+   A calm vertical list. Chapters get a mono head with a rule; each lesson is
+   one hairline row: number, title and summary, optional-depth metadata.
+   The chapter head wraps at narrow widths: the label's text breaks naturally
+   and the trailing rule drops to its own line, so the longest chapter
+   ("Keep the system understandable") stays inside the 320px phone gutter
+   instead of overflowing it. */
+.chapter { padding-block: 30px 6px; border-top: 1px solid var(--border); }
+.band .chapter:first-of-type, main > .chapter:first-of-type { border-top: 0; padding-top: 8px; }
+.chapter-head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; row-gap: 4px; margin: 0 0 6px; }
+.chapter-head::after { content: ""; flex: 1 1 24px; height: 1px; background: var(--border); }
+.chapter-head .label {
+  font-family: var(--font-mono); font-size: var(--label-size);
+  text-transform: uppercase; letter-spacing: var(--label-track);
+  color: var(--muted-fg);
+}
+.chapter-head .range {
+  font-family: var(--font-mono); font-size: var(--label-size);
+  letter-spacing: var(--label-track); color: var(--accent-text); white-space: nowrap;
+}
+.chapter-lead { color: var(--muted-fg); font-size: var(--text-sm); max-width: 60ch; margin: 0 0 14px; }
+
+.lesson-list { list-style: none; border-top: 1px solid var(--border); }
+.lesson-row { border-bottom: 1px solid var(--border); }
+.lesson-row > a {
+  position: relative; display: grid; gap: 3px 20px;
+  padding: 15px 0; color: var(--fg); text-decoration: none;
+}
+.lesson-row .n {
+  font-family: var(--font-mono); font-size: var(--label-size);
+  letter-spacing: var(--label-track); color: var(--accent-text); padding-top: 4px;
+}
+.lesson-row .body { display: grid; gap: 3px; min-width: 0; }
+.lesson-row .t { font-weight: 600; font-size: 1.05rem; letter-spacing: -0.015em; line-height: 1.3; }
+.lesson-row .s { color: var(--muted-fg); font-size: var(--text-sm); line-height: 1.5; }
+.lesson-row .meta {
+  font-family: var(--font-mono); font-size: var(--text-xs);
+  color: var(--dim-fg); line-height: 1.5; padding-top: 3px;
+}
+/* Phone rows carry reader-facing labels ("optional skill"); the raw package
+   identifiers return from 720px, where the metadata column has room. Exact
+   source paths live on the lesson detail pages. */
+.lesson-row .min { display: block; }
+.lesson-row .m-full { display: none; }
+.lesson-row > a:hover .t { color: var(--link); }
+.lesson-row > a:focus-visible { outline-offset: -2px; }
+@media (min-width: 720px) {
+  .lesson-row > a { grid-template-columns: 64px minmax(0, 1fr) minmax(0, 230px); gap: 6px 24px; align-items: start; }
+  .lesson-row .meta { text-align: right; }
+  .lesson-row .m-full { display: inline; }
+  .lesson-row .m-brief { display: none; }
+}
+
+/* --------------------------------------------------------- skill chooser
+   The four available skills as hairline rows with their existing glyphs,
+   then the planned three, visibly quieter and honestly labelled. A note
+   line separates the groups. No giant inventory tiles on the homepage. */
+.rows-note {
+  margin: 22px 0 10px;
+  font-family: var(--font-mono); font-size: var(--label-size);
+  text-transform: uppercase; letter-spacing: var(--label-track); color: var(--dim-fg);
+}
+.skill-rows { list-style: none; border-top: 1px solid var(--border); }
+.skill-rows > li {
+  position: relative; display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 2px 16px; padding: 15px 0; border-bottom: 1px solid var(--border);
+}
+.skill-rows .glyph-box {
+  grid-row: 1 / span 3;
+  display: grid; place-items: center; width: 44px; height: 44px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--fill); color: var(--fg);
+}
+.skill-rows .glyph-box svg { width: 24px; height: 24px; }
+.skill-rows .glyph-box .pending { font-family: var(--font-mono); font-size: 14px; color: var(--dim-fg); }
+.skill-rows .t { font-weight: 600; font-size: 1.02rem; letter-spacing: -0.015em; color: var(--fg); text-decoration: none; align-self: end; line-height: 1.3; }
+.skill-rows a.t::after { content: ""; position: absolute; inset: 0; }
+.skill-rows a.t:hover { color: var(--link); }
+.skill-rows .when { color: var(--muted-fg); font-size: var(--text-sm); line-height: 1.5; max-width: 56ch; }
+.skill-rows .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-top: 5px; }
+.status {
+  font-family: var(--font-mono); font-size: var(--label-size);
+  text-transform: uppercase; letter-spacing: var(--label-track); line-height: 1;
+  padding: 5px 7px; border: 1px solid var(--border-strong); border-radius: var(--radius);
+  color: var(--dim-fg); white-space: nowrap;
+}
+.status.is-available {
+  color: var(--accent-text);
+  border-color: color-mix(in oklab, var(--accent-text) 45%, transparent);
+  background: color-mix(in oklab, var(--accent-text) 12%, transparent);
+}
+.skill-rows .dir { font-family: var(--font-mono); font-size: var(--label-size); color: var(--dim-fg); word-break: break-all; }
+.skill-rows .dir a { position: relative; z-index: 1; color: var(--dim-fg); }
+.skill-rows > li.is-planned .glyph-box { color: var(--dim-fg); background: transparent; }
+.skill-rows > li.is-planned .t,
+.skill-rows > li.is-planned .when { color: var(--dim-fg); }
+@media (min-width: 720px) {
+  .skill-rows > li { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 20px; align-items: start; }
+  .skill-rows .meta { grid-column: 3; grid-row: 1 / span 3; align-self: center; padding-top: 0; }
+}
+
+/* --------------------------------------------------------- lesson page head
+   The glyphs of the video moments a lesson consolidates: existing artwork at
+   tile size, each captioned with its own timestamp. On the pilot this is
+   lesson 6; any lesson that merges several ideas uses the same figure. */
+.tip-glyphs { display: flex; flex-wrap: wrap; gap: 12px 16px; margin: 18px 0 20px; }
+.tip-glyphs figure { margin: 0; display: grid; gap: 6px; justify-items: center; }
+.tip-glyphs .g {
+  display: grid; place-items: center; width: 46px; height: 46px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--fill); color: var(--fg);
+}
+.tip-glyphs .g svg { width: 26px; height: 26px; }
+.tip-glyphs figcaption {
+  font-family: var(--font-mono); font-size: 0.625rem;
+  letter-spacing: 0.08em; color: var(--dim-fg);
+}
+
+/* Source anchors: an empty block-level span carrying the exact tip ID, so a
+   Markdown lesson can place the anchor where the tip is discussed and old
+   deep links keep working. */
+.reader article span[id^="tip-"] { display: block; scroll-margin-top: 24px; }
+
+/* Sources block: one line per covered tip — linked timestamp, speaker and
+   evidence type, then the qualification in the quiet step. */
+.source-lines { list-style: none; border-top: 1px solid var(--border); margin-top: 6px; }
+.source-lines > li { display: grid; gap: 2px 16px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+.source-lines .ts {
+  font-family: var(--font-mono); font-size: var(--label-size);
+  letter-spacing: var(--label-track); color: var(--accent-text); text-decoration: none;
+}
+.source-lines .ts:hover { text-decoration: underline; }
+.source-lines .who { font-size: var(--text-sm); color: var(--muted-fg); line-height: 1.5; }
+.source-lines .qual { font-size: var(--text-xs); color: var(--dim-fg); line-height: 1.5; }
+@media (min-width: 640px) {
+  .source-lines > li { grid-template-columns: 76px minmax(0, 1fr); gap: 4px 20px; align-items: baseline; }
+  .source-lines .ts { grid-row: 1 / span 2; }
+  .source-lines .who, .source-lines .qual { grid-column: 2; }
+}
+
+/* Reduced-motion and print parity for the new pieces: they animate nothing,
+   so the only rule needed is the print palette's coverage, which handbook.css
+   already supplies through the shared tokens. */

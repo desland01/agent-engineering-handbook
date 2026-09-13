@@ -36,6 +36,17 @@ jobs:
         run: python build/render.py
       - name: Content and structure checks
         run: python build/check.py
+      - name: Lesson catalog regressions
+        run: python build/lesson_catalog.test.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: build/package-lock.json
+      - name: Install locked browser test dependencies
+        run: npm ci --prefix build
+      - name: Rendered layout and reader journeys
+        run: node build/check-render.js
       - name: Committed pages match their sources
         run: |
           changes="$(git status --porcelain --untracked-files=all -- public)"

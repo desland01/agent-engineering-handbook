@@ -32,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from icons import IDEAS, SKILLS, GUIDES, INVESTIGATIONS
 from hero import hero  # the animated hero loop
 from desks import desks  # the three empty workstations
+import lesson_catalog  # the reviewed ten-lesson catalog seam (load_lessons, read_minutes)
 
 REPO = Path(__file__).resolve().parent.parent
 # The claim line of each investigation, copied verbatim from COPY.md.
@@ -54,10 +55,11 @@ GITHUB = 'https://github.com/desland01/agent-engineering-handbook'
 SITE_URL = 'https://agent-engineering-handbook.dev'
 EDITION_DATE = 'September 9, 2026'
 
-# Idea 18 is the video's own career-level claim: that building an environment where
-# code lands well is the skill worth having. The empty-workstations drawing is that
-# claim's punchline, so it appears on that page and nowhere else.
-DESKS_ON_IDEA = 18
+# The empty-workstations drawing is the video's own career-level claim: that
+# building an environment where code lands well is the skill worth having. The
+# drawing follows the subject, so it appears on lesson 10 (better-environments,
+# which holds that tip) and nowhere else.
+DESKS_ON_LESSON = 'better-environments'
 SITE_NAME = 'Agent Engineering Handbook'
 
 # Directories and files that are renderer *inputs*. public/, build/ and any
@@ -77,15 +79,13 @@ RENDER_MD = [
     'evidence/video-research.md', 'examples/recurring-rule/README.md',
 ] + sorted(f'guides/{p.name}' for p in (REPO / 'guides').glob('*.md'))
 
-# Header: four section links always visible from 760px, and a native menu
+# Header: three section links always visible from 760px, and a native menu
 # (<details>) that lists every page. On narrow screens the menu is the whole
 # navigation. Items marked primary are hidden inside the menu at wide widths.
 PRIMARY_NAV = [
-    ('ideas.html', 'Ideas'),
-    ('guides.html', 'Guides'),
+    ('lessons.html', 'Lessons'),
     ('skills.html', 'Skills'),
-    ('investigations.html', 'Investigations'),
-    ('evidence.html', 'Frames'),
+    ('guides.html', 'Reference'),
 ]
 MENU_GROUPS = [
     [('index.html', 'Home', True)] + [(t, l, True) for t, l in PRIMARY_NAV],
@@ -94,6 +94,8 @@ MENU_GROUPS = [
     [('github-inspection.html', 'Theo: T3 Code and Melee', False),
      ('matt-pocock-inspection.html', 'Matt Pocock: Course Video Manager', False),
      ('boris-cherny-inspection.html', 'Boris Cherny: public work', False)],
+    [('investigations.html', 'Investigations', False), ('evidence.html', 'Frames', False),
+     ('evidence/video-research.html', 'Video notes', False)],
     [('ATTRIBUTION.html', 'Attribution', False), ('CONTRIBUTING.html', 'Contributing', False),
      (GITHUB, 'GitHub repository', False)],
 ]
@@ -104,11 +106,11 @@ TITLES = {'README.md': 'Handbook index'}
 
 # Where a non-guide reader page sits in the handbook: (context line, target page).
 CONTEXT = {
-    'README.md': ('The handbook index', 'guides.html'),
+    'README.md': ('The handbook index', 'lessons.html'),
     'github-inspection.md': ('One of three repository investigations', 'investigations.html'),
     'matt-pocock-inspection.md': ('One of three repository investigations', 'investigations.html'),
     'boris-cherny-inspection.md': ('One of three repository investigations', 'investigations.html'),
-    'evidence/video-research.md': ('Detailed extraction behind the nineteen ideas', 'ideas.html'),
+    'evidence/video-research.md': ('Detailed extraction behind the lessons', 'lessons.html'),
     'examples/recurring-rule/README.md': ('Runnable companion to guide 01', 'guides/01-recurring-failures.html'),
     'adoption.md': ('Adopting a guide or portable skill', 'skills.html'),
     'prompts.md': ('Task prompts for the guides', 'guides.html'),
@@ -194,7 +196,7 @@ def site_head(prefix, current=''):
 
 
 def site_foot(prefix, basis_short):
-    links = [(f'{prefix}index.html', 'Home'), (f'{prefix}ideas.html', 'Ideas'), (f'{prefix}guides.html', 'Guides'), (f'{prefix}README.html', 'Handbook index'),
+    links = [(f'{prefix}index.html', 'Home'), (f'{prefix}lessons.html', 'Lessons'), (f'{prefix}guides.html', 'Guides'), (f'{prefix}README.html', 'Handbook index'),
              (f'{prefix}ATTRIBUTION.html', 'Attribution'), (f'{prefix}CONTRIBUTING.html', 'Contributing'),
              (GITHUB, 'GitHub repository')]
     return ('<footer class="site-foot"><div class="wrap">'
@@ -347,7 +349,9 @@ def read_index(readme):
     idx['reports'] = reports
 
     skills = []
-    for row in table_rows(section(text, 'Four portable skills')):
+    # The heading carries no count: the row set and the filesystem decide how
+    # many skills exist, so renaming or growing the set needs no selector edit.
+    for row in table_rows(section(text, 'Portable skills')):
         m = LINK.match(row[0])
         use = row[1] if row[1].endswith(('.', '!', '?')) else row[1] + '.'
         skills.append({'title': m.group(1), 'path': m.group(2), 'use': use})
@@ -374,10 +378,21 @@ def frame_alt(f):
     return f'Video frame at {f["timestamp"]}: {f["title"]}.'
 
 
-def guide_chip(label, path, prefix=''):
-    """A small link: guide number (when the target is a guide) and its label."""
+LESSON_SRC = re.compile(r'^lessons/([\w-]+)\.md$')
+
+
+def guide_chip(label, path, prefix='', lesson_by_id=None, explicit_kind=False):
+    """A destination link, with an explicit kind where lessons and guides mix."""
     m = GUIDE_N.search(path)
-    n = f'<span class="n">{m.group(1)}</span> ' if m else ''
+    if m:
+        number = f'Guide {int(m.group(1))}' if explicit_kind else m.group(1)
+        n = f'<span class="n">{number}</span> '
+    elif lesson_by_id and LESSON_SRC.match(path):
+        lesson = lesson_by_id[LESSON_SRC.match(path).group(1)]
+        number = f'Lesson {lesson["order"]}' if explicit_kind else f'{lesson["order"]:02d}'
+        n = f'<span class="n">{number}</span> '
+    else:
+        n = ''
     return f'<a class="chip" href="{escape(prefix + path)}">{n}{escape(label[0].upper() + label[1:])}</a>'
 
 
@@ -447,6 +462,14 @@ def enrich(idx):
         i['guide'] = guide_by_n[GUIDE_N.search(i['guide_path']).group(1)]
         if i['guide'] not in i['skill']['guides']:
             i['skill']['guides'].append(i['guide'])
+    # Repository-derived skills have guide sources even when no original video
+    # observation named that later public package directly.
+    for name, numbers in json.loads(HOME.read_text()).get('skill_guides', {}).items():
+        sk = skill_by_name[name]
+        for number in numbers:
+            guide = guide_by_n[number]
+            if guide not in sk['guides']:
+                sk['guides'].append(guide)
     return idx
 
 
@@ -497,19 +520,33 @@ SKILL_CAPTIONS = {
     'agent-ready-workspaces': 'SETUP \u2192 PREVIEW \u2192 CHECK',
     'agent-context-calibration': 'CONTEXT \u2192 RIGHT PLACE',
     'agent-tool-adapters': 'GAP \u2192 TOOL \u2192 CHECK',
+    # The three source-derived packages reuse the existing thematic drawing
+    # whose loop matches their method; the captions name that loop truthfully.
+    'agent-output-verification': 'OUTPUT \u2192 CHECK',
+    'agent-artifact-recovery': 'ARTIFACT \u2192 REUSE / RESUME',
+    'agent-contract-consistency': 'CONTRACT \u2192 CALLERS',
 }
+
+
+def fed_line(sk):
+    """The honest count line under a skill tile: how many video observations
+    route to it, or the plain fact that none does."""
+    if not sk['fed_by']:
+        return 'From the original repository research'
+    return (f'<span class="n">{sk["fed_by"]}</span> '
+            f'{"idea feeds" if sk["fed_by"] == 1 else "ideas feed"} it')
 
 
 def skill_tile(sk, prefix=''):
     """One skill as a tall hairline cell: its drawing at a size that carries,
     the caption inside the drawing, then the title, the use, the honest count
-    and the routes. Four of these in a 2x2 are the skills figure."""
+    and the routes. These tiles are the skills figure on skills.html."""
     cap = SKILL_CAPTIONS.get(sk['name'], '')
     return (f'<li class="tile skill"><span class="art" aria-hidden="true">{SKILLS[sk["name"]]}'
             f'<span class="cap">{cap}</span></span>'
             f'<a class="t" href="{escape(prefix + sk["href"])}">{escape(sk["title"])}</a>'
             f'<p class="when">{escape(sk["use"])}</p>'
-            f'<p class="fed"><span class="n">{sk["fed_by"]}</span> {"idea feeds" if sk["fed_by"] == 1 else "ideas feed"} it</p>'
+            f'<p class="fed">{fed_line(sk)}</p>'
             f'<span class="routes"><span class="more">Open the skill <span aria-hidden="true">&#8594;</span></span>'
             f'<span class="dir"><a href="{GITHUB}/tree/HEAD/{escape(sk["dir"])}">{escape(sk["dir"])}/</a></span></span></li>')
 
@@ -592,45 +629,92 @@ def band_head(label, heading_id, heading, description, form=''):
 
 
 # ------------------------------------------------------------ landing page
-def landing(idx, home, frames):
+def landing(idx, home, lessons, frames):
     """The home page: the promise, the entry by problem, one taste of each
     section, and a route out to the page that holds the full set."""
-    counts = {'guides': len(idx['guides']), 'reports': len(idx['reports']),
-              'skills': len(idx['skills']), 'ideas': len(idx['ideas']), 'frames': len(frames)}
+    lesson_by_id = {l['id']: l for l in lessons}
     shelf_guides = [n for s in home['shelves'] for n in s['guides']]
     if sorted(shelf_guides) != sorted(g['n'] for g in idx['guides']):
         raise SystemExit(f'build/home.json shelves list {shelf_guides}; README lists guides differently')
+    if len(lessons) != 10:
+        raise SystemExit(f'landing(): expected the ten approved lessons, found {len(lessons)}')
 
-    # The counts strip: mono badges, each a route to the page that holds the set.
-    contents = ''.join(
-        f'<li><a href="{href}"><span>{counts[key]}</span> {label}</a></li>'
-        for key, label, href in [('ideas', 'ideas', 'ideas.html'), ('guides', 'guides', 'guides.html'),
-                                 ('skills', 'skills', '#skills'), ('reports', 'investigations', '#reports'),
-                                 ('frames', 'frames', 'evidence.html')])
+    # The one quiet count in the opening: derived from the validated manifest,
+    # never free text. Guide and skill counts live in their own bands' headings.
+    n_lessons = len(lessons)
 
-    # Each row gets its drafting marker. The panel reads as a drawn schedule of
-    # eight situations rather than a table, and the markers give the accent
-    # trace something to pass as the panel scrolls through view.
+    # These are independent problems, not a second lesson sequence.
     pick = ''.join(
-        f'<li><span class="ix" aria-hidden="true">[{n:02d}]</span>'
-        f'<span class="q">{escape(q)}</span>'
-        f'<span class="a">{"".join(guide_chip(label, path) for label, path in links)}</span></li>'
-        for n, (q, links) in enumerate(idx['problems'], 1))
+        f'<li><span class="q">{escape(q)}</span>'
+        f'<span class="a">{"".join(guide_chip(label, path, lesson_by_id=lesson_by_id, explicit_kind=True) for label, path in links)}</span></li>'
+        for q, links in idx['problems'])
 
-    # All nineteen, as one horizontally scrolling track. The wrapper is the
-    # scroll region and carries the focus and the label; the track inside it is
-    # the list. Previous/next and the counter are added by handbook.js, so
-    # without JavaScript this is still a swipeable, arrow-key-scrollable row.
-    row = ''.join(idea_tile(i) for i in idx['ideas'])
-    skills = ''.join(skill_tile(sk) for sk in idx['skills'])
+    # Chapter directory: one row per manifest chapter, its mark count derived
+    # from the validated lesson set, never from copy.
+    def chapter_rows():
+        rows = ''
+        for ch in home['chapters']:
+            here = [l for l in lessons if l['chapter'] == ch['id']]
+            if not here:
+                raise SystemExit(f'landing(): chapter {ch["id"]!r} holds no lessons')
+            marks = ''.join('<i></i>' for _ in here)
+            rows += (f'<li><a href="lessons.html#{escape(ch["id"])}">'
+                     f'<span class="range">{escape(ch["range"])}</span>'
+                     f'<span class="body"><span class="t">{escape(ch["label"])}</span>'
+                     f'<span class="k">{escape(ch["k"])}</span></span>'
+                     f'<span class="marks" aria-hidden="true">{marks}</span></a></li>')
+        return rows
+
+    # Skill availability is derived from the public packages on disk, never
+    # fixed in copy: a row is available when skills/<name>/SKILL.md exists.
+    def skill_is_available(name):
+        return (REPO / 'skills' / name / 'SKILL.md').is_file()
+
+    def skill_rows(entries, planned=False):
+        lis = ''
+        for sk in entries:
+            name = sk['name']
+            if planned:
+                glyph = '<span class="pending" aria-hidden="true">\u00b7\u00b7\u00b7</span>'
+                title = f'<span class="t">{escape(sk["title"])}</span>'
+                status = '<span class="status">Planned</span>'
+                dir_html = f'<span class="dir">skills/{escape(name)}/</span>'
+                cls = ' class="is-planned"'
+            else:
+                glyph = SKILLS[name]
+                title = f'<a class="t" href="skills/{escape(name)}/">{escape(sk["title"])}</a>'
+                status = '<span class="status is-available">Available</span>'
+                dir_html = (f'<span class="dir"><a href="{GITHUB}/tree/HEAD/skills/{escape(name)}">'
+                            f'skills/{escape(name)}/</a></span>')
+                cls = ''
+            lis += (f'<li{cls}><span class="glyph-box" aria-hidden="true">{glyph}</span>'
+                    f'{title}<span class="when">{escape(sk["use"])}</span>'
+                    f'<span class="meta">{status}{dir_html}</span></li>')
+        return f'<ul class="skill-rows" role="list">{lis}</ul>'
+
+    available = [sk for sk in idx['skills'] if skill_is_available(sk['name'])]
+    installed_names = {sk['name'] for sk in available}
+    planned = [dict(name=p['name'], title=p['title'], use=p['when'])
+               for p in home['skills_planned'] if p['name'] not in installed_names]
+    for p in planned:  # a planned entry whose package shipped is a copy defect
+        if skill_is_available(p['name']):
+            raise SystemExit(f'landing(): skills_planned lists {p["name"]!r}, whose public package exists')
+    skills_html = skill_rows(available)
+    if planned:
+        skills_html += ('<p class="rows-note">In preparation \u2014 not available yet, '
+                        'no package checks run</p>' + skill_rows(planned, planned=True))
+
     report_by_path = {r['path']: r for r in idx['reports']}
     shelves = ''.join(shelf_row(s_, report_by_path[s_['investigation']]) for s_ in home['shelves'])
-    # The report most of the guides trace to takes the primary card; the
-    # renderer decides from the shelves, not from a hand-picked index.
-    facts = report_facts(idx, home)
-    lead_report = max(idx['reports'], key=lambda r: facts[r['path']]['guides'])
-    reports = ''.join(report_card(r, facts[r['path']], primary=(r is lead_report)) for r in idx['reports'])
-    frames_line = ''.join(f'<li><a href="evidence.html#frame-{f["seconds"]}">{escape(f["timestamp"])}</a></li>' for f in frames)
+
+    # The three investigations as directory rows; no per-report guide count, so
+    # report 01 is not misread through a number its own evidence does not carry.
+    report_rows = ''.join(
+        f'<li><a href="{escape(r["path"][:-3] + ".html")}">'
+        f'<span class="range">Report {n:02d}</span>'
+        f'<span class="body"><span class="t">{escape(r["title"])}</span>'
+        f'<span class="k">{escape(home["reports_topics"][r["path"]])}</span></span></a></li>'
+        for n, r in enumerate(idx['reports'], 1))
 
     closing_links = [('README.md', 'Handbook index'), ('adoption.md', 'Adopting a skill'), ('prompts.md', 'Task prompts'),
                      ('validation.md', 'Validation'), ('examples/recurring-rule/README.md', 'Runnable lint example'),
@@ -652,63 +736,54 @@ def landing(idx, home, frames):
   <div class="opening-copy">
     <h1>{title_html}</h1>
     <p class="lead">{escape(home['lead'])}</p>
-    <div class="actions"><a class="btn primary" href="ideas.html">Explore the ideas</a><a class="btn" href="guides.html">Find a guide</a></div>
-    <ul class="contents" role="list" aria-label="Contents">{contents}</ul>
-    <a class="prompt" href="skills.html" aria-label="The four skills, each invoked as a slash command"><span aria-hidden="true"><span class="ps">&#8811;</span> <span class="typed" data-lines="{escape('|'.join('/' + sk['name'] for sk in idx['skills']))}">/{escape(idx['skills'][0]['name'])}</span><span class="cursor">&#9612;</span></span></a>
+    <div class="actions"><a class="btn primary" href="lessons/recurring-mistakes.html">Start with lesson 1</a><a class="btn" href="#problems">Find my problem</a></div>
+    <p class="count-line"><a href="lessons.html"><span class="n">{n_lessons}</span> lessons</a></p>
   </div>
-  <figure class="hero-figure">{hero()}</figure>
   <div class="pick">
     <h2 id="problems">Start with the problem you have</h2>
-    <p>Each row names a situation and the guide that addresses it.</p>
-    <figure class="pick-figure" aria-hidden="true">
-      <img src="assets/problem-loop.webp" width="1600" height="257" alt="" decoding="async">
+    <p>Find what keeps going wrong. Open the matching lesson—or the deeper guide.</p>
+    <figure class="pick-figure">
+      <img src="assets/problem-to-lesson.webp" width="1400" height="354" alt="Illustration of a browser warning leading to a handbook and a checklist." decoding="async">
+      <figcaption><span>Your problem</span> <span>Your lesson</span> <span>A fix to try</span></figcaption>
     </figure>
-    <ol role="list" aria-labelledby="problems">{pick}</ol>
+    <ul role="list" aria-labelledby="problems">{pick}</ul>
   </div>
+  <figure class="hero-figure">{hero()}</figure>
 </div></header>
 
-<section class="band" id="ideas" aria-labelledby="ideas-h"><div class="wrap">
-  {band_head('The nineteen ideas', 'ideas-h', home['ideas_heading'], home['ideas_band'])}
-</div><div class="bleed">
-  <div class="ideas-row" data-row="of" tabindex="0" role="region" aria-label="The nineteen ideas, in order">
-    <ol class="ideas track" role="list">{row}</ol>
-  </div>
-</div><div class="wrap">
-  <p class="route">{more('ideas.html', f'All {counts["ideas"]}, sorted by what is behind them')}</p>
-</div></section>
+<section class="band" id="lessons" aria-labelledby="lessons-band-h"><div class="wrap"><div class="lane">
+  {band_head('The lessons', 'lessons-band-h', home['lessons_heading'], home['lessons_description'])}
+  <ul class="directory" role="list">{chapter_rows()}</ul>
+  <p class="route">{more('lessons.html', f'All {n_lessons} lessons')}</p>
+</div></div></section>
 
 <section class="band" id="skills" aria-labelledby="skills-h"><div class="wrap">
-  {band_head('Portable skills', 'skills-h', home['skills_heading'], home['skills_description'], 'split')}
-  <ul class="lanes skills" role="list">{skills}</ul>
+  {band_head('Portable skills', 'skills-h', f'{len(available)} skills you can use today', home['skills_description'], 'split')}
+  {skills_html}
+  <p class="route">{more('skills.html', 'Choose a skill')}</p>
 </div></section>
 
 <section class="band" id="guides" aria-labelledby="guides-h"><div class="wrap"><div class="lane">
-  {band_head('Implementation', 'guides-h', 'Find a guide for your next change', 'Thirteen guides grouped by source, each with a method, fitting use cases and verification limits.')}
+  {band_head('Implementation', 'guides-h', home['guides_heading'], home['guides_description'])}
   <ul class="directory" role="list">{shelves}</ul>
-  <p class="route">{more('guides.html', f'All {counts["guides"]} guides')}</p>
+  <p class="route">{more('guides.html', f'All {len(idx["guides"])} guides')}</p>
 </div></div></section>
 
 <section class="band" id="reports" aria-labelledby="reports-h"><div class="wrap">
   {band_head('Evidence', 'reports-h', home['reports_heading'], home['reports_description'], 'centered')}
-  <ol class="files" role="list">{reports}</ol>
-  <p class="route centered">{more('investigations.html', f'All {counts["reports"]} investigations')}</p>
-</div></section>
-
-<section class="band" id="frames" aria-labelledby="frames-h"><div class="wrap">
-  {band_head('Frames', 'frames-h', home['frames_heading'], home['frames_description'])}
-  <ol class="timestamps" role="list" aria-label="Frames by timestamp">{frames_line}</ol>
-  <p class="route">{more('evidence.html', 'Open the gallery')}</p>
+  <ol class="directory" role="list">{report_rows}</ol>
+  <p class="route centered">{more('investigations.html', f'All {len(idx["reports"])} investigations')}</p>
 </div></section>
 
 <section class="wrap closing" id="checked">
   <div class="ledger-col"><h2>What was checked, and what was not</h2>
     <ol class="ledger" role="list">{ledger}</ol>
-    <p class="route">{more('validation.html', 'The full validation record')}</p>
+    <p class="route">{more('validation.md', 'The full validation record')}</p>
   </div>
   <div id="attribution" class="credits-col"><h2>Attribution</h2>
     <dl class="credits">{credits}</dl>
     <p class="attr">{idx['attribution']}</p>
-    <p class="attr">Frames are short excerpts from the video, reproduced for identification and commentary; they remain © Theo / their original owners. Full attribution in <a href="ATTRIBUTION.md">ATTRIBUTION.md</a>.</p>
+    <p class="attr">Frames are short excerpts from the video, reproduced for identification and commentary; they remain \u00a9 Theo / their original owners. Full attribution in <a href="ATTRIBUTION.md">ATTRIBUTION.md</a>.</p>
     <ul>{''.join(f'<li><a class="chip" href="{escape(u)}">{escape(t)}</a></li>' for u, t in closing_links)}</ul>
   </div>
 </section>
@@ -726,35 +801,51 @@ def hub_head(marker_label, hub, tail=''):
             f'<p class="lead">{inline(hub["lead"])}</p>{tail}</div></header>')
 
 
-def ideas_index(idx, home):
-    hub = home['hubs']['ideas']
-    # The three evidential tiers of note 8. Each keeps the ideas in original
-    # video order — the [nn] numbers are the video order and the idea pages'
-    # numbering, so a tier is a selection of the sequence, not a renumbering.
-    sections = ''
-    for tier in hub['tiers']:
-        ideas = [i for i in idx['ideas'] if i['tier'] == tier['key']]
-        if not ideas:
-            raise SystemExit(f'ideas_index(): tier {tier["key"]!r} is empty; '
-                             'the extraction yields no ideas for it')
-        tiles = ''.join(idea_tile(i) for i in ideas)
-        sections += (f'<section class="tier" id="tier-{escape(tier["key"])}" '
-                     f'aria-labelledby="tier-{escape(tier["key"])}-h"><div class="wrap">'
-                     f''
-                     f'<h2 id="tier-{escape(tier["key"])}-h">{escape(tier["heading"])}</h2>'
-                     f'<p class="tier-lead">{escape(tier["lead"])}</p>'
-                     f'<ol class="ideas" role="list">{tiles}</ol></div></section>')
-    # The two files that carry what a tile cannot: speaker attribution, evidence
-    # type and the caveats. They used to sit inside the lead, where they made a
-    # reader read plumbing before content.
-    tail = ('<p class="head-links"><a href="evidence/video-research.md">Detailed extraction</a> · '
+def lessons_index(idx, home, lessons):
+    """The lesson hub: the ten canonical lessons in three chapters, each row
+    one link carrying its number, title, summary and optional depth."""
+    hub = home['hubs']['lessons']
+    tail = ('<p class="head-links"><a href="evidence/video-research.md">Detailed extraction</a> \u00b7 '
             '<a href="evidence/video-tips.json">Structured ideas file</a></p>')
-    body = (site_head('', 'ideas.html') +
-            hub_head('Ideas', hub, tail) +
+    sections = ''
+    for ch in home['chapters']:
+        here = [l for l in lessons if l['chapter'] == ch['id']]
+        if not here:
+            raise SystemExit(f'lessons_index(): chapter {ch["id"]!r} holds no lessons')
+        rows = ''
+        for l in here:
+            brief = ' \u00b7 '.join(f'Guide {g}' for g in l['guide_ids'])
+            brief += ' \u00b7 optional skill' + (' (planned)' if l['skill_planned'] else '')
+            full = ' \u00b7 '.join(f'Guide {g}' for g in l['guide_ids'])
+            full += ' \u00b7 ' + ' \u00b7 '.join(l['skill_ids'])
+            if l['skill_planned']:
+                full += ' (planned)'
+            # One derived reading estimate per row: computed from the lesson's
+            # own text at 220 words per minute and labelled as an estimate.
+            minutes = lesson_catalog.read_minutes((REPO / l['source']).read_text())
+            estimate = f'About {minutes} min, estimated'
+            rows += (f'<li class="lesson-row"><a href="{escape(l["page"])}">'
+                     f'<span class="n" aria-hidden="true">{l["order"]:02d}</span>'
+                     f'<span class="sr-only">Lesson {l["order"]}: </span>'
+                     f'<span class="body"><span class="t">{escape(l["title"])}</span>'
+                     f'<span class="s">{escape(l["summary"])}</span></span>'
+                     f'<span class="meta"><span class="m-brief">{escape(brief)}</span>'
+                     f'<span class="m-full">{escape(full)}</span>'
+                     f'<span class="min">{escape(estimate)}</span></span>'
+                     f'</a></li>')
+        sections += (f'<section class="chapter" id="{escape(ch["id"])}" '
+                     f'aria-labelledby="{escape(ch["id"])}-h"><div class="wrap">'
+                     f'<div class="chapter-head"><h2 id="{escape(ch["id"])}-h"><span class="label">{escape(ch["label"])}</span></h2>'
+                     f'<span class="range">{escape(ch["range"])}</span></div>'
+                     f'<p class="chapter-lead">{escape(ch["lead"])}</p>'
+                     f'<ol class="lesson-list" role="list">{rows}</ol></div></section>')
+
+    body = (site_head('', 'lessons.html') +
+            hub_head('Lessons', hub, tail) +
             sections +
             f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
-    (OUT / 'ideas.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'], 'ideas.html'))
+    (OUT / 'lessons.html').write_text(document(hub['title'], '', rewrite_refs(body), hub['description'], 'lessons.html'))
 
 
 def guides_index(idx, home):
@@ -833,15 +924,16 @@ def investigations_index(idx, home):
 
 def skills_index(idx, home):
     tiles = ''.join(skill_tile(sk) for sk in idx['skills'])
-    # What every skill page carries, said once here rather than four times. The
-    # instruction to adopt one rather than all four now opens the page, where a
+    # What every skill page carries, said once here rather than seven times. The
+    # instruction to adopt one rather than all of them now opens the page, where a
     # reader meets it before choosing, and the adoption route closes it.
     adopt = ('<p class="route">Open a skill to read its instructions and both reference files. The page links its unchanged '
-             '<code>SKILL.md</code> and its directory on GitHub.</p>')
+             '<code>SKILL.md</code> and its directory on GitHub. Choose the one that fits the problem; '
+             'do not load all of them for every task.</p>')
     hub = home['hubs']['skills']
     body = (site_head('', 'skills.html') +
             hub_head('Portable skills', hub) +
-            '<section class="band" aria-label="The four skills"><div class="wrap">'
+            '<section class="band" aria-label="The portable skills"><div class="wrap">'
             f'<ul class="tiles cards skills" role="list">{tiles}</ul>{adopt}</div></section>'
             f'{hub_next(hub)}</main>' +
             site_foot('', escape(home['basis_short'])))
@@ -924,7 +1016,7 @@ def skill_page(sk, idx, home):
     rail = ('<aside class="rail" aria-label="Page tools">'
             f'<div><h2>On this page</h2>{toc_nav}</div>'
             f'<div class="place"><h2>This skill</h2>'
-            f'<p><span class="n">{sk["fed_by"]}</span> {"idea" if sk["fed_by"] == 1 else "ideas"} feed it</p>'
+            f'<p>{fed_line(sk)}</p>'
             f'<div class="use">{fed}</div></div>'
             f'<div class="leads"><h2>In the guides</h2>{cites or "<p>No idea in the set routes here through a guide.</p>"}</div>'
             f'<div class="source"><h2>Adopt</h2>'
@@ -936,9 +1028,9 @@ def skill_page(sk, idx, home):
             f'<main id="main" class="wrap reader skill-page"><div class="col">'
             f'<header class="page-head">'
             f'<p class="context"><span class="n">SKILL</span> <span aria-hidden="true">·</span> '
-            f'<a href="{prefix}skills.html">All four skills</a></p>'
+            f'<a href="{prefix}skills.html">All skills</a></p>'
             f'<span class="art" aria-hidden="true">{SKILLS[sk["name"]]}</span>'
-            f'<h1>{title}</h1><p class="deck">{escape(description)}</p></header>'
+            f'<h1>{title}</h1><p class="deck">{escape(sk["use"])}</p></header>'
             f'{toc_mobile}<article>{body_html}{refs_html}</article>'
             f'<p class="source-note"><a href="{GITHUB}/blob/HEAD/skills/{sk["name"]}/SKILL.md">SKILL.md on GitHub</a> · '
             f'<a href="{prefix}index.html">Home</a> · {SITE_NAME}, {EDITION_DATE}</p>'
@@ -950,80 +1042,210 @@ def skill_page(sk, idx, home):
                             summarise(description), sk['page']))
 
 
-def idea_page(i, idx, home):
-    """One idea, disclosed in full: what was said, how to apply it, when it is
-    useful, its qualification, the moment in the video, and where it leads."""
+def lesson_page(lesson, idx, home, lessons):
+    """One canonical lesson: the authored Markdown, the video moments it
+    consolidates, its optional depth, and its place in the ten-lesson order."""
     prefix = '../'
-    tip = i['tip']
-    ideas = idx['ideas']
-    prev_i = ideas[i['n'] - 2] if i['n'] > 1 else None
-    next_i = ideas[i['n']] if i['n'] < len(ideas) else None
-    span = f'{mmss(tip["start_seconds"])}–{mmss(tip["end_seconds"])}'
-    g = i['guide']
-    sk = i['skill']
+    tip_ideas = {i['tip']['id']: i for i in idx['ideas']}
+    here = [tip_ideas[t] for t in lesson['tip_ids']]
+    here.sort(key=lambda i: i['tip']['start_seconds'])
+    pos = lesson['order']
+    chapter = next(c for c in home['chapters'] if c['id'] == lesson['chapter'])
+    prev_l = lessons[pos - 2] if pos > 1 else None
+    next_l = lessons[pos] if pos < len(lessons) else None
 
     def seq(a, cls, k):
         if not a:
             return ''
         return (f'<a class="{cls}" href="{escape(prefix + a["page"])}"><span class="k">{k}</span>'
-                f'<span class="n">{a["n"]:02d}</span> {escape(a["idea"])}</a>')
-    seq_links = seq(prev_i, 'prev', 'Previous idea') or f'<a class="prev" href="{prefix}ideas.html"><span class="k">Start</span>All nineteen ideas</a>'
-    seq_links += seq(next_i, 'next', 'Next idea') or f'<a class="next" href="{prefix}guides.html"><span class="k">After the last idea</span>The thirteen guides</a>'
-
+                f'<span class="n">{a["order"]:02d}</span> {escape(a["title"])}</a>')
+    seq_links = seq(prev_l, 'prev', 'Previous lesson') or f'<a class="prev" href="{prefix}lessons.html"><span class="k">Start of the lessons</span>All ten lessons</a>'
+    seq_links += seq(next_l, 'next', 'Next lesson') or f'<a class="next" href="{prefix}guides.html"><span class="k">After the last lesson</span>The thirteen guides</a>'
     rail_seq = seq_links.replace('class="prev"', '').replace('class="next"', '')
-    # The authored layer: a heading and a written section for each of the four
-    # parts, from evidence/idea-pages.json. The extraction record's fields are
-    # the evidence behind that writing, not the writing itself; when the layer
-    # is absent for an idea the page falls back to the raw fields under the
-    # schema's own names, and build/check.py refuses that page - the fallback
-    # exists so the site still builds while the writing is in progress, never
-    # so the labels can ship.
-    layer = idx.get('idea_pages', {}).get(tip['id'])
-    parts = [('said', 'What was said', tip['source_claim_paraphrase']), ('apply', 'How to apply it', tip['how_to_apply']),
-             ('useful', 'When it is useful', tip['when_useful']), ('qualification', 'Qualification', tip['caveat'])]
-    article = ''
-    toc_entries = []
-    for key, label, raw in parts:
-        written = (layer or {}).get('fit' if key == 'qualification' else key)
-        toc_entries.append((key, written['heading'] if written else label))
-        if written:
-            paras = ''.join(f'<p>{inline(p_)}</p>' for p_ in written['body'].split('\n\n') if p_.strip())
-            article += f'<h2 id="{key}">{escape(written["heading"])}</h2>{paras}'
-        else:
-            article += f'<h2 id="{key}" data-unwritten="true">{label}</h2><p>{escape(raw)}</p>'
-    # The rail lists the sections under the headings the page actually carries.
-    toc = ('<nav class="toc" aria-label="Sections of this page"><ol>'
-           + ''.join(f'<li><a href="#{key}">{escape(heading)}</a></li>' for key, heading in toc_entries)
-           + '</ol></nav>')
+
+    glyphs = ''.join(
+        f'<figure><span class="g" aria-hidden="true">{IDEAS[f"{i["n"]:02d}"]}</span>'
+        f'<figcaption><a class="ts" href="{escape(i["url"])}">{escape(i["ts"])}</a></figcaption></figure>'
+        for i in here)
+    n = len(here)
+    glyphs_label = (f'The {n} video moments this lesson consolidates' if n > 1
+                    else 'The video moment this lesson consolidates')
+
+    # The lesson's own Markdown is the article; its accepted prose carries the
+    # source anchors and citations unchanged.
+    text = (REPO / lesson['source']).read_text()
+    lines = [l for l in text.splitlines() if not l.startswith('# ')]
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    body_md = '\n'.join(lines)
+    body_html, toc = md_convert(body_md)
+    body = rewrite_tables(rewrite_refs(body_html))
+    # Incoming legacy fragments resolve to actual content regions. Keep the
+    # opening paragraph first so its existing lead styling is preserved.
+    body = body.replace('<p>', '<p id="said">', 1)
+    opening_end = body.find('</p>') + len('</p>')
+    body = body[:opening_end] + '<span id="useful" class="anchor" aria-hidden="true"></span>' + body[opening_end:]
+    action = re.search(r'<(?:ol|pre)\b', body)
+    if action is None:
+        raise ValueError(f'{lesson["source"]}: missing action list or command example')
+    body = body[:action.start()] + '<span id="apply" class="anchor" aria-hidden="true"></span>' + body[action.start():]
+    headings = list(re.finditer(r'<h2\b[^>]*>.*?</h2>', body, re.S))
+    substantive = [h for h in headings if strip_tags(h.group()).strip().lower() != 'sources']
+    if not substantive:
+        raise ValueError(f'{lesson["source"]}: missing qualification section')
+    last = substantive[-1].start()
+    body = body[:last] + '<span id="qualification" class="anchor" aria-hidden="true"></span>' + body[last:]
+    toc_html = toc_list(toc)
+    toc_nav = f'<nav class="toc" aria-label="Sections of this page">{toc_html}</nav>' if toc_html else ''
+    toc_mobile = (f'<details class="toc-mobile"><summary>On this page</summary>{toc_nav}</details>'
+                  if toc_html else '')
+
+    guide_chips = ''.join(
+        # The chip target is finished HTML, so no later rewrite may add the
+        # page prefix a second time.
+        f'<p>{guide_chip(g["title"], g["path"][:-3] + ".html", prefix=prefix)}</p>'
+        for g in idx['guides'] if g['n'] in lesson['guide_ids'])
+    skill_by_name = {sk['name']: sk for sk in idx['skills']}
+    skill_chips = ''.join(f'<p><a class="chip" href="{escape(prefix)}skills/{escape(s)}/">'
+                          f'{escape(skill_by_name[s]["title"])}</a></p>'
+                          for s in lesson['skill_ids'])
+    watch_first = (f'<p><a class="ts" href="{escape(here[0]["url"])}">Watch at {escape(here[0]["ts"])} '
+                   f'<span aria-hidden="true">&#8599;</span></a></p>')
+    moments = ', '.join(escape(i['ts']) for i in here)
     rail = ('<aside class="rail" aria-label="Page tools">'
-            f'<div><h2>On this page</h2>{toc}</div>'
-            f'<div class="place"><h2>This idea</h2><p><span class="n">{i["n"]:02d}</span> of {len(ideas)} · <a href="{prefix}ideas.html">All nineteen</a></p>'
-            f'<p class="use"><span class="badge">{escape(i["evidence"])}</span></p><p class="use">{escape(tip["speaker"])}</p></div>'
-            f'<div class="watch"><h2>In the video</h2><p><a class="ts" href="{escape(i["url"])}">Watch at {escape(i["ts"])} <span aria-hidden="true">&#8599;</span></a></p><p class="use">Segment {span}</p></div>'
-            f'<div class="leads"><h2>Where it leads</h2>'
-            f'<p>{guide_chip(g["title"], g["path"])}</p>'
-            f'<p><a class="chip" href="{escape(prefix + sk["href"])}">{escape(sk["title"])}</a></p></div>'
-            f'<div class="neighbours"><h2>Sequence</h2>{rail_seq}</div>'
-            f'<div class="source"><h2>Source</h2><a href="{prefix}evidence/video-tips.json">Structured extraction</a> · <a href="{prefix}evidence/video-research.html">Full notes</a></div>'
+            + (f'<div><h2>On this page</h2>{toc_nav}</div>' if toc_html else '')
+            + f'<div class="place"><h2>This lesson</h2>'
+              f'<p><span class="n">{pos:02d}</span> of {len(lessons)} \u00b7 '
+              f'<a href="{prefix}lessons.html#{escape(lesson["chapter"])}">{escape(chapter["label"])}</a></p>'
+              f'<p class="use">{escape(lesson["summary"])}</p>'
+              f'<p class="use">About {lesson_catalog.read_minutes(text)} min, estimated from the text</p></div>'
+            + f'<div class="watch"><h2>In the video</h2>{watch_first}'
+              f'<p class="use">{n} moment{"s" if n != 1 else ""}: {moments}</p></div>'
+            + f'<div class="leads"><h2>Where it leads</h2>{guide_chips}{skill_chips}</div>'
+            + f'<div class="neighbours"><h2>Sequence</h2>{rail_seq}</div>'
+            + f'<div class="source"><h2>Source</h2><a href="{Path(lesson["source"]).name}">Lesson Markdown</a> \u00b7 '
+              f'<a href="{prefix}evidence/video-tips.json">Structured extraction</a> \u00b7 '
+              f'<a href="{prefix}evidence/video-research.html">Full notes</a></div>'
             '</aside>')
+    desks_figure = f'<figure class="desks-figure" aria-hidden="true">{desks()}</figure>' if lesson['id'] == DESKS_ON_LESSON else ''
     page = (site_head(prefix, '') +
-            f'<main id="main" class="wrap reader idea-page"><div class="col">'
-            f'<header class="page-head"><p class="context"><span class="n">Idea {i["n"]:02d}</span> <span>of {len(ideas)}</span> '
-            f'<span aria-hidden="true">·</span> <a href="{prefix}ideas.html">The nineteen ideas</a></p>'
-            f'<span class="art" aria-hidden="true">{IDEAS[f"{i["n"]:02d}"]}</span>'
-            f'<h1>{escape(i["idea"])}</h1>'
-            + (f'<figure class="desks-figure">{desks()}</figure>' if i['n'] == DESKS_ON_IDEA else '') +
-            f'</header>'
-            f'<details class="toc-mobile"><summary>On this page</summary>{toc}</details>'
-            f'<article>{article}</article>'
-            f'<nav class="guide-seq" aria-label="Idea sequence">{seq_links}</nav>'
-            f'<p class="source-note"><a href="{escape(i["url"])}">Watch at {escape(i["ts"])}</a> · <a href="{prefix}index.html">Home</a> · {SITE_NAME}, {EDITION_DATE}</p>'
+            f'<main id="main" class="wrap reader lesson-page"><div class="col">'
+            f'<header class="page-head">'
+            f'<p class="context"><span class="n">Lesson {pos:02d}</span> <span>of {len(lessons)}</span> '
+            f'<span aria-hidden="true">\u00b7</span> '
+            f'<a href="{prefix}lessons.html#{escape(lesson["chapter"])}">{escape(chapter["label"])}</a></p>'
+            + (f'<div class="tip-glyphs" role="group" aria-label="{escape(glyphs_label)}">{glyphs}</div>' if glyphs else '')
+            + f'<h1>{escape(lesson["title"])}</h1>'
+            + f'<p class="read-min">About {lesson_catalog.read_minutes(text)} min read, estimated from the text</p>'
+            + f'{desks_figure}</header>'
+            f'{toc_mobile}<article>{body}</article>'
+            f'<nav class="guide-seq" aria-label="Lesson sequence">{seq_links}</nav>'
+            f'<p class="source-note"><a href="{Path(lesson["source"]).name}">Lesson Markdown</a> \u00b7 '
+            f'<a href="{prefix}index.html">Home</a> \u00b7 {SITE_NAME}, {EDITION_DATE}</p>'
             f'</div>{rail}</main>' +
+            site_foot(prefix, escape(home['basis_short'])))
+    out = OUT / lesson['page']
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(document(f'Lesson {pos:02d}: {lesson["title"]}', prefix, page,
+                            summarise(f'{lesson["title"]}. {lesson["summary"]}'),
+                            lesson['page']))
+    # The lesson's Markdown ships beside its page, like every other reader page.
+    shutil.copy2(REPO / lesson['source'], (OUT / lesson['source']))  # lessons/<id>.md
+
+
+# The legacy layer: the old nineteen idea routes stay reachable as lightweight
+# alias pages that hand the reader to the lesson covering that observation, so
+# no old full article survives as duplicate canonical content. Each old region
+# keeps its name and carries it through: the alias links into the lesson with
+# the matching fragment instead of dropping it, and the lesson answers the
+# fragment with a real anchor (see lesson_page).
+LEGACY_FRAGMENTS = (
+    ('said', 'What was said'),
+    ('apply', 'How to apply it'),
+    ('useful', 'Where this leads'),
+    ('qualification', 'Sources and limits'),
+)
+
+
+def legacy_ideas_index(idx, home, lessons):
+    """ideas.html as a lightweight alias of the lesson index."""
+    lesson_by_tip = {}
+    for l in lessons:
+        for t in l['tip_ids']:
+            lesson_by_tip[t] = l
+    links = ''.join(
+        f'<li><a href="{escape(l["page"])}"><span class="n">{l["order"]:02d}</span> '
+        f'{escape(l["title"])}</a></li>'
+        for l in lessons)
+    body = (site_head('', 'ideas.html') +
+            '<main id="main" class="wrap reader"><div class="col">'
+            '<header class="page-head"><p class="context"><a href="lessons.html">The ten lessons</a></p>'
+            '<h1>The nineteen video ideas, consolidated into ten lessons</h1></header>'
+            '<article><p>Every observation from the video now lives inside the lesson that '
+            'covers it, with its exact video moment and qualification attached. The old '
+            'per-idea pages are lightweight aliases; the canonical reading order is the '
+            '<a href="lessons.html">lesson index</a>, and the original evidence remains in the '
+            '<a href="evidence/video-research.html">detailed extraction</a> and the '
+            '<a href="evidence/video-tips.json">structured ideas file</a>.</p>'
+            f'<ol class="lesson-list" role="list">{links}</ol></article>'
+            f'<p class="source-note"><a href="lessons.html">All ten lessons</a> \u00b7 '
+            f'<a href="index.html">Home</a> \u00b7 {SITE_NAME}, {EDITION_DATE}</p>'
+            f'</div></main>' +
+            site_foot('', escape(home['basis_short'])))
+    out = OUT / 'ideas.html'
+    out.write_text(document('The video ideas, consolidated into ten lessons', '', rewrite_refs(body),
+                            'Each of the nineteen video observations now lives inside the lesson '
+                            'that covers it. Routes to the canonical lesson index.', 'ideas.html'))
+    # The canonical of a compatibility alias points at the canonical index, not
+    # at itself.
+    text = out.read_text().replace(
+        '<link rel="canonical" href="' + SITE_URL + '/ideas.html">',
+        '<link rel="canonical" href="' + SITE_URL + '/lessons.html">')
+    text = text.replace(
+        '<meta property="og:url" content="' + SITE_URL + '/ideas.html">',
+        '<meta property="og:url" content="' + SITE_URL + '/lessons.html">')
+    out.write_text(text)
+
+
+def legacy_idea_page(i, lesson, home):
+    """One old ideas/<slug>.html route as a lightweight alias of its lesson,
+    keeping the old in-page fragments (said, apply, useful, qualification)
+    reachable on the way through."""
+    prefix = '../'
+    fragments = ''.join(
+        f'<p><span id="{frag}"></span>'
+        f'<a href="{escape(prefix + lesson["page"])}#{frag}">{escape(label)}</a></p>'
+        for frag, label in LEGACY_FRAGMENTS)
+    body = (site_head(prefix, '') +
+            f'<main id="main" class="wrap reader"><div class="col">'
+            f'<header class="page-head"><p class="context"><span class="n">Moved</span> '
+            f'<span aria-hidden="true">\u00b7</span> <a href="{prefix}lessons.html">The ten lessons</a></p>'
+            f'<h1>{escape(i["idea"])}</h1></header>'
+            f'<article><p>This observation is now part of <a href="{escape(prefix + lesson["page"])}">'
+            f'Lesson {lesson["order"]:02d}, {escape(lesson["title"])}</a>, together with the other '
+            f'observations that lesson covers. The video moment: '
+            f'<a href="{escape(i["url"])}">{escape(i["ts"])}</a>. The evidence behind it stays in the '
+            f'<a href="{prefix}evidence/video-research.html">detailed extraction</a>.</p>{fragments}</article>'
+            f'<p class="source-note"><a href="{escape(prefix + lesson["page"])}">The lesson</a> \u00b7 '
+            f'<a href="{prefix}lessons.html">All ten lessons</a> \u00b7 <a href="{prefix}index.html">Home</a></p>'
+            f'</div></main>' +
             site_foot(prefix, escape(home['basis_short'])))
     out = OUT / i['page']
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(document(f'Idea {i["n"]:02d}: {i["idea"]}', prefix, rewrite_refs(page, prefix),
-                            summarise(f'{i["idea"]}. {i["tip"]["when_useful"]}'), i['page']))
+    out.write_text(document(f'{i["idea"]} (moved into a lesson)', prefix, rewrite_refs(body),
+                            f'This video observation moved into lesson {lesson["order"]:02d}, '
+                            f'{lesson["title"]}.', i['page']))
+    # The alias announces its lesson as its address: canonical and og:url must
+    # agree, so a shared old URL previews and resolves as the lesson it became.
+    lesson_url = SITE_URL + '/' + lesson['page']
+    text = out.read_text()
+    text = text.replace(
+        '<link rel="canonical" href="' + SITE_URL + '/' + i['page'] + '">',
+        '<link rel="canonical" href="' + lesson_url + '">')
+    text = text.replace(
+        '<meta property="og:url" content="' + SITE_URL + '/' + i['page'] + '">',
+        '<meta property="og:url" content="' + lesson_url + '">')
+    out.write_text(text)
 
 
 # ------------------------------------------------------------ reader pages
@@ -1207,7 +1429,7 @@ def not_found(home):
             '<p>The address may have been mistyped, or the page may have moved when the handbook was regenerated. '
             'Everything published here is reachable from the home page.</p>'
             '<ul><li><a href="/index.html">Home: start with the problem you have</a></li>'
-            '<li><a href="/ideas.html">The nineteen ideas</a></li>'
+            '<li><a href="/lessons.html">The ten lessons</a></li>'
             '<li><a href="/guides.html">All 13 guides</a></li>'
             '<li><a href="/README.html">The handbook index</a></li>'
             '<li><a href="/evidence.html">The frame gallery</a></li></ul></main>' +
@@ -1218,7 +1440,51 @@ def not_found(home):
 
 
 # ------------------------------------------------------------------- main
+def load_catalog():
+    """The ten approved lessons through the reviewed catalog seam, plus the
+    derived per-lesson facts the renderer adds (never re-parsing the manifest
+    here): whether each linked skill's public package exists yet."""
+    lessons = lesson_catalog.load_lessons(REPO)
+    for l in lessons:
+        l['skill_planned'] = any(
+            not (REPO / 'skills' / s / 'SKILL.md').is_file() for s in l['skill_ids'])
+    return lessons
+
+
+def sync_readme(write=False):
+    """Verify (or, with --sync-readme, write) the README lesson table between
+    its markers. Ordinary renders only verify: no hidden README mutation."""
+    readme = REPO / 'README.md'
+    lessons = load_catalog()
+    if write:
+        readme.write_text(lesson_catalog.sync_readme_lessons(readme.read_text(), lessons))
+        print('README lesson table synced from the validated manifest.')
+    else:
+        lesson_catalog.sync_readme_lessons(readme.read_text(), lessons, check=True)
+
+
 def main():
+    sync = '--sync-readme' in sys.argv
+    if sync:
+        sync_readme(write=True)
+        return
+
+    # Read and validate every input first: the README index, the landing-page
+    # data, the frame manifest, the lesson manifest through the catalog seam,
+    # and the README lesson table. Any defect raises here, while the previous
+    # public/ output is still untouched, so a malformed input never destroys
+    # the last usable preview. Only after all inputs are proven does the render
+    # replace public/.
+    idx = enrich(read_index(REPO / 'README.md'))
+    home = json.loads(HOME.read_text())
+    frames = json.loads((REPO / 'evidence/frame-manifest.json').read_text())
+    # The canonical lessons come from the reviewed catalog seam; a manifest or
+    # lesson defect fails the build here, before anything is written.
+    lessons = load_catalog()
+    # The README lesson table must already match the manifest: the render
+    # verifies it and fails on drift rather than silently fixing the README.
+    sync_readme(write=False)
+
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()
@@ -1239,30 +1505,42 @@ def main():
     shutil.copy2(ASSETS / 'handbook.js', OUT / 'assets/handbook.js')
     # The problem panel's drawing: authored through the Higgsfield route on the owner's
     # instruction, transparent, and the one generated raster the design language allows.
-    shutil.copy2(ASSETS / 'problem-loop.webp', OUT / 'assets/problem-loop.webp')
-
-    idx = enrich(read_index(REPO / 'README.md'))
-    home = json.loads(HOME.read_text())
-    frames = json.loads((REPO / 'evidence/frame-manifest.json').read_text())
+    shutil.copy2(ASSETS / 'problem-to-lesson.webp', OUT / 'assets/problem-to-lesson.webp')
 
     for rel in RENDER_MD:
         reader_page(rel, idx, home, frames)
     gallery(frames, home, idx)
     not_found(home)
+    for l in lessons:
+        lesson_page(l, idx, home, lessons)
+    lessons_index(idx, home, lessons)
+    legacy_ideas_index(idx, home, lessons)
+    by_tip = lesson_by_tip(lessons)
     for i in idx['ideas']:
-        idea_page(i, idx, home)
-    ideas_index(idx, home)
+        legacy_idea_page(i, by_tip[i['tip']['id']], home)
     guides_index(idx, home)
     investigations_index(idx, home)
     skills_index(idx, home)
     for sk in idx['skills']:
         skill_page(sk, idx, home)
-    (OUT / 'index.html').write_text(landing(idx, home, frames))
+    (OUT / 'index.html').write_text(landing(idx, home, lessons, frames))
 
-    print(f'Rendered {len(RENDER_MD)} Markdown pages, {len(idx["ideas"])} idea pages, {len(idx["skills"])} skill pages, '
-          f'the ideas, guides, skills and investigations indexes, the home page ({len(idx["guides"])} guides, '
-          f'{len(idx["reports"])} investigations, {len(idx["skills"])} skills, {len(idx["ideas"])} ideas, '
+    n_skills = len(idx['skills'])
+    print(f'Rendered {len(RENDER_MD)} Markdown pages, {len(lessons)} lesson pages, '
+          f'{len(idx["ideas"])} legacy idea aliases, {n_skills} skill pages, '
+          f'the lessons, guides, skills and investigations indexes, the home page '
+          f'({len(lessons)} lessons, {len(idx["guides"])} guides, '
+          f'{len(idx["reports"])} investigations, {n_skills} skills, '
           f'{len(frames)} frames), the gallery and 404.html into public/.')
+
+
+def lesson_by_tip(lessons):
+    """tip id -> its one primary lesson; every source tip has exactly one."""
+    out = {}
+    for l in lessons:
+        for t in l['tip_ids']:
+            out[t] = l
+    return out
 
 
 if __name__ == '__main__':

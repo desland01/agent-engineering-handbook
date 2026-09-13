@@ -6,8 +6,9 @@ Run after `python3 build/render.py`:
     python3 build/check.py
 
 Checks (repository, not third-party application, behavior):
-  1. public/ exists and contains exactly 13 guide pages, 4 skill entrypoints,
-     12 full-size frames, the root pages, the stylesheet, the script and 404.html.
+  1. public/ exists and contains exactly 13 guide pages, 10 lesson pages, 7 skill
+     entrypoints, 12 full-size frames, 19 legacy idea aliases plus their index alias,
+     the root pages, the stylesheet, the script and 404.html.
   2. Every href/src in public/*.html resolves to a file inside public/ (no
      directory traversal, no missing target). Root-absolute links (used by
      404.html, which is served at any path) resolve against public/ itself.
@@ -16,12 +17,19 @@ Checks (repository, not third-party application, behavior):
      Full YAML validation is a separate authoring check.
   5. Page semantics: one h1 per page, a skip link and a main landmark, alt text
      on every image, unique ids, every in-page anchor present.
-  6. Progressive disclosure holds: the home page carries the 8 problem rows,
-     4 skill tiles, 3 investigation tiles, a taste of the ideas and routes to
-     ideas.html, guides.html and the gallery, with its counts strip equal to
-     the sets; ideas.html holds 19 idea tiles that each open one of 19 idea
-     pages; guides.html holds 13 guide tiles linking every guide page; the
-     gallery holds 12 frames and the home page links each one.
+  6. Progressive disclosure holds: the home page opens with Start with lesson 1 /
+     Find my problem, one quiet derived lesson count and the 8 problem rows (most
+     routing to lessons), a three-chapter lesson directory, the seven installed
+     skill rows, the guide shelves and three investigation rows; lessons.html
+     holds the ten canonical lessons in three chapters; each lesson page keeps
+     its source anchors, video links and sequence; the nineteen legacy idea
+     routes are lightweight aliases whose canonicals point at their lesson;
+     guides.html holds 13 guide tiles linking every guide page; the gallery
+     holds 12 frames.
+
+  7. Lesson coverage, independently of build/lesson_catalog.py: build/lessons.json
+     names exactly the ten approved lesson IDs, covers all nineteen source tip IDs
+     exactly once, and every legacy route has a rendered alias.
   7. No network dependency in any page (no external stylesheet, script, font
      or image). Layout and visual rules are verified on real renders, not by
      searching the stylesheet for phrases.
@@ -29,6 +37,7 @@ Checks (repository, not third-party application, behavior):
 Requires only the Python standard library.
 """
 from pathlib import Path
+from html import escape
 from html.parser import HTMLParser
 import hashlib
 import json
@@ -107,6 +116,63 @@ class PageScan(HTMLParser):
                 self.network.append(target)
 
 
+# The approved lesson identity, compiled here as the independent source of
+# truth the manifest must agree with (section 7). It deliberately does not
+# import build/lesson_catalog.py: a seam that graded itself would prove nothing.
+APPROVED_LESSON_IDS = [
+    'recurring-mistakes', 'ci-feedback', 'prove-it-works', 'working-previews',
+    'missing-tools', 'useful-instructions', 'fresh-agent', 'shared-contracts',
+    'codebase-navigation', 'better-environments',
+]
+APPROVED_CHAPTERS = {
+    'recurring-mistakes': 'stop-repeat-work', 'ci-feedback': 'stop-repeat-work',
+    'prove-it-works': 'stop-repeat-work', 'working-previews': 'give-agents-what-they-need',
+    'missing-tools': 'give-agents-what-they-need', 'useful-instructions': 'give-agents-what-they-need',
+    'fresh-agent': 'give-agents-what-they-need', 'shared-contracts': 'keep-it-understandable',
+    'codebase-navigation': 'keep-it-understandable', 'better-environments': 'keep-it-understandable',
+}
+
+
+# The legacy in-page fragments the old idea URLs may still carry: Vercel
+# redirects old URL#fragment to the lesson route, so each canonical lesson must
+# answer every one of these fragments with a real id.
+LEGACY_FRAGMENTS = ('said', 'apply', 'useful', 'qualification')
+
+
+def manifest_lessons_checked():
+    """Read build/lessons.json directly and hold it against the approved
+    identity above and the nineteen source records; returns the records."""
+    manifest = json.loads((REPO / 'build/lessons.json').read_text())
+    tips = json.loads((REPO / 'evidence/video-tips.json').read_text())
+    tip_ids = {t['id'] for t in tips}
+    check(manifest.get('version') == 1, 'build/lessons.json: version is not 1')
+    records = manifest.get('lessons', [])
+    check(len(records) == 10, f'build/lessons.json: expected 10 lessons, found {len(records)}')
+    ids = [r.get('id') for r in records]
+    check(sorted(ids) == sorted(APPROVED_LESSON_IDS),
+          f'build/lessons.json: lesson ids {sorted(ids)} are not exactly the ten approved ids')
+    check(len(set(ids)) == len(ids), 'build/lessons.json: a lesson id repeats')
+    check([r.get('order') for r in records] == list(range(1, 11)),
+          'build/lessons.json: orders are not exactly 1..10 in file order')
+    covered = []
+    for r in records:
+        check(r.get('chapter') == APPROVED_CHAPTERS.get(r.get('id')),
+              f'build/lessons.json: {r.get("id")} is not in its approved chapter')
+        covered.extend(r.get('tip_ids', []))
+    duplicated = sorted({t for t in covered if covered.count(t) > 1})
+    check(not duplicated,
+          'build/lessons.json: a source tip is assigned twice: ' + ', '.join(duplicated))
+    check(sorted(covered) == sorted(tip_ids),
+          f'build/lessons.json: covered tips are not exactly the {len(tip_ids)} source ids')
+    for r in records:
+        for rel in r.get('legacy_paths', []):
+            check(not rel.startswith('/') and '..' not in rel,
+                  f'build/lessons.json: legacy path {rel!r} escapes the site')
+            check((PUBLIC / rel).is_file(), f'public/{rel} missing (legacy alias not rendered)')
+        r['page'] = f'lessons/{r["id"]}.html'
+    return records
+
+
 ROOT = PUBLIC.parent
 
 # Source-tree layout. One file per purpose, named by what it is; the date lives inside the
@@ -118,7 +184,8 @@ ROOT_ENTRIES = {
     '.github', '.gitignore', '.vercelignore', 'vercel.json', 'ATTRIBUTION.md', 'CONTRIBUTING.md',
     'DESIGN.md', 'INTERACTIONS.md', 'README.md', 'adoption.md', 'prompts.md', 'validation.md',
     'boris-cherny-inspection.md', 'github-inspection.md', 'matt-pocock-inspection.md',
-    'build', 'control', 'evidence', 'examples', 'guides', 'public', 'screenshots', 'skills',
+    'build', 'control', 'evidence', 'examples', 'guides', 'lessons', 'public', 'screenshots',
+    'skills',
 }
 CONTROL_FILES = {'README.md', 'plan.md', 'tickets.md', 'patterns.md', 'skill-evals.md',
                  'design-notes.md', 'design-skill-standard.md', 'design-review-capsule.md'}
@@ -173,30 +240,50 @@ def selftest_page_scan():
     assert scan('<figure aria-hidden="true"><img src="a.webp" alt=""></figure><img src="b.webp" alt="">') == 1
 
 
+def _is_alias(rel):
+    """A compatibility alias points its canonical at the page it duplicates,
+    so the self-canonical rule does not apply to it (section 6 checks the
+    alias canonicals point at their lessons instead)."""
+    rel = rel.as_posix()
+    return rel == 'ideas.html' or rel.startswith('ideas/')
+
+
 def main():
     selftest_page_scan()
     layout()
     if '--layout' in sys.argv:
+        # Layout is a source-tree check: it must pass on a source-only checkout
+        # or deployment archive that has no generated public/ output, so the
+        # manifest read (which needs public/ aliases) happens only after this
+        # early return.
         if failures:
             for e in failures:
                 print('FAIL:', e)
             sys.exit(1)
         print('PASS: source layout')
         return
+
+    manifest_lessons = manifest_lessons_checked()
+
     check(PUBLIC.is_dir(), 'public/ is missing — run `python3 build/render.py` first')
 
     # 1. Counts and required files.
     guides = sorted((PUBLIC / 'guides').glob('*.html')) if (PUBLIC / 'guides').is_dir() else []
     check(len(guides) == 13, f'expected 13 guide pages in public/guides, found {len(guides)}')
     skills = sorted(p.name for p in (PUBLIC / 'skills').glob('*')) if (PUBLIC / 'skills').is_dir() else []
-    check(skills == ['agent-context-calibration', 'agent-feedback-engineering',
-                     'agent-ready-workspaces', 'agent-tool-adapters'],
+    check(skills == ['agent-artifact-recovery', 'agent-context-calibration',
+                     'agent-contract-consistency', 'agent-feedback-engineering',
+                     'agent-output-verification', 'agent-ready-workspaces',
+                     'agent-tool-adapters'],
           f'unexpected skill directories in public/skills: {skills}')
     for s in skills:
         check((PUBLIC / 'skills' / s / 'SKILL.md').is_file(), f'public/skills/{s}/SKILL.md missing')
     frames = sorted((PUBLIC / 'screenshots').glob('*.jpg')) if (PUBLIC / 'screenshots').is_dir() else []
     check(len(frames) == 12, f'expected 12 frames in public/screenshots, found {len(frames)}')
-    for page in ['index.html', 'ideas.html', 'guides.html', 'skills.html', 'investigations.html',
+    lesson_pages = sorted((PUBLIC / 'lessons').glob('*.html')) if (PUBLIC / 'lessons').is_dir() else []
+    check(len(lesson_pages) == 10, f'expected 10 lesson pages in public/lessons, found {len(lesson_pages)}')
+    for page in ['index.html', 'ideas.html', 'lessons.html', 'guides.html', 'skills.html',
+                 'investigations.html',
                  'README.html', 'adoption.html', 'prompts.html',
                  'validation.html', 'evidence.html', 'github-inspection.html',
                  'matt-pocock-inspection.html', 'boris-cherny-inspection.html',
@@ -278,7 +365,7 @@ def main():
         if not SITE_URL:
             check(not canonical, f'{rel}: has a canonical URL while SITE_URL is unset')
             check('og:url' not in text, f'{rel}: has Open Graph tags while SITE_URL is unset')
-        elif rel.as_posix() != '404.html':
+        elif rel.as_posix() != '404.html' and not _is_alias(rel):
             expect = SITE_URL + ('/' if rel.as_posix() == 'index.html' else '/' + rel.as_posix())
             check(canonical and canonical.group(1) == expect,
                   f'{rel}: canonical is {canonical.group(1) if canonical else "missing"}, expected {expect}')
@@ -286,71 +373,184 @@ def main():
 
     # 6. Progressive disclosure: home routes out; the section pages hold the sets.
     index = (PUBLIC / 'index.html').read_text() if (PUBLIC / 'index.html').is_file() else ''
+    lessons_html = (PUBLIC / 'lessons.html').read_text() if (PUBLIC / 'lessons.html').is_file() else ''
     ideas_html = (PUBLIC / 'ideas.html').read_text() if (PUBLIC / 'ideas.html').is_file() else ''
     guides_html = (PUBLIC / 'guides.html').read_text() if (PUBLIC / 'guides.html').is_file() else ''
     skills_html = (PUBLIC / 'skills.html').read_text() if (PUBLIC / 'skills.html').is_file() else ''
     reports_html = (PUBLIC / 'investigations.html').read_text() if (PUBLIC / 'investigations.html').is_file() else ''
-    check(index.count('class="tile skill"') == 4, f'index.html: expected 4 skill tiles, found {index.count("class=\"tile skill\"")}')
-    # The home page carries all nineteen ideas as one horizontal row inside a
-    # focusable scroll region, and still routes out to the grid. Previous/next
-    # and the counter are script-added, so the markup must not contain them.
-    row = re.search(r'<div class="ideas-row"[^>]*>\s*<ol class="ideas track"[^>]*>(.*?)</ol>', index, re.S)
-    n_row = row.group(1).count('class="tile idea"') if row else 0
-    check(n_row == 19, f'index.html: expected all 19 ideas in the row, found {n_row}')
-    check(row and 'role="region"' in index.split('<ol class="ideas track"')[0][-300:],
-          'index.html: the ideas row is not a labelled, focusable scroll region')
-    check('row-controls' not in index, 'index.html: row controls are rendered in markup; they must be script-added')
-    pick = re.search(r'<div class="pick">.*?<ol[^>]*>(.*?)</ol>', index, re.S)
+
+    # Home opening: two actions with fixed labels and targets, and one quiet
+    # derived lesson count. The retired five-badge strip, typed prompt line,
+    # horizontal idea rail, skills figure and report file cards must be gone.
+    check('<a class="btn primary" href="lessons/recurring-mistakes.html">Start with lesson 1</a>' in index,
+          'index.html: the primary action is not "Start with lesson 1" opening lesson 1')
+    check('<a class="btn" href="#problems">Find my problem</a>' in index,
+          'index.html: the secondary action is not "Find my problem"')
+    check('class="contents"' not in index, 'index.html: the retired counts strip is rendered')
+    check('class="prompt"' not in index, 'index.html: the retired typed prompt line is rendered')
+    check('ideas-row' not in index and 'ideas track' not in index,
+          'index.html: the retired horizontal idea rail is rendered')
+    check('class="lanes skills"' not in index and 'class="tile skill"' not in index,
+          'index.html: the retired skills figure is rendered')
+    check('class="file' not in index, 'index.html: the retired report file cards are rendered')
+    check('id="frames"' not in index, 'index.html: the retired frames band is rendered')
+    count_line = re.search(r'<p class="count-line"><a href="lessons.html"><span class="n">(\d+)</span> lessons</a></p>', index)
+    check(count_line, 'index.html: no quiet lesson count linking lessons.html')
+    check(count_line and count_line.group(1) == str(len(manifest_lessons)),
+          f'index.html: lesson count {count_line.group(1) if count_line else "?"} disagrees with the validated manifest')
+    pick = re.search(r'<div class="pick">.*?<ul[^>]*>(.*?)</ul>', index, re.S)
     n_pick = pick.group(1).count('<li>') if pick else 0
     check(n_pick == 8, f'index.html: expected 8 problem rows, found {n_pick}')
-    for route in ('href="ideas.html"', 'href="guides.html"', 'href="evidence.html"',
-                  'href="skills.html"', 'href="investigations.html"'):
+    check(pick and 'class="ix"' not in pick.group(1),
+          'index.html: problem rows introduce a second numbering system')
+    check(pick and '<span class="n">Guide 12</span>' in pick.group(1),
+          'index.html: the deeper guide must not look like lesson 12')
+    # Semantic order follows the accepted design contract (copy, problems,
+    # figure): a screen reader or a no-style reader meets the problem rows
+    # before the optional artwork, exactly as the CSS lays the page out.
+    pick_at = index.find('class="pick"')
+    hero_at = index.find('hero-figure')
+    check(pick_at != -1 and hero_at != -1 and pick_at < hero_at,
+          'index.html: the problem panel does not precede the hero figure in the page order')
+    for route in ('href="lessons.html"', 'href="guides.html"', 'href="skills.html"',
+                  'href="investigations.html"', 'href="evidence.html"'):
         check(route in index, f'index.html: no route {route}')
-    strip = dict(re.findall(r'<li><a href="([^"]+)"><span>(\d+)</span>', index))
-    check(strip == {'ideas.html': '19', 'guides.html': '13', '#skills': '4', '#reports': '3', 'evidence.html': '12'},
-          f'index.html: contents strip {strip} does not match the sets')
-    for f in manifest:
-        check(f'href="evidence.html#frame-{f["seconds"]}"' in index, f'index.html: no link to frame-{f["seconds"]}')
 
-    idea_pages = sorted((PUBLIC / 'ideas').glob('*.html')) if (PUBLIC / 'ideas').is_dir() else []
-    # The instruction is not the output (ARCHITECT.md, 2026-09-10). A schema field
-    # name is not a heading, and one copied sentence is not a section: every
-    # idea page's four sections carry a heading naming their subject and at
-    # least three written sentences; no heading repeats across pages.
-    heading_pages = {}
-    for ip in idea_pages:
-        text = ip.read_text()
-        art = re.search(r'<article>(.*?)</article>', text, re.S)
-        body = art.group(1) if art else ''
-        check('data-unwritten' not in body, f'ideas/{ip.name}: a section still carries the schema label instead of written copy')
-        sections = re.findall(r'<h2 id="(said|apply|useful|qualification)"[^>]*>(.*?)</h2>(.*?)(?=<h2 |$)', body, re.S)
-        check(len(sections) == 4, f'ideas/{ip.name}: expected four sections, found {len(sections)}')
-        for key, heading, rest in sections:
-            h = re.sub(r'<[^>]+>', '', heading).strip()
-            prose = re.sub(r'<[^>]+>', ' ', rest)
-            sentences = len(re.findall(r'[.!?](\s|$)', prose))
-            check(sentences >= 3, f'ideas/{ip.name}#{key}: {sentences} sentence(s); at least three are required')
-            check(h.lower() not in ('what was said', 'how to apply it', 'when it is useful', 'qualification'),
-                  f'ideas/{ip.name}#{key}: heading {h!r} is the schema label')
-            heading_pages.setdefault(h.lower(), set()).add(ip.name)
-    for h, pages_with in heading_pages.items():
-        check(len(pages_with) <= 2, f'idea pages: heading {h!r} repeats on {len(pages_with)} pages; a repeated heading is a label, not a heading')
-    check(len(idea_pages) == 19, f'expected 19 idea pages in public/ideas, found {len(idea_pages)}')
-    n_ideas = ideas_html.count('class="tile idea"')
-    check(n_ideas == 19, f'ideas.html: expected 19 idea tiles, found {n_ideas}')
-    # The three evidential tiers: exactly three sections, in COPY.md's order,
-    # each with at least one idea tile of its own.
-    tiers = re.findall(r'<section class="tier" id="(tier-[^"]+)"[^>]*>(.*?)(?=<section class="tier"|\Z)', ideas_html, re.S)
-    check([t for t, _ in tiers] == ['tier-does', 'tier-says', 'tier-thinks'],
-          f'ideas.html: tier sections {[t for t, _ in tiers]} != [tier-does, tier-says, tier-thinks]')
-    for tid, inner in tiers:
-        check(inner.count('class="tile idea"') >= 1, f'ideas.html: {tid} contains no idea tile')
-    for ip in idea_pages:
-        check(f'href="ideas/{ip.name}"' in ideas_html, f'ideas.html: no tile opens ideas/{ip.name}')
-        text = ip.read_text()
-        check('youtube.com/watch' in text, f'ideas/{ip.name}: no link to the video moment')
+    # Problem rows route to lessons (row 8 to its guide), each chip carrying the
+    # destination's order number as data.
+    n_lesson_chips = len(re.findall(r'class="chip" href="lessons/[\w-]+\.html"><span class="n">Lesson \d+</span>', index))
+    check(n_lesson_chips == 7, f'index.html: expected 7 problem rows opening a lesson, found {n_lesson_chips}')
+    check('class="chip" href="guides/12-artifact-identity-and-recovery.html"' in index,
+          'index.html: problem row 8 does not open guide 12')
+
+    # The chapter directory: one row per declared chapter, in order, each with
+    # one accent mark per lesson in that chapter.
+    chapters = re.findall(r'<li><a href="lessons.html#([a-z-]+)">'
+                          r'<span class="range">([^<]*)</span>'
+                          r'<span class="body"><span class="t">([^<]*)</span>'
+                          r'<span class="k">([^<]*)</span></span>'
+                          r'<span class="marks" aria-hidden="true">(<i>)*</i></span></a></li>'.replace('(<i>)*</i>', '((?:<i></i>)*)'),
+                          index)
+    check([c[0] for c in chapters] == ['stop-repeat-work', 'give-agents-what-they-need',
+                                       'keep-it-understandable'],
+          f'index.html: chapter directory rows {[c[0] for c in chapters]} are not the three declared chapters in order')
+    for cid, _, _, _, marks in chapters:
+        expected_marks = sum(1 for l in manifest_lessons if l['chapter'] == cid)
+        check(marks.count('<i></i>') == expected_marks,
+              f'index.html: chapter {cid} shows {marks.count("<i></i>")} marks, expected {expected_marks}')
+
+    # Skill rows: seven available, derived from the packages on disk; no
+    # planned rows and no in-preparation note while every package exists.
+    n_available = index.count('class="status is-available"')
+    check(n_available == 7, f'index.html: expected 7 available skill rows, found {n_available}')
+    check('is-planned' not in index, 'index.html: planned skill rows rendered while all packages exist')
+    check('rows-note' not in index, 'index.html: an in-preparation note is rendered while all packages exist')
+    for s in skills:
+        check(f'href="skills/{s}/"' in index, f'index.html: no skill row opens skills/{s}/')
+
+    # Investigations: three directory rows, no per-report guide count.
+    report_rows = re.findall(r'<li><a href="([\w-]+\.html)"><span class="range">Report 0\d</span>', index)
+    check(sorted(report_rows) == ['boris-cherny-inspection.html', 'github-inspection.html',
+                                  'matt-pocock-inspection.html'],
+          f'index.html: investigation rows {report_rows} are not the three reports')
+
+    # The lesson hub: ten rows in three chapters, in order.
+    hub_chapters = re.findall(r'<section class="chapter" id="([a-z-]+)"', lessons_html)
+    check(hub_chapters == ['stop-repeat-work', 'give-agents-what-they-need', 'keep-it-understandable'],
+          f'lessons.html: chapter sections {hub_chapters} are not the three declared chapters in order')
+    for l in manifest_lessons:
+        row = re.search(r'<li class="lesson-row"><a href="' + re.escape(l['page']) + r'">.*?</a></li>',
+                        lessons_html, re.S)
+        check(row, f'lessons.html: no lesson row opens {l["page"]}')
+        if row:
+            check(escape(l['title']) in row.group(0), f'lessons.html: row for {l["id"]} lacks its title')
+            check(escape(l['summary']) in row.group(0), f'lessons.html: row for {l["id"]} lacks its summary')
+            # The row's metadata carries the derived reading estimate, labelled
+            # as an estimate, never as a measurement.
+            check(re.search(r'About \d+ min, estimated', row.group(0)),
+                  f'lessons.html: row for {l["id"]} lacks its reading estimate')
+    n_rows = lessons_html.count('class="lesson-row"')
+    check(n_rows == 10, f'lessons.html: expected 10 lesson rows, found {n_rows}')
+
+    # Legacy alias index: a compatibility page, not a second directory.
+    check('<link rel="canonical" href="' + SITE_URL + '/lessons.html"' in ideas_html,
+          'ideas.html: its canonical does not point at lessons.html')
+    check('class="tile idea"' not in ideas_html, 'ideas.html: still renders the nineteen idea tiles')
+    check('tier-does' not in ideas_html, 'ideas.html: still renders the evidential tier sections')
+
+    # Lesson pages: the ten canonical readers.
+    for l in manifest_lessons:
+        page = PUBLIC / l['page']
+        check(page.is_file(), f'public/{l["page"]} missing')
+        if not page.is_file():
+            continue
+        text = page.read_text()
+        check(f'<link rel="canonical" href="' + SITE_URL + '/' + l['page'] + '"' in text,
+              f'{l["page"]}: canonical does not name its own route')
+        # Every legacy fragment an old URL may carry must land on a real id on
+        # its redirect destination, not on a dead anchor.
+        for frag in LEGACY_FRAGMENTS:
+            check(f'id="{frag}"' in text, f'{l["page"]}: legacy fragment #{frag} has no target here')
+        # The derived reading estimate must be visible without the desktop rail
+        # (the lesson header), and it must say it is an estimate.
+        check(re.search(r'class="read-min[^"]*"[^>]*>[^<]*About \d+ min[^<]*estimated', text)
+              or re.search(r'>About \d+ min[^<]*estimated', text),
+              f'{l["page"]}: no derived reading estimate in the page head')
+        # Every covered tip keeps its exact source anchor and a link to the video moment.
+        for tip_id in l['tip_ids']:
+            check(f'id="{tip_id}"' in text, f'{l["page"]}: missing source anchor for {tip_id}')
+        n_video = text.count('youtube.com/watch?v=xmGY276gEFY')
+        check(n_video >= len(l['tip_ids']),
+              f'{l["page"]}: {n_video} video links for {len(l["tip_ids"])} covered tips')
+        # The glyphs of the video moments, labelled with their count.
+        check('class="tip-glyphs"' in text and 'consolidates' in text,
+              f'{l["page"]}: the video-moment glyphs or their group label are missing')
+        # Sequence and source line.
+        check('class="guide-seq"' in text and 'Lesson sequence' in text,
+              f'{l["page"]}: no lesson sequence')
+        check('lesson_catalog' not in text, f'{l["page"]}: internal build name leaked into the page')
+        if l['order'] == 1:
+            check('href="../lessons.html"' in text, 'lessons/recurring-mistakes.html: lesson 1 has no route back to the index')
+        if l['order'] == 10:
+            check('href="../guides.html"' in text, 'lessons/better-environments.html: lesson 10 has no route on to the guides')
+            check('desks-figure' in text, 'lessons/better-environments.html: the environment drawing is missing')
+        for g_id in l['guide_ids']:
+            check(f'guides/{g_id}-' in text, f'{l["page"]}: no link into guide {g_id}')
+        for s_id in l['skill_ids']:
+            check(f'href="../skills/{s_id}/"' in text, f'{l["page"]}: no link into skills/{s_id}/')
+        # The lesson Markdown ships beside its page.
+        check((PUBLIC / l['source']).is_file(), f'public/{l["source"]} missing')
+
+    # The nineteen legacy idea routes: lightweight aliases whose canonicals
+    # point at their lesson, carrying no duplicate article.
+    idea_aliases = sorted((PUBLIC / 'ideas').glob('*.html')) if (PUBLIC / 'ideas').is_dir() else []
+    check(len(idea_aliases) == 19, f'expected 19 legacy idea aliases in public/ideas, found {len(idea_aliases)}')
+    expected_aliases = {Path(rel).name: l for l in manifest_lessons for rel in l['legacy_paths']}
+    check({p.name for p in idea_aliases} == set(expected_aliases),
+          'public/ideas: the alias set is not exactly the nineteen legacy routes')
+    for alias in idea_aliases:
+        text = alias.read_text()
+        target = expected_aliases[alias.name]
+        canonical = f'<link rel="canonical" href="' + SITE_URL + '/' + target['page'] + '"'
+        check(canonical in text,
+              f'ideas/{alias.name}: canonical does not point at {target["page"]}')
+        # The share URL must agree with the canonical: an old route that
+        # announces a lesson as its address must not share the old address.
+        check(f'<meta property="og:url" content="' + SITE_URL + '/' + target['page'] + '"' in text,
+              f'ideas/{alias.name}: og:url does not agree with its canonical {target["page"]}')
+        # The route out of the alias carries the matching fragment instead of
+        # dropping it, so a reader arriving at /old-url#apply lands on the
+        # lesson's own #apply region through the alias page too.
+        check(all(f'href="{target["page"]}#{frag}"' in text or
+                  f'href="../{target["page"]}#{frag}"' in text for frag in LEGACY_FRAGMENTS),
+              f'ideas/{alias.name}: its lesson links do not carry the legacy fragments')
+        check('<h2 id="said' not in text and 'data-unwritten' not in text,
+              f'ideas/{alias.name}: still carries the old four-section article')
+        for frag in LEGACY_FRAGMENTS:
+            check(f'id="{frag}"' in text, f'ideas/{alias.name}: legacy fragment #{frag} is not reachable')
+
+    # Guide and investigation sections unchanged in shape.
     check(guides_html.count('class="tile guide"') == 13, f'guides.html: expected 13 guide tiles, found {guides_html.count("class=\"tile guide\"")}')
-    # The track above the shelves: thirteen stages on one rail, four source labels.
     check(guides_html.count('class="stage"') == 13, f'guides.html: expected 13 track stages, found {guides_html.count("class=\"stage\"")}')
     check(guides_html.count('class="seg"') == 4, f'guides.html: expected 4 source labels on the track, found {guides_html.count("class=\"seg\"")}')
     for g in guides:
@@ -369,20 +569,21 @@ def main():
         check('href="SKILL.md"' in text, f'skills/{s}/index.html: no link to the copied SKILL.md')
         check(f'/tree/HEAD/skills/{s}' in text, f'skills/{s}/index.html: no link to its GitHub directory')
         check('href="../../adoption.html"' in text, f'skills/{s}/index.html: no link to the adoption page')
-        # The page's h1 is the skill's own title, never a reference file's.
         fm = (PUBLIC / 'skills' / s / 'SKILL.md').read_text().split('---')[1]
         own_title = re.search(r'^name:\s*(.+)$', fm, re.M).group(1).strip()
         h1 = re.search(r'<h1>(.*?)</h1>', text, re.S); h1 = re.sub(r'<[^>]+>', '', h1.group(1)).strip() if h1 else ''
         check(bool(h1) and 'Reference' not in h1 and h1.lower() != '', f'skills/{s}/index.html: h1 is {h1!r}')
         check(not re.search(r'<h1>[^<]*(?:checks that protect|worked implementation)', text), f'skills/{s}/index.html: h1 carries a reference title')
-    check(skills_html.count('class="tile skill"') == 4, f'skills.html: expected 4 skill tiles, found {skills_html.count("class=\"tile skill\"")}')
+    check(skills_html.count('class="tile skill"') == 7, f'skills.html: expected 7 skill tiles, found {skills_html.count("class=\"tile skill\"")}')
     for s in skills:
         check(f'href="skills/{s}/"' in skills_html, f'skills.html: no tile opens skills/{s}/')
-        check(f'href="adoption.html"' in skills_html, 'skills.html: no link to the adoption page')
+    check('href="adoption.html"' in skills_html, 'skills.html: no link to the adoption page')
+    check('eval/cases.json' not in skills_html and 'eval/' not in skills_html,
+          'skills.html: references its unrun evaluation suites as if they were results')
 
     # 6b-ii. No section page dead-ends: each closes with routes to other sets,
     # and every route resolves (section 2 already proved the targets exist).
-    for name in ('ideas.html', 'guides.html', 'skills.html', 'investigations.html', 'evidence.html'):
+    for name in ('lessons.html', 'guides.html', 'skills.html', 'investigations.html', 'evidence.html'):
         hub = PUBLIC / name
         if not hub.is_file():
             continue
@@ -422,8 +623,10 @@ def main():
         for f in failures:
             print(f'  - {f}')
         sys.exit(1)
-    print(f'PASS: {len(pages)} HTML pages, {len(guides)} guides, {len(idea_pages)} idea pages, {len(skills)} skills, '
-          f'{len(frames)} frames verified; links, hashes, semantics, disclosure routes, no network loads and required metadata fields OK.')
+    print(f'PASS: {len(pages)} HTML pages, {len(lesson_pages)} lessons, {len(guides)} guides, '
+          f'{len(skills)} skills, {len(idea_aliases)} legacy aliases, {len(frames)} frames verified; '
+          f'links, hashes, semantics, ten-lesson coverage, disclosure routes, no network loads '
+          f'and required metadata fields OK.')
 
 
 if __name__ == '__main__':

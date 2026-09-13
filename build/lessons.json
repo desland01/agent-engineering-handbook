@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "lessons": [
+    {
+      "id": "recurring-mistakes",
+      "order": 1,
+      "chapter": "stop-repeat-work",
+      "title": "Stop fixing the same mistake twice",
+      "summary": "Catch a repeated mistake with a check that rejects it.",
+      "source": "lessons/recurring-mistakes.md",
+      "tip_ids": [
+        "tip-08-fix-class-loops",
+        "tip-19-custom-lint-economics"
+      ],
+      "guide_ids": [
+        "01"
+      ],
+      "skill_ids": [
+        "agent-feedback-engineering"
+      ],
+      "legacy_paths": [
+        "ideas/08-fix-class-loops.html",
+        "ideas/09-custom-lint-economics.html"
+      ]
+    },
+    {
+      "id": "ci-feedback",
+      "order": 2,
+      "chapter": "stop-repeat-work",
+      "title": "Stop babysitting your agent's CI failures",
+      "summary": "Give the agent access to the failed check and its logs.",
+      "source": "lessons/ci-feedback.md",
+      "tip_ids": [
+        "tip-01-ci-feedback-loop"
+      ],
+      "guide_ids": [
+        "04"
+      ],
+      "skill_ids": [
+        "agent-feedback-engineering"
+      ],
+      "legacy_paths": [
+        "ideas/01-ci-feedback-loop.html"
+      ]
+    },
+    {
+      "id": "prove-it-works",
+      "order": 3,
+      "chapter": "stop-repeat-work",
+      "title": "Passing tests can still hide broken software",
+      "summary": "Verify the real result, not just a successful command.",
+      "source": "lessons/prove-it-works.md",
+      "tip_ids": [
+        "tip-02-two-browser-e2e"
+      ],
+      "guide_ids": [
+        "02",
+        "09",
+        "13"
+      ],
+      "skill_ids": [
+        "agent-output-verification"
+      ],
+      "legacy_paths": [
+        "ideas/02-two-browser-e2e.html"
+      ]
+    },
+    {
+      "id": "working-previews",
+      "order": 4,
+      "chapter": "give-agents-what-they-need",
+      "title": "Give every agent a working preview",
+      "summary": "Make the running change reachable from the agent’s environment.",
+      "source": "lessons/working-previews.md",
+      "tip_ids": [
+        "tip-04-preview-environments"
+      ],
+      "guide_ids": [
+        "03"
+      ],
+      "skill_ids": [
+        "agent-ready-workspaces"
+      ],
+      "legacy_paths": [
+        "ideas/04-preview-environments.html"
+      ]
+    },
+    {
+      "id": "missing-tools",
+      "order": 5,
+      "chapter": "give-agents-what-they-need",
+      "title": "Give your agent the tool it's missing",
+      "summary": "Bridge a real capability gap with the smallest useful interface.",
+      "source": "lessons/missing-tools.md",
+      "tip_ids": [
+        "tip-05-custom-file-upload-skill",
+        "tip-06-skill-authoring-reward"
+      ],
+      "guide_ids": [
+        "06"
+      ],
+      "skill_ids": [
+        "agent-tool-adapters"
+      ],
+      "legacy_paths": [
+        "ideas/05-custom-file-upload-skill.html",
+        "ideas/06-skill-authoring-reward.html"
+      ]
+    },
+    {
+      "id": "useful-instructions",
+      "order": 6,
+      "chapter": "give-agents-what-they-need",
+      "title": "Write instructions that change agent behavior",
+      "summary": "Put decisions where the next task can use them.",
+      "source": "lessons/useful-instructions.md",
+      "tip_ids": [
+        "tip-09-domain-knowledge-as-infra",
+        "tip-11-own-your-instructions",
+        "tip-12-steering-pushback",
+        "tip-14-zero-context-docs",
+        "tip-16-steer-not-map"
+      ],
+      "guide_ids": [
+        "05"
+      ],
+      "skill_ids": [
+        "agent-context-calibration"
+      ],
+      "legacy_paths": [
+        "ideas/10-domain-knowledge-as-infra.html",
+        "ideas/12-own-your-instructions.html",
+        "ideas/13-steering-pushback.html",
+        "ideas/15-zero-context-docs.html",
+        "ideas/17-steer-not-map.html"
+      ]
+    },
+    {
+      "id": "fresh-agent",
+      "order": 7,
+      "chapter": "give-agents-what-they-need",
+      "title": "Find what a fresh agent actually misses",
+      "summary": "Observe what is missing before expanding instructions.",
+      "source": "lessons/fresh-agent.md",
+      "tip_ids": [
+        "tip-15-minimal-context-calibration"
+      ],
+      "guide_ids": [
+        "05"
+      ],
+      "skill_ids": [
+        "agent-context-calibration"
+      ],
+      "legacy_paths": [
+        "ideas/16-minimal-context-calibration.html"
+      ]
+    },
+    {
+      "id": "shared-contracts",
+      "order": 8,
+      "chapter": "keep-it-understandable",
+      "title": "One shared contract prevents mismatched code",
+      "summary": "Keep the language, types and runtime boundary in agreement.",
+      "source": "lessons/shared-contracts.md",
+      "tip_ids": [
+        "tip-13-type-safe-composition"
+      ],
+      "guide_ids": [
+        "08",
+        "11"
+      ],
+      "skill_ids": [
+        "agent-contract-consistency"
+      ],
+      "legacy_paths": [
+        "ideas/14-type-safe-composition.html"
+      ]
+    },
+    {
+      "id": "codebase-navigation",
+      "order": 9,
+      "chapter": "keep-it-understandable",
+      "title": "Stop getting lost in your own code",
+      "summary": "Make the codebase understandable when you return to it.",
+      "source": "lessons/codebase-navigation.md",
+      "tip_ids": [
+        "tip-10-newcomer-questions-signal",
+        "tip-18-solo-onboarding"
+      ],
+      "guide_ids": [
+        "07",
+        "10"
+      ],
+      "skill_ids": [
+        "agent-context-calibration"
+      ],
+      "legacy_paths": [
+        "ideas/11-newcomer-questions-signal.html",
+        "ideas/19-solo-onboarding.html"
+      ]
+    },
+    {
+      "id": "better-environments",
+      "order": 10,
+      "chapter": "keep-it-understandable",
+      "title": "Improve the environment your agents work in",
+      "summary": "Choose a recurring obstacle worth removing for future work.",
+      "source": "lessons/better-environments.md",
+      "tip_ids": [
+        "tip-03-automation-multiplies-agents",
+        "tip-07-team-buy-in",
+        "tip-17-career-leverage"
+      ],
+      "guide_ids": [
+        "04",
+        "07"
+      ],
+      "skill_ids": [
+        "agent-feedback-engineering"
+      ],
+      "legacy_paths": [
+        "ideas/03-automation-multiplies-agents.html",
+        "ideas/07-team-buy-in.html",
+        "ideas/18-career-leverage.html"
+      ]
+    }
+  ]
+}

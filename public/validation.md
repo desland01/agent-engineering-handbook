@@ -71,18 +71,27 @@ The final edition checks, run locally against this repository:
 
 - All Markdown links and image targets inside the rendered pages resolve to files that
   exist; no link escapes the repository or, in `public/`, the generated root.
-- Exactly 13 guide pages, 4 skill entrypoints and 12 full-size frames are present, with
-  all screenshot SHA-256 hashes matching the extraction manifest.
+- Exactly 10 lesson pages, 13 guide pages, 7 skill entrypoints, 19 legacy alias pages
+  and 12 full-size frames are present, with all screenshot SHA-256 hashes matching the
+  extraction manifest.
+- The lesson catalog (`build/lesson_catalog.py`) and the checker's independent manifest
+  read both hold `build/lessons.json` against the ten approved lesson IDs, lesson orders 1..10
+  and their three chapter assignments, all nineteen source tip IDs covered exactly once, present lesson prose and
+  source anchors, and a rendered alias for every legacy route; known-bad manifests
+  (duplicate tip coverage, unknown ids, escaping legacy paths) are rejected, and the
+  README lesson table must match the manifest or the render fails.
 - The renderer (`build/render.py`, Markdown pinned to 3.10.3 in
   `build/requirements.txt`) runs without network access and
   produces byte-identical `public/` output on a second run (checked by directory
   checksum before and after).
-- The four `SKILL.md` files have valid Agent Skills frontmatter, and the
+- The seven `SKILL.md` files have valid Agent Skills frontmatter, and the
   `agents/openai.yaml` files parse with a display name, short description and a default
   prompt that references their own `$skill-name`.
 
 These are repository and renderer checks, not tests of the inspected third-party
-applications. See [CONTRIBUTING.md](CONTRIBUTING.md) to rerun them.
+applications. The per-skill `eval/` suites shipped with the new packages define their
+cases but have not been run in this edition. See [CONTRIBUTING.md](CONTRIBUTING.md) to
+rerun them.
 
 ## What is not claimed
 
