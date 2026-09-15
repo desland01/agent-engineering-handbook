@@ -1,6 +1,6 @@
 {
   "_comment": "Landing-page data that is not already in README.md: the title and lead, the short header attribution, the three lesson chapters, the source-grouped guide shelves and each guide's one-line use-when. Everything else on the landing page (problem table, guide titles, investigations, skills, the attribution and what-was-checked paragraphs) is parsed from README.md; the canonical lessons come from build/lessons.json through build/lesson_catalog.py. The opening's lesson count is derived from the validated manifest, never stored here.",
-  "title": "Fix the environment and the agent stops failing",
+  "title": "Fix the environment and the agent works",
   "lead": "You have corrected the same agent mistake three times this week. You fix it by adding a check, a working preview, or one sentence to the right file. Ten short lessons show you where those fixes live, and each ends with one change you can make today.",
   "basis_short": "An independent public edition by Desmond Landry (@desland01), built from Theo's video and three original repository investigations. Theo, Matt Pocock and Boris Cherny do not endorse it.",
   "skill_guides": {
