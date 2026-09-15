@@ -1,5 +1,25 @@
 # Design system
 
+## The approved sitemap now drives navigation
+
+Phase 5, September 13, 2026: the current implementation uses Home, Lessons,
+Skills and Sources, with one complete native More menu and its final GitHub link.
+The menu wraps and scrolls within the viewport. Its seven groups and direct labels
+come from the approved sitemap; chapter labels remain the three approved groups.
+Ten lessons own all guide and idea material. Recovery is lesson 9; fresh-agent
+merges into useful-instructions. Earlier addresses use permanent redirects rather
+than physical alias articles. The problem picker has eight lesson destinations.
+The accepted lesson sources and skill READMEs supply reader articles, with context,
+contents and sequence outside them. Agent instructions remain separate companions.
+The final lesson leads to Skills. Sources owns the inspections and labelled evidence.
+
+These statements replace the older route, guide-course, video-rail and skill-body
+contracts below. The remaining design rationale, palette, typography, progressive
+enhancement, focus, motion, illustration and layout requirements still apply.
+Rendered verification was blocked in the Phase 5 workspace; see
+`control/reviews/site-structure.md` for the exact limits.
+
+
 Source-only guidance for contributors: how the Agent Engineering Handbook looks and why.
 It is never rendered or copied into `public/`. Every generated page — the map
 (`index.html`), the reader template behind the guides, investigations and other Markdown
@@ -237,8 +257,8 @@ repositories, read rather than summarised*. Plumbing does not open a lead — th
 page's two source files sit in a mono line under it, and the skills page keeps *adopt one,
 not all four* in the lead, where a reader meets it before choosing.
 
-Every section page ends with **the closing route** (`.hub-next`): the *Next* marker,
-*Where to go from here*, and two or three routing rows in the same hairline form as the
+Every section page ends with **the closing route** (`.hub-next`): the heading
+*Choose your next step* (no marker above it) and two or three routing rows in the same hairline form as the
 home page's shelves — the destination, and a quiet mono line saying why someone standing
 here would want it. That line is mono but not uppercase; the label's 0.14em tracking makes
 a sentence shout. Before this, a reader who reached the bottom of a set had nowhere to go

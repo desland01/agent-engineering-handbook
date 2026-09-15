@@ -23,45 +23,44 @@ Read the [live handbook](https://agent-engineering-handbook.dev/) or its
 ## Ten lessons
 
 Ten short lessons are the canonical reading path. Work through them in order, or open
-the one that names your problem; each lesson links the exact video moment it came from.
+the one that names your problem. Each lesson cites its evidence; recovery comes from the existing guide, not a separate video idea.
 This table is generated from `build/lessons.json` between the markers below — see
 [CONTRIBUTING.md](CONTRIBUTING.md) for the sync command, and never edit it by hand.
 
 <!-- lessons:start -->
 | Lesson | Summary |
 |---|---|
-| [Stop fixing the same mistake twice](lessons/recurring-mistakes.md) | Catch a repeated mistake with a check that rejects it. |
-| [Stop babysitting your agent's CI failures](lessons/ci-feedback.md) | Give the agent access to the failed check and its logs. |
-| [Passing tests can still hide broken software](lessons/prove-it-works.md) | Verify the real result, not just a successful command. |
-| [Give every agent a working preview](lessons/working-previews.md) | Make the running change reachable from the agent’s environment. |
-| [Give your agent the tool it's missing](lessons/missing-tools.md) | Bridge a real capability gap with the smallest useful interface. |
-| [Write instructions that change agent behavior](lessons/useful-instructions.md) | Put decisions where the next task can use them. |
-| [Find what a fresh agent actually misses](lessons/fresh-agent.md) | Observe what is missing before expanding instructions. |
-| [One shared contract prevents mismatched code](lessons/shared-contracts.md) | Keep the language, types and runtime boundary in agreement. |
-| [Stop getting lost in your own code](lessons/codebase-navigation.md) | Make the codebase understandable when you return to it. |
-| [Improve the environment your agents work in](lessons/better-environments.md) | Choose a recurring obstacle worth removing for future work. |
+| [You turn repeated mistakes into reliable checks](lessons/recurring-mistakes.md) | Catch a repeated mistake with a check that rejects it. |
+| [You diagnose failed checks without copying logs](lessons/ci-feedback.md) | Give the agent access to the failed check and its logs. |
+| [You test the result users actually need](lessons/prove-it-works.md) | Verify the real result, not just a successful command. |
+| [You give agents a working preview](lessons/working-previews.md) | Make the running change reachable from the agent’s environment. |
+| [You make missing operations usable by agents](lessons/missing-tools.md) | Bridge a real capability gap with the smallest useful interface. |
+| [You write instructions that fix observed confusion](lessons/useful-instructions.md) | Put decisions where the next task can use them. |
+| [You keep shared contracts consistent across layers](lessons/shared-contracts.md) | Keep the language, types and runtime boundary in agreement. |
+| [You navigate unfamiliar code without guessing](lessons/codebase-navigation.md) | Make the codebase understandable when you return to it. |
+| [You resume work without repeating completed steps](lessons/resume-work.md) | Reuse finished work and resume only the missing stage. |
+| [You remove obstacles for the next contributor](lessons/better-environments.md) | Choose a recurring obstacle worth removing for future work. |
 <!-- lessons:end -->
 
 ## Start with the problem you have
 
 | Current problem | Start here |
 |---|---|
-| You keep correcting the same mistake | [Stop fixing the same mistake twice](lessons/recurring-mistakes.md) |
-| Tests pass but the actual feature fails | [Passing tests can still hide broken software](lessons/prove-it-works.md) |
-| A new agent cannot run or inspect the app | [Give every agent a working preview](lessons/working-previews.md) |
-| You relay CI errors by hand | [Stop babysitting your agent's CI failures](lessons/ci-feedback.md) |
-| Agents repeatedly miss project decisions | [Write instructions that change agent behavior](lessons/useful-instructions.md) |
-| The agent cannot perform a required operation | [Give your agent the tool it's missing](lessons/missing-tools.md) |
-| Your project is becoming hard to navigate | [Stop getting lost in your own code](lessons/codebase-navigation.md) |
-| Long jobs repeat expensive work or accept bad output | [Make pipeline artifacts reusable, resumable and honestly complete](guides/12-artifact-identity-and-recovery.md) |
+| You keep correcting the same mistake | [You turn repeated mistakes into reliable checks](lessons/recurring-mistakes.md) |
+| You relay CI errors by hand | [You diagnose failed checks without copying logs](lessons/ci-feedback.md) |
+| Tests pass but the actual feature fails | [You test the result users actually need](lessons/prove-it-works.md) |
+| A new agent cannot run or inspect the app | [You give agents a working preview](lessons/working-previews.md) |
+| The agent cannot perform a required operation | [You make missing operations usable by agents](lessons/missing-tools.md) |
+| Agents repeatedly miss project decisions | [You write instructions that fix observed confusion](lessons/useful-instructions.md) |
+| Types, docs and runtime disagree | [You keep shared contracts consistent across layers](lessons/shared-contracts.md) |
+| Your project is becoming hard to navigate | [You navigate unfamiliar code without guessing](lessons/codebase-navigation.md) |
+| Long jobs redo finished work | [You resume work without repeating completed steps](lessons/resume-work.md) |
+| Every new contributor hits the same setup wall | [You remove obstacles for the next contributor](lessons/better-environments.md) |
 
-The last row opens the technical guide that goes deepest on that problem. Artifact
-recovery has no independent video lesson, so it is carried by
-[guide 12](guides/12-artifact-identity-and-recovery.md) and the
-[agent-artifact-recovery](skills/agent-artifact-recovery/SKILL.md) skill rather than a
-lesson of its own. The
-[runnable lint example](examples/recurring-rule/README.md) accompanies the first lesson
-and guide 01.
+The last row opens lesson 9, which absorbs the recovery guide. The
+[runnable lint example](examples/recurring-rule/README.md) accompanies lesson 1.
+The former guide sources below are retained for provenance, remain unrendered,
+and their public addresses permanently redirect to their owning lessons.
 
 ## All 13 implementation guides
 

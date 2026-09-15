@@ -1,83 +1,31 @@
-# Give every agent a working preview
+# You give agents a working preview
 
-Your agent finished the change on a machine you never touch — a cloud sandbox, a worktree,
-a background tab. You cannot see what it built, and the agent cannot see it either, so
-neither of you can say whether it works. The answer is a preview the agent can reach,
-test, and hand back evidence from.
+Give each agent a preview it can open, identify, test, and show to you. You will connect one isolated change to running software and readable evidence.
 
-## Why this changed
+## A preview needs running software
 
-Theo used to push back on preview environments: everyone builds locally, so who needs
-them. Theo's argument in the video is that the premise died. Code is now built by agents in
-cloud sandboxes, background tabs, worktrees and other machines on your network, so a
-reachable preview — plus a way for the agent to test it, find bugs, and post the results —
-is back to being valuable. This is an argument from Theo, not a measurement.
+Source files can describe an interface, yet they cannot show whether its live behavior works. Next.js directs agents to work against a running server during development <a href="#cite-c0345">in its agent guide</a>. Graham Neubig describes an agent running an application and browsing its interface directly <a href="#cite-c0377">in his production talk</a>. The preview address must work from the machine where your agent actually performs the task.
 
-## Evidence from the repositories, not the video
+## Each change needs an isolated preview
 
-The original T3 Code investigation shows what "usable" means in practice, through three
-merged PRs that each fix a different consumer failure:
+Start with your project's supported preview method, so every participant follows one dependable route. OpenAI made its application bootable for each isolated checkout, according to <a href="#cite-c0521">Ryan Lopopolo's account</a>. Confirm the served change before using any observed result to guide your decision. Give independent previews separate mutable data, because different addresses can still share accounts or records. Name who owns temporary state and when the supported cleanup process should remove it.
 
-- [PR #10501](https://github.com/pingdotgg/t3code/pull/10501) (merged September 8, 2026)
-  fixes browser tool output that was returned but unusable: enormous snapshot text lost
-  useful locators to truncation, non-object evaluation results broke structured output,
-  and screenshots had no saved artifact path. The fix bounds the text, wraps the results,
-  and saves PNGs.
-- [PR #10572](https://github.com/pingdotgg/t3code/pull/10572) fixes an ownership problem:
-  a recording saved on a desktop-local path could not be read by the remote agent that
-  needed it. The file is transferred through the existing attachment path into the agent's
-  environment. The PR reports a transfer with matching hashes; the investigation inspected
-  that claim without repeating it.
-- [PR #5586](https://github.com/pingdotgg/t3code/pull/5586) shows the environment itself
-  failing: repeated agent setup failures traced to inherited service-launcher variables
-  and contradictory instructions, repaired by sanitizing the environment before the dev
-  server starts.
+## The agent tests the real flow
 
-The shared lesson: a tool returning data or a path is insufficient if the consumer cannot
-use it. And note what one PR did *not* prove — T3's checked-in `t3.json` setup recipe
-existed, yet PR #10501 records that it had never been imported for a particular saved
-project. A checked-in recipe is not proof that setup runs.
+Opening the preview proves reachability, while completing the main journey tests the behavior you need. Boris Cherny and Catherine Wu describe Claude starting a desktop application and testing it through computer use <a href="#cite-c0194">in their retrospective</a>. Give the agent supported test access, while keeping normal access protection in place. A successful page load cannot establish that the feature completes its intended outcome. Preview creation may require deployment authority, which this lesson does not grant.
 
-## Make the preview reachable and identifiable
+## Evidence must reach the reviewer
 
-1. Reuse the project's existing local runner or preview platform; do not add a second
-   mechanism for one environment.
-2. Give each agent workspace a preview URL it can reach from where it runs, plus a
-   reliable way to confirm which revision is being served before interpreting any result.
-3. Pair the URL with a scripted check the agent can run: a key flow, a screenshot, console
-   errors.
-4. Keep state isolated between independent workspaces — separate ports do not isolate a
-   shared database or session store.
-5. Move artifacts created on one machine into the environment of the agent that needs
-   them, through the existing authorized attachment path.
+Matt Pocock recommends attaching a video of the working feature to its proposed change <a href="#cite-c0252">in his agent-building discussion</a>. Choose evidence that shows the behavior under review and remains readable outside the producing machine. Use a recording for movement, or a screenshot when one stable state carries the result. Include the tested change and journey, so the reviewer can connect evidence with the correct preview. A recording trapped on another machine leaves the entire review handoff unfinished.
 
-Method details and lifecycle guidance live in [guide 03](../guides/03-preview-workspaces.md).
+## A fresh run confirms the preview
 
-## Return evidence the next reader can open
+Have a fresh agent obtain the preview without relying on your unstated setup knowledge. It should confirm the served change, complete the journey, and return evidence you can open. If any step needs manual setup, record that limit beside the result. A passing journey verifies only the behavior and state that the agent actually exercised. Cleanup must preserve useful evidence and avoid removing shared state owned by another task.
 
-Have a fresh agent do the whole chain: obtain the URL, confirm the served revision, run
-the journey, and return readable evidence. A screenshot nobody can open and a log left on
-another machine are both failures of this lesson, not successes. If an artifact transfer
-was reported rather than observed, say so.
+## The sources show previews in use
 
-## Preview value was argued, not measured.
+<a href="#cite-c0345">Next.js</a> and <a href="#cite-c0377">Graham Neubig</a> show agents checking behavior directly through running applications. <a href="#cite-c0194">Boris Cherny and Catherine Wu</a> show the same pattern with a desktop application. <a href="#cite-c0521">Ryan Lopopolo</a> adds isolated previews, while <a href="#cite-c0252">Matt Pocock</a> shows evidence a reviewer can consume. These sources demonstrate practices and examples without measuring review speed or proving every setup works.
 
-The video makes the case for previews as an opinion; it does not measure their effect. The
-repository PRs show that each failure mode occurred and was repaired; they do not show a
-measured improvement in review speed. Setting up previews may involve deployments, which
-stays subject to your own authorization.
+<ol id="citations"><li id="cite-c0194">Boris Cherny and Catherine Wu, video, <a href="https://www.youtube.com/watch?v=Hth_tLaC2j8&t=177s">Reflecting on a year of Claude Code</a>, at 02:57. "Claude actually spins up a local desktop app and it uses computer use"</li><li id="cite-c0252">Matt Pocock, video, <a href="https://www.youtube.com/watch?v=nQwJVHCtDDY&t=2020s">Building AI Coding Agents with Matt Pocock</a>, at 33:40. "you just have a video on the PR of the thing working."</li><li id="cite-c0345">Next.js, docs, <a href="https://nextjs.org/docs/app/guides/ai-agents#:~:text=let%20the%20agent%20work%20against%20the%20running%20server.">Guides: AI Coding Agents | Next.js</a>, at Run next dev and let the agent work. "let the agent work against the running server."</li><li id="cite-c0377">Graham Neubig, other, <a href="https://home.mlops.community/public/videos/deploying-autonomous-coding-agents-graham-neubig-agents-in-production-2024-11-20#:~:text=run%20the%20Flask%20app%2C%20and%20then%20browse%20to%20the%20Flask%20app">Deploying Autonomous Coding Agents // Graham Neubig // Agents in Production</a>, at 00:08:06. "run the Flask app, and then browse to the Flask app"</li><li id="cite-c0521">Ryan Lopopolo, blog post, <a href="https://openai.com/index/harness-engineering/#:~:text=we%20made%20the%20app%20bootable%20per%20git%20worktree%2C%20so%20Codex%20could%20launch%20and%20drive">Harness engineering: leveraging Codex in an agent-first world</a>, at For example, we made the app bootable per. "we made the app bootable per git worktree, so Codex could launch and drive"</li></ol>
 
-## Sources
-
-<span id="tip-04-preview-environments"></span>
-**tip-04-preview-environments** — [05:06](https://www.youtube.com/watch?v=xmGY276gEFY&t=306s).
-Theo. Preview environments matter more now that code is built outside your machine.
-Evidence type: Theo's opinion/argument, not a measured result.
-
-Repository evidence: T3 PRs
-[#10501](https://github.com/pingdotgg/t3code/pull/10501),
-[#10572](https://github.com/pingdotgg/t3code/pull/10572) and
-[#5586](https://github.com/pingdotgg/t3code/pull/5586), with pinned files and limits in
-the original T3 investigation. Related:
-[agent-ready-workspaces skill](../skills/agent-ready-workspaces/SKILL.md). Next:
-[Give your agent the tool it's missing](missing-tools.md).
+<p id="next-action">Run one fresh-agent check that confirms the served change, main journey, and readable evidence.</p>

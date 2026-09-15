@@ -1,80 +1,50 @@
-# Passing tests can still hide broken software
+# You test the result users actually need
 
-Your agent reports success: command exited zero, all tests green. Later the feature does
-not work for the person using it. A successful command establishes that the checks or
-target it named actually executed; it does not establish that every consumer requirement
-was met. The
-fix is to define what counts as done in terms of the real outcome — the actual artifact,
-its intermediate completeness, and what the consumer experiences — and to check that,
-every time.
+A green check can still leave the user's actual result broken and unusable. You will define one accepted result and test it through the user's real journey. You will also prove that the final gate rejects a false success.
 
-## Two tools for two different lies
+## Accepted results define useful success
 
-**Two-actor end-to-end tests catch broken interactions.** Theo's example from Twitch: one
-end-to-end test ran two Playwright browser instances, each signed in as a bot account. One
-bot sent a chat message; the other asserted the message appeared and rendered for the
-recipient. Theo says it was simple and caught failures earlier than almost anything else.
-The design points worth copying: two independent clients, an assertion at the recipient's
-visible render rather than the send API's 200 response, and one honest cross-system
-assertion over many shallow checks. This is Theo's recollection of a past employer's test,
-not a checked-in implementation.
+Write one sentence naming the producer, the receiver, and the observable result they must receive. Add the properties that distinguish a finished result from an artifact that merely exists. A completed command proves only that its selected work ran without a reported failure. Hamel Husain and Shreya Shankar recommend evaluating actual outcomes instead of technical implementation alone <a href="#cite-c0402">in their evaluation guide</a>. Harrison Chase warns that an error-free agent can still perform terribly for users <a href="#cite-c0493">in his monitoring analysis</a>.
 
-**A completion contract catches false success.** In the original Melee for Mac
-investigation, Theo's fork adds a verifier that does not trust a green build. It builds
-the final executable by explicit name — the default target can report progress without
-linking it — checks that required artifacts exist on disk, reads a report and requires
-every source unit to be complete, and only then compares the output against the expected
-hash. The follow-up commit closed a second lie: a matching executable can still link
-original objects where the source work is incomplete, so the report check requires
-matching *and* complete code and data counts, with positive totals. One command now makes
-the precise outcome callable.
+## User journeys expose hidden failures
 
-The local comparison in that investigation shows the point: given a matching fixture hash
-and mocked successful build commands but incomplete source measures, the earlier verifier
-accepted the result and the current one rejected it before printing success.
+Place the decisive assertion where the user encounters the result, after every required handoff. In Theo Browne's example, one participant sent a message and another checked its rendered appearance <a href="#cite-c0002">in the receiving interface</a>. That boundary tested delivery between participants instead of trusting the sender's successful action. Use separate participants only when independence belongs to the outcome you need to protect. This pattern is one example, and your own accepted result should determine the journey.
 
-## Define the output that counts as done
+## Focused checks protect important outcomes
 
-1. Write the accepted outcome in one sentence: who produces what, and who must be able to
-   see it.
-2. Name the actual artifact and invoke the tool in its real mode, so the real output is
-   produced rather than a progress or plan report.
-3. Check intermediate completeness, not just the endpoint — every segment present, every
-   expected chapter, no placeholder rows.
-4. Record the expected identity before you build, and use an exact reference hash only
-   when exact identity is genuinely required.
-5. Turn the false-success paths your sources actually show into a small test. The Melee
-   suite has one test per observed deception: perfect progress with a wrong hash, a
-   matching hash with incomplete sources, missing artifacts after a "successful" build.
+Choose checks for outcomes whose failure would cost trust, money, or completed work. Alex, Erik Schluntz, and Barry Zhang recommend adding tests for the things you truly care about <a href="#cite-c0116">in their agent-building discussion</a>. That principle supports a small decisive test before broad coverage that answers weaker questions. Add another kind of check only when it detects a remaining false-success path. Stop adding checks when the accepted result is adequately proved by the evidence already gathered. Record each unsupported case so later reports preserve the boundary of your evidence.
 
-The full procedure is [guide 09](../guides/09-verification-contracts.md); the two-browser
-test is [guide 02](../guides/02-critical-journey-tests.md); several kinds of evidence are
-[guide 13](../guides/13-layered-validation.md).
+## Different properties need different evidence
 
-## Make a false-success fixture fail
+A distributed package may pass source tests while failing when its intended consumer installs it. A supported minimum runtime may break even when the newest environment remains green. A compiler check can reject invalid generated output before users depend on it. A final artifact may look correct while its source report still contains unfinished parts. Each check answers one property, so no single passing layer proves the entire result. These are examples, and your accepted result determines which layers you need.
 
-Deliberately corrupt a disposable fixture and confirm your check notices. Confirm the
-order: a build failure stops before the comparison, and a comparison failure does not pass
-because a hash matched. And say which layer each report covers — Melee's own CI runs tool
-tests and a library build but cannot perform the game-data matching check, and its
-instructions forbid reporting CI as a matching build.
+## Reproduction turns surprises into tests
 
-## Verifier tests do not prove gameplay.
+Save the starting seed, relevant options, software revision, and environment when an unexpected case appears. A seed lets the same generated input appear again, making the failure repeatable. Remove unrelated details until the smaller case still produces the same failure. Add that smallest useful case to your tests while keeping the original reproduction record. The original record preserves environmental details that may disappear during later reduction. When a similar case stays outside current scope, tie the exception to its exact reproduction.
 
-The Twitch test is an anecdote about one system; the Melee verifier tests validate the
-verifier's Python behavior with mocked builds, not a real game build or its gameplay. A
-passing check establishes only what it measured.
+## Baselines keep changes meaningful
 
-## Sources
+A baseline records expected behavior, including known limitations that remain accepted for now. Classify every difference as an improvement, regression, intended change, or unresolved discrepancy before updating expectations. Update the baseline only after you understand the behavior and have authority to accept it. Preserve the previous result and reason in normal change history for later investigation.
 
-<span id="tip-02-two-browser-e2e"></span>
-**tip-02-two-browser-e2e** — [03:46](https://www.youtube.com/watch?v=xmGY276gEFY&t=226s).
-Theo, recounting Theo's time at Twitch. Two-actor end-to-end tests catch whole classes of
-failure. Evidence type: Theo anecdote. Playwright's video, trace and retry specifics are
-documented separately and are not proven by the video.
+## Benchmarks compare equivalent work
 
-Repository evidence: the Melee [verifier](https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/verify.py),
-its [tests](https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/tools/tests/test_verify.py),
-and the [AGENTS.md](https://github.com/t3dotgg/melee4mac/blob/a276aeb70f9879204d891d967f1c9442523568e1/AGENTS.md)
-rule that public CI must not be reported as a matching build. Next:
-[Give every agent a working preview](working-previews.md).
+Use the same inputs, options, machine, and runtime before comparing performance results. Separate warm-up runs from repeated measurements before directly comparing the recorded results. Keep the raw timings beside a robust summary that resists one unusual result. Confirm that every faster result still produces the accepted output before claiming improvement. When ordinary variation resembles the measured gain, report uncertainty instead of selecting the fastest run. Comparable evidence matters more than a dramatic number produced under different conditions.
+
+## Final gates must reject bad results
+
+Trace the check people trust until you reach the exact result controlling release or delivery. A reassuring job name may hide omitted child checks, skipped work, or the wrong environment. Make the real gate reject a disposable case containing the relevant bad result. Run the same gate on the intended result and confirm it accepts that result. Michael Truell, Kevin Niparko, and Tomas Reimers describe verification through testing software and clicking its buttons <a href="#cite-c0288">in their keynote</a>. Ryan Lopopolo reports using browser tooling to reproduce bugs and validate fixes through user-facing behavior <a href="#cite-c0522">in his harness account</a>. Interface checks answer behavior questions, while compiler checks answer whether generated output remains valid. Your report should name each executed layer because every passing check has a limited boundary.
+
+## The sources show outcome-focused verification
+
+Together, these sources distinguish successful execution from results that actually work for users. The videos support targeted journey checks and direct interaction with the finished interface. The articles support outcome evaluation, quality checks beyond error counts, and browser-based validation of fixes. They do not establish one required testing stack for every product or change.
+
+<ol id="citations">
+<li id="cite-c0002">Theo Browne, video, <a href="https://www.youtube.com/watch?v=xmGY276gEFY&t=254s">A Message for Passionate Devs</a>, at 04:14. "make sure it actually appears and renders properly"</li>
+<li id="cite-c0116">Alex, Erik Schluntz, Barry Zhang, video, <a href="https://www.youtube.com/watch?v=LP5OCa20Zpg&t=751s">Building effective agents</a>, at 12:31. "add tests for the things that you really care about"</li>
+<li id="cite-c0288">Michael Truell, Kevin Niparko, Tomas Reimers, video, <a href="https://www.youtube.com/watch?v=fWa7uxyhVDE&t=1498s">Cursor Keynote | Compile 26</a>, at 24:58. "actually testing the software and clicking through buttons"</li>
+<li id="cite-c0402">Hamel Husain, Shreya Shankar, blog, <a href="https://hamel.dev/blog/posts/evals-faq/#:~:text=evaluate%20actual%20outcomes%20rather%20than%20technical%20implementation">AI Evals: Everything You Need to Know</a>, at As time goes on you should lean towards. "evaluate actual outcomes rather than technical implementation."</li>
+<li id="cite-c0493">Harrison Chase, blog, <a href="https://blog.langchain.dev/in-software-the-code-documents-the-app-in-ai-the-traces-do/#monitoring-shifts-from-uptime-to-quality">In software, the code documents the app. In AI, the traces do.</a>, at Monitoring Shifts from Uptime to Quality. "An agent can be "up" with 0 errors and still be performing terribly"</li>
+<li id="cite-c0522">Ryan Lopopolo, blog post, <a href="https://openai.com/index/harness-engineering/#:~:text=reproduce%20bugs%2C%20validate%20fixes%2C%20and%20reason%20about%20UI%20behavior%20directly">Harness engineering: leveraging Codex in an agent-first world</a>, at For example, we made the app bootable per. "reproduce bugs, validate fixes, and reason about UI behavior directly."</li>
+</ol>
+
+<p id="next-action">Write one accepted-result sentence for the user journey whose failure would cause the greatest harm.</p>

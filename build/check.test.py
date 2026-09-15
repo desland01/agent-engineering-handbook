@@ -67,8 +67,8 @@ REPO = Path(__file__).resolve().parent.parent
 # independent literals must agree).
 APPROVED_IDS = [
     'recurring-mistakes', 'ci-feedback', 'prove-it-works', 'working-previews',
-    'missing-tools', 'useful-instructions', 'fresh-agent', 'shared-contracts',
-    'codebase-navigation', 'better-environments',
+    'missing-tools', 'useful-instructions', 'shared-contracts',
+    'codebase-navigation', 'resume-work', 'better-environments',
 ]
 
 
@@ -82,6 +82,15 @@ def load_checker():
 
 class CatalogAtRealEntryTest(unittest.TestCase):
     """The reviewed catalog seam must accept the actual accepted tree."""
+
+    def test_approved_sitemap_replaces_fresh_agent_with_recovery(self):
+        records = json.loads((REPO / 'build/lessons.json').read_text())['lessons']
+        self.assertEqual([r['id'] for r in records], APPROVED_IDS)
+        self.assertEqual(records[8]['tip_ids'], [])
+        self.assertEqual(records[8]['guide_ids'], ['12'])
+        self.assertIn('guides/12-artifact-identity-and-recovery.md', records[8]['legacy_paths'])
+        guides = [g for r in records for g in r['guide_ids']]
+        self.assertEqual(sorted(guides), [f'{n:02d}' for n in range(1, 14)])
 
     def test_real_manifest_loads_the_ten_approved_lessons(self):
         sys_path = str(Path(__file__).resolve().parent)
@@ -111,6 +120,99 @@ class CatalogAtRealEntryTest(unittest.TestCase):
             (REPO / 'README.md').read_text(), lessons, check=True)
 
 
+class ApprovedSiteTest(unittest.TestCase):
+    def test_public_sitemap_transcription_matches_approved_plan(self):
+        plan = (REPO / 'control/plan.md').read_text()
+        expected = {}
+        for name in ('sitemap', 'aliases'):
+            block = plan.split(f'<!-- {name}:start -->')[1].split(f'<!-- {name}:end -->')[0]
+            for label, path, parent, status in re.findall(r'^\s*- (.*?) \| `([^`]+)` \| parent: `([^`]+)` \| (.*)$', block, re.M):
+                earlier = name == 'aliases' or status.startswith(('merged into ', 'redirects to '))
+                expected[path] = ('Earlier: ' if earlier else '') + label
+        actual = json.loads((REPO / 'build/sitemap.json').read_text())
+        self.assertEqual({e['path']: e['label'] for e in actual}, expected)
+        self.assertEqual(len(expected), 156)
+        manifest = json.loads((REPO / 'build/lessons.json').read_text())
+        legacy = set(manifest.get('legacy_paths', []))
+        legacy.update(p for l in manifest['lessons'] for p in l['legacy_paths'])
+        self.assertEqual(legacy, {e['path'][1:] for e in actual if 'destination' in e})
+
+    def test_local_link_resolution_rejects_escape_cycles_and_missing_targets(self):
+        from site_routes import resolve_local
+        with temp_root('route-boundary-') as root:
+            public = root / 'public'; public.mkdir()
+            page = public / 'index.html'; page.write_text('Home')
+            destination = public / 'lesson.html'; destination.write_text('Lesson')
+            self.assertEqual(resolve_local(public, page, '/old', {'/old': '/lesson.html#sources'}), (destination, 'sources'))
+            for target, redirects in [('../private.md', {}), ('/%2e%2e/private.md', {}),
+                                      ('/missing.html', {}), ('/old', {'/old': '/other', '/other': '/old'})]:
+                with self.subTest(target=target), self.assertRaises(ValueError):
+                    resolve_local(public, page, target, redirects)
+
+    def test_changed_hubs_reject_internal_copy(self):
+        checker = load_checker()
+        with temp_root('hub-copy-') as root:
+            CheckerAtRealEntryTest().copy_public_inputs(REPO, root, include_public=True)
+            checker.PUBLIC = root / 'public'
+            page = checker.PUBLIC / 'lessons.html'
+            page.write_text(re.sub(r'<h1>.*?</h1>', '<h1>Read <code>build/lessons.json</code></h1>', page.read_text()))
+            checker.hub_copy_checked()
+            self.assertTrue(any('lessons.html' in f and 'plain' in f for f in checker.failures))
+
+    def test_public_inventory_and_permanent_dispositions(self):
+        self.assertEqual(len(list((REPO / 'public').rglob('*.html'))), 33)
+        redirects = {r['source']: r for r in json.loads((REPO / 'vercel.json').read_text())['redirects']}
+        self.assertEqual(redirects['/guides/12-artifact-identity-and-recovery.md']['destination'], '/lessons/resume-work.html')
+        self.assertIs(redirects['/README.html']['permanent'], True)
+        self.assertFalse((REPO / 'public/guides.html').exists())
+
+    def test_checker_rejects_missing_and_misdirected_legacy_routes(self):
+        checker = load_checker()
+        with temp_root('redirects-') as root:
+            CheckerAtRealEntryTest().copy_public_inputs(REPO, root, include_public=True)
+            checker.REPO, checker.PUBLIC = root, root / 'public'
+            config = json.loads((root / 'vercel.json').read_text())
+            for row in config['redirects']:
+                if row['source'] == '/guides/12-artifact-identity-and-recovery.md':
+                    row['destination'] = '/lessons/ci-feedback.html'
+            (root / 'vercel.json').write_text(json.dumps(config))
+            checker.sitemap_checked()
+            self.assertTrue(any('guides/12-artifact-identity-and-recovery.md' in f and 'destination' in f for f in checker.failures))
+
+    def test_header_has_complete_menu_and_one_repository_link(self):
+        from html.parser import HTMLParser
+        from urllib.parse import urljoin
+        text = (REPO / 'public/index.html').read_text()
+        header = re.search(r'<header class="site-head">.*?</header>', text, re.S).group()
+        self.assertEqual(header.count('https://github.com/desland01/agent-engineering-handbook'), 1)
+        self.assertIn('>Sources</a>', header)
+        menu = re.search(r'<details class="menu">.*?</details>', header, re.S).group()
+        links = re.findall(r'href="([^"]+)"', menu)
+        expected = json.loads((REPO / 'build/sitemap.json').read_text())
+        self.assertTrue({e['path'] for e in expected}.issubset({urljoin('/', h) for h in links}))
+        self.assertEqual(links[-1], 'https://github.com/desland01/agent-engineering-handbook')
+        for label in ['Start here', 'Lessons', 'Skills', 'Sources', 'Help', 'Source texts', 'Earlier links']:
+            self.assertIn(label, menu)
+
+    def test_articles_use_accepted_sources_without_video_chrome(self):
+        paths = [(l['source'], l['source'].replace('.md', '.html')) for l in json.loads((REPO / 'build/lessons.json').read_text())['lessons']]
+        paths += [(str(p.relative_to(REPO)), str(p.relative_to(REPO).parent / 'index.html')) for p in (REPO / 'skills').glob('*/README.md')]
+        for source, route in paths:
+            with self.subTest(route=route):
+                text = (REPO / 'public' / route).read_text()
+                article = re.search(r'<article>(.*?)</article>', text, re.S).group(1).strip()
+                self.assertTrue(article.startswith('<p>'))
+                self.assertIn('<h2 id="sources">', article)
+                self.assertNotRegex(text, r'id="(?:said|apply|useful|qualification)"')
+                self.assertNotIn('class="tip-glyphs"', text)
+                self.assertNotIn('In the video</h2>', text)
+                md = (REPO / source).read_text()
+                for pattern in [r'<ol id="citations">.*?</ol>', r'<p id="next-action">.*?</p>']:
+                    raw = re.search(pattern, md, re.S).group()
+                    self.assertIn(raw, article)
+        self.assertIn('<pre><code', (REPO / 'public/lessons/recurring-mistakes.html').read_text())
+
+
 class CheckerAtRealEntryTest(unittest.TestCase):
     """The checker's independent manifest read and its bad-case coverage."""
 
@@ -118,11 +220,13 @@ class CheckerAtRealEntryTest(unittest.TestCase):
         text = (REPO / 'public/index.html').read_text()
         panel = re.search(r'<div class="pick">(.*?)</div>\s*<figure class="hero-figure"', text, re.S).group(1)
         self.assertNotIn('class="ix"', panel)
-        self.assertEqual(panel.count('<li>'), 8)
-        self.assertEqual(len(re.findall(r'<span class="n">Lesson \d+</span>', panel)), 7)
-        self.assertIn('<span class="n">Guide 12</span>', panel)
+        rows = re.search(r'<ul role="list" aria-labelledby="problems">(.*?)</ul>', panel, re.S).group(1)
+        self.assertEqual(rows.count('<li>'), 10)
+        numbers = [int(n) for n in re.findall(r'<span class="n">Lesson (\d+)</span>', rows)]
+        # One row per lesson, in lesson order: a reader scanning the numbers sees 1 to 10.
+        self.assertEqual(numbers, list(range(1, 11)))
         self.assertIn('lessons/prove-it-works.html', panel)
-        self.assertIn('guides/12-artifact-identity-and-recovery.html', panel)
+        self.assertIn('lessons/resume-work.html', panel)
         self.assertNotIn('assets/problem-loop.webp', panel)
 
     def test_checker_reads_the_real_manifest_without_failures(self):
@@ -148,6 +252,7 @@ class CheckerAtRealEntryTest(unittest.TestCase):
         shutil.copytree(REPO / 'skills', tmp / 'skills')
         shutil.copytree(REPO / 'guides', tmp / 'guides')
         (tmp / 'guides').mkdir(exist_ok=True)
+        shutil.copy2(REPO / 'vercel.json', tmp / 'vercel.json')
         manifest = json.loads((tmp / 'build/lessons.json').read_text())
         manifest['lessons'][1]['tip_ids'] = ['tip-08-fix-class-loops']
         (tmp / 'build/lessons.json').write_text(json.dumps(manifest))
@@ -250,46 +355,48 @@ class CheckerAtRealEntryTest(unittest.TestCase):
         (toy / '.git/HEAD').write_text('ref: SENTINEL')
         (toy / 'evidence/link.json').symlink_to(toy / 'README.md')
 
-    def test_tampered_alias_canonical_fails_the_full_check(self):
-        """A legacy alias whose canonical points at itself must fail the real
-        checker end to end, naming the alias."""
+    def test_tampered_canonical_fails_the_full_check(self):
+        """Canonical protection still rejects a reader claiming another address."""
         with temp_root('check-') as tmp:
             self.copy_public_inputs(REPO, tmp, include_public=True)
             self.assert_no_private_entries(tmp)
-            alias = tmp / 'public/ideas/01-ci-feedback-loop.html'
-            text = alias.read_text()
+            page = tmp / 'public/lessons/ci-feedback.html'
+            text = page.read_text()
             mutated = text.replace(
                 'href="https://agent-engineering-handbook.dev/lessons/ci-feedback.html"',
                 'href="https://agent-engineering-handbook.dev/ideas/01-ci-feedback-loop.html"')
-            self.assertNotEqual(mutated, text, 'fixture did not change the canonical')
-            alias.write_text(mutated)
+            self.assertNotEqual(mutated, text)
+            page.write_text(mutated)
             result = subprocess.run([sys.executable, 'build/check.py'], cwd=tmp,
                                     capture_output=True, text=True, timeout=300)
-            self.assertNotEqual(result.returncode, 0,
-                                'the tampered alias canonical passed the check')
-            self.assertIn('ideas/01-ci-feedback-loop.html', result.stdout)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('canonical', result.stdout)
+            self.assertIn('lessons/ci-feedback.html', result.stdout)
 
-    def test_legacy_fragments_land_in_matching_lesson_regions(self):
+    def test_idea_destinations_are_invisible_outside_reader_articles(self):
         for page in (REPO / 'public/lessons').glob('*.html'):
             text = page.read_text()
             article = re.search(r'<article>(.*?)</article>', text, re.S).group(1)
-            self.assertIn('id="useful"', article, page.name)
-            self.assertRegex(article, r'id="apply"[^>]*></span>\s*<(?:ol|pre)\b', page.name)
-            self.assertRegex(article, r'id="qualification"[^>]*></span>\s*<h2', page.name)
+            self.assertNotRegex(article, r'id="(?:said|apply|useful|qualification|video-note-\d+)"')
+        text = (REPO / 'public/lessons/useful-instructions.html').read_text()
+        self.assertIn('<span id="video-note-16" class="legacy-target" aria-hidden="true"></span>', text)
 
-    def test_new_skill_pages_link_their_original_research_guides(self):
-        expected = {'agent-output-verification': ['09', '13'],
-                    'agent-artifact-recovery': ['12'],
-                    'agent-contract-consistency': ['08', '11']}
-        for name, guides in expected.items():
+    def test_skill_explanations_link_owning_lessons_and_agent_companions(self):
+        expected = {'agent-output-verification': 'prove-it-works',
+                    'agent-artifact-recovery': 'resume-work',
+                    'agent-contract-consistency': 'shared-contracts'}
+        for name, lesson in expected.items():
             text = (REPO / 'public/skills' / name / 'index.html').read_text()
-            for guide in guides:
-                self.assertIn(f'href="../../guides/{guide}-', text, name)
-            deck = re.search(r'<p class="deck">(.*?)</p>', text, re.S).group(1)
-            self.assertLess(len(deck.split()), 40, name)
+            self.assertIn(f'href="../../lessons/{lesson}.html"', text)
+            for companion in ['SKILL.md','references/implementation.md','references/source-patterns.md']:
+                self.assertIn(f'href="{companion}"', text)
+            self.assertNotIn('class="skill-ref"', text)
 
-    def test_legacy_index_share_url_matches_its_canonical(self):
-        text = (REPO / 'public/ideas.html').read_text()
+    def test_legacy_index_redirects_to_self_canonical_lesson_hub(self):
+        redirects = {r['source']: r for r in json.loads((REPO / 'vercel.json').read_text())['redirects']}
+        self.assertEqual(redirects['/ideas.html']['destination'], '/lessons.html')
+        self.assertIs(redirects['/ideas.html']['permanent'], True)
+        text = (REPO / 'public/lessons.html').read_text()
         self.assertIn('<meta property="og:url" content="https://agent-engineering-handbook.dev/lessons.html">', text)
 
     def test_layout_check_passes_without_generated_public_output(self):
@@ -333,6 +440,292 @@ class CheckerAtRealEntryTest(unittest.TestCase):
             self.assertIn('not-an-approved-lesson', result.stderr)
             self.assertEqual(self._public_byte_map(root), before,
                              'the failed render destroyed or altered the previous public/ output')
+
+
+class LessonStandardTest(unittest.TestCase):
+    OPENING = 'A repeated mistake needs a reliable check. You can test its boundary before trusting it.'
+    BODY = ('<h2>Checks reject repeated mistakes</h2>'
+            '<p>The bad case fails. The good case passes. '
+            'The example names the boundary <a href="#cite-demo">at the source</a>.</p>')
+    SOURCES = ('<h2 id="sources">The example shows the boundary</h2>'
+               '<p>The source records the failure. It also records the valid case. '
+               'It does not prove wider coverage.</p>'
+               '<ol id="citations"><li id="cite-demo">'
+               '<a href="https://example.test/demo#boundary">The source example</a>'
+               '</li></ol>')
+    CLOSE = '<p id="next-action">Test one repeated mistake against its permitted alternative.</p>'
+
+    def page(self, *, opening=None, body=None, sources=None, close=None):
+        return ('<html><body><main><h1>You test a repeated mistake</h1><article><p>'
+                + (self.OPENING if opening is None else opening) + '</p>'
+                + (self.BODY if body is None else body)
+                + (self.SOURCES if sources is None else sources)
+                + (self.CLOSE if close is None else close)
+                + '</article></main></body></html>')
+
+    def scan_pages(self, pages):
+        checker = load_checker()
+        with temp_root('lesson-standard-') as root:
+            checker.PUBLIC = root / 'public'
+            for name, html in pages.items():
+                target = checker.PUBLIC / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(html)
+            checker.lesson_standard()
+            return checker.failures
+
+    def assert_rule(self, code, bad, good=None):
+        for name in ['lessons/demo.html', 'skills/demo/index.html']:
+            with self.subTest(page=name):
+                failures = self.scan_pages({name: bad})
+                self.assertTrue(any(code in f and name in f for f in failures), failures)
+                self.assertEqual(self.scan_pages({name: good or self.page()}), [])
+
+    def test_article_requires_opening_before_sections(self):
+        for bad in [self.page().replace('<article>', '<div>').replace('</article>', '</div>'),
+                    self.page().replace('<p>' + self.OPENING + '</p>', ''),
+                    self.page(body='', sources=''),
+                    self.page().replace('</main>', '<article><p>Extra.</p></article></main>')]:
+            self.assert_rule('LS01', bad)
+
+
+    def test_opening_has_two_or_three_sentences(self):
+        for opening in ['Only one sentence.', 'One. Two. Three. Four.',
+                        'One. Two. Three. An unfinished fourth']:
+            self.assert_rule('LS02', self.page(opening=opening))
+        for opening in ['One. Two. Three.', 'Dr. Smith checks version 2.5. You test the result.',
+                        'A check fails, e.g. on the bad case. You verify the valid case.']:
+            self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(opening=opening)}), [])
+
+
+    def test_opening_respects_360_character_budget(self):
+        # Independent boundary literals: 356 letters plus ". B." = 360 characters.
+        at_limit = 'A' * 356 + '. B.'
+        self.assert_rule('LS03', self.page(opening='A' * 357 + '. B.'),
+                         self.page(opening=at_limit))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(
+            opening='<em>' + 'A' * 354 + '</em>&amp;B.\n   C.')}), [])
+
+
+    def test_pages_never_use_the_learning_prompt_phrase(self):
+        for phrase in ['what you will know', 'WHAT you\n will know',
+                       'what <em>you</em> will&nbsp;know']:
+            self.assert_rule('LS04', self.page().replace('</article>',
+                             '</article><footer><p>' + phrase + '</p></footer>'))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page().replace(
+            '</body>', '<script>"what you will know"</script></body>')}), [])
+
+
+    def test_headings_are_shared_by_at_most_two_pages_per_kind(self):
+        for kind in ['lessons', 'skills']:
+            def name(i):
+                return f'lessons/{i}.html' if kind == 'lessons' else f'skills/{i}/index.html'
+            # The shared headings include h1, h2 and h3; two pages are permitted.
+            html = self.page(body=self.BODY + '<h3>Compare the boundary</h3>')
+            failures = self.scan_pages({name(i): html for i in range(3)})
+            for heading in ['You test a repeated mistake', 'Checks reject repeated mistakes',
+                            'Compare the boundary']:
+                self.assertTrue(any('LS05' in f and heading in f and name(0) in f
+                                    and name(1) in f and name(2) in f for f in failures), failures)
+            self.assertEqual(self.scan_pages({name(i): html for i in range(2)}), [])
+        self.assertEqual(self.scan_pages({'lessons/1.html': self.page(),
+                                         'lessons/2.html': self.page(),
+                                         'skills/1/index.html': self.page(),
+                                         'skills/2/index.html': self.page()}), [])
+        # Chrome headings never enter the authored-heading comparison.
+        pages = {f'lessons/{i}.html': self.page().replace('mistake', f'mistake {i}').replace(
+            'The example shows the boundary', f'The example shows boundary {i}').replace(
+            '</main>', '</main><aside><h2>On this page</h2></aside>') for i in range(3)}
+        self.assertEqual(self.scan_pages(pages), [])
+
+
+    def test_h2_headings_have_at_most_eight_words(self):
+        self.assert_rule('LS06', self.page(body=self.BODY.replace(
+            'Checks reject repeated mistakes', 'You test one useful boundary before trusting every result')),
+            self.page(body=self.BODY.replace('Checks reject repeated mistakes',
+                                            'You test one useful boundary before trusting results')))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(body=self.BODY.replace(
+            'Checks reject repeated mistakes', "You check the agent’s well-defined boundary before trusting"))}), [])
+
+
+    def test_h2_headings_include_a_declared_plain_verb(self):
+        for label in ['Sources', 'Useful evidence and examples', 'Reliable boundaries',
+                      'Recurring mistakes', 'The latest processing settings']:
+            self.assert_rule('LS07', self.page(body=self.BODY.replace(
+                'Checks reject repeated mistakes', label)))
+        for label in ['The example shows the boundary', 'A check that actually shipped',
+                      'You can keep valid work', 'Failures reveal the boundary']:
+            self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(body=self.BODY.replace(
+                'Checks reject repeated mistakes', label))}), [])
+
+
+    def test_each_h2_section_has_three_complete_sentences(self):
+        for short in ['<p>One sentence. Another sentence.</p>',
+                      '<p>One sentence. Another sentence. An unfinished fragment</p>',
+                      '<p>Dr. Smith tested version 2.5. The case passed.</p>',
+                      '<p>One. Two.</p><pre>Fake. Extra. Prose.</pre>',
+                      '<p>One. Two.</p><p hidden>Fake. Extra. Prose.</p>',
+                      '<p>One. Two.</p><h3>Fake. Extra. Prose.</h3>',
+                      '<ul><li><p>Only one sentence.</p></li></ul>']:
+            self.assert_rule('LS08', self.page(body='<h2>Checks reject errors</h2>' + short + self.BODY))
+        # The closing sentence cannot pad the sources section's two sentences.
+        self.assert_rule('LS08', self.page(sources=self.SOURCES.replace(
+            ' It does not prove wider coverage.', '')))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(body=
+            '<h2>Checks reject errors</h2><ul><li>One.</li><li>Two.</li><li>Three.</li></ul>'
+            + self.BODY)}), [])
+
+
+    def test_sources_section_has_one_nonempty_local_citation_list(self):
+        for sources in ['', self.SOURCES.replace('id="sources"', 'id="other"'),
+                        self.SOURCES.replace('id="citations"', 'id="other"'),
+                        self.SOURCES.replace('<ol id="citations">', '<div id="citations">').replace('</ol>', '</div>'),
+                        self.SOURCES.replace('<li id="cite-demo">', '<li>'),
+                        self.SOURCES.replace('<li id="cite-demo">', '<li id="demo">'),
+                        re.sub(r'<li.*?</li>', '', self.SOURCES),
+                        self.SOURCES + self.SOURCES,
+                        self.SOURCES + self.BODY]:
+            self.assert_rule('LS09', self.page(sources=sources))
+        self.assert_rule('LS09', self.page(body=self.SOURCES + self.BODY,
+                                          sources='<h2 id="sources">Sources show the limit</h2>'
+                                                  '<p>One. Two. Three.</p>'))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(sources=self.SOURCES.replace(
+            '<ol', '<ul').replace('</ol>', '</ul>'))}), [])
+
+
+    def test_source_links_resolve_only_to_qualified_citation_entries(self):
+        for href in ['#missing', '#sources', 'other.html#cite-demo',
+                     'https://example.test/unlisted#part', 'https://example.test/demo']:
+            self.assert_rule('LS10', self.page(sources=self.SOURCES.replace(
+                'The source records the failure.',
+                f'The source records the <a href="{href}">failure</a>.')))
+        for href in ['https://example.test/demo', 'https://example.test/demo#',
+                     'https://example.test/demo?t=later', 'https://example.test/demo?t=',
+                     'javascript:alert(1)', '/local#part', 'https:///demo#part']:
+            self.assert_rule('LS10', self.page(sources=self.SOURCES.replace(
+                'https://example.test/demo#boundary', href)))
+        self.assert_rule('LS10', self.page(sources=re.sub(
+            r'<a href="https:.*?</a>', 'An entry without evidence', self.SOURCES)))
+        for href in ['#cite-demo', 'https://example.test/demo#boundary']:
+            self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(sources=self.SOURCES.replace(
+                'The source records the failure.',
+                f'The source records the <a href="{href}">failure</a>.'))}), [])
+        for href in ['https://example.test/watch?v=demo&amp;t=482s',
+                     'https://example.test/watch?start=0',
+                     'https://example.test/watch?t=1h2m3s']:
+            self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(sources=self.SOURCES.replace(
+                'https://example.test/demo#boundary', href))}), [])
+
+
+    def test_inline_citations_exist_and_resolve_to_the_page_list(self):
+        for body in [self.BODY.replace('<a href="#cite-demo">at the source</a>', 'at the source'),
+                     self.BODY.replace('#cite-demo', '#cite-missing'),
+                     self.BODY.replace('#cite-demo', '#sources')]:
+            self.assert_rule('LS11', self.page(body=body))
+        self.assert_rule('LS11', self.page(body=self.BODY.replace('#cite-demo', '#cite-outside')
+                         + '<span id="cite-outside"></span>'))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(body=self.BODY.replace(
+            '#cite-demo', '#cite%2Ddemo'))}), [])
+
+
+    def test_article_ends_with_one_single_sentence_action_paragraph(self):
+        for close in ['', '<p>Test one case.</p>',
+                      '<p id="next-action">Test one case. Then test another.</p>',
+                      '<p id="next-action"></p>',
+                      '<p id="next-action">An unfinished action</p>',
+                      self.CLOSE + self.CLOSE,
+                      self.CLOSE + '<p>Read something else.</p>',
+                      '<p>Take another action.</p>' + self.CLOSE,
+                      '<div id="next-action">Test one case.</div>',
+                      self.CLOSE + 'Trailing unwrapped text.',
+                      self.CLOSE + '<img src="extra.png" alt="Extra">',
+                      '<ul><li>' + self.CLOSE + '</li></ul>']:
+            self.assert_rule('LS12', self.page(close=close))
+        self.assert_rule('LS12', self.page(body=self.BODY + self.CLOSE, close=''))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(close=
+            '<p id="next-action">Test <strong>one case</strong>.</p>').replace(
+            '</article>', '</article><nav><p>Next lesson</p></nav>')}), [])
+
+
+
+    def test_section_counts_ignore_article_chrome_without_losing_nested_list_prose(self):
+        bad = self.page(body='<h2>Checks reject errors</h2><p>One. Two.</p>'
+                        '<nav><p>Fake third sentence.</p></nav>' + self.BODY)
+        self.assert_rule('LS08', bad)
+        good = self.page(body='<h2>Checks reject errors</h2>'
+                        '<ul><li>A parent sentence.<ul><li>A child sentence.</li>'
+                        '<li>Another child sentence.</li></ul></li></ul>' + self.BODY)
+        self.assertEqual(self.scan_pages({'lessons/demo.html': good}), [])
+        # Nested page tools are not authored section headings.
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page().replace(
+            '<article>', '<article><aside><h2>On this page</h2><p>Read here.</p></aside>')}), [])
+
+
+    def test_closing_cannot_hide_unwrapped_extra_text_or_broken_citations(self):
+        self.assert_rule('LS12', self.page(close='Take another action. ' + self.CLOSE))
+        self.assert_rule('LS11', self.page(close=self.CLOSE.replace(
+            'one repeated mistake', '<a href="#cite-missing">one repeated mistake</a>')))
+        self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(close=self.CLOSE.replace(
+            'one repeated mistake', '<a href="#cite-demo">one repeated mistake</a>'))}), [])
+
+
+    def test_verb_vocabulary_accepts_plain_verbs_observed_in_current_headings(self):
+        # Inspection found these valid verbs missing from the initial vocabulary.
+        # Acceptance here does not certify the rest of each heading's grammar.
+        for heading in ['Derive each consumer from one contract', 'Reuse before building',
+                        'Map errors to actions', "The sponsor's speed claims remain unverified.",
+                        'One concrete way to close it', 'The gap Theo hit',
+                        'What type-safe composition feels like', 'What belongs in an instruction file',
+                        # Phase 4 writers used these plain verbs; observed 2026-09-13.
+                        'Readable evidence sharpens the diagnosis', 'Focused context exposes the route',
+                        'User journeys expose hidden failures', 'Your project supplies the authority',
+                        'One contract guides every consumer', 'Existing rules receive the constraint first']:
+            with self.subTest(heading=heading):
+                self.assertEqual(self.scan_pages({'lessons/demo.html': self.page(body=self.BODY.replace(
+                    'Checks reject repeated mistakes', heading))}), [])
+        self.assert_rule('LS07', self.page(body=self.BODY.replace(
+            'Checks reject repeated mistakes', 'An arbitrary noun phrase')))
+
+
+class LessonStandardEntryTest(unittest.TestCase):
+    def test_default_check_enforces_lessons_and_flag_is_compatible(self):
+        helper = CheckerAtRealEntryTest()
+        with temp_root('lesson-cli-') as root:
+            helper.copy_public_inputs(REPO, root, include_public=True)
+            page = root / 'public/lessons/recurring-mistakes.html'
+            page.write_text(page.read_text().replace('<article>', '<div>').replace('</article>', '</div>'))
+            for args in [[], ['--lessons']]:
+                result = subprocess.run([sys.executable, 'build/check.py'] + args,
+                                        cwd=root, capture_output=True, text=True, timeout=300)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn('LS01', result.stdout)
+                self.assertIn('lessons/recurring-mistakes.html', result.stdout)
+
+    def test_layout_accepts_registered_standard_and_harness_files_only(self):
+        checker = load_checker()
+        with temp_root('standard-layout-') as root:
+            checker.ROOT = root
+            control = root / 'control'
+            control.mkdir()
+            for name in ['lesson-standard.md', 'harness.md', 'harness-state.json']:
+                (control / name).write_text('Registered control document')
+            # Exercise source-archive layout rather than a temporary Git index.
+            with patch('subprocess.run', side_effect=subprocess.CalledProcessError(1, ['git'])):
+                checker.layout()
+            self.assertEqual(checker.failures, [])
+            (control / 'unregistered.md').write_text('Must still fail')
+            with patch('subprocess.run', side_effect=subprocess.CalledProcessError(1, ['git'])):
+                checker.layout()
+            self.assertTrue(any('unregistered.md' in f for f in checker.failures))
+
+
+    def test_layout_and_compatible_flag_remain_source_only(self):
+        with temp_root('lesson-flags-') as root:
+            CheckerAtRealEntryTest().copy_public_inputs(REPO, root, include_public=False)
+            result = subprocess.run([sys.executable, 'build/check.py', '--layout', '--lessons'],
+                                    cwd=root, capture_output=True, text=True, timeout=300)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('PASS: source layout', result.stdout)
 
 
 if __name__ == '__main__':

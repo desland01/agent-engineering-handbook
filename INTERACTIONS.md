@@ -1,5 +1,25 @@
 # How the site behaves
 
+## The approved sitemap now drives navigation
+
+Phase 5, September 13, 2026: the current implementation uses Home, Lessons,
+Skills and Sources, with one complete native More menu and its final GitHub link.
+The menu wraps and scrolls within the viewport. Its seven groups and direct labels
+come from the approved sitemap; chapter labels remain the three approved groups.
+Ten lessons own all guide and idea material. Recovery is lesson 9; fresh-agent
+merges into useful-instructions. Earlier addresses use permanent redirects rather
+than physical alias articles. The problem picker has eight lesson destinations.
+The accepted lesson sources and skill READMEs supply reader articles, with context,
+contents and sequence outside them. Agent instructions remain separate companions.
+The final lesson leads to Skills. Sources owns the inspections and labelled evidence.
+
+These statements replace the older route, guide-course, video-rail and skill-body
+contracts below. The remaining design rationale, palette, typography, progressive
+enhancement, focus, motion, illustration and layout requirements still apply.
+Rendered verification was blocked in the Phase 5 workspace; see
+`control/reviews/site-structure.md` for the exact limits.
+
+
 Source-only guidance for contributors, never rendered or copied into `public/`. The
 behaviour specification for the generated pages: the reader's journey, what each screen
 puts first, the states that occur on a static site, and the responsive, keyboard, focus

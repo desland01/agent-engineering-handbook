@@ -1,101 +1,31 @@
-# Improve the environment your agents work in
+# You remove obstacles for the next contributor
 
-Every fix you make by hand, every setup step every agent repeats, every wait everyone
-shares — these are costs charged per task, forever, until someone improves the
-environment. The answer is to spend deliberate time on the shared surface: automation,
-setup, checks and instructions that the later tasks and users who work in that
-environment inherit.
+A newcomer’s first blocked attempt reveals work your environment still makes every contributor repeat. You will turn one observed obstacle into a shared improvement, then compare the next equivalent attempt.
 
-## Automation now multiplies more than your own work
+## Newcomers reveal hidden work
 
-Boris's argument, quoted by Theo and endorsed by Theo: infrastructure and
-developer-experience automation used to speed up one engineer. Now, if you run several
-agents, each agent using that environment is sped up too — so more automation means more
-output per unit of time. **The direction is plausible; the magnitude is asserted, not
-measured in the video.** The practical form is to profile the slow shared steps —
-environment setup, test suites, CI wait — before scaling the number of parallel agents
-([Stop babysitting your agent's CI failures](ci-feedback.md)).
+Experienced contributors often stop noticing setup steps and tolerated failures that newcomers encounter immediately. A blocked first attempt therefore reveals work the environment expects each new contributor to rediscover. Theo Browne describes improving approachability so new developers become more effective <a href="#cite-c0006">in his discussion</a>. Armin Ronacher proposes asking how well a completely new intern can work on the project <a href="#cite-c0066">as a benchmark</a>. Treat each question as evidence about one path, rather than requiring newcomers to meet a reporting quota.
 
-Theo's own evidence is about permission, not math. Teams, Theo says, are more willing now
-to fund this time: three days on a Vim config used to draw concern, and Theo encourages Theo's
-own team to spend more of it because they had internalized that it was not worthwhile.
-**This is Theo's anecdote about team attitudes.** Nothing in the video establishes your
-team's tolerance — ask, and show one concrete win before asking for more time.
+## Record the obstacle, then route it
 
-T3's PR history, from the original investigation, shows what that investment looks like
-when it lands: PR #5586 replaced recurring agent setup workarounds with environment
-sanitization and consistent instructions; PR #2928 fixed a dependency that was reloading
-browser-test sessions mid-run — repairing the environment rather than raising retries;
-PR #8250 removed a duplicate build and unneeded release-job dependencies, though its
-measured saving is the author's audit, not an independently reproduced result.
+Record the blocked action, expected result, observed result, and any workaround that restored progress. Then identify whether missing guidance, broken setup, unavailable operations, or unreliable checks caused the obstacle. Use the matching lesson for [instructions](useful-instructions.md), [checks](recurring-mistakes.md), [previews](working-previews.md), or [missing operations](missing-tools.md) instead of rebuilding its method here. Prefer obstacles that repeatedly affect several contributors, because one repair then serves more future work. A rare obstacle can still lead when it blocks every useful path through the task.
 
-## The career claim, with its grain of salt
+## Shared repairs should reach everyone
 
-Theo flags Theo's strongest claim as possibly a reach: these skills — building environments
-where code lands well — are how you become a senior developer, because moving from great
-individual contributor to team-forward means work that elevates how others contribute.
-Theo says you can learn it solo with your own multi-agent projects, that it is a bigger
-skill than landing the code, and that it was always the path to staff engineer. **Theo
-personally says to take it with a grain of salt; it is career argument, not evidence, and
-whether a given employer rewards it varies.** The safe, useful core: document these
-contributions so their leverage is visible, since the payoff accrues to the team rather
-than your commit count.
+A repair stored only in your local session disappears before the next contributor arrives. Place the change in the shared environment that actually controls the blocked step. Kyle recommends distributing proven configurations through project-level settings so the whole team inherits them <a href="#cite-c0535">in his article</a>. Anthropic recommends checking the team instruction file into shared history so contributors can improve it <a href="#cite-c0550">in its guide</a>. Shared placement matters only when the repair applies to the observed path and remains safe for others.
 
-## Choose one shared obstacle worth removing
+## Fix the failing step before adding retries
 
-1. List the obstacles every recent task hit: slow setup, repeated manual corrections,
-   missing previews, hand-relayed failures.
-2. Pick one by cost, frequency and how many future tasks it affects. A high-impact first
-   occurrence can justify the work.
-3. Fix the environment once, in the place the failure actually lives — an environment
-   repair over a retry, an owned instruction file over a verbal reminder
-   ([Write instructions that change agent behavior](useful-instructions.md)).
-4. Agree the scope and budget of the change before starting: one focused fix with a budget
-   appropriate to that task, framed as team leverage, since each teammate's agents working
-   in that environment inherit it.
-5. Record what the change made automatic and what remains manual.
+Some workarounds remain tolerable when a person can notice a failure and restart the task manually. That instability becomes a recurring barrier when unattended contributors depend on the same path. Michael Truell warns that one environmental failure can interrupt every agent run <a href="#cite-c0367">in his article</a>. His article explains the interruption mechanism <a href="#cite-c0367">without measuring your project’s likely improvement</a>. Repair the failing shared step before adding more retries or starting more parallel work. Keep the repair limited to the observed path unless further evidence supports a wider change.
 
-[Guide 04](../guides/04-ci-feedback.md) covers the CI-wait case;
-[guide 07](../guides/07-team-learning.md) covers turning teammate friction into these
-improvements.
+## Comparable attempts show whether work improved
 
-## Compare the same work before and after
+Record the original blocked action and the manual effort needed to complete it. After the shared repair, ask a fresh contributor to attempt the same kind of work. Compare failed starts, repeated explanations, and time until the first useful result. Keep task difficulty and success requirements comparable, because easier work can create a false improvement. One successful attempt supports only the repaired path, rather than the entire environment.
 
-Measure the same work before and after: the setup steps a fresh agent needs, the
-corrections repeated per task, the wall-clock a check loop takes. Keep raw numbers and the
-revision. State the scope of the fix: a change aimed at one workflow is a legitimate fix
-for that workflow — record what it covers and what it leaves untouched, rather than
-reading limited scope as failure.
+## The sources support shared environment changes
 
-## Tooling does not guarantee a promotion.
+<a href="#cite-c0006">Browne</a> and <a href="#cite-c0066">Ronacher</a> connect environment quality to a newcomer’s ability to work without hidden local knowledge. <a href="#cite-c0367">Truell</a> explains why unstable shared paths become repeated interruptions during unattended work. <a href="#cite-c0535">Kyle</a> and <a href="#cite-c0550">Anthropic</a> support storing proven settings and instructions where future contributors inherit them. These sources provide arguments and recommended practices, without guaranteeing measured improvements for every project. They do not prove that shared environment work produces specific career rewards.
 
-No measurement in the video establishes how much output automation adds, that teams
-generally fund this work, or that it causes promotions. What the sources do establish is
-the mechanism — shared improvements are inherited by the later work that uses that
-environment — and real repository examples of it being done.
+<ol id="citations"><li id="cite-c0006">Theo Browne, video, <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=703s">A Message for Passionate Devs</a>, at 11:43. "make the codebase more approachable, to make new devs more effective"</li><li id="cite-c0066">Armin Ronacher, video, <a href="https://www.youtube.com/watch?v=4zlHCW0Yihg&amp;t=628s">Armin Ronacher on AI Agents, Tooling, and the Future of Programming</a>, at 10:28. "how good does a completely new intern work on this project"</li><li id="cite-c0367">Michael Truell, blog, <a href="https://cursor.com/blog/third-era#:~:text=turns%20into%20a%20failure%20that%20interrupts%20every%20agent%20run">The third era of AI software development</a>, at There is a lot of work left before. "turns into a failure that interrupts every agent run."</li><li id="cite-c0535">Kyle, blog post, <a href="https://www.humanlayer.dev/blog/skill-issue-harness-engineering-for-coding-agents#:~:text=Distributing%20battle-tested%20configurations%20to%20the%20whole%20team%20via%20repository-level%20config">Skill Issue: Harness Engineering for Coding Agents</a>, at Distributing battle-tested configurations to the whole team via. "Distributing battle-tested configurations to the whole team via repository-level config"</li><li id="cite-c0550">Anthropic, engineering guide, <a href="https://www.anthropic.com/engineering/claude-code-best-practices#:~:text=Check%20CLAUDE.md%20into%20git%20so%20your%20team%20can%20contribute">Best practices for Claude Code</a>, at Check CLAUDE.md into git so your team. "Check CLAUDE.md into git so your team can contribute."</li></ol>
 
-## Sources
-
-<span id="tip-03-automation-multiplies-agents"></span>
-**tip-03-automation-multiplies-agents** — [04:47](https://www.youtube.com/watch?v=xmGY276gEFY&t=287s).
-Boris, as quoted by Theo, endorsed by Theo. Infra and DX automation now speeds up every
-agent. Evidence type: quoted post via the video; the magnitude is asserted, not measured.
-
-<span id="tip-07-team-buy-in"></span>
-**tip-07-team-buy-in** — [07:28](https://www.youtube.com/watch?v=xmGY276gEFY&t=448s).
-Theo. Teams are more willing to fund tooling time. Evidence type: Theo's opinion about
-team attitudes; ask rather than assume.
-
-<span id="tip-17-career-leverage"></span>
-**tip-17-career-leverage** — [16:54](https://www.youtube.com/watch?v=xmGY276gEFY&t=1014s).
-Theo, self-flagged as speculative. Building environments where code lands well is a
-career-level skill. Evidence type: career argument; Theo says to take it with a grain of
-salt, and employer recognition varies.
-
-Repository evidence: T3 PRs
-[#5586](https://github.com/pingdotgg/t3code/pull/5586),
-[#2928](https://github.com/pingdotgg/t3code/pull/2928) and
-[#8250](https://github.com/pingdotgg/t3code/pull/8250), from the original T3
-investigation. Related:
-[agent-ready-workspaces skill](../skills/agent-ready-workspaces/SKILL.md). Start over at
-[Stop fixing the same mistake twice](recurring-mistakes.md).
+<p id="next-action">Record one newcomer obstacle alongside the next equivalent task you will use to test its repair.</p>

@@ -1,94 +1,105 @@
-# Stop fixing the same mistake twice
+# You turn repeated mistakes into reliable checks
 
-When you find yourself correcting the same mistake again — another review comment, another
-reprimand to your agent, another quick patch — nothing remembers the fix, so the mistake
-keeps coming back. The answer, once you observe the recurrence rather than anticipate it,
-is to convert that correction into a check that runs on every change and rejects the whole
-class of mistake — a lint rule, a CI step, or a small script — instead of fixing the next
-occurrence by hand.
+When the same mistake returns, turn the correction into a check that runs on each change. You will learn to choose its boundary and prove that it rejects the mistake while allowing valid work.
 
-## Why the check wins
+## Observed failures define useful checks
 
-Boris's argument, as Theo reads it in the video, is an accounting one. Each per-occurrence
-fix spends attention (or agent tokens), and each pass can miss a case. A written check can
-catch the cases it was configured for on later changes, including ones nobody is watching
-for; it is not complete coverage, and the rule itself needs maintenance. The same lesson's
-own example shows the boundary: the shipped T3 rule covers the direct `title` attribute but
-not custom-component props or spread attributes, so some native tooltips remain outside it.
-Theo adds a separate economic point: rules that were never worth hand-writing are now
-worth writing, because producing the rule and the tests that prove it has become cheap. A
-custom rule that needs around 400 lines to check a very specific oddity used to stay as
-manual code review forever. That price has dropped.
+Begin with work that already failed, because imagined dangers create noisy and expensive rules. Keep one failing example and one valid alternative before deciding how any check should behave. Hamel Husain and Shreya Shankar recommend building evaluators from discovered errors in <a href="#cite-c0400">their guidance</a>. A recurrence usually justifies automation, while one severe failure can justify earlier protection. An explicit request for a standing guard also removes the need to wait.
 
-These are two adjacent claims, not one. Boris's is about automating a class instead of
-instances. Theo's is about when the build is worth the price. Both are arguments, not
-measurements.
+## Repeated comments should become executable rules
 
-## A check that actually shipped
+Repeated review comments show that memory and written guidance are no longer reliable controls. Boris Cherny says he would write a lint rule and automate that repeated feedback in <a href="#cite-c0187">his recommendation</a>. Ryan Lopopolo describes promoting a missed written rule into code when documentation falls short in <a href="#cite-c0519">the described practice</a>. Choose the smallest existing mechanism that recognizes the entire demonstrated class of mistakes. Use a static rule when the failure has a visible and stable code shape. Use a focused test when the failure appears only while the software runs.
 
-This comes from the original T3 Code investigation, not the video. A tooltip regression
-kept reappearing in T3 Code. Instead of another round of fixes, the team added a custom
-Oxlint rule, [`no-native-title-tooltip`](https://github.com/pingdotgg/t3code/pull/7209),
-in PR #7209 (merged August 16, 2026): it visits JSX elements, flags the direct `title`
-attribute that caused the regressions, allows the specific accessibility uses that are
-legitimate, and fixes the existing occurrences in the same PR. Its valid/invalid fixtures
-and successful PR check runs are observable in the public source.
+## The check must permit valid work
 
-Note the limits the inspection records: the rule is narrow. Custom-component props and
-spread attributes are outside it, so it does not prove every possible native tooltip is
-prevented. That honesty is part of the pattern — say what the check covers.
+A useful check protects one boundary without rejecting every nearby and acceptable change. Save the forbidden example, then preserve one approved alternative beside it for comparison. Set the rule to block changes when both the boundary and remedy are certain. Use a warning while evidence remains incomplete, then remove or strengthen that warning. Narrow exceptions should name their reason, because broad escape routes hide future recurrences. Theo Browne says an entire recurring issue class can be automated permanently in <a href="#cite-c0005">his argument</a>. That promise applies only inside the precise boundary the chosen mechanism can observe.
 
-## Make the recurring correction automatic
+## A small import rule proves the boundary
 
-1. Collect the observed instances: file, import, call shape.
-2. Prefer an existing mechanism — a built-in lint rule, a type, an existing CI step —
-   before writing a custom AST rule. Write a custom rule only when nothing existing can
-   express the failure.
-3. Prove the failure first: with the rule absent, the bad code passes. Keep that output.
-4. Enable the rule, fix the live violations, and ship at least one fixture that must fail
-   and one that must pass.
-5. Make the error message name the approved alternative. The message is the documentation
-   the next reader gets.
+Suppose interface code repeatedly imports a database client instead of using the approved service layer. The following exercise creates one forbidden import, one permitted import, and one blocking rule. Type these commands inside an empty working directory on a development machine.
 
-The handbook keeps a runnable demonstration of this loop in
-[guide 01](../guides/01-recurring-failures.md) and the
-[lint example](../examples/recurring-rule/README.md). It uses the built-in
-`no-restricted-imports` rule: without the restriction, the unwanted import passes; with
-the restriction in place, the unwanted import fails while the permitted import still
-passes. The full procedure, including
-maintenance and rule retirement, lives there; this lesson is the decision, not the
-implementation.
+```sh
+mkdir recurring-import-check
+cd recurring-import-check
+npm init -y >/dev/null
+npm install --save-dev eslint@10.10.0
+npm pkg set type=module
+npm pkg set 'scripts.lint=eslint .'
+mkdir -p src/db src/api src/ui
 
-## Check both forbidden and permitted cases
+cat > src/db/client.js <<'EOF'
+export const db = {};
+EOF
 
-A check that never rejects anything is decoration. Confirm the forbidden case now fails
-with a clear message and a permitted case still passes, through the command your project
-actually runs. Then check whether the check is wired into CI: a rule run only by hand has
-no automatic invocation, so it fires only when someone remembers to run it. Review a new
-rule like any other code: an over-broad rule silently blocks good
-changes.
+cat > src/api/users.js <<'EOF'
+import { db } from "../db/client.js";
+export const users = db;
+EOF
 
-## Maintenance still determines whether a rule pays.
+cat > src/ui/UserCard.js <<'EOF'
+import { db } from "../db/client.js";
+export const card = db;
+EOF
 
-The claim that automated fixes now cost less than manual review is an economic argument,
-not a measured result, and rule maintenance cost is real. Whether a given rule pays for
-itself depends on your codebase.
+cat > src/ui/UserList.js <<'EOF'
+import { users } from "../api/users.js";
+export const list = users;
+EOF
 
-## Sources
+cat > eslint.config.red.js <<'EOF'
+export default [{ files: ["src/ui/**/*.js"], rules: {} }];
+EOF
 
-<span id="tip-08-fix-class-loops"></span>
-**tip-08-fix-class-loops** — [08:02](https://www.youtube.com/watch?v=xmGY276gEFY&t=482s).
-Boris, as quoted by Theo. Move recurring fixes into executable checks. Evidence type:
-quoted post via the video; argument, not measurement. A wrong or over-broad check blocks
-good changes, so review it.
+cat > eslint.config.js <<'EOF'
+export default [
+  { ignores: ["node_modules/**"] },
+  {
+    files: ["src/ui/**/*.js"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [{
+            group: ["**/db", "**/db/**", "@db/*"],
+            message: "UI code must import through the API layer."
+          }]
+        }
+      ]
+    }
+  }
+];
+EOF
 
-<span id="tip-19-custom-lint-economics"></span>
-**tip-19-custom-lint-economics** — [08:30](https://www.youtube.com/watch?v=xmGY276gEFY&t=510s).
-Theo. Custom lint rules became economical because the code and its verifying tests are
-cheap to produce. Evidence type: Theo's opinion; the ~400-line figure is Theo's example.
+npx eslint --config eslint.config.red.js src
+npx eslint src/ui/UserList.js
+set +e
+npm run lint
+status=$?
+set -e
+test "$status" -eq 1
+```
 
-Repository evidence: [T3 Code PR #7209](https://github.com/pingdotgg/t3code/pull/7209) and
-the [plugin index](https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/oxlint-plugin-t3code/index.ts),
-from the original T3 investigation. Method details:
-[guide 01](../guides/01-recurring-failures.md). Next:
-[Passing tests can still hide broken software](prove-it-works.md).
+The unprotected validation succeeds, proving the recurring mistake remains invisible to routine checks. The protected validation rejects the direct import, while the approved service import remains accepted. The ordinary project command uses the same protection, so future changes cannot depend on memory.
+
+## Ordinary validation keeps protection active
+
+A check run only by hand still depends on someone remembering when to use it. Place it inside the project's ordinary validation, using the same command locally and during shared review. Make every failure message name the approved alternative, so rejection includes the next correction. Mitchell Hashimoto describes changing the environment after failure so an agent cannot repeat that mistake in <a href="#cite-c0374">his account</a>. 逆瀬川ちゃん recommends adding a test whenever an agent makes a mistake in <a href="#cite-c0536">the stated practice</a>. Together, those practices move correction from a person's memory into the environment surrounding future work.
+
+## Every check needs limits and upkeep
+
+The import rule sees direct imports matching configured locations, while other dependency routes remain outside. Dynamic loading, indirect re-exports, and unchecked folders require separate evidence before receiving additional protection. Record these limits beside the rule, then expand only after observing another missed class. Review exceptions and messages whenever architecture changes, because an outdated remedy can block valid work. Retire the rule when its boundary disappears or a broader control safely replaces it. Automation reduces repeated correction, while maintenance decides whether the long-term cost remains worthwhile.
+
+## Sources support evidence-led automation
+
+Together, these sources support replacing repeated correction with an executable guard around an observed failure. They favor checks built from discovered errors and written rules that have already failed. They describe practitioner guidance and experience, rather than measurements proving universal outcomes. Each local check still requires direct proof that forbidden work fails and permitted work succeeds.
+
+<ol id="citations">
+<li id="cite-c0005">Theo Browne, video, <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=495s">A Message for Passionate Devs</a>, at 08:15. "that class of issue can be fully automated forever."</li>
+<li id="cite-c0187">Boris Cherny, video, <a href="https://www.youtube.com/watch?v=julbw1JuAz0&amp;t=2495s">Inside Claude Code with Boris Cherny</a>, at 41:35. "I would write a lint rule for it. So just automate it"</li>
+<li id="cite-c0374">Mitchell Hashimoto, blog, <a href="https://mitchellh.com/writing/my-ai-adoption-journey#:~:text=engineer%20a%20solution%20such%20that%20the%20agent%20never%20makes%20that%20mistake%20again.">My AI Adoption Journey</a>, at I don't know if there is a. "engineer a solution such that the agent never makes that mistake again."</li>
+<li id="cite-c0400">Hamel Husain, Shreya Shankar, blog, <a href="https://hamel.dev/blog/posts/evals-faq/#:~:text=Write%20evaluators%20for%20errors%20you%20discover%2C%20not%20errors%20you%20imagine.">AI Evals: Everything You Need to Know</a>, at A better approach is to start with error. "Write evaluators for errors you discover, not errors you imagine."</li>
+<li id="cite-c0519">Ryan Lopopolo, blog post, <a href="https://openai.com/index/harness-engineering/#:~:text=When%20documentation%20falls%20short%2C%20we%20promote%20the%20rule%20into%20code">Harness engineering: leveraging Codex in an agent-first world</a>, at Human taste is fed back into the system. "When documentation falls short, we promote the rule into code"</li>
+<li id="cite-c0536">逆瀬川ちゃん, blog post, <a href="https://nyosegawa.com/en/posts/harness-engineering-best-practices-2026/#:~:text=Whenever%20an%20agent%20makes%20a%20mistake%2C%20add%20a%20test%20to%20prevent%20it.">Harness Engineering Best Practices for Claude Code / Codex Users, Explained Plainly</a>, at Tests resist rot better than documentation. "Whenever an agent makes a mistake, add a test to prevent it."</li>
+</ol>
+
+<p id="next-action">Convert one recently repeated mistake into a blocking check with one permitted example.</p>

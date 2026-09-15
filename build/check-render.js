@@ -16,20 +16,20 @@ const PORT = 0; // ephemeral
 const PAGES = [
   'index.html',
   'lessons.html',
-  'guides.html',
+  'lessons/resume-work.html',
   'skills.html',
   'investigations.html',
   'evidence.html',
   'lessons/recurring-mistakes.html',
   'lessons/better-environments.html',
-  'guides/01-recurring-failures.html',
+  'examples/recurring-rule/README.html',
   'skills/agent-feedback-engineering/index.html',
-  'ideas/01-ci-feedback-loop.html',
+  'skills/agent-artifact-recovery/index.html',
 ];
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
-const HUBS = ['lessons.html', 'guides.html', 'skills.html', 'investigations.html', 'evidence.html'];
+const HUBS = ['lessons.html', 'skills.html', 'investigations.html', 'evidence.html'];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -47,8 +47,10 @@ function serve(root) {
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
       const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+      const redirect = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'vercel.json'), 'utf8')).redirects.find(row => row.source === urlPath);
+      if (redirect) { res.writeHead(308, {Location: redirect.destination}); return res.end(); }
       let filePath = path.normalize(path.join(root, urlPath));
-      if (!filePath.startsWith(root)) {
+      if (filePath !== root && !filePath.startsWith(root + path.sep)) {
         res.writeHead(403);
         return res.end('forbidden');
       }
@@ -153,7 +155,7 @@ async function checkLessonJourney(browser, base, failures) {
     }), 'homepage reading order is not copy, problems, artwork');
     await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.click('.actions .primary')]);
     verify(page.url().endsWith('/lessons/recurring-mistakes.html'), 'primary action does not open lesson 1');
-    verify(await page.$eval('h1', (el) => el.textContent === 'Stop fixing the same mistake twice'), 'lesson 1 title differs');
+    verify(await page.$eval('h1', (el) => el.textContent === 'You turn repeated mistakes into reliable checks'), 'lesson 1 title differs');
     const tabLimit = await page.$$eval('.site-head a, .site-head summary', (els) => els.length + 2);
     let menuFocused = false;
     for (let i = 0; i < tabLimit; i++) {
@@ -166,6 +168,21 @@ async function checkLessonJourney(browser, base, failures) {
       verify(await page.evaluate(() => { const s = getComputedStyle(document.activeElement); return (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none'; }), 'keyboard focus has no visible outline or shadow');
       await page.keyboard.press('Enter');
       verify(await page.$eval('details.menu', (el) => el.open), 'Enter does not open the menu');
+      const menuState = await page.$eval('details.menu nav', el => {
+        const box = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        const last = el.querySelector('li.menu-repository a');
+        const before = el.scrollTop;
+        el.scrollTop = el.scrollHeight;
+        const after = el.scrollTop;
+        const lastBox = last.getBoundingClientRect();
+        return {fits: box.left >= 0 && box.right <= innerWidth && box.bottom <= innerHeight,
+                wraps: [...el.querySelectorAll('a')].every(a => getComputedStyle(a).whiteSpace !== 'nowrap'),
+                scrolls: after > before, lastVisible: lastBox.top >= box.top && lastBox.bottom <= box.bottom,
+                final: last.textContent};
+      });
+      verify(menuState.fits && menuState.wraps && menuState.scrolls && menuState.lastVisible,
+             'complete menu does not fit, wrap, scroll or expose its last link: ' + JSON.stringify(menuState));
       await page.keyboard.press('Escape');
       verify(await page.$eval('details.menu', (el) => !el.open), 'Escape does not close the menu');
     }

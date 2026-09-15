@@ -1,89 +1,31 @@
-# Stop babysitting your agent's CI failures
+# You diagnose failed checks without copying logs
 
-Your agent opens a pull request. CI fails with an error that did not appear locally. You
-open the web page, dig the error out of the log, paste it into the agent, wait for another
-run, and repeat. That human copy-paste hop is an extra manual handoff in the loop — and it
-is removable. Give the agent two abilities: trigger a check run itself, and fetch the
-failing portion of the logs itself.
+Give your agent direct access to the failed check, then make it diagnose before changing anything. You can verify the repair by matching both results to the revisions they actually tested.
 
-## The loop, and who said it
+## Direct access removes the relay
 
-The observation comes from the video's sponsor segment, read by Theo: agent PR, random CI
-failure, human copies the log, agent fixes, human waits again. The sponsor's pitch is that
-its CI product closes that loop. The portable idea survives without the product: wherever
-a human relays a check failure an agent could have retrieved, that relay is the gap.
+Manual copying separates the failure from the revision, run, and surrounding evidence that produced it. Mitchell Hashimoto described frustration with copying command output between tools during work on existing projects <a href="#cite-c0369">in his account</a>. That transfer can omit context, preserve stale excerpts, or introduce accidental changes before diagnosis begins. Theo Browne proposes letting the agent trigger the check, retrieve logs, and repair directly <a href="#cite-c0001">in his example</a>. His example supports the feedback loop, without independently proving any vendor's speed or cost claims.
 
-**Qualification you should keep:** this is a paid advertisement. Its speed, cost, workload
-and falling-failure-rate claims are unverified. Do not choose a vendor from it. Take the
-loop shape, not the product.
+## Run identity keeps evidence attached
 
-The video's related point, from Boris's post via Theo, is that shared infrastructure work
-speeds up every agent that uses the environment — which is why the relay is worth removing
-([Improve the environment your agents work in](better-environments.md)).
+Record the tested revision, check name, attempt, and result before interpreting any failure. A branch can contain several revisions and repeated attempts, so the newest result may test different work. Keep the original failed output available, then focus first on the causal error and nearby context. Retrieve more surrounding evidence only when the initial output cannot explain what failed or where. An unchanged successful retry leaves the first failure unexplained, even when the latest result appears healthy.
 
-## One concrete way to close it
+## Readable evidence sharpens the diagnosis
 
-With the repository's configured GitHub CLI, the agent can select the run for the actual
-commit and keep only the failed steps:
+Boris demonstrates sending a large raw log directly into the agent for analysis <a href="#cite-c0211">during his demonstration</a>. Direct access preserves more context than selected excerpts, especially when the cause appears before the final error. Repeatedly reading every line can bury useful evidence and consume the attention needed for diagnosis. Keep the complete output available, then inspect the failed step, causal block, and nearby context first. Next.js forwards browser failures into agent-readable development output, extending direct feedback to client-side problems <a href="#cite-c0346">in its guidance</a>.
 
-```bash
-REV=$(git rev-parse HEAD)
-# List the runs for that revision, then pick the RUN_ID of the run you are
-# investigating from the databaseId field of the listing:
-gh run list --commit "$REV" \
-  --json databaseId,headSha,workflowName,status,conclusion,url
-# Replace the placeholder below with the databaseId you picked above:
-RUN_ID='REPLACE_WITH_DATABASE_ID'
-gh run view "$RUN_ID" --json headSha,workflowName,status,conclusion,url
-gh run view "$RUN_ID" --log-failed > ci-failed.log
-```
+## Diagnosis determines the next move
 
-This is an implementation example from [guide 04](../guides/04-ci-feedback.md), not
-something demonstrated in the video; it uses the documented
-[`gh run list`](https://cli.github.com/manual/gh_run_list) and
-[`gh run view`](https://cli.github.com/manual/gh_run_view) commands. Two details matter
-more than the commands: match the run to the revision you are actually investigating (a
-branch can have several workflows and reruns), and keep the failing-step log rather than
-either truncating to a few lines or pasting the whole build log.
+Classify the evidence before editing as a product defect, environment failure, unstable check, or unavailable dependency. Each class needs a different response, because changing product code cannot repair every failed environment. Choose the smallest supported change that addresses the observed cause within your existing authority. If diagnosis needs unavailable credentials, services, or permissions, preserve the evidence and name the unresolved dependency. A repeated attempt without changed evidence or a new hypothesis only repeats the same uncertainty.
 
-## Diagnose the failed run before repairing
+## The repaired revision must prove itself
 
-Diagnose before repairing: a product failure, an environment problem and an unstable test
-have different fixes. Make the smallest supported repair, run the relevant local check,
-then push and confirm the next run matches the new commit. Preserve the original failure
-if a retry passes — a green retry does not explain the original red. A repeated attempt
-with no changed hypothesis is not a repair.
+Run the narrowest relevant check nearby when available, then observe the authorized shared check. Confirm that the successful result tested the repaired revision rather than an earlier or later change. Compare the original failure with the new result, showing how the correction addresses the diagnosed cause. If an unchanged retry passes, record the instability because the first failure remains unexplained. A complete result names the tested revision, failed check, diagnosis, correction, verification, and remaining uncertainty.
 
-## Check the full feedback loop
+## The sources show agents receive failures
 
-Test the loop itself, on a disposable branch with a known failing change. A complete
-verification shows the agent retrieving the correct run, diagnosing without a human-pasted
-error, and observing the repaired revision. Check what your green badge actually
-aggregates: in Boris Cherny's inspected `json-schema-to-typescript`, the aggregate
-[`ci-ok` job](https://github.com/bcherny/json-schema-to-typescript/blob/5caacfc53671f9c891bb4e2a78bccc6190ed3ef4/.github/workflows/ci.yml)
-requires success from build, fuzz and output but not from the `bun` and
-`engines` matrix jobs it also names — so "all checks" checked less than its name suggests.
-Caveat: branch-protection settings for that repository were not inspected, so this finding
-shows what the job requires, not what the repository blocks on. Method context:
-[guide 13](../guides/13-layered-validation.md) presents the layered-validation
-table.
+Together, these sources support direct access to check output while leaving diagnosis and verification as separate responsibilities. <a href="#cite-c0001">Theo Browne</a> and <a href="#cite-c0211">Boris</a> show agents receiving check output directly, without requiring a human relay. <a href="#cite-c0346">Next.js</a> extends that visibility to browser failures, while <a href="#cite-c0369">Mitchell Hashimoto</a> identifies manual transfer as practical friction. These sources do not establish that every failure is repairable, or that unrestricted retries are safe.
 
-## The sponsor's speed claims remain unverified.
+<ol id="citations"><li id="cite-c0001">Theo Browne, video, <a href="https://www.youtube.com/watch?v=xmGY276gEFY&amp;t=133s">A Message for Passionate Devs</a>, at 02:13. "your agent could trigger it directly, get the logs, and fix things yourself"</li><li id="cite-c0211">Boris, video, <a href="https://www.youtube.com/watch?v=kNByBNS5mS8&amp;t=1326s">Practical Tips and Tricks for Claude Code</a>, at 22:06. "read, you know, like a giant log and pipe it in"</li><li id="cite-c0346">Next.js, docs, <a href="https://nextjs.org/docs/app/guides/ai-agents#:~:text=carries%20the%20client-side%20failures%20they%27re%20asked%20to%20fix">Guides: AI Coding Agents | Next.js</a>, at First, next dev forwards browser console errors and. "carries the client-side failures they're asked to fix."</li><li id="cite-c0369">Mitchell Hashimoto, blog, <a href="https://mitchellh.com/writing/my-ai-adoption-journey#:~:text=frustrated%20copying%20and%20pasting%20code%20and%20command%20output">My AI Adoption Journey</a>, at In the context of brownfield projects, I found. "frustrated copying and pasting code and command output"</li></ol>
 
-Whether closing this loop makes your team faster is not established by the video; the
-sponsor segment contains no verified measurements. The verifiable claim is narrower: the
-manual relay is a step, and steps an agent can self-serve remove a handoff.
-
-## Sources
-
-<span id="tip-01-ci-feedback-loop"></span>
-**tip-01-ci-feedback-loop** — [01:53](https://www.youtube.com/watch?v=xmGY276gEFY&t=113s).
-Sponsor segment (Blacksmith), read by Theo. Agents can trigger CI and read failed logs
-without a human relay. Evidence type: sponsor-ad framing. Blacksmith's performance and
-cost claims, the ~3,000-jobs-in-7-days figure and falling failure rates are sponsor
-claims, unverified; the portable lesson is the loop shape, not the vendor.
-
-Related: [guide 04](../guides/04-ci-feedback.md) for the full method, the
-[agent-feedback-engineering skill](../skills/agent-feedback-engineering/SKILL.md) for
-turning a known failure into a reusable response. Next:
-[Passing tests can still hide broken software](prove-it-works.md).
+<p id="next-action">Give your agent direct access to the complete original output from one failed check.</p>

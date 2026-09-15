@@ -28,37 +28,64 @@ import re
 # candidate says. Titles are intentional interface identity.
 # ---------------------------------------------------------------------------
 APPROVED_VERSION = 1
-APPROVED_TIPS = {
-    'recurring-mistakes': ['tip-08-fix-class-loops', 'tip-19-custom-lint-economics'],
-    'ci-feedback': ['tip-01-ci-feedback-loop'],
-    'prove-it-works': ['tip-02-two-browser-e2e'],
-    'working-previews': ['tip-04-preview-environments'],
-    'missing-tools': ['tip-05-custom-file-upload-skill', 'tip-06-skill-authoring-reward'],
-    'useful-instructions': ['tip-09-domain-knowledge-as-infra', 'tip-11-own-your-instructions',
-                            'tip-12-steering-pushback', 'tip-14-zero-context-docs',
-                            'tip-16-steer-not-map'],
-    'fresh-agent': ['tip-15-minimal-context-calibration'],
-    'shared-contracts': ['tip-13-type-safe-composition'],
-    'codebase-navigation': ['tip-10-newcomer-questions-signal', 'tip-18-solo-onboarding'],
-    'better-environments': ['tip-03-automation-multiplies-agents', 'tip-07-team-buy-in',
-                            'tip-17-career-leverage'],
-}
-APPROVED_IDS = list(APPROVED_TIPS)
-# The approved lesson-to-chapter assignment. The three declared renderer
-# groups; a lesson in the wrong group (or an unknown group name) would be
-# silently dropped from reader grouping.
-APPROVED_CHAPTERS = {
-    'recurring-mistakes': 'stop-repeat-work',
-    'ci-feedback': 'stop-repeat-work',
-    'prove-it-works': 'stop-repeat-work',
-    'working-previews': 'give-agents-what-they-need',
-    'missing-tools': 'give-agents-what-they-need',
-    'useful-instructions': 'give-agents-what-they-need',
-    'fresh-agent': 'give-agents-what-they-need',
-    'shared-contracts': 'keep-it-understandable',
-    'codebase-navigation': 'keep-it-understandable',
-    'better-environments': 'keep-it-understandable',
-}
+APPROVED_TIPS = {'recurring-mistakes': ['tip-08-fix-class-loops', 'tip-19-custom-lint-economics'],
+ 'ci-feedback': ['tip-01-ci-feedback-loop'],
+ 'prove-it-works': ['tip-02-two-browser-e2e'],
+ 'working-previews': ['tip-04-preview-environments'],
+ 'missing-tools': ['tip-05-custom-file-upload-skill', 'tip-06-skill-authoring-reward'],
+ 'useful-instructions': ['tip-09-domain-knowledge-as-infra',
+                         'tip-11-own-your-instructions',
+                         'tip-12-steering-pushback',
+                         'tip-14-zero-context-docs',
+                         'tip-15-minimal-context-calibration',
+                         'tip-16-steer-not-map'],
+ 'shared-contracts': ['tip-13-type-safe-composition'],
+ 'codebase-navigation': ['tip-18-solo-onboarding'],
+ 'resume-work': [],
+ 'better-environments': ['tip-03-automation-multiplies-agents',
+                         'tip-07-team-buy-in',
+                         'tip-10-newcomer-questions-signal',
+                         'tip-17-career-leverage']}
+APPROVED_IDS = ['recurring-mistakes',
+ 'ci-feedback',
+ 'prove-it-works',
+ 'working-previews',
+ 'missing-tools',
+ 'useful-instructions',
+ 'shared-contracts',
+ 'codebase-navigation',
+ 'resume-work',
+ 'better-environments']
+APPROVED_CHAPTERS = {'recurring-mistakes': 'stop-repeat-work',
+ 'ci-feedback': 'stop-repeat-work',
+ 'prove-it-works': 'stop-repeat-work',
+ 'working-previews': 'give-agents-what-they-need',
+ 'missing-tools': 'give-agents-what-they-need',
+ 'useful-instructions': 'give-agents-what-they-need',
+ 'shared-contracts': 'keep-it-understandable',
+ 'codebase-navigation': 'keep-it-understandable',
+ 'resume-work': 'keep-it-understandable',
+ 'better-environments': 'keep-it-understandable'}
+APPROVED_TITLES = {'recurring-mistakes': 'You turn repeated mistakes into reliable checks',
+ 'ci-feedback': 'You diagnose failed checks without copying logs',
+ 'prove-it-works': 'You test the result users actually need',
+ 'working-previews': 'You give agents a working preview',
+ 'missing-tools': 'You make missing operations usable by agents',
+ 'useful-instructions': 'You write instructions that fix observed confusion',
+ 'shared-contracts': 'You keep shared contracts consistent across layers',
+ 'codebase-navigation': 'You navigate unfamiliar code without guessing',
+ 'resume-work': 'You resume work without repeating completed steps',
+ 'better-environments': 'You remove obstacles for the next contributor'}
+APPROVED_GUIDES = {'recurring-mistakes': ['01'],
+ 'ci-feedback': ['04'],
+ 'prove-it-works': ['02', '09', '13'],
+ 'working-previews': ['03'],
+ 'missing-tools': ['06'],
+ 'useful-instructions': ['05'],
+ 'shared-contracts': ['08', '11'],
+ 'codebase-navigation': ['10'],
+ 'resume-work': ['12'],
+ 'better-environments': ['07']}
 
 # The seven public skill IDs. Every linked skill must exist on disk with a
 # SKILL.md; there is no prepublication bypass for catalog loading.
@@ -167,6 +194,8 @@ def load_lessons(repo_root: Path) -> list:
         for field in ('title', 'summary', 'chapter'):
             if not isinstance(record.get(field), str) or not record[field].strip():
                 _fail(path, lesson_id, f'{field} is required and must be nonempty')
+        if record['title'] != APPROVED_TITLES[lesson_id]:
+            _fail(path, lesson_id, 'title must match the approved lesson title')
         chapter = record['chapter'].strip()
         if chapter != APPROVED_CHAPTERS[lesson_id]:
             _fail(path, lesson_id, f'chapter must be the approved group '
@@ -204,6 +233,9 @@ def load_lessons(repo_root: Path) -> list:
                 _fail(path, lesson_id, f'guide id {guide_id!r} resolves to no '
                                        f'guides/{guide_id}-*.md file')
 
+        if guide_ids != APPROVED_GUIDES[lesson_id]:
+            _fail(path, lesson_id, 'guide_ids must match the approved unique ownership')
+
         skill_ids = record.get('skill_ids')
         if not isinstance(skill_ids, list) or not skill_ids:
             _fail(path, lesson_id, 'skill_ids must be a nonempty list')
@@ -233,7 +265,7 @@ def load_lessons(repo_root: Path) -> list:
         # Per-lesson mapping: this lesson's old routes must be exactly the
         # original routes of the tips it covers, so each reader of an old URL
         # lands on the lesson about that topic.
-        expected_here = sorted(_tip_routes(tips)[t] for t in tip_ids)
+        expected_here = _lesson_legacy_paths(repo_root, tips, lesson_id, tip_ids, guide_ids)
         if sorted(legacy) != expected_here:
             diff = sorted(set(legacy) ^ set(expected_here))
             _fail(path, lesson_id, f'legacy paths must be exactly the original routes of '
@@ -255,9 +287,6 @@ def load_lessons(repo_root: Path) -> list:
         if words < MIN_PROSE_WORDS:
             _fail(source_file, lesson_id, f'the lesson prose is {words} words; at least '
                                           f'{MIN_PROSE_WORDS} are required')
-        missing = _anchors_present(text, tip_ids)
-        if missing:
-            _fail(source_file, lesson_id, f'missing source anchor(s) for tip id(s) {missing}')
 
         by_id[lesson_id] = {
             'id': lesson_id, 'order': order, 'chapter': chapter,
@@ -278,13 +307,21 @@ def load_lessons(repo_root: Path) -> list:
         missing = sorted(video_ids - set(assigned))
         _fail(manifest_path, '', f'tip(s) {missing} are not assigned to any lesson; all '
                                  f'{len(video_ids)} source tips must be covered once')
-    expected_legacy = _expected_legacy_paths(tips, assigned)
-    actual_legacy = sorted(l for rec in by_id.values() for l in rec['legacy_paths'])
-    if actual_legacy != expected_legacy:
-        diff = sorted(set(actual_legacy) ^ set(expected_legacy))
-        _fail(manifest_path, '', f'legacy paths do not match the exact nineteen routes in '
-                                 f'original source order; first difference: {diff[:3]}')
+    if sorted(manifest.get('legacy_paths', [])) != ['README.html', 'guides.html', 'ideas', 'ideas.html']:
+        _fail(manifest_path, '', 'legacy_paths must include the four approved hub-level earlier addresses')
     return [by_id[lesson_id] for lesson_id in sorted(by_id, key=lambda k: by_id[k]['order'])]
+
+
+def _lesson_legacy_paths(repo_root, tips, lesson_id, tip_ids, guide_ids):
+    """Approved merged source addresses and explicit original idea aliases."""
+    routes = [_tip_routes(tips)[t] for t in tip_ids]
+    routes += [p.removesuffix('.html') for p in list(routes)]
+    for guide_id in guide_ids:
+        source = next((repo_root / 'guides').glob(f'{guide_id}-*.md'))
+        routes += [f'guides/{source.stem}.html', f'guides/{source.name}']
+    if lesson_id == 'useful-instructions':
+        routes += ['lessons/fresh-agent.html', 'lessons/fresh-agent.md']
+    return sorted(routes)
 
 
 def _tip_routes(tips):

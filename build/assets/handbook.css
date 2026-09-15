@@ -150,12 +150,22 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 .menu .l-narrow { display: inline; }
 .menu .l-wide { display: none; }
 .menu nav {
-  position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 224px;
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 30;
+  width: min(30rem, calc(100vw - 2 * var(--gutter)));
+  max-height: calc(100svh - 88px); overflow-y: auto; overflow-x: hidden;
+  overscroll-behavior: contain; scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent);
   background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius);
   padding: 6px;
 }
+.menu nav::-webkit-scrollbar { display: none; }
 .menu ul { list-style: none; }
-.menu li a { display: block; padding: 8px 10px; border-radius: var(--radius-sm); color: var(--fg); text-decoration: none; font-size: 0.95rem; white-space: nowrap; }
+.menu li a { display: block; padding: 8px 10px; border-radius: var(--radius-sm); color: var(--fg); text-decoration: none; font-size: 0.95rem; white-space: normal; overflow-wrap: anywhere; }
+.menu-chapter { padding: 8px 10px 2px; color: var(--muted-fg); font-size: var(--text-xs); }
+.menu-group > span { display: block; margin: 8px 10px 4px; color: var(--muted-fg); font-size: var(--text-sm); font-weight: 650; }
+.menu-group + .menu-group, .menu-repository { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 6px; }
+.legacy-target { display: block; height: 0; overflow: hidden; scroll-margin-top: 24px; }
+.companion-links { margin-top: 40px; }
 .menu li a:hover { background: var(--surface-2); }
 .menu li a[aria-current="page"] { color: var(--accent-text); }
 .menu li.sep { border-top: 1px solid var(--border); margin: 6px 4px; }
@@ -291,23 +301,27 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
    a dashed spine down the left, a mono [01]-[08] marker on every row, and one
    accent trace that draws down the spine as the panel passes through view.
    The links are untouched - it is a graphic that routes, not a picture of one. */
-.pick { background: var(--fill); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 20px 20px; }
+.pick { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 20px 20px; position: relative; z-index: 1; }
 @media (min-width: 980px) { .pick { padding: 26px 26px 24px; } }
+.pick-steps { list-style: none; padding-left: 0; display: grid; gap: 14px; margin: 4px 0 0; align-self: stretch; grid-template-rows: repeat(3, minmax(0, 1fr)); position: relative; z-index: 1; }
+.pick-steps li { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; justify-items: center; text-align: center; row-gap: 8px; padding: 18px 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.pick-steps img { display: block; width: min(38%, 150px); height: auto; }
+.pick-steps h3 { font-size: 1.05rem; font-weight: 650; margin: 0; }
+.pick-steps p { margin: 0; color: var(--muted-fg); font-size: var(--text-sm); line-height: 1.45; max-width: 34ch; }
+@media (max-width: 639px) { .pick-steps { grid-template-columns: 1fr; } .pick-steps li { grid-template-columns: 72px minmax(0, 1fr); text-align: left; justify-items: start; } .pick-steps img { width: 72px; height: 72px; } }
 .pick h2 { font-size: 1.25rem; margin-bottom: 4px; }
 .pick > p { color: var(--muted-fg); font-size: var(--text-sm); margin-bottom: 16px; }
 
 /* A familiar problem, its lesson and a change to try. Labels remain HTML text. */
-.pick-figure { margin: 0 0 20px; }
-.pick-figure img { display: block; width: 100%; height: auto; }
-.pick-figure figcaption { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; text-align: center; font-size: var(--text-xs); color: var(--muted-fg); }
 .pick ul { list-style: none; padding-left: 0; }
 .pick .chip .n { white-space: nowrap; }
 
 .pick li { display: grid; gap: 8px; padding: 13px 0; border-top: 1px solid var(--border); position: relative; }
 .pick li:first-child { border-top: 0; padding-top: 4px; }
-@media (min-width: 640px) { .pick li { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; } }
+@media (min-width: 640px) { .pick li { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 16px; align-items: center; } }
 .pick .q { font-weight: 600; line-height: 1.35; font-size: var(--text-sm); }
-.pick .a { display: flex; flex-wrap: wrap; gap: 6px; }
+.pick .a { display: block; }
+.pick .a .chip { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: baseline; width: 100%; box-sizing: border-box; }
 
 /* Bands: a dithered seam between sections rather than a hard rule - the one
    transition idiom Augment and Sourcegraph share. Two layers of dots, 4px and
@@ -356,7 +370,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 .lanes { list-style: none; border-top: 1px solid var(--border); }
 .lanes .tile.skill { position: relative; display: grid; gap: 10px 56px; padding: 24px 0 22px; border-bottom: 1px solid var(--border); }
 .lanes .tile.skill > .art { position: relative; display: grid; place-items: center; height: 192px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--fg); transition: border-color var(--hover-ms) ease-out; }
-.lanes .tile.skill > .art svg { width: 136px; height: 136px; }
+.lanes .tile.skill > .art svg, .lanes .tile.skill > .art img { width: 136px; height: 136px; }
 .lanes .tile.skill > .art .cap { position: absolute; left: 14px; bottom: 12px; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); }
 .lanes .tile.skill:hover > .art, .lanes .tile.skill:focus-within > .art { border-color: var(--border-strong); }
 .lanes .tile.skill a.t { font-size: 1.45rem; font-weight: 500; line-height: 1.2; letter-spacing: -0.025em; color: var(--fg); text-decoration: none; }
@@ -381,7 +395,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
   .lanes .tile.skill > .routes { grid-row: 5; }
   .lanes .tile.skill > .art { grid-column: 2; grid-row: 1 / -1; align-self: center; }
 }
-@media (max-width: 759px) { .lanes .tile.skill > .art { height: 180px; } .lanes .tile.skill > .art svg { width: 120px; height: 120px; } }
+@media (max-width: 759px) { .lanes .tile.skill > .art { height: 180px; } .lanes .tile.skill > .art svg, .lanes .tile.skill > .art img { width: 120px; height: 120px; } }
 
 /* Thirteen guides in a contracted reading lane: the band narrows to 0.82 of
    the page and reads left-aligned inside that, so the directory does not
@@ -421,7 +435,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 .file > a { display: grid; gap: 10px; align-content: start; height: 100%; padding: 22px 24px 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); color: var(--fg); text-decoration: none; transition: border-color var(--hover-ms) ease-out, background-color var(--hover-ms) ease-out; }
 .file > a:hover { border-color: var(--border-strong); background: var(--surface); }
 .file .art { display: block; width: 100%; max-width: 480px; color: var(--fg); margin-bottom: 6px; }
-.file .art svg { display: block; width: 100%; height: auto; }
+.file .art svg, .file .art img { display: block; width: 100%; height: auto; }
 .file .t { font-weight: 600; font-size: 1.1rem; line-height: 1.28; letter-spacing: -0.02em; }
 .file-primary .t { font-size: 1.4rem; font-weight: 500; letter-spacing: -0.025em; }
 .file .k { color: var(--muted-fg); font-size: var(--text-sm); line-height: 1.5; }
@@ -525,7 +539,7 @@ code, .shelf-head p, .tile .dir, .pick .a, .frame figcaption, .rail { overflow-w
 }
 .tiles.cards .tile.skill { padding: 28px 28px 24px; gap: 12px; }
 .tiles.cards .tile.skill .art { position: relative; width: 100%; height: 190px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: var(--radius); background: var(--fill); margin-bottom: 8px; }
-.tiles.cards .tile.skill .art svg { width: 128px; height: 128px; }
+.tiles.cards .tile.skill .art svg, .tiles.cards .tile.skill .art img { width: 128px; height: 128px; }
 .tiles.cards .tile.skill .art .cap { position: absolute; left: 14px; bottom: 12px; font-family: var(--font-mono); font-size: var(--label-size); letter-spacing: var(--label-track); color: var(--dim-fg); }
 .tiles.cards .tile.skill a.t { font-size: 1.35rem; font-weight: 500; letter-spacing: -0.025em; }
 .tiles.cards .tile.skill .when { font-size: var(--text-base); max-width: 40ch; }
@@ -884,7 +898,7 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 /* Reader pages: the drawing above the title (ideas, guides, investigations,
    skills) and the skill's deck line. */
 .page-head .art { display: block; width: 56px; height: 56px; color: var(--fg); margin: 10px 0 14px; }
-.page-head .art svg { width: 100%; height: 100%; }
+.page-head .art svg, .page-head .art img { width: 100%; height: 100%; }
 .page-head .art.wide { width: 190px; height: 95px; }
 .page-head .deck { color: var(--muted-fg); max-width: 58ch; margin: 12px 0 0; }
 .skill-ref { margin-top: 2em; padding-top: 1em; border-top: 1px solid var(--border); }
@@ -1026,15 +1040,16 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
    align-items: start); it is not vertically centered across both rows,
    which previously left the upper right of the first screen empty. */
 .opening { padding-block: 40px 48px; }
-.opening > .wrap { grid-template-areas: "copy" "pick" "figure"; gap: 32px; }
+.opening > .wrap { grid-template-areas: "copy" "pick" "steps" "figure"; gap: 32px; }
 .opening-copy { grid-area: copy; }
 .opening .pick { grid-area: pick; margin-top: 4px; }
 .opening .hero-figure { grid-area: figure; }
+.opening .pick-steps { grid-area: steps; }
 @media (min-width: 980px) {
   .opening { padding-block: 72px 64px; }
   .opening > .wrap {
     grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
-    grid-template-areas: "copy figure" "pick figure";
+    grid-template-areas: "copy figure" "pick steps";
     gap: 44px 56px;
     align-items: start;
   }

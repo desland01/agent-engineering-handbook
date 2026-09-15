@@ -281,22 +281,22 @@ INVESTIGATIONS = {
         + '<rect x="8" y="26" width="40" height="30" rx="2"/><path d="M8 34h40M8 46h40" stroke-opacity=".7"/>'
         + '<path d="M14 30h10M14 40h16M14 51h8" stroke-opacity=".6"/>'
         + '<path d="M50 41h8"/><path d="M55 38l3 3-3 3"/>'
-        + '<rect x="60" y="32" width="44" height="16" rx="8"/>' + cap(82, 41.6, 'ONE HTTP TRANSPORT', 'middle', 4.2)
+        + '<rect x="60" y="32" width="44" height="16" rx="8"/>' + cap(82, 41.6, 'HTTP TRANSPORT', 'middle', 4.2)
         + '<path d="M106 41h8"/><path d="M111 38l3 3-3 3"/>'
-        + cap(116, 17, 'PUBLISHED ARTIFACT')
+        + cap(116, 17, 'PUBLISHED')
         + soft('M116 22h36v36h-36z') + '<rect x="116" y="22" width="36" height="36" rx="2"/><path d="M122 32h24M122 40h24"/>'
         + cap(134, 52, '#A7F3', 'middle', 4.2)
         + '<path d="M152 40h4v28H134v-6" stroke-opacity=".7"/><path d="M131 65l3-3 3 3"/>'
-        + cap(60, 77, 'RESUMED RUN \u2192 SAME ARTIFACT, TAG #A7F3', size=4.2)),
+        + cap(100, 77, 'RESUMED RUN \u2192 SAME ARTIFACT', 'middle', 4.2)),
     # A compiler validated in five named layers, framed as one thing the
     # schema enters and the types leave.
     'boris-cherny-inspection.md': wide(
-        cap(8, 42.6, 'SCHEMA') + '<path d="M26 41h10"/><path d="M33 38l3 3-3 3"/>'
+        cap(8, 42.6, 'SCHEMA') + '<path d="M29 41h7"/><path d="M33 38l3 3-3 3"/>'
         + cap(40, 6.5, 'COMPILER VALIDATION', size=4.3)
         + '<rect x="40" y="9" width="82" height="66" rx="2" stroke-opacity=".6"/>'
         + ''.join(soft(f'M46 {14 + i * 11.6:.1f}h70v9.6H46z') + f'<rect x="46" y="{14 + i * 11.6:.1f}" width="70" height="9.6" rx="1.5"/>'
                   + cap(50, 14 + i * 11.6 + 6.8, label, size=4.2)
-                  for i, label in enumerate(('FIXTURES', 'BUILT-ARTIFACT SMOKE TESTS', 'FUZZING', 'REAL-WORLD CORPUS', 'CONFORMANCE CHECKS')))
+                  for i, label in enumerate(('FIXTURES', 'ARTIFACT SMOKE TESTS', 'FUZZING', 'REAL-WORLD CORPUS', 'CONFORMANCE CHECKS')))
         + '<path d="M124 41h8"/><path d="M129 38l3 3-3 3"/>'
         + cap(146, 42.6, 'TYPES', 'middle')),
 }
@@ -350,9 +350,26 @@ for _k in list(SKILLS):
 # The three source-derived packages reuse the existing thematic drawing whose
 # loop matches their method (their captions in render.py name that loop); this
 # edition commissions no new artwork for them.
-SKILLS['agent-output-verification'] = SKILLS['agent-feedback-engineering']
-SKILLS['agent-artifact-recovery'] = SKILLS['agent-tool-adapters']
-SKILLS['agent-contract-consistency'] = SKILLS['agent-context-calibration']
+# Skill drawings: generated 2026-09-13 with Higgsfield (nano_banana_2) at the
+# owner's choice over the drawn set, cleaned to transparent webp in build/assets
+# and embedded inline so no page loads a network image. The drawn monoline
+# alternatives are kept in git history (this file, 2026-09-13) for recovery.
+import base64 as _b64
+from pathlib import Path as _Path
+_ASSETS = _Path(__file__).resolve().parent / 'assets'
+
+
+def picture(name):
+    """An <img> carrying the generated drawing as a data URI, sized like the SVG icons."""
+    data = _b64.b64encode((_ASSETS / f'skill-{name}.webp').read_bytes()).decode()
+    return (f'<img class="icon picture" src="data:image/webp;base64,{data}" alt="" '
+            f'width="64" height="64" decoding="async">')
+
+
+for _n in ('feedback-engineering', 'ready-workspaces', 'context-calibration', 'tool-adapters',
+           'output-verification', 'artifact-recovery', 'contract-consistency'):
+    if (_ASSETS / f'skill-{_n}.webp').exists():
+        SKILLS[f'agent-{_n}'] = picture(_n)
 
 IDEAS, GUIDES, SKILLS = _IconMap(IDEAS), _IconMap(GUIDES), _IconMap(SKILLS)
 

@@ -20,82 +20,165 @@ import unittest
 import lesson_catalog as lc
 
 # The approved lesson identities, verbatim from the approved build/lessons.json.
-APPROVED = [
-    ('recurring-mistakes', 1, 'stop-repeat-work', 'Stop fixing the same mistake twice',
-     ['tip-08-fix-class-loops', 'tip-19-custom-lint-economics']),
-    ('ci-feedback', 2, 'stop-repeat-work', 'Stop babysitting your agent\'s CI failures',
-     ['tip-01-ci-feedback-loop']),
-    ('prove-it-works', 3, 'stop-repeat-work', 'Passing tests can still hide broken software',
-     ['tip-02-two-browser-e2e']),
-    ('working-previews', 4, 'give-agents-what-they-need', 'Give every agent a working preview',
-     ['tip-04-preview-environments']),
-    ('missing-tools', 5, 'give-agents-what-they-need', "Give your agent the tool it's missing",
-     ['tip-05-custom-file-upload-skill', 'tip-06-skill-authoring-reward']),
-    ('useful-instructions', 6, 'give-agents-what-they-need',
-     'Write instructions that change agent behavior',
-     ['tip-09-domain-knowledge-as-infra', 'tip-11-own-your-instructions',
-      'tip-12-steering-pushback', 'tip-14-zero-context-docs', 'tip-16-steer-not-map']),
-    ('fresh-agent', 7, 'give-agents-what-they-need', 'Find what a fresh agent actually misses',
-     ['tip-15-minimal-context-calibration']),
-    ('shared-contracts', 8, 'keep-it-understandable', 'One shared contract prevents mismatched code',
-     ['tip-13-type-safe-composition']),
-    ('codebase-navigation', 9, 'keep-it-understandable', 'Stop getting lost in your own code',
-     ['tip-10-newcomer-questions-signal', 'tip-18-solo-onboarding']),
-    ('better-environments', 10, 'keep-it-understandable',
-     'Improve the environment your agents work in',
-     ['tip-03-automation-multiplies-agents', 'tip-07-team-buy-in', 'tip-17-career-leverage']),
-]
+# Fixed fixtures transcribed from the approved Phase 5 sitemap.
+APPROVED = [('recurring-mistakes',
+  1,
+  'stop-repeat-work',
+  'You turn repeated mistakes into reliable checks',
+  ['tip-08-fix-class-loops', 'tip-19-custom-lint-economics']),
+ ('ci-feedback',
+  2,
+  'stop-repeat-work',
+  'You diagnose failed checks without copying logs',
+  ['tip-01-ci-feedback-loop']),
+ ('prove-it-works',
+  3,
+  'stop-repeat-work',
+  'You test the result users actually need',
+  ['tip-02-two-browser-e2e']),
+ ('working-previews',
+  4,
+  'give-agents-what-they-need',
+  'You give agents a working preview',
+  ['tip-04-preview-environments']),
+ ('missing-tools',
+  5,
+  'give-agents-what-they-need',
+  'You make missing operations usable by agents',
+  ['tip-05-custom-file-upload-skill', 'tip-06-skill-authoring-reward']),
+ ('useful-instructions',
+  6,
+  'give-agents-what-they-need',
+  'You write instructions that fix observed confusion',
+  ['tip-09-domain-knowledge-as-infra',
+   'tip-11-own-your-instructions',
+   'tip-12-steering-pushback',
+   'tip-14-zero-context-docs',
+   'tip-15-minimal-context-calibration',
+   'tip-16-steer-not-map']),
+ ('shared-contracts',
+  7,
+  'keep-it-understandable',
+  'You keep shared contracts consistent across layers',
+  ['tip-13-type-safe-composition']),
+ ('codebase-navigation',
+  8,
+  'keep-it-understandable',
+  'You navigate unfamiliar code without guessing',
+  ['tip-18-solo-onboarding']),
+ ('resume-work',
+  9,
+  'keep-it-understandable',
+  'You resume work without repeating completed steps',
+  []),
+ ('better-environments',
+  10,
+  'keep-it-understandable',
+  'You remove obstacles for the next contributor',
+  ['tip-03-automation-multiplies-agents',
+   'tip-07-team-buy-in',
+   'tip-10-newcomer-questions-signal',
+   'tip-17-career-leverage'])]
 
-SUMMARIES = {
-    'recurring-mistakes': 'Catch a repeated mistake with a check that rejects it.',
-    'ci-feedback': 'Give the agent access to the failed check and its logs.',
-    'prove-it-works': 'Verify the real result, not just a successful command.',
-    'working-previews': 'Make the running change reachable from the agent’s environment.',
-    'missing-tools': 'Bridge a real capability gap with the smallest useful interface.',
-    'useful-instructions': 'Put decisions where the next task can use them.',
-    'fresh-agent': 'Observe what is missing before expanding instructions.',
-    'shared-contracts': 'Keep the language, types and runtime boundary in agreement.',
-    'codebase-navigation': 'Make the codebase understandable when you return to it.',
-    'better-environments': 'Choose a recurring obstacle worth removing for future work.',
-}
+SUMMARIES = {'recurring-mistakes': 'Catch a repeated mistake with a check that rejects it.',
+ 'ci-feedback': 'Give the agent access to the failed check and its logs.',
+ 'prove-it-works': 'Verify the real result, not just a successful command.',
+ 'working-previews': 'Make the running change reachable from the agent’s environment.',
+ 'missing-tools': 'Bridge a real capability gap with the smallest useful interface.',
+ 'useful-instructions': 'Put decisions where the next task can use them.',
+ 'shared-contracts': 'Keep the language, types and runtime boundary in agreement.',
+ 'codebase-navigation': 'Make the codebase understandable when you return to it.',
+ 'resume-work': 'Reuse finished work and resume only the missing stage.',
+ 'better-environments': 'Choose a recurring obstacle worth removing for future work.'}
 
-# guide_ids, skill_ids and legacy_paths per lesson, verbatim from the approved manifest.
-GUIDES = {
-    'recurring-mistakes': ['01'], 'ci-feedback': ['04'], 'prove-it-works': ['02', '09', '13'],
-    'working-previews': ['03'], 'missing-tools': ['06'], 'useful-instructions': ['05'],
-    'fresh-agent': ['05'], 'shared-contracts': ['08', '11'],
-    'codebase-navigation': ['07', '10'], 'better-environments': ['04', '07'],
-}
-SKILLS = {
-    'recurring-mistakes': ['agent-feedback-engineering'],
-    'ci-feedback': ['agent-feedback-engineering'],
-    'prove-it-works': ['agent-output-verification'],
-    'working-previews': ['agent-ready-workspaces'],
-    'missing-tools': ['agent-tool-adapters'],
-    'useful-instructions': ['agent-context-calibration'],
-    'fresh-agent': ['agent-context-calibration'],
-    'shared-contracts': ['agent-contract-consistency'],
-    'codebase-navigation': ['agent-context-calibration'],
-    'better-environments': ['agent-feedback-engineering'],
-}
-LEGACY = {
-    'recurring-mistakes': ['ideas/08-fix-class-loops.html', 'ideas/09-custom-lint-economics.html'],
-    'ci-feedback': ['ideas/01-ci-feedback-loop.html'],
-    'prove-it-works': ['ideas/02-two-browser-e2e.html'],
-    'working-previews': ['ideas/04-preview-environments.html'],
-    'missing-tools': ['ideas/05-custom-file-upload-skill.html',
-                      'ideas/06-skill-authoring-reward.html'],
-    'useful-instructions': ['ideas/10-domain-knowledge-as-infra.html',
-                            'ideas/12-own-your-instructions.html',
-                            'ideas/13-steering-pushback.html',
-                            'ideas/15-zero-context-docs.html', 'ideas/17-steer-not-map.html'],
-    'fresh-agent': ['ideas/16-minimal-context-calibration.html'],
-    'shared-contracts': ['ideas/14-type-safe-composition.html'],
-    'codebase-navigation': ['ideas/11-newcomer-questions-signal.html',
-                            'ideas/19-solo-onboarding.html'],
-    'better-environments': ['ideas/03-automation-multiplies-agents.html',
-                            'ideas/07-team-buy-in.html', 'ideas/18-career-leverage.html'],
-}
+GUIDES = {'recurring-mistakes': ['01'],
+ 'ci-feedback': ['04'],
+ 'prove-it-works': ['02', '09', '13'],
+ 'working-previews': ['03'],
+ 'missing-tools': ['06'],
+ 'useful-instructions': ['05'],
+ 'shared-contracts': ['08', '11'],
+ 'codebase-navigation': ['10'],
+ 'resume-work': ['12'],
+ 'better-environments': ['07']}
+
+SKILLS = {'recurring-mistakes': ['agent-feedback-engineering'],
+ 'ci-feedback': ['agent-feedback-engineering'],
+ 'prove-it-works': ['agent-output-verification'],
+ 'working-previews': ['agent-ready-workspaces'],
+ 'missing-tools': ['agent-tool-adapters'],
+ 'useful-instructions': ['agent-context-calibration'],
+ 'shared-contracts': ['agent-contract-consistency'],
+ 'codebase-navigation': ['agent-context-calibration'],
+ 'resume-work': ['agent-artifact-recovery'],
+ 'better-environments': ['agent-feedback-engineering']}
+
+LEGACY = {'recurring-mistakes': ['guides/01-recurring-failures.html',
+                        'guides/01-recurring-failures.md',
+                        'ideas/08-fix-class-loops.html',
+                        'ideas/09-custom-lint-economics.html',
+                        'ideas/09-custom-lint-economics',
+                        'ideas/08-fix-class-loops'],
+ 'ci-feedback': ['guides/04-ci-feedback.html',
+                 'guides/04-ci-feedback.md',
+                 'ideas/01-ci-feedback-loop.html',
+                 'ideas/01-ci-feedback-loop'],
+ 'prove-it-works': ['guides/02-critical-journey-tests.html',
+                    'guides/02-critical-journey-tests.md',
+                    'guides/09-verification-contracts.html',
+                    'guides/09-verification-contracts.md',
+                    'guides/13-layered-validation.html',
+                    'guides/13-layered-validation.md',
+                    'ideas/02-two-browser-e2e.html',
+                    'ideas/02-two-browser-e2e'],
+ 'working-previews': ['guides/03-preview-workspaces.html',
+                      'guides/03-preview-workspaces.md',
+                      'ideas/04-preview-environments.html',
+                      'ideas/04-preview-environments'],
+ 'missing-tools': ['guides/06-tool-adapters.html',
+                   'guides/06-tool-adapters.md',
+                   'ideas/05-custom-file-upload-skill.html',
+                   'ideas/06-skill-authoring-reward.html',
+                   'ideas/06-skill-authoring-reward',
+                   'ideas/05-custom-file-upload-skill'],
+ 'useful-instructions': ['lessons/fresh-agent.html',
+                         'lessons/fresh-agent.md',
+                         'guides/05-knowledge-and-instructions.html',
+                         'guides/05-knowledge-and-instructions.md',
+                         'ideas/10-domain-knowledge-as-infra.html',
+                         'ideas/12-own-your-instructions.html',
+                         'ideas/13-steering-pushback.html',
+                         'ideas/15-zero-context-docs.html',
+                         'ideas/16-minimal-context-calibration.html',
+                         'ideas/17-steer-not-map.html',
+                         'ideas/17-steer-not-map',
+                         'ideas/16-minimal-context-calibration',
+                         'ideas/15-zero-context-docs',
+                         'ideas/13-steering-pushback',
+                         'ideas/12-own-your-instructions',
+                         'ideas/10-domain-knowledge-as-infra'],
+ 'shared-contracts': ['guides/08-compose-contracts.html',
+                      'guides/08-compose-contracts.md',
+                      'guides/11-domain-language-and-agent-apis.html',
+                      'guides/11-domain-language-and-agent-apis.md',
+                      'ideas/14-type-safe-composition.html',
+                      'ideas/14-type-safe-composition'],
+ 'codebase-navigation': ['guides/10-codebase-navigation-and-tooling.html',
+                         'guides/10-codebase-navigation-and-tooling.md',
+                         'ideas/19-solo-onboarding.html',
+                         'ideas/19-solo-onboarding'],
+ 'resume-work': ['guides/12-artifact-identity-and-recovery.html',
+                 'guides/12-artifact-identity-and-recovery.md'],
+ 'better-environments': ['guides/07-team-learning.html',
+                         'guides/07-team-learning.md',
+                         'ideas/03-automation-multiplies-agents.html',
+                         'ideas/07-team-buy-in.html',
+                         'ideas/11-newcomer-questions-signal.html',
+                         'ideas/18-career-leverage.html',
+                         'ideas/18-career-leverage',
+                         'ideas/11-newcomer-questions-signal',
+                         'ideas/07-team-buy-in',
+                         'ideas/03-automation-multiplies-agents']}
 
 # The nineteen original tip IDs in observed video order (start_seconds order);
 # position gives the idea number that names its legacy path.
@@ -133,19 +216,8 @@ LESSON_PROSE = (
 
 
 def _temp_root():
-    """A disposable directory. The system temp dir first; if it is not
-    writable, a scratch dir beside this test file."""
-    root = Path(tempfile.mkdtemp(prefix='lesson-catalog-'))
-    try:
-        probe = root / '.probe'
-        probe.write_text('ok')
-        assert probe.read_text() == 'ok'
-        assert os.listdir(root) is not None
-        probe.unlink()
-        return root
-    except OSError:
-        shutil.rmtree(root, ignore_errors=True)
-    base = Path(__file__).resolve().parent / '.scratch'
+    """Keep every test effect inside the supplied workspace."""
+    base = Path(__file__).resolve().parent.parent / '.scratch'
     base.mkdir(exist_ok=True)
     return Path(tempfile.mkdtemp(prefix='lesson-catalog-', dir=base))
 
@@ -173,7 +245,8 @@ class Fixture:
             d = self.root / 'skills' / skill
             d.mkdir()
             (d / 'SKILL.md').write_text('---\nname: x\n---\nBody.\n')
-        self.manifest = {'version': 1, 'lessons': [self.record(i) for i in APPROVED]}
+        self.manifest = {'version': 1, 'lessons': [self.record(i) for i in APPROVED],
+                         'legacy_paths': ['README.html', 'guides.html', 'ideas.html', 'ideas']}
         self.write_manifest()
         for lesson_id, _, _, title, tips in APPROVED:
             self.write_lesson(lesson_id, title, tips)
@@ -441,12 +514,9 @@ class CatalogTests(unittest.TestCase):
             self.fx.load()
         self.assertIn('prose', str(cm.exception))
 
-    def test_missing_source_anchor_fails(self):
-        tips = self.fx.manifest['lessons'][0]['tip_ids']
-        self.fx.write_lesson('recurring-mistakes', APPROVED[0][3], tips[:1])
-        with self.assertRaises(ValueError) as cm:
-            self.fx.load()
-        self.assertIn('tip-19-custom-lint-economics', str(cm.exception))
+    def test_reader_source_needs_no_video_apparatus(self):
+        self.fx.write_lesson('recurring-mistakes', APPROVED[0][3], [])
+        self.assertEqual(self.fx.load()[0]['id'], 'recurring-mistakes')
 
     def test_anchor_as_heading_id_is_accepted(self):
         lesson_id, _, _, title, tips = APPROVED[1]
@@ -472,17 +542,14 @@ class CatalogTests(unittest.TestCase):
         self.fx.write_manifest()
         with self.assertRaises(ValueError) as cm:
             self.fx.load()
-        self.assertIn('ideas/01-ci-feedback-loop.html', str(cm.exception))
+        self.assertIn('legacy paths', str(cm.exception))
+        self.assertIn('recurring-mistakes', str(cm.exception))
 
-    def test_suffix_heading_is_not_an_anchor(self):
-        # '## CI feedback loop' would slug to a different id than the declared
-        # tip anchor, so a source deep link would break: it must be refused.
-        lesson_id, _, _, title, tips = APPROVED[1]
-        (self.fx.root / f'lessons/{lesson_id}.md').write_text(
-            f'# {title}\n\n## CI feedback loop\n\n{LESSON_PROSE}\n')
-        with self.assertRaises(ValueError) as cm:
+    def test_missing_merged_guide_address_fails(self):
+        self.fx.manifest['lessons'][8]['legacy_paths'].remove('guides/12-artifact-identity-and-recovery.md')
+        self.fx.write_manifest()
+        with self.assertRaisesRegex(ValueError, 'legacy paths'):
             self.fx.load()
-        self.assertIn('tip-01-ci-feedback-loop', str(cm.exception))
 
     def test_single_quoted_exact_anchor_is_accepted(self):
         lesson_id, _, _, title, tips = APPROVED[1]
@@ -490,16 +557,12 @@ class CatalogTests(unittest.TestCase):
             f"# {title}\n\n<a id='{tips[0]}'></a>\n\n{LESSON_PROSE}\n")
         self.assertEqual(self.fx.load()[1]['id'], lesson_id)
 
-    def test_wrong_slug_anchor_fails(self):
-        # An exact-but-different id is still not the declared tip anchor.
-        lesson_id, _, _, title, _ = APPROVED[1]
-        (self.fx.root / f'lessons/{lesson_id}.md').write_text(
-            f'# {title}\n\n<a id="ci-feedback-loop"></a>\n\n{LESSON_PROSE}\n')
-        with self.assertRaises(ValueError) as cm:
+    def test_guide_cannot_move_to_another_owner(self):
+        self.fx.manifest['lessons'][8]['guide_ids'] = ['07']
+        self.fx.write_manifest()
+        with self.assertRaisesRegex(ValueError, 'approved unique ownership'):
             self.fx.load()
-        self.assertIn('tip-01-ci-feedback-loop', str(cm.exception))
 
-    # ------------------------------------------------ regression: input types
     def test_null_manifest_is_a_valueerror(self):
         (self.fx.build / 'lessons.json').write_text('null')
         with self.assertRaises(ValueError) as cm:
@@ -589,10 +652,10 @@ class CatalogTests(unittest.TestCase):
         # A manifest chapter with surrounding whitespace passes validation (it
         # strips to the approved group), so the returned record must carry the
         # normalized value equal to its approved renderer group.
-        self.fx.manifest['lessons'][6]['chapter'] = '  give-agents-what-they-need\n'
+        self.fx.manifest['lessons'][6]['chapter'] = '  keep-it-understandable\n'
         self.fx.write_manifest()
         lessons = self.fx.load()
-        self.assertEqual(lessons[6]['chapter'], 'give-agents-what-they-need')
+        self.assertEqual(lessons[6]['chapter'], 'keep-it-understandable')
 
     def test_chapter_reassigned_between_declared_groups_fails(self):
         # The approved lesson-to-chapter mapping is fixed; moving a lesson into

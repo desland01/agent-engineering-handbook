@@ -1,88 +1,35 @@
-# One shared contract prevents mismatched code
+# You keep shared contracts consistent across layers
 
-Your storage layer, your API and your interface each describe the same object slightly
-differently, and every change means finding and fixing each copy. An agent makes it worse
-by confidently inventing a fourth version. The answer is one authoritative contract that
-every layer derives from — plus runtime validation and authorization at the boundary,
-which static types cannot give you.
+You can keep one domain object consistent from storage through every interface that consumes it. You will trace its authoritative contract, derive each consumer, and check types, runtime data, permissions, and compatibility separately.
 
-## What type-safe composition feels like
+## One contract gives every layer one meaning
 
-Theo's picture in the video is the T3 stack: Prisma turns the database into typed
-functions, tRPC exposes them over an RPC layer, and type safety runs from the UI hook all
-the way to the database. Theo says compositions like that used to happen once every few
-years; now Theo gets them almost daily. The specifics are Theo's stack, not a requirement — the
-transferable idea is single-source typed composition: if one layer produces types, make
-the next layer consume them instead of re-declaring the shapes.
+Choose one domain object, then trace its meaning through storage, services, transports, and every consuming interface. Record its accepted name, public fields, allowed states, and durable decisions in one authoritative definition. <a href="#cite-c0247">Matt Pocock directs attention to module interfaces</a>, because those seams determine how changes travel between layers. <a href="#cite-c0408">An early smol-ai workflow added a shared dependency plan</a> before generating separate files, keeping their assumptions aligned.
 
-**Qualification:** the almost-daily cadence is anecdotal, and adopting tRPC is not the
-lesson. Deriving one contract is.
+## Derived consumers remove competing shapes
 
-## Static types, runtime validation and authorization are three different guarantees
+Make each consumer derive its request, response, and error shapes from that authoritative public contract. Keep storage details behind the boundary so public consumers receive only fields their work requires. Route local and remote callers through one supported transport, preventing a quiet second contract from forming. Typed errors should distinguish actions such as retrying, updating, requesting access, or stopping safely. <a href="#cite-c0525">Ryan Lopopolo describes typed interfaces and boundary validation</a> that prevent agents from inventing unsupported data shapes.
 
-This is where the video's argument needs the repository evidence. In T3 Code, the
-[RPC contracts](https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/packages/contracts/src/rpc.ts)
-let web, desktop and mobile clients control the same server through one typed surface, and
-the architecture overview records that authentication and per-method authorization remain
-distinct concerns on top of it.
+## Types catch drift before execution
 
-In the Course Video Manager investigation, the CLI RPC layer derives its client from the
-remote app's route types and checks implementations against domain service signatures —
-so a renamed route is a compile error rather than a 404 an agent debugs alone. The same
-codebase is explicit about the limits: the `LocalOnly` machine gate is an environment
-suitability signal, not a security boundary, and the dependency rule that keeps the core
-free of filesystem imports checks enumerated static imports at build time — a real,
-enforced build failure that is still not a process sandbox. Token authentication and
-server-side access control stay separate.
+Change one shared field deliberately, then run the existing type check against every derived consumer. A useful failure names the stale consumer, while the corrected contract allows the legitimate path. <a href="#cite-c0541">逆瀬川ちゃん recommends turning architecture decisions into executable checks</a>, so written boundaries cannot quietly decay. Keep those checks close to the shared boundary, where one failure can expose cross-layer drift. A dependency rule proves only the imports it examines, without creating an execution sandbox.
 
-So: a valid type says nothing about whether the requester is allowed, whether the value
-arriving over the network parses, or whether an old deployed client has updated. Validate
-untrusted input at runtime with the real schema, and keep authorization at the server
-boundary.
+## Runtime checks cover what types cannot
 
-## Derive each consumer from one contract
+A type check compares declared shapes before execution, while incoming values can still violate those declarations. Validate untrusted values at the real boundary before your application stores, transforms, or returns them. Check authorization separately, because a well-formed request may still belong to an unauthorized caller. Treat machine suitability as an operating condition, never as proof that an untrusted process lacks access. <a href="#cite-c0428">Armin Ronacher argues for making malformed cases impossible to write</a>, reducing later defensive patches.
 
-1. Pick one object that crosses the application — an order, a lead, a message.
-2. Trace where it is stored, transformed, returned and displayed; list every manually
-   copied interface and unchecked cast.
-3. Choose the authoritative contract and derive the client from it; delete the competing
-   definitions for that object.
-4. Add runtime validation for anything crossing the boundary, and a focused check for
-   business rules the compiler cannot express.
-5. Keep the domain's names: a glossary with accepted nouns stops agents from
-   paraphrasing their way into a mismatch
-   ([guide 11](../guides/11-domain-language-and-agent-apis.md)).
+## Deployed clients still need compatibility
 
-[Guide 08](../guides/08-compose-contracts.md) walks the procedure; one HTTP transport for
-every caller, including the author, is ADR 0025's decision in the same repository.
+Shared definitions coordinate code that receives them, but they cannot update clients already running elsewhere. Use additive changes, explicit versions, or a compatibility window whenever consumers deploy on different schedules. Test one stale consumer against the changed boundary, then confirm its failure is deliberate and understandable. A compatible response preserves accepted behavior, while an incompatible change produces a typed, actionable refusal.
 
-## Test type drift and invalid runtime data
+## One trace proves the contract holds
 
-In an isolated copy, deliberately rename a field or route and confirm the type check names
-the consumer that breaks. Restore it and confirm the legitimate path passes. Separately,
-at the real server boundary, exercise an invalid-input case and an unauthorized case —
-the compiler's success proves neither.
+Choose one object and write its authoritative name, public shape, valid states, and error outcomes. List every producer and consumer, including storage, services, transport handlers, interfaces, and background jobs. Remove copied definitions, derive supported consumers, and keep one public transport wherever callers share behavior. Then run three checks: break a field, send malformed data, and attempt unauthorized access. Finally, exercise an older client and confirm compatibility behavior matches the decision you recorded. That sequence tests each guarantee at its own boundary without treating one passing check as universal proof.
 
-## Shared source cannot update deployed clients.
+## The evidence supports enforced shared boundaries
 
-These are inspections of two codebases, not a measurement that shared contracts reduce
-defect rates. For separately deployed clients, derived types cannot make an old client
-update itself; use additive changes or an explicit compatibility policy.
+The sources show that interfaces become safer when their contracts are shared, derived, and mechanically checked. They cover generated files, module seams, malformed states, typed boundaries, and executable architecture rules. They do not prove one library, transport, or type system works for every application. They also leave runtime permissions and deployed-client compatibility as separate engineering responsibilities.
 
-## Sources
+<ol id="citations"><li id="cite-c0247">Matt Pocock, video, <a href="https://www.youtube.com/watch?v=nQwJVHCtDDY&amp;t=155s">Building AI Coding Agents with Matt Pocock</a>, at 02:35. "thinking about the interfaces between all of the modules in your codebase"</li><li id="cite-c0408">smol-ai (Shawn "swyx" Wang), repo, <a href="https://github.com/smol-ai/developer#:~:text=asking%20GPT%20to%20think%20through%20shared_dependencies.md%20%2C%20and%20then%20insisting%20on%20using%20that">smol-ai/developer</a>, at We solved this by adding an intermediate step. "asking GPT to think through shared_dependencies.md , and then insisting on using that"</li><li id="cite-c0428">Armin Ronacher, blog, <a href="https://lucumr.pocoo.org/2026/6/23/the-coming-loop/#:~:text=make%20the%20malformed%20case%20unrepresentable%20or%20impossible%20to%20write">The Coming Loop</a>, at Furthermore it's well understood that models tend to. "make the malformed case unrepresentable or impossible to write"</li><li id="cite-c0525">Ryan Lopopolo, blog post, <a href="https://openai.com/index/harness-engineering/#:~:text=we%20validate%20boundaries%20or%20rely%20on%20typed%20SDKs">Harness engineering: leveraging Codex in an agent-first world</a>, at Instead, we started encoding what we call “golden. "we validate boundaries or rely on typed SDKs so the agent can't accidentally build"</li><li id="cite-c0541">逆瀬川ちゃん, blog post, <a href="https://nyosegawa.com/en/posts/harness-engineering-best-practices-2026/#couple-adrs-with-executable-rules">Harness Engineering Best Practices for Claude Code / Codex Users, Explained Plainly</a>, at Couple ADRs with executable rules. "encoding the architecture decision as an executable check."</li></ol>
 
-<span id="tip-13-type-safe-composition"></span>
-**tip-13-type-safe-composition** — [13:51](https://www.youtube.com/watch?v=xmGY276gEFY&t=831s).
-Theo. Compose layers so type safety runs end to end. Evidence type: Theo anecdote;
-Prisma/tRPC specifics are Theo's stack, and the frequency claim is anecdotal.
-
-Repository evidence: T3 Code
-[RPC contracts](https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/packages/contracts/src/rpc.ts)
-and [architecture overview](https://github.com/pingdotgg/t3code/blob/6c583620ff7ad3235b135af7107c0543467eecfa/docs/internals/overview.md);
-Course Video Manager [RPC layer](https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/cli/rpc-layer.ts),
-[machine gate](https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/apps/local/app/cli/local-only.ts),
-[boundary rule](https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/packages/core/.dependency-cruiser.cjs)
-and [ADR 0025](https://github.com/mattpocock/course-video-manager/blob/4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8/docs/adr/0025-local-remote-split-one-http-transport.md),
-from the original investigations. Related:
-[agent-contract-consistency skill](../skills/agent-contract-consistency/SKILL.md). Next:
-[Stop getting lost in your own code](codebase-navigation.md).
+<p id="next-action">Trace one domain object today and verify its contract at every producer, boundary, and consumer.</p>
