@@ -247,11 +247,14 @@ def wide(inner):
 
 
 # Captions live inside the drawing, in mono, as the design language asks: the
-# figure has to say what it shows without the text beside it.
+# figure has to say what it shows without the text beside it. Sizes are viewBox
+# units on a 160-wide drawing, and the reader gets unit x the figure's render
+# scale — 2.44 at phone width, its smallest. Nothing here goes below 4.1 units,
+# which is the 10px floor build/check-render.js measures.
 MONO = 'font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" letter-spacing=".3" fill="#f7f3ef" fill-opacity=".72" stroke="none"'
 
 
-def cap(x, y, text, anchor='start', size=3.2):
+def cap(x, y, text, anchor='start', size=4.6):
     return f'<text x="{x}" y="{y}" font-size="{size}" text-anchor="{anchor}" {MONO}>{text}</text>'
 
 
@@ -264,13 +267,13 @@ INVESTIGATIONS = {
         + cap(10, 19, 'T3 CODE') + '<path d="M10 24h56" stroke-opacity=".5"/>' + ''.join(dot(x, 24, 2.4) for x in (18, 34, 50))
         + cap(10, 41, 'MELEE4MAC') + '<path d="M10 46h140" stroke-opacity=".5"/>' + ''.join(dot(x, 46, 2.4) for x in (18, 34))
         + '<path d="M34 46c6 8 8 14 14 18"/>'
-        + cap(52, 60, 'FORK \u00b7 13 PRs', size=3)
+        + cap(52, 60, 'FORK \u00b7 13 PRs', size=4.3)
         + '<path d="M48 66h74" stroke-opacity=".7"/>'
         + ''.join(f'<path d="M{48 + i * 6:.0f} 63v6"/>' for i in range(13))
         + '<path d="M122 66h10"/><path d="M129 63l3 3-3 3"/>'
         + soft('M108 30h44v12H108z') + '<rect x="108" y="30" width="44" height="12" rx="1.5"/>'
         + '<path d="M120 42v24" stroke-opacity=".7"/>' + dot(120, 46, 2.4)
-        + cap(112, 38, 'VERIFIER 9\u219215', size=2.8)),
+        + cap(112, 38, 'VERIFIER 9\u219215', size=4.2)),
     # A glossary, one HTTP transport, a published artifact; a resumed run
     # returns to the same artifact, carrying the same identity tag.
     'matt-pocock-inspection.md': wide(
@@ -278,22 +281,22 @@ INVESTIGATIONS = {
         + '<rect x="8" y="26" width="40" height="30" rx="2"/><path d="M8 34h40M8 46h40" stroke-opacity=".7"/>'
         + '<path d="M14 30h10M14 40h16M14 51h8" stroke-opacity=".6"/>'
         + '<path d="M50 41h8"/><path d="M55 38l3 3-3 3"/>'
-        + '<rect x="60" y="32" width="44" height="16" rx="8"/>' + cap(82, 41.6, 'ONE HTTP TRANSPORT', 'middle', 3)
+        + '<rect x="60" y="32" width="44" height="16" rx="8"/>' + cap(82, 41.6, 'HTTP TRANSPORT', 'middle', 4.2)
         + '<path d="M106 41h8"/><path d="M111 38l3 3-3 3"/>'
-        + cap(116, 17, 'PUBLISHED ARTIFACT')
+        + cap(116, 17, 'PUBLISHED')
         + soft('M116 22h36v36h-36z') + '<rect x="116" y="22" width="36" height="36" rx="2"/><path d="M122 32h24M122 40h24"/>'
-        + cap(134, 52, '#A7F3', 'middle', 3.2)
+        + cap(134, 52, '#A7F3', 'middle', 4.2)
         + '<path d="M152 40h4v28H134v-6" stroke-opacity=".7"/><path d="M131 65l3-3 3 3"/>'
-        + cap(60, 77, 'RESUMED RUN \u2192 SAME ARTIFACT, TAG #A7F3', size=2.8)),
+        + cap(100, 77, 'RESUMED RUN \u2192 SAME ARTIFACT', 'middle', 4.2)),
     # A compiler validated in five named layers, framed as one thing the
     # schema enters and the types leave.
     'boris-cherny-inspection.md': wide(
-        cap(8, 42.6, 'SCHEMA') + '<path d="M26 41h10"/><path d="M33 38l3 3-3 3"/>'
-        + cap(40, 6.5, 'COMPILER VALIDATION', size=3)
+        cap(8, 42.6, 'SCHEMA') + '<path d="M29 41h7"/><path d="M33 38l3 3-3 3"/>'
+        + cap(40, 6.5, 'COMPILER VALIDATION', size=4.3)
         + '<rect x="40" y="9" width="82" height="66" rx="2" stroke-opacity=".6"/>'
         + ''.join(soft(f'M46 {14 + i * 11.6:.1f}h70v9.6H46z') + f'<rect x="46" y="{14 + i * 11.6:.1f}" width="70" height="9.6" rx="1.5"/>'
-                  + cap(50, 14 + i * 11.6 + 6.8, label, size=2.9)
-                  for i, label in enumerate(('FIXTURES', 'BUILT-ARTIFACT SMOKE TESTS', 'FUZZING', 'REAL-WORLD CORPUS', 'CONFORMANCE CHECKS')))
+                  + cap(50, 14 + i * 11.6 + 6.8, label, size=4.2)
+                  for i, label in enumerate(('FIXTURES', 'ARTIFACT SMOKE TESTS', 'FUZZING', 'REAL-WORLD CORPUS', 'CONFORMANCE CHECKS')))
         + '<path d="M124 41h8"/><path d="M129 38l3 3-3 3"/>'
         + cap(146, 42.6, 'TYPES', 'middle')),
 }
@@ -344,6 +347,30 @@ for _k in list(GUIDES):
 for _k in list(SKILLS):
     _s = _load(f'skill-{_k}', 'icon')
     if _s: SKILLS[_k] = _s
+# The three source-derived packages reuse the existing thematic drawing whose
+# loop matches their method (their captions in render.py name that loop); this
+# edition commissions no new artwork for them.
+# Skill drawings: generated 2026-09-13 with Higgsfield (nano_banana_2) at the
+# owner's choice over the drawn set, cleaned to transparent webp in build/assets
+# and embedded inline so no page loads a network image. The drawn monoline
+# alternatives are kept in git history (this file, 2026-09-13) for recovery.
+import base64 as _b64
+from pathlib import Path as _Path
+_ASSETS = _Path(__file__).resolve().parent / 'assets'
+
+
+def picture(name):
+    """An <img> carrying the generated drawing as a data URI, sized like the SVG icons."""
+    data = _b64.b64encode((_ASSETS / f'skill-{name}.webp').read_bytes()).decode()
+    return (f'<img class="icon picture" src="data:image/webp;base64,{data}" alt="" '
+            f'width="64" height="64" decoding="async">')
+
+
+for _n in ('feedback-engineering', 'ready-workspaces', 'context-calibration', 'tool-adapters',
+           'output-verification', 'artifact-recovery', 'contract-consistency'):
+    if (_ASSETS / f'skill-{_n}.webp').exists():
+        SKILLS[f'agent-{_n}'] = picture(_n)
+
 IDEAS, GUIDES, SKILLS = _IconMap(IDEAS), _IconMap(GUIDES), _IconMap(SKILLS)
 
 

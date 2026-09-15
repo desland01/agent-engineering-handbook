@@ -1,7 +1,7 @@
 {
   "version": 1,
   "recorded": "2026-09-11",
-  "release": "/Users/thebeast/.nautilus/current/release",
+  "release": "/Users/thebeast/.nautilus/releases/gsp-app-completion-kernel-fixes (the selection the edits were written against)",
   "edits": [
     {
       "path": "charts/operating.md",
@@ -38,5 +38,12 @@
         }
       ]
     }
-  ]
+  ],
+  "appliedIn": {
+    "release": "/Users/thebeast/.nautilus/releases/skill-selection-charts",
+    "digest": "7138a7371a57a2d17b9fe875df1f445868578d21a5639aaf3e44d2fe3854f77b",
+    "selected": "2026-09-11",
+    "previous": "releases/gsp-app-completion-kernel-fixes",
+    "build": "/Users/thebeast/.nautilus/architect/workspace/skill-selection-charts"
+  }
 }

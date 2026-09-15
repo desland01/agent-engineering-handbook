@@ -1,0 +1,1274 @@
+{
+  "assignment": "control/harness.md",
+  "planOfRecord": "control/plan.md",
+  "currentPhase": 5,
+  "phases": {
+    "1": {
+      "status": "done",
+      "gate": "owner approves control/plan.md or replies with changes",
+      "runs": [
+        {
+          "id": "d1560e5b-6765-4578-9e1c-edd2c376d28c",
+          "capsule": "astra-handbook-structure",
+          "route": "gpt-6-astra",
+          "status": "blocked",
+          "reason": "capsule_refused_binding: capsule_read_widens_runtime (read scope outside launch workspace); corrected by snapshotting the repository into the workspace",
+          "modelRequests": 0
+        },
+        {
+          "id": "8c2e1e42-1557-4f45-99da-8de1b9e185fb",
+          "capsule": "astra-handbook-structure",
+          "route": "gpt-6-astra",
+          "status": "blocked",
+          "reason": "capsule_skill_plan_uninvoked; deliverables PLAN.md, EVIDENCE.md, REPORT.md written",
+          "modelRequests": 55
+        },
+        {
+          "id": "5145e4bc-360b-44b0-a5d9-b3d08890ff25",
+          "capsule": "astra-handbook-structure-verify",
+          "route": "gpt-6-astra",
+          "status": "completed",
+          "reason": "skills invoked; 6/6 acceptance items pass; PLAN.md unchanged",
+          "modelRequests": 10
+        }
+      ],
+      "workspace": "/Users/thebeast/.nautilus/releases/kimi-k3-route/var/workspaces/astra-handbook-structure",
+      "checks": {
+        "layout": "PASS on real repository 2026-09-13",
+        "acceptance": "6/6 per VERIFICATION.md"
+      },
+      "cost": "inference cost not reported by runtime; 65 model requests total",
+      "decisions": [
+        {
+          "at": "2026-09-13",
+          "by": "owner",
+          "decision": "approved control/plan.md as written, including the lesson merge and the new recovery lesson"
+        }
+      ]
+    },
+    "2": {
+      "status": "done",
+      "route": "gpt-6-astra",
+      "runs": [
+        {
+          "id": "baseline-tests",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "baseline-tests.log",
+          "status": "done",
+          "result": "13 tests pass"
+        },
+        {
+          "id": "baseline-check",
+          "capsuleId": null,
+          "command": "python3 build/check.py",
+          "exitCode": 1,
+          "output": "baseline-check.log",
+          "status": "done",
+          "result": "Two pre-existing layout failures: approved harness files are listed in README but absent from CONTROL_FILES"
+        },
+        {
+          "id": "red-01",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-01.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-01",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-01.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-02",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-02.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-02",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-02.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-03",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-03.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-03",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-03.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-04",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-04.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-04",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-04.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-05",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-05.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-05",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-05.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-06",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-06.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-06",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-06.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-07",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-07.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-07",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-07.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-08",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-08.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-08",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-08.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-09",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-09.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-09",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-09.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-10",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-10.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-10",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-10.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-11",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-11.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-11",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-11.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-12",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-12.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-12",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-12.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-flag",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-flag.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-flag",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-flag.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-layout-registration",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-layout-registration.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-layout-registration",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-layout-registration.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "snapshot-default",
+          "capsuleId": null,
+          "command": "python3 build/check.py",
+          "exitCode": 0,
+          "output": "snapshot-default.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "snapshot-lessons",
+          "capsuleId": null,
+          "command": "python3 build/check.py --lessons",
+          "exitCode": 1,
+          "output": "snapshot-lessons.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-section-boundaries",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-section-boundaries.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-section-boundaries",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-section-boundaries.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-flag-combination",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-flag-combination.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-flag-combination",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-flag-combination.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-closing-boundaries",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-closing-boundaries.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-closing-boundaries",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-closing-boundaries.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "final-tests",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "final-tests.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "final-default",
+          "capsuleId": null,
+          "command": "python3 build/check.py",
+          "exitCode": 0,
+          "output": "final-default.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "final-layout",
+          "capsuleId": null,
+          "command": "python3 build/check.py --layout",
+          "exitCode": 0,
+          "output": "final-layout.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "final-lessons",
+          "capsuleId": null,
+          "command": "python3 build/check.py --lessons",
+          "exitCode": 1,
+          "output": "final-lessons.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "red-observed-verbs",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "red-observed-verbs.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "green-observed-verbs",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "green-observed-verbs.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-tests",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "delivery-tests.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-default",
+          "capsuleId": null,
+          "command": "python3 build/check.py",
+          "exitCode": 0,
+          "output": "delivery-default.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-layout",
+          "capsuleId": null,
+          "command": "python3 build/check.py --layout",
+          "exitCode": 0,
+          "output": "delivery-layout.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-lessons",
+          "capsuleId": null,
+          "command": "python3 build/check.py --lessons",
+          "exitCode": 1,
+          "output": "delivery-lessons.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "scope-verification",
+          "capsuleId": null,
+          "command": "workspace-local Python: protected SHA-256 comparison, original check AST comparison, original tests comparison, document links, worked-opening fixture",
+          "exitCode": 0,
+          "output": "scope-verification.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "diff-whitespace",
+          "capsuleId": null,
+          "command": "git diff --check",
+          "exitCode": 0,
+          "output": "diff-whitespace.log",
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "patch-delivery",
+          "capsuleId": null,
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 save_patch.py",
+          "exitCode": 0,
+          "output": "patch-verification.log",
+          "status": "done",
+          "cost": "local execution; no paid external route",
+          "scope": "Patch generation, apply/check/reverse-check only in disposable temp_root fixture; re-run after final harness reconciliation."
+        },
+        {
+          "id": "result-assembly",
+          "capsuleId": null,
+          "command": "PYTHONDONTWRITEBYTECODE=1 python3 make_result.py",
+          "exitCode": 0,
+          "output": "../RESULT.md",
+          "status": "done",
+          "cost": "local execution; no paid external route",
+          "scope": "Assemble exact logs and final deliverable references; re-run after final harness reconciliation."
+        },
+        {
+          "id": "91a2e339-08e9-4e09-9f08-740aebe24e7a",
+          "capsule": "astra-lesson-standard",
+          "route": "gpt-6-astra",
+          "status": "completed",
+          "reason": "skills invoked; 31 tests pass; 12 rules LS01-LS12 behind --lessons; 217 rejections on current pages",
+          "modelRequests": 41
+        }
+      ],
+      "scope": "Phase 2 only; no delegation, content rewrite, render or external effects",
+      "skills": [
+        "documentation",
+        "simple",
+        "tdd",
+        "precise"
+      ],
+      "cost": "Inference cost not reported by runtime; no paid external routes invoked",
+      "refusals": [],
+      "decisions": [
+        {
+          "at": "2026-09-13",
+          "decision": "Use 360 normalized characters, two to three sentence units, article-only structural checks, explicit sources/citation/closing markers, and a declared verb vocabulary; meaning remains reviewer-judged."
+        },
+        {
+          "at": "2026-09-13",
+          "decision": "Apply the same rendered structure checks to lessons and skills. Top-level skill READMEs are absent; renderer currently reads SKILL.md. README creation and rendering changes remain for later phases."
+        },
+        {
+          "at": "2026-09-13",
+          "decision": "Keep the required fixture helper under .scratch as the task\u2019s explicit fixture exception. Set PYTHONDONTWRITEBYTECODE=1 to avoid content-tree bytecode writes."
+        },
+        {
+          "at": "2026-09-13",
+          "decision": "Register lesson-standard.md and the two already-approved, README-listed harness files in CONTROL_FILES. This repairs the measured baseline registration drift without removing layout checks or allowing arbitrary control files; a bad unregistered file remains rejected."
+        },
+        {
+          "at": "2026-09-13",
+          "decision": "Reject --layout combined with --lessons so opting in cannot silently become a source-only check. Ordinary default and --layout behavior remain unchanged except approved control-file registration."
+        },
+        {
+          "at": "2026-09-13",
+          "decision": "Observed section and closing-boundary gaps received additional red/green slices: nested list prose, article chrome padding, unwrapped extra closing text, and closing citation resolution."
+        },
+        {
+          "at": "2026-09-13",
+          "decision": "The first full --lessons output exposed eight valid verbs missing from the initial vocabulary. Added a failing regression fixture and those verb families before accepting the vocabulary update. This removes false lexical rejections, not any existing check; generic noun headings still fail."
+        },
+        {
+          "at": "2026-09-13",
+          "decision": "Phase 2 automatic gate is satisfied. Stop here under the current task; preserve Phase 3\u20135 pending status. REPORT.md is under 250 words, and exact red/green/corpus outputs are retained in RESULT.md and linked raw logs."
+        }
+      ],
+      "steps": {
+        "standard": "done",
+        "validator": "done",
+        "evidence": "done",
+        "report": "done"
+      },
+      "inputsRead": [
+        "ASSIGNMENT.md",
+        "control/plan.md (all ten approved titles and three groups)",
+        "control/README.md",
+        "control/harness-state.json",
+        "build/check.py (full)",
+        "build/check.test.py (full)",
+        "public/lessons/recurring-mistakes.html",
+        "lessons/recurring-mistakes.md",
+        "control/design-review-capsule.md",
+        "build/render.py (skill_page)",
+        "skill catalog and selected skill bodies"
+      ],
+      "absentInputs": [
+        "skills/agent-output-verification/README.md; glob found no skills/*/README.md",
+        "No matching CONTEXT or ADR file found in the snapshot search"
+      ],
+      "runtimeRunId": null,
+      "capsuleId": null,
+      "runtimeIdentityLimit": "No authoritative run or capsule identifier supplied to this session; local run labels identify evidence, not dispatched workers.",
+      "gate": {
+        "status": "passed",
+        "at": "2026-09-13",
+        "basis": "31/31 tests pass; --lessons produces 217 expected rejections on unchanged pages; all Phase 2 artifacts delivered",
+        "continuation": "Stopped at Phase 2 under the current task; phases 3\u20135 remain pending."
+      },
+      "checks": {
+        "baselineTests": "13 tests pass; baseline-tests.log",
+        "baselineDefault": "2 pre-existing approved harness registration failures; baseline-check.log",
+        "deliveryTests": "31 tests pass; delivery-tests.log",
+        "default": "PASS; delivery-default.log",
+        "layout": "PASS; delivery-layout.log",
+        "lessons": "Expected exit 1; 217 diagnostics across 10 lesson and 7 skill pages; delivery-lessons.log",
+        "preservation": "224 protected files match paths and SHA-256; all 122 original check-call ASTs retained; original test body retained; scope-verification.log",
+        "patch": "Six-file patch applies to explicit originals and reproduces delivered bytes; reverse preflight passes; patch-verification.log"
+      },
+      "artifacts": [
+        "control/lesson-standard.md",
+        "control/README.md",
+        "build/check.py",
+        "build/check.test.py",
+        "control/design-review-capsule.md",
+        "control/harness-state.json",
+        "../RESULT.md",
+        "../REPORT.md",
+        "../phase2.patch"
+      ],
+      "unresolvedLimits": [
+        "No top-level skill READMEs exist; later phases must create them and render them as reader pages.",
+        "Grammar, heading meaning, teaching sequence, claim-level primary support, external reachability, viewport fit and exact one-action meaning need the prescribed later review.",
+        "Approved lesson identity migration and page rewrites remain outside Phase 2.",
+        "Inference cost and authoritative session run/capsule IDs were not reported by runtime."
+      ],
+      "integration": "phase2.patch applied to real repository 2026-09-13; check.test.py 31 OK; check.py PASS; --layout PASS; --lessons rejects current pages as expected"
+    },
+    "3": {
+      "status": "done",
+      "runs": [],
+      "routes": {
+        "transcripts_and_web": "gemini-3.8-flash (GEMINI_API_KEY from google-hackathon env)",
+        "citation_selection": "cursor-grok-4.5-high via cursor-agent --print",
+        "web_search": "firecrawl_mcp (primary firecrawl server token invalid: 'Unauthorized: Invalid token')",
+        "mapping": "claude-fable-5-1 (pending)"
+      },
+      "steps": {
+        "1_roster": "done: gemini grounded roster 36 people + firecrawl seed searches; 22 of 78 roster URLs dead, gemini repair call returned no content twice and was abandoned",
+        "2_fanout": "done: 24+19 videos (2 PERMISSION_DENIED, 0 wave2 errors), 43+10 web pages (10 unreadable)",
+        "3_consolidate": "done: evidence/citations.json 566 rows, 84 sources, 56 people; raw beside as evidence/citations.gemini.json",
+        "4_select": "done: cursor-grok-4.5-high selected 60 (6 per lesson), all ids valid and unique",
+        "5_map": "done: control/citation-map.md by claude-fable-5-1; 5 rows flagged secondary for writer replacement",
+        "6_cost": "gemini tokens recorded per row in raw file; grok/cursor cost not exposed by CLI"
+      },
+      "checks": {
+        "urls": "60 selected fetched: 54 HTTP 200, 6 openai.com 403 to scripts but 200 via Firecrawl with quotes verified",
+        "per_lesson_selected": 6,
+        "ledger_rows": 566,
+        "sources": 84,
+        "people": 56,
+        "roster": "36 from gemini + seeds + search-derived"
+      },
+      "cost": "gemini: token counts per source in evidence/citations.gemini.json; firecrawl: 7 searches + 1 scrape; cursor grok: 1 run, cost not exposed"
+    },
+    "4": {
+      "status": "done",
+      "route": "gpt-5.6-sol",
+      "runs": [],
+      "writers": "17 gpt-5.6-sol runs completed, skills invoked (10 lessons, 7 skill READMEs); 2 re-dispatched after release moved to seo-campaign-gated (workspace_overlaps_installation_home)",
+      "defects": "writers' self-check grep used a public/ prefix the checker never prints, so it matched nothing; parent check found 6 LS07 verb-vocabulary gaps, fixed test-first in build/check.py (sharpen/expose/supply/guide/receive) \u2014 31 tests OK",
+      "checks": {
+        "lesson_standard": "0 LS failures on all 17 rendered pages in the integrate snapshot",
+        "citations": "61 URLs, all HTTP 200 (openai.com verified via Firecrawl); all inside the selected set"
+      },
+      "review": {
+        "lessons": {
+          "run": "c6b441c4-640f-493e-ab62-728a076bcd0a blocked (skill uninvoked) + verify 20c076d7-ceb5-4e2f-868a-ec4335b824bf completed",
+          "result": "71 headings: 67 match, 4 partial, 0 contradict; 4 headings replaced"
+        },
+        "skills": {
+          "run": "c9320cf8-d23b-4fb7-8caf-2abac25be317 blocked (skill uninvoked) + verify 0a11bb07-0de6-456b-af4c-9034bbe89161 completed",
+          "result": "45 headings: 44 match, 1 partial, 0 contradict; 1 heading replaced"
+        },
+        "records": "control/reviews/<slug>-headings.md, 17 files, every finding applied or answered"
+      },
+      "model_requests_writers": 456,
+      "deferred_to_phase_5": [
+        "sibling .md links must render as .html via the real renderer",
+        "fenced code in recurring-mistakes must render as <pre><code> via the real renderer",
+        "idea-page anchors video-note-NN proposed in the plan are not present in the new sources; redirects may land on the lesson page top"
+      ],
+      "installed": "lessons/*.md (10 new + fresh-agent.md retained for merge), skills/*/README.md (7) in the real repository"
+    },
+    "5": {
+      "status": "awaiting-gate",
+      "route": "gpt-6-astra",
+      "runs": [
+        {
+          "id": "catalog-red",
+          "capsuleId": null,
+          "exitCode": 1,
+          "output": "../catalog-red.log",
+          "result": "E\n======================================================================\nERROR: test_real_manifest_loads_the_ten_approved_lessons (__main__.CatalogAtRealEntryTest.test_real_manifest_loads_the_ten_approved_lessons)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 91, in test_real_manifest_loads_the_ten_approved_lessons\n    lessons = lesson_catalog.load_lessons(REPO)\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/lesson_catalog.py\", line 251, in load_lessons\n    _fail(source_file, lesson_id, f'the lesson h1 must be exactly the manifest title '\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                                  f'{record[\"title\"]!r}, found '\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                                  f'{h1.group(1).strip() if h1 else None!r}')\n                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/lesson_catalog.py\", line 89, in _fail\n    raise ValueError(f'{where}: {message}')\nValueError: /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/lessons/recurring-mistakes.md (lesson recurring-mistakes): the lesson h1 must be exactly the manifest title 'Stop fixing the same mistake twice', found 'You turn repeated mistakes into reliable checks'\n\n----------------------------------------------------------------------\nRan 1 test in 0.014s\n\nFAILED (errors=1)\n"
+        },
+        {
+          "id": "sitemap-red",
+          "capsuleId": null,
+          "exitCode": 1,
+          "output": "../sitemap-red.log",
+          "result": "F\n======================================================================\nFAIL: test_approved_sitemap_replaces_fresh_agent_with_recovery (__main__.CatalogAtRealEntryTest.test_approved_sitemap_replaces_fresh_agent_with_recovery)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 88, in test_approved_sitemap_replaces_fresh_agent_with_recovery\n    self.assertEqual([r['id'] for r in records], APPROVED_IDS)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Lists differ: ['rec[107 chars]s', 'fresh-agent', 'shared-contracts', 'codeba[33 chars]nts'] != ['rec[107 chars]s', 'shared-contracts', 'codebase-navigation',[33 chars]nts']\n\nFirst differing element 6:\n'fresh-agent'\n'shared-contracts'\n\n  ['recurring-mistakes',\n   'ci-feedback',\n   'prove-it-works',\n   'working-previews',\n   'missing-tools',\n   'useful-instructions',\n-  'fresh-agent',\n   'shared-contracts',\n   'codebase-navigation',\n+  'resume-work',\n   'better-environments']\n\n----------------------------------------------------------------------\nRan 1 test in 0.003s\n\nFAILED (failures=1)\n"
+        },
+        {
+          "id": "catalog-green",
+          "capsuleId": null,
+          "exitCode": 0,
+          "output": "../catalog-green.log",
+          "result": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.026s\n\nOK\n"
+        },
+        {
+          "id": "catalog-suite",
+          "capsuleId": null,
+          "exitCode": 1,
+          "output": "../catalog-suite.log",
+          "result": ".....................F.............................................\n======================================================================\nFAIL: test_legacy_routes_swapped_between_lessons_fails (__main__.CatalogTests.test_legacy_routes_swapped_between_lessons_fails)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/lesson_catalog.test.py\", line 544, in test_legacy_routes_swapped_between_lessons_fails\n    self.assertIn('ideas/01-ci-feedback-loop.html', str(cm.exception))\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'ideas/01-ci-feedback-loop.html' not found in \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/.scratch/lesson-catalog-s3l9no_n/build/lessons.json (lesson recurring-mistakes): legacy paths must be exactly the original routes of this lesson's tips ['guides/01-recurring-failures.html', 'guides/01-recurring-failures.md', 'ideas/08-fix-class-loops', 'ideas/08-fix-class-loops.html', 'ideas/09-custom-lint-economics', 'ideas/09-custom-lint-economics.html']; first difference: ['guides/01-recurring-failures.html', 'guides/01-recurring-failures.md', 'guides/04-ci-feedback.html']\"\n\n----------------------------------------------------------------------\nRan 67 tests in 1.841s\n\nFAILED (failures=1)\n"
+        },
+        {
+          "id": "default-ls-red",
+          "capsuleId": null,
+          "exitCode": 1,
+          "output": "../default-ls-red.log",
+          "result": "s.html: row for missing-tools lacks its title\\n  - lessons.html: row for useful-instructions lacks its title\\n  - lessons.html: row for shared-contracts lacks its title\\n  - lessons.html: row for codebase-navigation lacks its title\\n  - lessons.html: no lesson row opens lessons/resume-work.html\\n  - lessons.html: row for better-environments lacks its title\\n  - lessons/useful-instructions.html: missing source anchor for tip-15-minimal-context-calibration\\n  - public/lessons/resume-work.html missing\\n  - lessons/better-environments.html: missing source anchor for tip-10-newcomer-questions-signal\\n  - public/ideas: the alias set is not exactly the nineteen legacy routes\\n  - ideas/11-newcomer-questions-signal.html: canonical does not point at lessons/better-environments.html\\n  - ideas/11-newcomer-questions-signal.html: og:url does not agree with its canonical lessons/better-environments.html\\n  - ideas/11-newcomer-questions-signal.html: its lesson links do not carry the legacy fragments\\n  - ideas/16-minimal-context-calibration.html: canonical does not point at lessons/useful-instructions.html\\n  - ideas/16-minimal-context-calibration.html: og:url does not agree with its canonical lessons/useful-instructions.html\\n  - ideas/16-minimal-context-calibration.html: its lesson links do not carry the legacy fragments\\n\"\n\n======================================================================\nFAIL: test_layout_and_compatible_flag_remain_source_only (__main__.LessonStandardEntryTest.test_layout_and_compatible_flag_remain_source_only)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 629, in test_layout_and_compatible_flag_remain_source_only\n    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : --layout and --lessons cannot be combined; run each check separately\n\n\n----------------------------------------------------------------------\nRan 2 tests in 1.913s\n\nFAILED (failures=2)\n"
+        },
+        {
+          "id": "default-ls-green",
+          "capsuleId": null,
+          "exitCode": 0,
+          "output": "../default-ls-green.log",
+          "result": "..\n----------------------------------------------------------------------\nRan 2 tests in 1.512s\n\nOK\n"
+        },
+        {
+          "id": "structure-red",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py ApprovedSiteTest",
+          "exitCode": 1,
+          "output": "../structure-red.log",
+          "result": "st):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 136, in test_header_has_complete_menu_and_one_repository_link\n    self.assertEqual(header.count('https://github.com/desland01/agent-engineering-handbook'), 1)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 2 != 1\n\n======================================================================\nFAIL: test_public_inventory_and_permanent_dispositions (__main__.ApprovedSiteTest.test_public_inventory_and_permanent_dispositions)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 125, in test_public_inventory_and_permanent_dispositions\n    self.assertEqual(len(list((REPO / 'public').rglob('*.html'))), 33)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 68 != 33\n\n----------------------------------------------------------------------\nRan 3 tests in 0.028s\n\nFAILED (failures=19, errors=1)\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "render-first",
+          "capsuleId": null,
+          "command": "python3 build/render.py",
+          "exitCode": 1,
+          "output": "../render-first.log",
+          "result": "Traceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/render.py\", line 1338, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/render.py\", line 1312, in main\n    reader_page(rel, idx, home, frames)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/render.py\", line 1141, in reader_page\n    toc_html = toc_list(toc)\n               ^^^^^^^^\nNameError: name 'toc_list' is not defined. Did you mean: 'toc_flat'?\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "render-second",
+          "capsuleId": null,
+          "command": "python3 build/render.py",
+          "exitCode": 0,
+          "output": "../render-second.log",
+          "result": "Rendered 33 HTML pages: 10 lessons, 7 skill explanations, 4 hubs, 3 inspections, 9 supporting pages; guides and ideas use permanent redirects.\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "structure-green",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py ApprovedSiteTest",
+          "exitCode": 0,
+          "output": "../structure-green.log",
+          "result": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.029s\n\nOK\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "redirects-red",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py ApprovedSiteTest.test_checker_rejects_missing_and_misdirected_legacy_routes",
+          "exitCode": 1,
+          "output": "../redirects-red.log",
+          "result": "E\n======================================================================\nERROR: test_checker_rejects_missing_and_misdirected_legacy_routes (__main__.ApprovedSiteTest.test_checker_rejects_missing_and_misdirected_legacy_routes)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 141, in test_checker_rejects_missing_and_misdirected_legacy_routes\n    checker.sitemap_checked()\n    ^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'handbook_check' has no attribute 'sitemap_checked'\n\n----------------------------------------------------------------------\nRan 1 test in 0.252s\n\nFAILED (errors=1)\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "check-first",
+          "capsuleId": null,
+          "command": "python3 build/check.py",
+          "exitCode": 0,
+          "output": "../check-first.log",
+          "result": "PASS: 33 HTML pages, 10 lessons, 0 guides, 7 skills, 70 permanent redirects, 12 frames verified; links, hashes, semantics, ten-lesson coverage, disclosure routes, no network loads and required metadata fields OK.\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "tests-first",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 1,
+          "output": "../tests-first.log",
+          "result": "hen-code\">Best practices for Claude Code</a>, at Explore first, then plan, then code. \"Separate research and planning from implementation to avoid solving the wrong problem.\"</li>\\n</ol>\\n\\n<p id=\"next-action\">Trace one requested behavior from its visible effect to responsible code before making your next edit.</p>' : codebase-navigation.html\n\n======================================================================\nFAIL: test_problem_picker_labels_destinations_without_row_numbers (__main__.CheckerAtRealEntryTest.test_problem_picker_labels_destinations_without_row_numbers)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 186, in test_problem_picker_labels_destinations_without_row_numbers\n    self.assertEqual(len(re.findall(r'<span class=\"n\">Lesson \\d+</span>', panel)), 7)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 8 != 7\n\n----------------------------------------------------------------------\nRan 36 tests in 9.736s\n\nFAILED (failures=2, errors=4)\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "tests-second",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "../tests-second.log",
+          "result": "....................................\n----------------------------------------------------------------------\nRan 36 tests in 12.780s\n\nOK\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "catalog-suite-green",
+          "capsuleId": null,
+          "command": "python3 build/lesson_catalog.test.py",
+          "exitCode": 0,
+          "output": "../catalog-suite-green.log",
+          "result": "...................................................................\n----------------------------------------------------------------------\nRan 67 tests in 0.812s\n\nOK\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "hub-copy-red",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py ApprovedSiteTest.test_changed_hubs_reject_internal_copy",
+          "exitCode": 1,
+          "output": "../hub-copy-red.log",
+          "result": "E\n======================================================================\nERROR: test_changed_hubs_reject_internal_copy (__main__.ApprovedSiteTest.test_changed_hubs_reject_internal_copy)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 131, in test_changed_hubs_reject_internal_copy\n    checker.hub_copy_checked()\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: module 'handbook_check' has no attribute 'hub_copy_checked'\n\n----------------------------------------------------------------------\nRan 1 test in 0.277s\n\nFAILED (errors=1)\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "render-third",
+          "capsuleId": null,
+          "command": "python3 build/render.py",
+          "exitCode": 0,
+          "output": "../render-third.log",
+          "result": "Rendered 33 HTML pages: 10 lessons, 7 skill explanations, 4 hubs, 3 inspections, 9 supporting pages; guides and ideas use permanent redirects.\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "check-second",
+          "capsuleId": null,
+          "command": "python3 build/check.py",
+          "exitCode": 0,
+          "output": "../check-second.log",
+          "result": "PASS: 33 HTML pages, 10 lessons, 0 guides, 7 skills, 70 permanent redirects, 12 frames verified; links, hashes, semantics, ten-lesson coverage, disclosure routes, no network loads and required metadata fields OK.\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "hub-copy-green",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py ApprovedSiteTest.test_changed_hubs_reject_internal_copy",
+          "exitCode": 0,
+          "output": "../hub-copy-green.log",
+          "result": ".\n----------------------------------------------------------------------\nRan 1 test in 0.306s\n\nOK\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "render-fourth",
+          "capsuleId": null,
+          "command": "python3 build/render.py",
+          "exitCode": 0,
+          "output": "../render-fourth.log",
+          "result": "Rendered 33 HTML pages: 10 lessons, 7 skill explanations, 4 hubs, 3 inspections, 9 supporting pages; guides and ideas use permanent redirects.\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "check-third",
+          "capsuleId": null,
+          "command": "python3 build/check.py",
+          "exitCode": 0,
+          "output": "../check-third.log",
+          "result": "PASS: 33 HTML pages, 10 lessons, 0 guides, 7 skills, 70 permanent redirects, 12 frames verified; links, hashes, semantics, ten-lesson coverage, disclosure routes, no network loads and required metadata fields OK.\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "tests-third",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py",
+          "exitCode": 0,
+          "output": "../tests-third.log",
+          "result": ".....................................\n----------------------------------------------------------------------\nRan 37 tests in 12.187s\n\nOK\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "walk",
+          "capsuleId": null,
+          "command": "python3 /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/walk.py",
+          "exitCode": 0,
+          "output": "../walk.log",
+          "result": " none\nREACHED /404.html\nREACHED /ATTRIBUTION.html\nREACHED /CONTRIBUTING.html\nREACHED /adoption.html\nREACHED /boris-cherny-inspection.html\nREACHED /evidence.html\nREACHED /evidence/video-research.html\nREACHED /examples/recurring-rule/README.html\nREACHED /github-inspection.html\nREACHED /index.html\nREACHED /investigations.html\nREACHED /lessons.html\nREACHED /lessons/better-environments.html\nREACHED /lessons/ci-feedback.html\nREACHED /lessons/codebase-navigation.html\nREACHED /lessons/missing-tools.html\nREACHED /lessons/prove-it-works.html\nREACHED /lessons/recurring-mistakes.html\nREACHED /lessons/resume-work.html\nREACHED /lessons/shared-contracts.html\nREACHED /lessons/useful-instructions.html\nREACHED /lessons/working-previews.html\nREACHED /matt-pocock-inspection.html\nREACHED /prompts.html\nREACHED /skills.html\nREACHED /skills/agent-artifact-recovery/index.html\nREACHED /skills/agent-context-calibration/index.html\nREACHED /skills/agent-contract-consistency/index.html\nREACHED /skills/agent-feedback-engineering/index.html\nREACHED /skills/agent-output-verification/index.html\nREACHED /skills/agent-ready-workspaces/index.html\nREACHED /skills/agent-tool-adapters/index.html\nREACHED /validation.html\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "all-legacy-red",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py ApprovedSiteTest.test_public_sitemap_transcription_matches_approved_plan",
+          "exitCode": 1,
+          "output": "../all-legacy-red.log",
+          "result": "F\n======================================================================\nFAIL: test_public_sitemap_transcription_matches_approved_plan (__main__.ApprovedSiteTest.test_public_sitemap_transcription_matches_approved_plan)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check.test.py\", line 138, in test_public_sitemap_transcription_matches_approved_plan\n    self.assertEqual(legacy, {e['path'][1:] for e in actual if 'destination' in e})\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Items in the second set but not the first:\n'README.html'\n'ideas'\n'guides.html'\n'ideas.html'\n\n----------------------------------------------------------------------\nRan 1 test in 0.003s\n\nFAILED (failures=1)\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "all-legacy-green",
+          "capsuleId": null,
+          "command": "python3 build/check.test.py ApprovedSiteTest.test_public_sitemap_transcription_matches_approved_plan",
+          "exitCode": 0,
+          "output": "../all-legacy-green.log",
+          "result": ".\n----------------------------------------------------------------------\nRan 1 test in 0.002s\n\nOK\n",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "browser-home",
+          "capsuleId": null,
+          "command": "node /Users/thebeast/.nautilus/releases/seo-campaign-gated/release/charts/core-skills/bundles/browser/scripts/stagehand-local.mjs --url http://127.0.0.1:8765/index.html --out /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/browser-evidence/home --viewport 1440x900,390x844",
+          "exitCode": 1,
+          "output": "../browser-home.log",
+          "result": "node:internal/modules/esm/resolve:271\n    throw new ERR_MODULE_NOT_FOUND(\n          ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/thebeast/.npm-global/lib/node_modules/@browserbasehq/stagehand/dist/index.mjs' imported from /Users/thebeast/.nautilus/releases/seo-campaign-gated/release/charts/core-skills/bundles/browser/scripts/stagehand-local.mjs\n    at finalizeResolution (node:internal/modules/esm/resolve:271:11)\n    at moduleResolve (node:internal/modules/esm/resolve:861:10)\n    at defaultResolve (node:internal/modules/esm/resolve:988:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:697:20)\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:714:38)\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:746:52)\n    at #resolve (node:internal/modules/esm/loader:679:17)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:599:35)\n    at onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:628:32)\n    at TracingChannel.tracePromise (node:diagnostics_channel:362:14) {\n  code: 'ERR_MODULE_NOT_FOUND',\n  url: 'file:///Users/thebeast/.npm-global/lib/node_modules/@browserbasehq/stagehand/dist/index.mjs'\n}\n\nNode.js v24.15.0\n",
+          "status": "blocked"
+        },
+        {
+          "id": "preview-server",
+          "runId": "bfk3xkr9l",
+          "capsuleId": null,
+          "toolUseId": "call_IwvN1WejIi5YrL02kGMtW4CG",
+          "command": "python3 -m http.server 8765 --bind 127.0.0.1 --directory /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/public",
+          "exitCode": 1,
+          "status": "blocked",
+          "reason": "PermissionError: [Errno 1] Operation not permitted",
+          "output": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/.nautilus-runtime/tmp/claude-501/-Users-thebeast--nautilus-releases-seo-campaign-gated-var-workspaces-astra-site-rebuild/b6a122e0-ae8e-45b6-9297-4b35b9a7c000/tasks/bfk3xkr9l.output",
+          "disposition": "Server did not start. No alternate bind, port or execution route attempted."
+        },
+        {
+          "id": "cross-page-fragment-diagnostic",
+          "capsuleId": null,
+          "status": "incomplete",
+          "result": "Exploratory local Python diagnostic stopped on ValueError: not a local address: data:, because the diagnostic omitted the data: scheme filter. No site defect or completed all-cross-page-fragment audit was established."
+        },
+        {
+          "id": "verification-prior",
+          "capsuleId": null,
+          "command": "python3 /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/verify.py",
+          "status": "done",
+          "result": "Before the root legacy_paths completeness slice: five required Python commands passed, 39 checker tests and 67 catalog tests passed, walk 33/33 and 156/156. Rendered suite failed on missing Puppeteer. Latest rerun below replaces log files with current exact outputs."
+        },
+        {
+          "id": "delivery-render",
+          "command": "python3 build/render.py",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../render.log",
+          "stdout": "Rendered 33 HTML pages: 10 lessons, 7 skill explanations, 4 hubs, 3 inspections, 9 supporting pages; guides and ideas use permanent redirects.\n",
+          "stderr": "",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-check",
+          "command": "python3 build/check.py",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../check.log",
+          "stdout": "PASS: 33 HTML pages, 10 lessons, 0 guides, 7 skills, 70 permanent redirects, 12 frames verified; links, hashes, semantics, ten-lesson coverage, disclosure routes, no network loads and required metadata fields OK.\n",
+          "stderr": "",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-layout",
+          "command": "python3 build/check.py --layout",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../layout.log",
+          "stdout": "PASS: source layout\n",
+          "stderr": "",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-checker-tests",
+          "command": "python3 build/check.test.py",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../checker-tests.log",
+          "stdout": "",
+          "stderr": ".......................................\n----------------------------------------------------------------------\nRan 39 tests in 11.583s\n\nOK\n",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-catalog-tests",
+          "command": "python3 build/lesson_catalog.test.py",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../catalog-tests.log",
+          "stdout": "",
+          "stderr": "...................................................................\n----------------------------------------------------------------------\nRan 67 tests in 0.886s\n\nOK\n",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-compatible-lessons",
+          "command": "python3 build/check.py --lessons",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../compatible-lessons.log",
+          "stdout": "PASS: 33 HTML pages, 10 lessons, 0 guides, 7 skills, 70 permanent redirects, 12 frames verified; links, hashes, semantics, ten-lesson coverage, disclosure routes, no network loads and required metadata fields OK.\n",
+          "stderr": "",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-check-shell",
+          "command": "bash build/check.sh",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../check-shell.log",
+          "stdout": "PASS: 33 HTML pages, 10 lessons, 0 guides, 7 skills, 70 permanent redirects, 12 frames verified; links, hashes, semantics, ten-lesson coverage, disclosure routes, no network loads and required metadata fields OK.\nrendered check skipped: node or puppeteer not installed (cd build && npm install)\n",
+          "stderr": ".......................................\n----------------------------------------------------------------------\nRan 39 tests in 11.950s\n\nOK\n",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-rendered-check",
+          "command": "node build/check-render.js",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 1,
+          "output": "../rendered-check.log",
+          "stdout": "",
+          "stderr": "node:internal/modules/cjs/loader:1479\n  throw err;\n  ^\n\nError: Cannot find module 'puppeteer'\nRequire stack:\n- /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check-render.js\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1476:15)\n    at wrapResolveFilename (node:internal/modules/cjs/loader:1049:27)\n    at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1073:10)\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1094:12)\n    at Module._load (node:internal/modules/cjs/loader:1262:25)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.require (node:internal/modules/cjs/loader:1576:12)\n    at require (node:internal/modules/helpers:153:16)\n    at Object.<anonymous> (/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check-render.js:11:19)\n    at Module._compile (node:internal/modules/cjs/loader:1830:14) {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: [\n    '/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/build/check-render.js'\n  ]\n}\n\nNode.js v24.15.0\n",
+          "capsuleId": null,
+          "status": "blocked",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-browser-syntax",
+          "command": "node --check build/check-render.js",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../browser-syntax.log",
+          "stdout": "",
+          "stderr": "",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-diff-whitespace",
+          "command": "git diff --check",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../diff-whitespace.log",
+          "stdout": "",
+          "stderr": "",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "delivery-visitor-walk",
+          "command": "python3 /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/walk.py",
+          "cwd": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo",
+          "exitCode": 0,
+          "output": "../visitor-walk.log",
+          "stdout": "Start: public/index.html\nTraversal: header links and the one native menu only; local permanent redirects resolved\nKept/new HTML pages reached: 33/33\nApproved addresses directly linked: 156/156\nUnreachable pages: none\nUnlinked addresses: none\nUnexpected HTML pages: none\nBroken navigation: none\nREACHED /404.html\nREACHED /ATTRIBUTION.html\nREACHED /CONTRIBUTING.html\nREACHED /adoption.html\nREACHED /boris-cherny-inspection.html\nREACHED /evidence.html\nREACHED /evidence/video-research.html\nREACHED /examples/recurring-rule/README.html\nREACHED /github-inspection.html\nREACHED /index.html\nREACHED /investigations.html\nREACHED /lessons.html\nREACHED /lessons/better-environments.html\nREACHED /lessons/ci-feedback.html\nREACHED /lessons/codebase-navigation.html\nREACHED /lessons/missing-tools.html\nREACHED /lessons/prove-it-works.html\nREACHED /lessons/recurring-mistakes.html\nREACHED /lessons/resume-work.html\nREACHED /lessons/shared-contracts.html\nREACHED /lessons/useful-instructions.html\nREACHED /lessons/working-previews.html\nREACHED /matt-pocock-inspection.html\nREACHED /prompts.html\nREACHED /skills.html\nREACHED /skills/agent-artifact-recovery/index.html\nREACHED /skills/agent-context-calibration/index.html\nREACHED /skills/agent-contract-consistency/index.html\nREACHED /skills/agent-feedback-engineering/index.html\nREACHED /skills/agent-output-verification/index.html\nREACHED /skills/agent-ready-workspaces/index.html\nREACHED /skills/agent-tool-adapters/index.html\nREACHED /validation.html\n",
+          "stderr": "",
+          "capsuleId": null,
+          "status": "done",
+          "cost": "local execution; no paid external route"
+        },
+        {
+          "id": "preservation",
+          "capsuleId": null,
+          "exitCode": 0,
+          "command": "workspace-local Python: compare baseline source bytes, lesson_standard AST and public file hashes",
+          "output": "../preservation.json",
+          "result": "85 baseline source/evidence/skill files unchanged; lesson_standard AST unchanged; all public file hashes match verification.json."
+        },
+        {
+          "id": "snapshot-catalog-commit",
+          "capsuleId": null,
+          "status": "done",
+          "exitCode": 0,
+          "result": "df4308bcf959a48cc51f9f0266f93dc9be5fadfc Adopt approved lesson ownership and default reading checks"
+        },
+        {
+          "id": "snapshot-rebuild-commit",
+          "capsuleId": null,
+          "status": "done",
+          "exitCode": 0,
+          "result": "1ac98b5e2b9071a798ebe3e7f519ca86e01924c7 Rebuild reader pages and complete approved sitemap navigation; clean working tree afterward"
+        },
+        {
+          "id": "delivery-state-layout",
+          "capsuleId": null,
+          "command": "python3 repo/build/check.py --layout; git -C repo diff --cached --check",
+          "status": "done",
+          "exitCode": 0,
+          "result": "PASS: source layout; no staged whitespace diagnostics"
+        },
+        {
+          "id": "patch-delivery",
+          "capsuleId": null,
+          "command": "python3 package-delivery.py",
+          "status": "done",
+          "exitCode": 0,
+          "output": "../delivery-validation.json",
+          "result": "Exact committed baseline..HEAD patch generated. Disposable changed-file baseline fixture passed apply --check, application, final-byte comparison and reverse --check. Public hashes matched verification.json; prior harness phases unchanged. Rerun after this evidence-only commit to bind the final patch revision."
+        },
+        {
+          "id": "result-assembly",
+          "capsuleId": null,
+          "command": "python3 assemble-result.py",
+          "status": "done",
+          "exitCode": 0,
+          "output": "../RESULT.md",
+          "result": "All nine outcomes reconciled with actual checks, limitations and complete 70-route table. Rerun after final patch revision."
+        },
+        {
+          "id": "artifact-readback",
+          "capsuleId": null,
+          "command": "workspace-local Python: REPORT word count, report-link existence, patch bytes/digest comparison and snapshot status",
+          "status": "done",
+          "exitCode": 0,
+          "result": "REPORT.md 246 words (<300); report links resolve; patch equals baseline..HEAD; snapshot clean."
+        },
+        {
+          "id": "53f47e83-dc7e-40f1-934c-4f927e8b5368",
+          "capsule": "astra-site-rebuild",
+          "status": "blocked",
+          "reason": "capsule_skill_plan_uninvoked (long-running-harness); deliverables complete",
+          "modelRequests": 117
+        },
+        {
+          "id": "280a89cc-1729-4212-b58c-9e99df86db5c",
+          "capsule": "astra-site-rebuild-verify",
+          "status": "completed",
+          "reason": "skills invoked; nine outcomes reconciled",
+          "modelRequests": 11
+        }
+      ],
+      "decisions": [
+        "Current user authorizes snapshot commits and workspace-only artifacts.",
+        "Guide source addresses redirect to HTML lessons; sources remain in guides unrendered because control has no archive lane.",
+        "Remove obsolete four legacy fragments. Retain original sources and baseline Git history.",
+        "No agents dispatched: current release prohibits dispatch.",
+        "Public sitemap is transcribed into build/sitemap.json; control is not a renderer dependency.",
+        "Video-note destinations will be invisible anchors outside reader articles, not additional headings.",
+        "Exact approved titles, chapters and ownership replace old catalog expectations. Recovery is lesson 9 with no video idea, and fresh-agent merges into useful-instructions.",
+        "Keep 66 lesson-owned earlier addresses in lesson records and four hub-level earlier addresses in the root manifest legacy_paths. Their union equals the 70 explicit permanent redirects.",
+        "Render accepted lesson Markdown and skill README sources as reader articles. Preserve raw citation/next-action elements and heading sequence; rewrite sibling reader links and render fenced code.",
+        "Do not serve seven extra skill README source routes absent from the approved tree. Keep SKILL.md, references, agent metadata and evaluation companions separate.",
+        "Register existing control/citation-map.md in the checker because control/README.md already lists it. No new control archive or arbitrary source-layout exception is added.",
+        "Make LS01-LS12 default checks; --lessons is a compatible no-op, including source-only --layout use. The lesson_standard function AST is unchanged from baseline.",
+        "Replace obsolete physical-alias and four-fragment assertions with exact permanent-route ownership and invisible compatibility-anchor checks. Preserve canonical, safety, privacy and unrelated checks.",
+        "Limit the unrun-evaluation copy guard to the skills hub main content because the approved shared menu directly links evaluation companions. Companion access does not represent measured evaluation results.",
+        "Correct only outdated phase-specific design and interaction contracts with a superseding Phase 5 note; retain historical visual/layout rationale.",
+        "The visitor walk derives its expected routes independently from control/plan.md and follows only shared header/menu links. It resolves local configured redirects without a network server.",
+        "After the local server refusal and missing Stagehand dependency, do not retry a different port, browser driver, installation route or sandbox override. The declared project suite was attempted as required and failed before launch on missing Puppeteer.",
+        "Reuse unchanged rendered-file evidence after documentation/state updates. Final public file hashes match verification.json; no visual or live HTTP claims follow from static checks.",
+        "Current workspace-only report and snapshot-commit instructions supersede historical ephemera/uncommitted delivery prose. No historical two-agent review is performed under this release prohibition.",
+        "Retain guide sources in guides and superseded generated pages in baseline Git history. No source/evidence/skill files in the preservation comparison changed."
+      ],
+      "cost": "Local commands and model inference only. Monetary inference cost and session token accounting are unavailable. No paid external route, purchase or deployment was invoked.",
+      "refusals": [
+        {
+          "id": "preview-server",
+          "runId": "bfk3xkr9l",
+          "capsuleId": null,
+          "toolUseId": "call_IwvN1WejIi5YrL02kGMtW4CG",
+          "command": "python3 -m http.server 8765 --bind 127.0.0.1 --directory /Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/repo/public",
+          "exitCode": 1,
+          "status": "blocked",
+          "reason": "PermissionError: [Errno 1] Operation not permitted",
+          "output": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild/.nautilus-runtime/tmp/claude-501/-Users-thebeast--nautilus-releases-seo-campaign-gated-var-workspaces-astra-site-rebuild/b6a122e0-ae8e-45b6-9297-4b35b9a7c000/tasks/bfk3xkr9l.output",
+          "disposition": "Server did not start. No alternate bind, port or execution route attempted."
+        }
+      ],
+      "browserDependency": "Node /opt/homebrew/bin/node found; require.resolve(puppeteer) failed with NODE_PATH=repo/build/node_modules.",
+      "scope": "Phase 5 local snapshot implementation and artifact handoff only; rendered verification remains blocked. No integration, deployment, publication, agents or recurring work.",
+      "workspace": "/Users/thebeast/.nautilus/releases/seo-campaign-gated/var/workspaces/astra-site-rebuild",
+      "baselineCommit": "e2c49f9552b319a99b2e544a2cb13a2f6242d05a",
+      "branch": "phase5-sitemap",
+      "skills": [
+        "nautilus-core:website-implementation",
+        "nautilus-core:tdd",
+        "nautilus-core:browser",
+        "nautilus-core:precise",
+        "nautilus-core:simple"
+      ],
+      "runtimeRunId": null,
+      "capsuleId": null,
+      "runtimeIdentityLimit": "No authoritative runtime run/capsule identity supplied for this direct session. Evidence labels are local command labels, not worker IDs. The preview background task ID is recorded separately.",
+      "steps": {
+        "header_menu": "done: exact 156 approved addresses; visual behavior remains blocked below",
+        "catalog": "done: approved ten lessons, exact titles/order and unique ownership; complete 70-address legacy union",
+        "lesson_articles": "done: accepted source bodies and compatibility anchors outside articles",
+        "skill_articles": "done: seven README articles with separate agent companions",
+        "dispositions": "done: 33 physical HTML pages and 70 permanent redirects; live HTTP verification not performed",
+        "checker": "done: test-first changes, unchanged LS01-LS12 function, default gate and no-op flag",
+        "python_checks": "done: five required Python commands pass; 39 checker tests and 67 catalog tests",
+        "visitor_walk": "done: 33/33 HTML pages reached, 156/156 addresses directly linked; unreachable none",
+        "hub_copy": "done: four changed hubs and menu use plain labels; h1 conclusions include verbs",
+        "rendered_verification": "blocked: local server refused; Stagehand and Puppeteer dependencies unavailable",
+        "rendered_review": "blocked: no rendered evidence; release prohibits review-agent dispatch",
+        "delivery": "done: local snapshot commits, RESULT.md, REPORT.md (246 words), phase5.patch and visitor-walk/evidence files. Final commit and patch digest are recorded outside the repository in ../RESULT.md; parent integration remains pending.",
+        "integration": "pending: parent applies final diff to the real repository; not authorized here"
+      },
+      "checks": {
+        "verification": "../verification.json; exact commands, stdout/stderr, exits and per-public-file SHA256",
+        "publicRevisionSha256": "c52fc1a7142bbe34cf833bb3d447644a015546ae9dcad4f42db0f9c078bc0430",
+        "preservation": "../preservation.json",
+        "walk": "../walk-result.json; ../visitor-walk.log",
+        "readingStandard": "LS01-LS12 default gate passed; unchanged function AST compared against baseline",
+        "visual": "NOT VERIFIED: no browser session reached the site; no screenshot produced or inspected",
+        "liveRedirects": "NOT VERIFIED: permanent configuration and local route resolution only",
+        "patch": "../delivery-validation.json; exact baseline/final commits, patch SHA256, changed-file fixture application and reverse preflight. No real-repository application.",
+        "report": "REPORT.md 246 words; required nine-outcome RESULT.md and all report links checked."
+      },
+      "unresolvedLimits": [
+        "PermissionError: [Errno 1] Operation not permitted when starting the local preview server (task bfk3xkr9l; capsuleId null).",
+        "Supported browser runner failed: Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/thebeast/.npm-global/lib/node_modules/@browserbasehq/stagehand/dist/index.mjs' imported from /Users/thebeast/.nautilus/releases/seo-campaign-gated/release/charts/core-skills/bundles/browser/scripts/stagehand-local.mjs",
+        "Declared rendered suite failed: Error: Cannot find module 'puppeteer'. Shell check explicitly skipped its browser stage.",
+        "Viewport fit, opening-paragraph fit, actual menu scrolling/wrapping, keyboard behavior, composition/orientation, contrast and motion remain unverified. Required browser checks are not waived.",
+        "No two-agent rendered review: release prohibits agents. Site-structure record is direct implementation/evidence reporting, not that review.",
+        "No live redirect response/status test, publication, deployment or real-repository integration. Parent application remains outside this snapshot delivery.",
+        "Prior-phase citation fetch/review claims are preserved as historical records and were not rerun in Phase 5.",
+        "No authoritative direct-session runtime/capsule IDs or monetary inference cost supplied."
+      ],
+      "artifacts": [
+        "public/",
+        "build/sitemap.json",
+        "build/site_routes.py",
+        "control/reviews/site-structure.md",
+        "../walk.py",
+        "../walk-result.json",
+        "../verification.json",
+        "../preservation.json",
+        "../RESULT.md",
+        "../REPORT.md",
+        "../phase5.patch",
+        "../delivery-validation.json"
+      ],
+      "gate": "owner reads ~/ephemera/handbook-restructure-summary.md and says commit, or asks for changes",
+      "integration": "phase5.patch applied to real repository; render.py 33 pages; check.py PASS (LS gate default); --layout PASS; check.test.py OK; lesson_catalog.test.py OK; check-render.js PASS 11 pages x 2 viewports",
+      "review": {
+        "composition": "glm-5.3-flash run 124704f9 completed (first attempt 69d66644 blocked run_stdout_limit on 48 tiles)",
+        "copy": "kimi-k3-256k run c09d932e completed (first attempt f709cfbb blocked run_stdout_limit)",
+        "record": "control/reviews/site-structure.md: 12 findings, 7 applied, 3 overruled, 2 deferred",
+        "verdicts": "copy: ship; composition: fix first (C1), now applied"
+      },
+      "post_review_checks": "render.py 33 pages; check.py PASS; --layout PASS; check.test.py OK; lesson_catalog.test.py OK; check-render.js PASS 108/108",
+      "owner_visible_fixes_by_parent": [
+        "README problem rows now carry the new lesson titles",
+        "diagram labels, menu fade, lessons meta, home lead, skill captions, DESIGN.md route head"
+      ]
+    }
+  },
+  "postPlan": {
+    "status": "awaiting-gate",
+    "items": {
+      "C4 skill artwork": "done: owner chose generated set; all seven replaced; 14 Higgsfield credits",
+      "K5 example label": "open: label comes from the approved plan; change needs a plan amendment",
+      "commit": "awaiting owner",
+      "home problem table": "done: ten rows, one per lesson, in lesson order; chips a uniform column; checker and test enforce count and order"
+    },
+    "checks": "render.py 33 pages; check.py PASS; --layout PASS; check.test.py OK; catalog tests OK; check-render.js PASS 108/108 after all seven icons replaced",
+    "spend": "Higgsfield: 14 credits of 5473"
+  }
+}

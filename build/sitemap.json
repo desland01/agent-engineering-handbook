@@ -1,0 +1,1320 @@
+[
+  {
+    "label": "Home",
+    "path": "/index.html",
+    "parent": "Site",
+    "status": "kept",
+    "alias": false,
+    "group": "Start here"
+  },
+  {
+    "label": "Earlier: Handbook overview",
+    "path": "/README.html",
+    "parent": "/index.html",
+    "status": "merged into /index.html",
+    "alias": false,
+    "destination": "/index.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Handbook overview — source text",
+    "path": "/README.md",
+    "parent": "/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Lessons",
+    "path": "/lessons.html",
+    "parent": "/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Start here"
+  },
+  {
+    "label": "Earlier: Methods by problem",
+    "path": "/guides.html",
+    "parent": "/lessons.html",
+    "status": "merged into /lessons.html",
+    "alias": false,
+    "destination": "/lessons.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Video observations",
+    "path": "/ideas.html",
+    "parent": "/lessons.html",
+    "status": "redirects to /lessons.html",
+    "alias": false,
+    "destination": "/lessons.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "01 You turn repeated mistakes into reliable checks",
+    "path": "/lessons/recurring-mistakes.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "01 You turn repeated mistakes into reliable checks — source text",
+    "path": "/lessons/recurring-mistakes.md",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Turn recurring failures into checks",
+    "path": "/guides/01-recurring-failures.html",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "merged into /lessons/recurring-mistakes.html",
+    "alias": false,
+    "destination": "/lessons/recurring-mistakes.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Turn recurring failures into checks — source text",
+    "path": "/guides/01-recurring-failures.md",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "merged into /lessons/recurring-mistakes.md",
+    "alias": false,
+    "destination": "/lessons/recurring-mistakes.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Check repeated mistakes automatically",
+    "path": "/ideas/08-fix-class-loops.html",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "redirects to /lessons/recurring-mistakes.html#video-note-08",
+    "alias": false,
+    "destination": "/lessons/recurring-mistakes.html#video-note-08",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Weigh the cost of custom checks",
+    "path": "/ideas/09-custom-lint-economics.html",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "redirects to /lessons/recurring-mistakes.html#video-note-09",
+    "alias": false,
+    "destination": "/lessons/recurring-mistakes.html#video-note-09",
+    "group": "Earlier links"
+  },
+  {
+    "label": "A worked example of a recurring check",
+    "path": "/examples/recurring-rule/README.html",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "Recurring check example — source text",
+    "path": "/examples/recurring-rule/README.md",
+    "parent": "/examples/recurring-rule/README.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "02 You diagnose failed checks without copying logs",
+    "path": "/lessons/ci-feedback.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "02 You diagnose failed checks without copying logs — source text",
+    "path": "/lessons/ci-feedback.md",
+    "parent": "/lessons/ci-feedback.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Diagnose failed checks",
+    "path": "/guides/04-ci-feedback.html",
+    "parent": "/lessons/ci-feedback.html",
+    "status": "merged into /lessons/ci-feedback.html",
+    "alias": false,
+    "destination": "/lessons/ci-feedback.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Diagnose failed checks — source text",
+    "path": "/guides/04-ci-feedback.md",
+    "parent": "/lessons/ci-feedback.html",
+    "status": "merged into /lessons/ci-feedback.md",
+    "alias": false,
+    "destination": "/lessons/ci-feedback.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Read failed check logs",
+    "path": "/ideas/01-ci-feedback-loop.html",
+    "parent": "/lessons/ci-feedback.html",
+    "status": "redirects to /lessons/ci-feedback.html#video-note-01",
+    "alias": false,
+    "destination": "/lessons/ci-feedback.html#video-note-01",
+    "group": "Earlier links"
+  },
+  {
+    "label": "03 You test the result users actually need",
+    "path": "/lessons/prove-it-works.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "03 You test the result users actually need — source text",
+    "path": "/lessons/prove-it-works.md",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Test the essential user journey",
+    "path": "/guides/02-critical-journey-tests.html",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "merged into /lessons/prove-it-works.html",
+    "alias": false,
+    "destination": "/lessons/prove-it-works.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Test the essential user journey — source text",
+    "path": "/guides/02-critical-journey-tests.md",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "merged into /lessons/prove-it-works.md",
+    "alias": false,
+    "destination": "/lessons/prove-it-works.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Define the accepted result",
+    "path": "/guides/09-verification-contracts.html",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "merged into /lessons/prove-it-works.html",
+    "alias": false,
+    "destination": "/lessons/prove-it-works.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Define the accepted result — source text",
+    "path": "/guides/09-verification-contracts.md",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "merged into /lessons/prove-it-works.md",
+    "alias": false,
+    "destination": "/lessons/prove-it-works.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Check the output through useful views",
+    "path": "/guides/13-layered-validation.html",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "merged into /lessons/prove-it-works.html",
+    "alias": false,
+    "destination": "/lessons/prove-it-works.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Check the output through useful views — source text",
+    "path": "/guides/13-layered-validation.md",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "merged into /lessons/prove-it-works.md",
+    "alias": false,
+    "destination": "/lessons/prove-it-works.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Test two participants together",
+    "path": "/ideas/02-two-browser-e2e.html",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "redirects to /lessons/prove-it-works.html#video-note-02",
+    "alias": false,
+    "destination": "/lessons/prove-it-works.html#video-note-02",
+    "group": "Earlier links"
+  },
+  {
+    "label": "04 You give agents a working preview",
+    "path": "/lessons/working-previews.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "04 You give agents a working preview — source text",
+    "path": "/lessons/working-previews.md",
+    "parent": "/lessons/working-previews.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Make previews usable",
+    "path": "/guides/03-preview-workspaces.html",
+    "parent": "/lessons/working-previews.html",
+    "status": "merged into /lessons/working-previews.html",
+    "alias": false,
+    "destination": "/lessons/working-previews.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Make previews usable — source text",
+    "path": "/guides/03-preview-workspaces.md",
+    "parent": "/lessons/working-previews.html",
+    "status": "merged into /lessons/working-previews.md",
+    "alias": false,
+    "destination": "/lessons/working-previews.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Make previews accessible",
+    "path": "/ideas/04-preview-environments.html",
+    "parent": "/lessons/working-previews.html",
+    "status": "redirects to /lessons/working-previews.html#video-note-04",
+    "alias": false,
+    "destination": "/lessons/working-previews.html#video-note-04",
+    "group": "Earlier links"
+  },
+  {
+    "label": "05 You make missing operations usable by agents",
+    "path": "/lessons/missing-tools.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "05 You make missing operations usable by agents — source text",
+    "path": "/lessons/missing-tools.md",
+    "parent": "/lessons/missing-tools.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Build a missing tool operation",
+    "path": "/guides/06-tool-adapters.html",
+    "parent": "/lessons/missing-tools.html",
+    "status": "merged into /lessons/missing-tools.html",
+    "alias": false,
+    "destination": "/lessons/missing-tools.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Build a missing tool operation — source text",
+    "path": "/guides/06-tool-adapters.md",
+    "parent": "/lessons/missing-tools.html",
+    "status": "merged into /lessons/missing-tools.md",
+    "alias": false,
+    "destination": "/lessons/missing-tools.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Provide the missing upload operation",
+    "path": "/ideas/05-custom-file-upload-skill.html",
+    "parent": "/lessons/missing-tools.html",
+    "status": "redirects to /lessons/missing-tools.html#video-note-05",
+    "alias": false,
+    "destination": "/lessons/missing-tools.html#video-note-05",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Learn by testing a small skill",
+    "path": "/ideas/06-skill-authoring-reward.html",
+    "parent": "/lessons/missing-tools.html",
+    "status": "redirects to /lessons/missing-tools.html#video-note-06",
+    "alias": false,
+    "destination": "/lessons/missing-tools.html#video-note-06",
+    "group": "Earlier links"
+  },
+  {
+    "label": "06 You write instructions that fix observed confusion",
+    "path": "/lessons/useful-instructions.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "06 You write instructions that fix observed confusion — source text",
+    "path": "/lessons/useful-instructions.md",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Find a fresh agent’s missing context",
+    "path": "/lessons/fresh-agent.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "merged into /lessons/useful-instructions.html",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Find a fresh agent’s missing context — source text",
+    "path": "/lessons/fresh-agent.md",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "merged into /lessons/useful-instructions.md",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.md",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Place useful project knowledge",
+    "path": "/guides/05-knowledge-and-instructions.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "merged into /lessons/useful-instructions.html",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Place useful project knowledge — source text",
+    "path": "/guides/05-knowledge-and-instructions.md",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "merged into /lessons/useful-instructions.md",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Make domain knowledge available",
+    "path": "/ideas/10-domain-knowledge-as-infra.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-10",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html#video-note-10",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Own instruction decisions",
+    "path": "/ideas/12-own-your-instructions.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-12",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html#video-note-12",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Distinguish steering from enforcement",
+    "path": "/ideas/13-steering-pushback.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-13",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html#video-note-13",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Reduce extra prompting",
+    "path": "/ideas/15-zero-context-docs.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-15",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html#video-note-15",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Observe a fresh agent’s missing context",
+    "path": "/ideas/16-minimal-context-calibration.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-16",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html#video-note-16",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Write guidance that steers decisions",
+    "path": "/ideas/17-steer-not-map.html",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-17",
+    "alias": false,
+    "destination": "/lessons/useful-instructions.html#video-note-17",
+    "group": "Earlier links"
+  },
+  {
+    "label": "07 You keep shared contracts consistent across layers",
+    "path": "/lessons/shared-contracts.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "07 You keep shared contracts consistent across layers — source text",
+    "path": "/lessons/shared-contracts.md",
+    "parent": "/lessons/shared-contracts.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Connect shared contracts",
+    "path": "/guides/08-compose-contracts.html",
+    "parent": "/lessons/shared-contracts.html",
+    "status": "merged into /lessons/shared-contracts.html",
+    "alias": false,
+    "destination": "/lessons/shared-contracts.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Connect shared contracts — source text",
+    "path": "/guides/08-compose-contracts.md",
+    "parent": "/lessons/shared-contracts.html",
+    "status": "merged into /lessons/shared-contracts.md",
+    "alias": false,
+    "destination": "/lessons/shared-contracts.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Use one domain language and transport",
+    "path": "/guides/11-domain-language-and-agent-apis.html",
+    "parent": "/lessons/shared-contracts.html",
+    "status": "merged into /lessons/shared-contracts.html",
+    "alias": false,
+    "destination": "/lessons/shared-contracts.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Use one domain language and transport — source text",
+    "path": "/guides/11-domain-language-and-agent-apis.md",
+    "parent": "/lessons/shared-contracts.html",
+    "status": "merged into /lessons/shared-contracts.md",
+    "alias": false,
+    "destination": "/lessons/shared-contracts.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Connect types across layers",
+    "path": "/ideas/14-type-safe-composition.html",
+    "parent": "/lessons/shared-contracts.html",
+    "status": "redirects to /lessons/shared-contracts.html#video-note-14",
+    "alias": false,
+    "destination": "/lessons/shared-contracts.html#video-note-14",
+    "group": "Earlier links"
+  },
+  {
+    "label": "08 You navigate unfamiliar code without guessing",
+    "path": "/lessons/codebase-navigation.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "08 You navigate unfamiliar code without guessing — source text",
+    "path": "/lessons/codebase-navigation.md",
+    "parent": "/lessons/codebase-navigation.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Find code and preserve tool output",
+    "path": "/guides/10-codebase-navigation-and-tooling.html",
+    "parent": "/lessons/codebase-navigation.html",
+    "status": "merged into /lessons/codebase-navigation.html",
+    "alias": false,
+    "destination": "/lessons/codebase-navigation.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Find code and preserve tool output — source text",
+    "path": "/guides/10-codebase-navigation-and-tooling.md",
+    "parent": "/lessons/codebase-navigation.html",
+    "status": "merged into /lessons/codebase-navigation.md",
+    "alias": false,
+    "destination": "/lessons/codebase-navigation.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Find your way through growing code",
+    "path": "/ideas/19-solo-onboarding.html",
+    "parent": "/lessons/codebase-navigation.html",
+    "status": "redirects to /lessons/codebase-navigation.html#video-note-19",
+    "alias": false,
+    "destination": "/lessons/codebase-navigation.html#video-note-19",
+    "group": "Earlier links"
+  },
+  {
+    "label": "09 You resume work without repeating completed steps",
+    "path": "/lessons/resume-work.html",
+    "parent": "/lessons.html",
+    "status": "new; proposed canonical page",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "09 You resume work without repeating completed steps — source text",
+    "path": "/lessons/resume-work.md",
+    "parent": "/lessons/resume-work.html",
+    "status": "new; proposed canonical page",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Reuse finished work and recover interruptions",
+    "path": "/guides/12-artifact-identity-and-recovery.html",
+    "parent": "/lessons/resume-work.html",
+    "status": "merged into /lessons/resume-work.html",
+    "alias": false,
+    "destination": "/lessons/resume-work.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Reuse finished work and recover interruptions — source text",
+    "path": "/guides/12-artifact-identity-and-recovery.md",
+    "parent": "/lessons/resume-work.html",
+    "status": "merged into /lessons/resume-work.md",
+    "alias": false,
+    "destination": "/lessons/resume-work.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "10 You remove obstacles for the next contributor",
+    "path": "/lessons/better-environments.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "10 You remove obstacles for the next contributor — source text",
+    "path": "/lessons/better-environments.md",
+    "parent": "/lessons/better-environments.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Earlier: Learn from newcomer questions",
+    "path": "/guides/07-team-learning.html",
+    "parent": "/lessons/better-environments.html",
+    "status": "merged into /lessons/better-environments.html",
+    "alias": false,
+    "destination": "/lessons/better-environments.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Learn from newcomer questions — source text",
+    "path": "/guides/07-team-learning.md",
+    "parent": "/lessons/better-environments.html",
+    "status": "merged into /lessons/better-environments.md",
+    "alias": false,
+    "destination": "/lessons/better-environments.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Share useful automation",
+    "path": "/ideas/03-automation-multiplies-agents.html",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-03",
+    "alias": false,
+    "destination": "/lessons/better-environments.html#video-note-03",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Discuss useful tooling work",
+    "path": "/ideas/07-team-buy-in.html",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-07",
+    "alias": false,
+    "destination": "/lessons/better-environments.html#video-note-07",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Learn from newcomer questions",
+    "path": "/ideas/11-newcomer-questions-signal.html",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-11",
+    "alias": false,
+    "destination": "/lessons/better-environments.html#video-note-11",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Qualify the career argument",
+    "path": "/ideas/18-career-leverage.html",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-18",
+    "alias": false,
+    "destination": "/lessons/better-environments.html#video-note-18",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Task prompts",
+    "path": "/prompts.html",
+    "parent": "/lessons.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Lessons"
+  },
+  {
+    "label": "Task prompts — source text",
+    "path": "/prompts.md",
+    "parent": "/prompts.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Skills",
+    "path": "/skills.html",
+    "parent": "/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Start here"
+  },
+  {
+    "label": "Adopt a skill",
+    "path": "/adoption.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Adopt a skill — source text",
+    "path": "/adoption.md",
+    "parent": "/adoption.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Artifact recovery",
+    "path": "/skills/agent-artifact-recovery/index.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Artifact recovery — agent instructions",
+    "path": "/skills/agent-artifact-recovery/SKILL.md",
+    "parent": "/skills/agent-artifact-recovery/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Artifact recovery — evaluation cases",
+    "path": "/skills/agent-artifact-recovery/eval/README.md",
+    "parent": "/skills/agent-artifact-recovery/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Artifact recovery — worked examples",
+    "path": "/skills/agent-artifact-recovery/references/implementation.md",
+    "parent": "/skills/agent-artifact-recovery/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Artifact recovery — source notes",
+    "path": "/skills/agent-artifact-recovery/references/source-patterns.md",
+    "parent": "/skills/agent-artifact-recovery/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Context calibration",
+    "path": "/skills/agent-context-calibration/index.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Context calibration — agent instructions",
+    "path": "/skills/agent-context-calibration/SKILL.md",
+    "parent": "/skills/agent-context-calibration/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Context calibration — worked examples",
+    "path": "/skills/agent-context-calibration/references/implementation.md",
+    "parent": "/skills/agent-context-calibration/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Context calibration — source notes",
+    "path": "/skills/agent-context-calibration/references/source-patterns.md",
+    "parent": "/skills/agent-context-calibration/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Contract consistency",
+    "path": "/skills/agent-contract-consistency/index.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Contract consistency — agent instructions",
+    "path": "/skills/agent-contract-consistency/SKILL.md",
+    "parent": "/skills/agent-contract-consistency/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Contract consistency — evaluation cases",
+    "path": "/skills/agent-contract-consistency/eval/README.md",
+    "parent": "/skills/agent-contract-consistency/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Contract consistency — worked examples",
+    "path": "/skills/agent-contract-consistency/references/implementation.md",
+    "parent": "/skills/agent-contract-consistency/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Contract consistency — source notes",
+    "path": "/skills/agent-contract-consistency/references/source-patterns.md",
+    "parent": "/skills/agent-contract-consistency/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Feedback engineering",
+    "path": "/skills/agent-feedback-engineering/index.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Feedback engineering — agent instructions",
+    "path": "/skills/agent-feedback-engineering/SKILL.md",
+    "parent": "/skills/agent-feedback-engineering/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Feedback engineering — worked examples",
+    "path": "/skills/agent-feedback-engineering/references/implementation.md",
+    "parent": "/skills/agent-feedback-engineering/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Feedback engineering — source notes",
+    "path": "/skills/agent-feedback-engineering/references/source-patterns.md",
+    "parent": "/skills/agent-feedback-engineering/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Output verification",
+    "path": "/skills/agent-output-verification/index.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Output verification — agent instructions",
+    "path": "/skills/agent-output-verification/SKILL.md",
+    "parent": "/skills/agent-output-verification/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Output verification — evaluation cases",
+    "path": "/skills/agent-output-verification/eval/README.md",
+    "parent": "/skills/agent-output-verification/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Output verification — worked examples",
+    "path": "/skills/agent-output-verification/references/implementation.md",
+    "parent": "/skills/agent-output-verification/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Output verification — source notes",
+    "path": "/skills/agent-output-verification/references/source-patterns.md",
+    "parent": "/skills/agent-output-verification/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Agent-ready workspaces",
+    "path": "/skills/agent-ready-workspaces/index.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Agent-ready workspaces — agent instructions",
+    "path": "/skills/agent-ready-workspaces/SKILL.md",
+    "parent": "/skills/agent-ready-workspaces/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Agent-ready workspaces — worked examples",
+    "path": "/skills/agent-ready-workspaces/references/implementation.md",
+    "parent": "/skills/agent-ready-workspaces/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Agent-ready workspaces — source notes",
+    "path": "/skills/agent-ready-workspaces/references/source-patterns.md",
+    "parent": "/skills/agent-ready-workspaces/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Tool adapters",
+    "path": "/skills/agent-tool-adapters/index.html",
+    "parent": "/skills.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Skills"
+  },
+  {
+    "label": "Tool adapters — agent instructions",
+    "path": "/skills/agent-tool-adapters/SKILL.md",
+    "parent": "/skills/agent-tool-adapters/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Tool adapters — worked examples",
+    "path": "/skills/agent-tool-adapters/references/implementation.md",
+    "parent": "/skills/agent-tool-adapters/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Tool adapters — source notes",
+    "path": "/skills/agent-tool-adapters/references/source-patterns.md",
+    "parent": "/skills/agent-tool-adapters/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Sources",
+    "path": "/investigations.html",
+    "parent": "/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Start here"
+  },
+  {
+    "label": "Theo’s projects: T3 Code and Melee",
+    "path": "/github-inspection.html",
+    "parent": "/investigations.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Sources"
+  },
+  {
+    "label": "Theo’s projects: T3 Code and Melee — source text",
+    "path": "/github-inspection.md",
+    "parent": "/github-inspection.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Matt Pocock’s course video project",
+    "path": "/matt-pocock-inspection.html",
+    "parent": "/investigations.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Sources"
+  },
+  {
+    "label": "Matt Pocock’s course video project — source text",
+    "path": "/matt-pocock-inspection.md",
+    "parent": "/matt-pocock-inspection.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Boris Cherny’s public projects",
+    "path": "/boris-cherny-inspection.html",
+    "parent": "/investigations.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Sources"
+  },
+  {
+    "label": "Boris Cherny’s public projects — source text",
+    "path": "/boris-cherny-inspection.md",
+    "parent": "/boris-cherny-inspection.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "What was checked",
+    "path": "/validation.html",
+    "parent": "/investigations.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Sources"
+  },
+  {
+    "label": "What was checked — source text",
+    "path": "/validation.md",
+    "parent": "/validation.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Video frames",
+    "path": "/evidence.html",
+    "parent": "/investigations.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Sources"
+  },
+  {
+    "label": "Video notes",
+    "path": "/evidence/video-research.html",
+    "parent": "/investigations.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Sources"
+  },
+  {
+    "label": "Video notes — source text",
+    "path": "/evidence/video-research.md",
+    "parent": "/evidence/video-research.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Credits and reuse",
+    "path": "/ATTRIBUTION.html",
+    "parent": "/investigations.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Sources"
+  },
+  {
+    "label": "Credits and reuse — source text",
+    "path": "/ATTRIBUTION.md",
+    "parent": "/ATTRIBUTION.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Contribute to the handbook",
+    "path": "/CONTRIBUTING.html",
+    "parent": "/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Help"
+  },
+  {
+    "label": "Contribute to the handbook — source text",
+    "path": "/CONTRIBUTING.md",
+    "parent": "/CONTRIBUTING.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Source texts"
+  },
+  {
+    "label": "Find a missing page",
+    "path": "/404.html",
+    "parent": "/index.html",
+    "status": "kept",
+    "alias": false,
+    "group": "Help"
+  },
+  {
+    "label": "Earlier: Home — short address",
+    "path": "/",
+    "parent": "/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Find your way through growing code — earlier short address",
+    "path": "/ideas/19-solo-onboarding",
+    "parent": "/lessons/codebase-navigation.html",
+    "status": "redirects to /lessons/codebase-navigation.html#video-note-19",
+    "alias": true,
+    "destination": "/lessons/codebase-navigation.html#video-note-19",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Qualify the career argument — earlier short address",
+    "path": "/ideas/18-career-leverage",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-18",
+    "alias": true,
+    "destination": "/lessons/better-environments.html#video-note-18",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Write guidance that steers decisions — earlier short address",
+    "path": "/ideas/17-steer-not-map",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-17",
+    "alias": true,
+    "destination": "/lessons/useful-instructions.html#video-note-17",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Observe a fresh agent’s missing context — earlier short address",
+    "path": "/ideas/16-minimal-context-calibration",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-16",
+    "alias": true,
+    "destination": "/lessons/useful-instructions.html#video-note-16",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Reduce extra prompting — earlier short address",
+    "path": "/ideas/15-zero-context-docs",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-15",
+    "alias": true,
+    "destination": "/lessons/useful-instructions.html#video-note-15",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Connect types across layers — earlier short address",
+    "path": "/ideas/14-type-safe-composition",
+    "parent": "/lessons/shared-contracts.html",
+    "status": "redirects to /lessons/shared-contracts.html#video-note-14",
+    "alias": true,
+    "destination": "/lessons/shared-contracts.html#video-note-14",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Distinguish steering from enforcement — earlier short address",
+    "path": "/ideas/13-steering-pushback",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-13",
+    "alias": true,
+    "destination": "/lessons/useful-instructions.html#video-note-13",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Own instruction decisions — earlier short address",
+    "path": "/ideas/12-own-your-instructions",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-12",
+    "alias": true,
+    "destination": "/lessons/useful-instructions.html#video-note-12",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Learn from newcomer questions — earlier short address",
+    "path": "/ideas/11-newcomer-questions-signal",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-11",
+    "alias": true,
+    "destination": "/lessons/better-environments.html#video-note-11",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Make domain knowledge available — earlier short address",
+    "path": "/ideas/10-domain-knowledge-as-infra",
+    "parent": "/lessons/useful-instructions.html",
+    "status": "redirects to /lessons/useful-instructions.html#video-note-10",
+    "alias": true,
+    "destination": "/lessons/useful-instructions.html#video-note-10",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Weigh the cost of custom checks — earlier short address",
+    "path": "/ideas/09-custom-lint-economics",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "redirects to /lessons/recurring-mistakes.html#video-note-09",
+    "alias": true,
+    "destination": "/lessons/recurring-mistakes.html#video-note-09",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Check repeated mistakes automatically — earlier short address",
+    "path": "/ideas/08-fix-class-loops",
+    "parent": "/lessons/recurring-mistakes.html",
+    "status": "redirects to /lessons/recurring-mistakes.html#video-note-08",
+    "alias": true,
+    "destination": "/lessons/recurring-mistakes.html#video-note-08",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Discuss useful tooling work — earlier short address",
+    "path": "/ideas/07-team-buy-in",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-07",
+    "alias": true,
+    "destination": "/lessons/better-environments.html#video-note-07",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Learn by testing a small skill — earlier short address",
+    "path": "/ideas/06-skill-authoring-reward",
+    "parent": "/lessons/missing-tools.html",
+    "status": "redirects to /lessons/missing-tools.html#video-note-06",
+    "alias": true,
+    "destination": "/lessons/missing-tools.html#video-note-06",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Provide the missing upload operation — earlier short address",
+    "path": "/ideas/05-custom-file-upload-skill",
+    "parent": "/lessons/missing-tools.html",
+    "status": "redirects to /lessons/missing-tools.html#video-note-05",
+    "alias": true,
+    "destination": "/lessons/missing-tools.html#video-note-05",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Make previews accessible — earlier short address",
+    "path": "/ideas/04-preview-environments",
+    "parent": "/lessons/working-previews.html",
+    "status": "redirects to /lessons/working-previews.html#video-note-04",
+    "alias": true,
+    "destination": "/lessons/working-previews.html#video-note-04",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Share useful automation — earlier short address",
+    "path": "/ideas/03-automation-multiplies-agents",
+    "parent": "/lessons/better-environments.html",
+    "status": "redirects to /lessons/better-environments.html#video-note-03",
+    "alias": true,
+    "destination": "/lessons/better-environments.html#video-note-03",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Test two participants together — earlier short address",
+    "path": "/ideas/02-two-browser-e2e",
+    "parent": "/lessons/prove-it-works.html",
+    "status": "redirects to /lessons/prove-it-works.html#video-note-02",
+    "alias": true,
+    "destination": "/lessons/prove-it-works.html#video-note-02",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Read failed check logs — earlier short address",
+    "path": "/ideas/01-ci-feedback-loop",
+    "parent": "/lessons/ci-feedback.html",
+    "status": "redirects to /lessons/ci-feedback.html#video-note-01",
+    "alias": true,
+    "destination": "/lessons/ci-feedback.html#video-note-01",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Video observations — earlier short address",
+    "path": "/ideas",
+    "parent": "/lessons.html",
+    "status": "redirects to /lessons.html",
+    "alias": true,
+    "destination": "/lessons.html",
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Artifact recovery — directory address",
+    "path": "/skills/agent-artifact-recovery/",
+    "parent": "/skills/agent-artifact-recovery/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Context calibration — directory address",
+    "path": "/skills/agent-context-calibration/",
+    "parent": "/skills/agent-context-calibration/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Contract consistency — directory address",
+    "path": "/skills/agent-contract-consistency/",
+    "parent": "/skills/agent-contract-consistency/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Feedback engineering — directory address",
+    "path": "/skills/agent-feedback-engineering/",
+    "parent": "/skills/agent-feedback-engineering/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Output verification — directory address",
+    "path": "/skills/agent-output-verification/",
+    "parent": "/skills/agent-output-verification/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Agent-ready workspaces — directory address",
+    "path": "/skills/agent-ready-workspaces/",
+    "parent": "/skills/agent-ready-workspaces/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  },
+  {
+    "label": "Earlier: Tool adapters — directory address",
+    "path": "/skills/agent-tool-adapters/",
+    "parent": "/skills/agent-tool-adapters/index.html",
+    "status": "kept",
+    "alias": true,
+    "group": "Earlier links"
+  }
+]

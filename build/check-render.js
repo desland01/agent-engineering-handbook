@@ -15,19 +15,21 @@ const PORT = 0; // ephemeral
 
 const PAGES = [
   'index.html',
-  'ideas.html',
-  'guides.html',
+  'lessons.html',
+  'lessons/resume-work.html',
   'skills.html',
   'investigations.html',
   'evidence.html',
-  'guides/01-recurring-failures.html',
+  'lessons/recurring-mistakes.html',
+  'lessons/better-environments.html',
+  'examples/recurring-rule/README.html',
   'skills/agent-feedback-engineering/index.html',
-  'ideas/01-ci-feedback-loop.html',
+  'skills/agent-artifact-recovery/index.html',
 ];
 
 const VIEWPORTS = [{ width: 390, height: 844 }, { width: 1440, height: 900 }];
 
-const HUBS = ['ideas.html', 'guides.html', 'skills.html', 'investigations.html', 'evidence.html'];
+const HUBS = ['lessons.html', 'skills.html', 'investigations.html', 'evidence.html'];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -45,8 +47,10 @@ function serve(root) {
   return new Promise((resolve, reject) => {
     const server = http.createServer((req, res) => {
       const urlPath = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+      const redirect = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'vercel.json'), 'utf8')).redirects.find(row => row.source === urlPath);
+      if (redirect) { res.writeHead(308, {Location: redirect.destination}); return res.end(); }
       let filePath = path.normalize(path.join(root, urlPath));
-      if (!filePath.startsWith(root)) {
+      if (filePath !== root && !filePath.startsWith(root + path.sep)) {
         res.writeHead(403);
         return res.end('forbidden');
       }
@@ -134,6 +138,84 @@ function countHubNext() {
   return { present: true, links: el.querySelectorAll('a[href]').length };
 }
 
+async function checkLessonJourney(browser, base, failures) {
+  const page = await browser.newPage();
+  let checks = 0;
+  const verify = (pass, detail) => { checks++; if (!pass) failures.push('lesson journey — ' + detail); };
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  try {
+    await page.setViewport({width: 390, height: 850});
+    await page.goto(base + '/', {waitUntil: 'networkidle0'});
+    verify(await page.evaluate(() => {
+      const copy = document.querySelector('.opening-copy');
+      const pick = document.querySelector('.opening .pick');
+      const hero = document.querySelector('.opening .hero-figure');
+      return copy && pick && hero && !!(copy.compareDocumentPosition(pick) & 4) && !!(pick.compareDocumentPosition(hero) & 4);
+    }), 'homepage reading order is not copy, problems, artwork');
+    await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.click('.actions .primary')]);
+    verify(page.url().endsWith('/lessons/recurring-mistakes.html'), 'primary action does not open lesson 1');
+    verify(await page.$eval('h1', (el) => el.textContent === 'You turn repeated mistakes into reliable checks'), 'lesson 1 title differs');
+    const tabLimit = await page.$$eval('.site-head a, .site-head summary', (els) => els.length + 2);
+    let menuFocused = false;
+    for (let i = 0; i < tabLimit; i++) {
+      await page.keyboard.press('Tab');
+      menuFocused = await page.evaluate(() => document.activeElement.matches('details.menu > summary'));
+      if (menuFocused) break;
+    }
+    verify(menuFocused, 'menu summary cannot be reached by keyboard');
+    if (menuFocused) {
+      verify(await page.evaluate(() => { const s = getComputedStyle(document.activeElement); return (s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none'; }), 'keyboard focus has no visible outline or shadow');
+      await page.keyboard.press('Enter');
+      verify(await page.$eval('details.menu', (el) => el.open), 'Enter does not open the menu');
+      const menuState = await page.$eval('details.menu nav', el => {
+        const box = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        const last = el.querySelector('li.menu-repository a');
+        const before = el.scrollTop;
+        el.scrollTop = el.scrollHeight;
+        const after = el.scrollTop;
+        const lastBox = last.getBoundingClientRect();
+        return {fits: box.left >= 0 && box.right <= innerWidth && box.bottom <= innerHeight,
+                wraps: [...el.querySelectorAll('a')].every(a => getComputedStyle(a).whiteSpace !== 'nowrap'),
+                scrolls: after > before, lastVisible: lastBox.top >= box.top && lastBox.bottom <= box.bottom,
+                final: last.textContent};
+      });
+      verify(menuState.fits && menuState.wraps && menuState.scrolls && menuState.lastVisible,
+             'complete menu does not fit, wrap, scroll or expose its last link: ' + JSON.stringify(menuState));
+      await page.keyboard.press('Escape');
+      verify(await page.$eval('details.menu', (el) => !el.open), 'Escape does not close the menu');
+    }
+    await page.focus('.toc-mobile summary');
+    await page.keyboard.press('Enter');
+    verify(await page.$eval('.toc-mobile', (el) => el.open), 'keyboard cannot open lesson contents');
+    await page.keyboard.press('Enter');
+    verify(await page.$eval('.toc-mobile', (el) => !el.open), 'keyboard cannot close lesson contents');
+    await page.goto(base + '/lessons.html', {waitUntil: 'domcontentloaded'});
+    verify(await page.$$eval('.lesson-row', (els) => els.length === 10), 'index does not expose ten lessons');
+    verify(await page.$$eval('.lesson-row .min', (els) => els.length === 10 && els.every(el => /estimated/.test(el.textContent))), 'index reading estimates are missing or unqualified');
+    for (const name of ['agent-output-verification', 'agent-artifact-recovery', 'agent-contract-consistency']) {
+      const response = await fetch(base + '/skills/' + name + '/SKILL.md');
+      verify(response.ok && (await response.text()).includes('name: ' + name), 'raw skill download failed: ' + name);
+    }
+    await page.setJavaScriptEnabled(false);
+    await page.goto(base + '/', {waitUntil: 'domcontentloaded'});
+    verify(await page.$eval('.actions .primary', (el) => el.getBoundingClientRect().width > 0), 'primary action disappears without JavaScript');
+    verify(await page.$$eval('.reveal-pending', (els) => els.length === 0), 'content is stranded without JavaScript');
+    await page.setJavaScriptEnabled(true);
+    await page.emulateMediaFeatures([{name: 'prefers-reduced-motion', value: 'reduce'}]);
+    await page.goto(base + '/', {waitUntil: 'networkidle0'});
+    verify(await page.$eval('.hero-loop', (svg) => svg.animationsPaused()), 'hero does not pause for reduced motion');
+    verify(await page.evaluate(() => document.getAnimations().every(a => a.playState !== 'running')), 'CSS animation remains active under reduced motion');
+    verify(errors.length === 0, 'page errors: ' + errors.join(' | '));
+  } catch (error) {
+    verify(false, error.message);
+  } finally {
+    await page.close();
+  }
+  return checks;
+}
+
 async function main() {
   const failures = [];
   let checks = 0;
@@ -183,7 +265,7 @@ async function main() {
         checks++;
         // Scroll capture: a vertical wheel over a horizontal region must still
         // move the page. Measured 0px on four regions before the per-axis fix.
-        for (const sel of ['.ideas-row', '.track-row', '.table-scroll', '.reader pre']) {
+        for (const sel of ['.lesson-list', '.track-row', '.table-scroll', '.reader pre']) {
           const box = await page.evaluate((s) => {
             const el = document.querySelector(s); if (!el) return null;
             document.documentElement.style.scrollBehavior = 'auto';
@@ -234,8 +316,45 @@ async function main() {
             else if (/\b[0-9a-f]{12,40}\b/.test(txt)) out.push('jargon — revision hash in front-facing copy: "' + txt.slice(0, 50) + '"');
             else if (/\b[\w-]+\/[\w.-]+\.(?:py|md|ts|js|json|yaml|yml)\b/.test(txt)) out.push('jargon — file path in front-facing copy: "' + txt.slice(0, 50) + '"');
           }
+          // 10. A band's seam does not run over its own content. The dithered seam is
+          // drawn by .band::after at the foot of the band, so a band whose padding is
+          // tighter than the seam puts the seam on top of whatever ends the band - the
+          // row controls on the guides track did exactly that.
+          for (const band of document.querySelectorAll('.band')) {
+            const seam = getComputedStyle(band, '::after');
+            if (seam.content === 'none' || seam.display === 'none') continue;
+            const seamH = parseFloat(seam.height); if (!seamH) continue;
+            const seamTop = band.getBoundingClientRect().bottom - seamH;
+            for (const el of band.querySelectorAll('a, button, p, h2, h3, li')) {
+              const r = el.getBoundingClientRect();
+              if (r.height === 0 || r.width === 0) continue;
+              if (r.bottom > seamTop + 1 && r.top < band.getBoundingClientRect().bottom) {
+                out.push('seam — the band seam runs over "' + (el.textContent.trim().slice(0, 30) || el.tagName) + '" in .' + band.className.split(' ').join('.'));
+                break;
+              }
+            }
+          }
           // 7. No emoji anywhere in the rendered text.
           if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(document.body.innerText)) out.push('emoji — rendered text contains an emoji');
+          // 8. Text inside a drawing is measured at the size the reader gets, not the
+          // size it was authored at. An inline SVG carries its own coordinate system, so
+          // a caption set to 12.5 "px" inside a 1040-wide viewBox drawn 593px wide lands
+          // at 7.1px on the page. Twice this check's threshold was missed by raising the
+          // authored number and never converting it: the figure's scale is the whole bug.
+          // Words must clear 10px; a single glyph (a prompt chevron, an arrow) may be
+          // smaller because nobody reads it as a word.
+          for (const svg of document.querySelectorAll('svg[viewBox]')) {
+            const vb = svg.getAttribute('viewBox').split(/[ ,]+/).map(Number);
+            const box = svg.getBoundingClientRect();
+            if (!vb[2] || !box.width) continue;
+            const scale = box.width / vb[2];
+            for (const t of svg.querySelectorAll('text')) {
+              const word = t.textContent.trim();
+              if (word.length < 2 || getComputedStyle(t).display === 'none') continue;
+              const px = parseFloat(getComputedStyle(t).fontSize) * scale;
+              if (px < 10) out.push('figure text — "' + word.slice(0, 24) + '" renders at ' + px.toFixed(1) + 'px (min 10); the drawing is scaled to ' + scale.toFixed(2));
+            }
+          }
           return out;
         });
         for (const s of slop) failures.push(pagePath + ' @' + vp.width + ': slop — ' + s);
@@ -272,6 +391,7 @@ async function main() {
         await page.close();
       }
     }
+    checks += await checkLessonJourney(browser, 'http://127.0.0.1:' + port, failures);
   } finally {
     if (browser) await browser.close().catch(() => {});
     server.close();

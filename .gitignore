@@ -12,7 +12,6 @@ __pycache__/
 .scratch/
 
 build/node_modules/
-build/package-lock.json
 
 # Local agent installations and workspace state are not handbook sources.
 .agents/

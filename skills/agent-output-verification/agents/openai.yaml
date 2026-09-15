@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Output Verification"
+  short_description: "Judge the actual output, not the success message"
+  default_prompt: "Use $agent-output-verification to define what counts as done for this run and check the produced artifact, its intermediates and the consumer outcome against that contract."
+policy:
+  allow_implicit_invocation: true

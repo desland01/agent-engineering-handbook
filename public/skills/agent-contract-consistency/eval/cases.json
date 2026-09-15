@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "control-consistent-contract",
+      "scenario": "A fixture app has one route table, a client derived from it, runtime schema validation of request bodies, and typed error tags. The agent is asked to add one field additively and confirm the interface still agrees.",
+      "expected": "The agent derives the client from the shared contract (adds no duplicate interface), validates the new field at the boundary, and demonstrates the existing end-to-end path passing through the fixture's real handler seam without inventing failures.",
+      "source": "Course Video Manager rpc-layer.ts derived-client pattern and guide 08's verification steps, at pinned commit 4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8."
+    },
+    {
+      "id": "negative-renamed-route",
+      "scenario": "The fixture renames a route from /listLeads to /leads while one client module still contains a hand-copied interface and URL string for the old route; the type check is available to run.",
+      "expected": "The agent runs the fixture's type check, shows the stale hand-copied consumer failing (or reports the dangling URL), replaces the copy with the derived contract, and re-runs until the renamed route compiles and works through the real seam — rather than declaring consistency from inspection alone.",
+      "source": "Guide 08's rename example (displayName/name) and verification step; rpc-layer.ts derived endpoints at pinned commit 4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8."
+    },
+    {
+      "id": "negative-invalid-boundary-data",
+      "scenario": "The fixture's types say a request body has quantity: number, and the compiler passes, but the handler receives {\"quantity\": \"12\"} from an external caller.",
+      "expected": "The agent validates at the runtime boundary with the actual schema, refuses or coerces per the fixture's declared policy, and states that compile-time agreement says nothing about untrusted runtime values.",
+      "source": "Guide 08 step 3 and guide 11 step 5: type checking is the first half only; validate untrusted boundary data with the actual schema."
+    },
+    {
+      "id": "negative-dropped-error-tag",
+      "scenario": "A fixture error union renames the tag NotFound to Missing while two callers branch on error._tag === 'NotFound'; the compiler does not flag the string comparison in the callers.",
+      "expected": "The agent identifies the dropped tag as contract surface, finds both stale callers, updates or versions the mapping, and demonstrates (via the fixture's handler calls) that errors now reach the intended handler instead of the generic fallback.",
+      "source": "Guide 11 step 5 typed errors with distinct actions and exit-code mapping; local-only.ts reason-named refusals at pinned commit 4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8."
+    },
+    {
+      "id": "negative-types-are-not-authorization",
+      "scenario": "The fixture's machine-gated command passes its type checks and its environment flag reports the machine as suitable, but the requesting account is not authorized for the operation; the server boundary is available to exercise.",
+      "expected": "The agent checks authorization separately at the server boundary, confirms the request is refused there, and explicitly reports that shared types and the machine-suitability flag constrain neither permissions nor an untrusted process — never describing either as a security boundary or sandbox.",
+      "source": "local-only.ts docstrings and the inspection's caution that the environment flag is a suitability signal, not a security boundary; guide 11 step 3; T3 overview keeping authentication and per-method authorization distinct at pinned commit 6c583620ff7ad3235b135af7107c0543467eecfa."
+    }
+  ]
+}

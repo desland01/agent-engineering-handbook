@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "control-byte-identical-reuse",
+      "scenario": "A fixture export pipeline was interrupted after two of five videos finished. The previous release receipt lists video A at byte hash X; the interrupted run's output for A hashes to exactly X and its recorded size matches the file. Video B also exists with a complete duration report and current byte digest, but has not been transported. Videos C, D and E have not been produced. The agent must reconcile and resume.",
+      "expected": "The agent verifies A's actual-byte match and marks it reusable. It preserves B's completed production and identifies its remaining transport step. Only C, D and E require production. It reports separate production, reuse and transport decisions, with no unnecessary re-encoding of A or B.",
+      "source": "ADR 0027 byte-hash-decides-the-send and course-publish-reuse-plan.ts at pinned commit 4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8; guide 12 step 1."
+    },
+    {
+      "id": "negative-same-recipe-different-bytes",
+      "scenario": "A renderer bug was fixed and the fixture re-rendered video B. The new file sits at the same recipe address as the previous, truncated version, and its bytes differ (different hash). A receipt-based summary still lists the old byte hash at that address.",
+      "expected": "The agent compares actual bytes, sees they differ from the receipt, replaces the artifact, its cached measurements and the publication record together, and re-sends B — explicitly refusing the recipe-address shortcut that would copy the truncated bytes forward.",
+      "source": "ADR 0027's recorded incident: reuse keyed on the Export Hash copied old bytes forward and a truncated encode shipped (three short exports, one live; PR #1557); PR #1564."
+    },
+    {
+      "id": "negative-malformed-receipt",
+      "scenario": "Video C's sidecar receipt is unparseable JSON, and video D's receipt records a size that no longer matches the file on disk. The previous receipt lists both as shipped.",
+      "expected": "The agent treats both receipts as absent, re-derives what it needs or uploads the existing verified bytes rather than trusting the stale records, and does not mark C or D reusable on them. It never errors out and never re-produces work that already succeeded: a missing receipt means a smaller reuse plan, not a rebuild.",
+      "source": "Guide 12 step 2 and course-publish-reuse-plan.ts: unparseable/size-mismatched receipt treated as absent; missing receipt yields upload-everything, never an error."
+    },
+    {
+      "id": "negative-truncated-duration",
+      "scenario": "Video E's measured duration is 40 seconds shorter than the summed clip durations; video F is 2 seconds longer than expected; video G has no readable duration at all. Fixture tolerance is declared as 1 second, and the fixture declares its overrun policy for this duration-only check: a measured overrun within the same check passes.",
+      "expected": "The agent refuses E (shortfall greater than tolerance), accepts F under the fixture's declared overrun policy, and refuses G (no readable duration), stating the rule rather than treating all three uniformly — and noting that a positive duration alone validates nothing else about these files.",
+      "source": "export-duration-check.ts at pinned commit 4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8: refuse shortfall > tolerance, always accept overruns (that project's duration-check policy), refuse no-duration files."
+    },
+    {
+      "id": "negative-crash-between-produce-and-extract",
+      "scenario": "A fixture agent run completed its work (its log shows three commits and one 'upload') but crashed before emitting the required JSON summary. A session identifier was recorded. Re-running the extraction is available; so is a naive full re-run of the original task.",
+      "expected": "The agent resumes the recorded session for extraction instead of re-running the task, produces the summary, and verifies the produce/extract boundary by checking the fixture's commit/upload log is unchanged afterward — declining to claim the extraction was read-only without that check.",
+      "source": "run-with-extraction.ts and run-with-retry.ts at pinned commit 4c1f3f5d49417e54b185bfe737b1e1a56f29c7b8; guide 12 step 5 including the caveat that the retry wrapper inherits produce options, so read-only behavior must be verified, not assumed."
+    }
+  ]
+}

@@ -3,5 +3,357 @@
   "framework": null,
   "outputDirectory": "public",
   "installCommand": "python3 -m pip install --target .build-deps -r build/requirements.txt",
-  "buildCommand": "PYTHONPATH=.build-deps python3 build/render.py && python3 build/check.py"
+  "buildCommand": "PYTHONPATH=.build-deps python3 build/render.py && python3 build/check.py",
+  "redirects": [
+    {
+      "source": "/README.html",
+      "destination": "/index.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides.html",
+      "destination": "/lessons.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas.html",
+      "destination": "/lessons.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/01-recurring-failures.html",
+      "destination": "/lessons/recurring-mistakes.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/01-recurring-failures.md",
+      "destination": "/lessons/recurring-mistakes.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/08-fix-class-loops.html",
+      "destination": "/lessons/recurring-mistakes.html#video-note-08",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/09-custom-lint-economics.html",
+      "destination": "/lessons/recurring-mistakes.html#video-note-09",
+      "permanent": true
+    },
+    {
+      "source": "/guides/04-ci-feedback.html",
+      "destination": "/lessons/ci-feedback.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/04-ci-feedback.md",
+      "destination": "/lessons/ci-feedback.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/01-ci-feedback-loop.html",
+      "destination": "/lessons/ci-feedback.html#video-note-01",
+      "permanent": true
+    },
+    {
+      "source": "/guides/02-critical-journey-tests.html",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/02-critical-journey-tests.md",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/09-verification-contracts.html",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/09-verification-contracts.md",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/13-layered-validation.html",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/13-layered-validation.md",
+      "destination": "/lessons/prove-it-works.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/02-two-browser-e2e.html",
+      "destination": "/lessons/prove-it-works.html#video-note-02",
+      "permanent": true
+    },
+    {
+      "source": "/guides/03-preview-workspaces.html",
+      "destination": "/lessons/working-previews.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/03-preview-workspaces.md",
+      "destination": "/lessons/working-previews.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/04-preview-environments.html",
+      "destination": "/lessons/working-previews.html#video-note-04",
+      "permanent": true
+    },
+    {
+      "source": "/guides/06-tool-adapters.html",
+      "destination": "/lessons/missing-tools.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/06-tool-adapters.md",
+      "destination": "/lessons/missing-tools.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/05-custom-file-upload-skill.html",
+      "destination": "/lessons/missing-tools.html#video-note-05",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/06-skill-authoring-reward.html",
+      "destination": "/lessons/missing-tools.html#video-note-06",
+      "permanent": true
+    },
+    {
+      "source": "/lessons/fresh-agent.html",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/lessons/fresh-agent.md",
+      "destination": "/lessons/useful-instructions.md",
+      "permanent": true
+    },
+    {
+      "source": "/guides/05-knowledge-and-instructions.html",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/05-knowledge-and-instructions.md",
+      "destination": "/lessons/useful-instructions.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/10-domain-knowledge-as-infra.html",
+      "destination": "/lessons/useful-instructions.html#video-note-10",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/12-own-your-instructions.html",
+      "destination": "/lessons/useful-instructions.html#video-note-12",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/13-steering-pushback.html",
+      "destination": "/lessons/useful-instructions.html#video-note-13",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/15-zero-context-docs.html",
+      "destination": "/lessons/useful-instructions.html#video-note-15",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/16-minimal-context-calibration.html",
+      "destination": "/lessons/useful-instructions.html#video-note-16",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/17-steer-not-map.html",
+      "destination": "/lessons/useful-instructions.html#video-note-17",
+      "permanent": true
+    },
+    {
+      "source": "/guides/08-compose-contracts.html",
+      "destination": "/lessons/shared-contracts.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/08-compose-contracts.md",
+      "destination": "/lessons/shared-contracts.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/11-domain-language-and-agent-apis.html",
+      "destination": "/lessons/shared-contracts.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/11-domain-language-and-agent-apis.md",
+      "destination": "/lessons/shared-contracts.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/14-type-safe-composition.html",
+      "destination": "/lessons/shared-contracts.html#video-note-14",
+      "permanent": true
+    },
+    {
+      "source": "/guides/10-codebase-navigation-and-tooling.html",
+      "destination": "/lessons/codebase-navigation.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/10-codebase-navigation-and-tooling.md",
+      "destination": "/lessons/codebase-navigation.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/19-solo-onboarding.html",
+      "destination": "/lessons/codebase-navigation.html#video-note-19",
+      "permanent": true
+    },
+    {
+      "source": "/guides/12-artifact-identity-and-recovery.html",
+      "destination": "/lessons/resume-work.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/12-artifact-identity-and-recovery.md",
+      "destination": "/lessons/resume-work.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/07-team-learning.html",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/guides/07-team-learning.md",
+      "destination": "/lessons/better-environments.html",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/03-automation-multiplies-agents.html",
+      "destination": "/lessons/better-environments.html#video-note-03",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/07-team-buy-in.html",
+      "destination": "/lessons/better-environments.html#video-note-07",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/11-newcomer-questions-signal.html",
+      "destination": "/lessons/better-environments.html#video-note-11",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/18-career-leverage.html",
+      "destination": "/lessons/better-environments.html#video-note-18",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/19-solo-onboarding",
+      "destination": "/lessons/codebase-navigation.html#video-note-19",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/18-career-leverage",
+      "destination": "/lessons/better-environments.html#video-note-18",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/17-steer-not-map",
+      "destination": "/lessons/useful-instructions.html#video-note-17",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/16-minimal-context-calibration",
+      "destination": "/lessons/useful-instructions.html#video-note-16",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/15-zero-context-docs",
+      "destination": "/lessons/useful-instructions.html#video-note-15",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/14-type-safe-composition",
+      "destination": "/lessons/shared-contracts.html#video-note-14",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/13-steering-pushback",
+      "destination": "/lessons/useful-instructions.html#video-note-13",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/12-own-your-instructions",
+      "destination": "/lessons/useful-instructions.html#video-note-12",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/11-newcomer-questions-signal",
+      "destination": "/lessons/better-environments.html#video-note-11",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/10-domain-knowledge-as-infra",
+      "destination": "/lessons/useful-instructions.html#video-note-10",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/09-custom-lint-economics",
+      "destination": "/lessons/recurring-mistakes.html#video-note-09",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/08-fix-class-loops",
+      "destination": "/lessons/recurring-mistakes.html#video-note-08",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/07-team-buy-in",
+      "destination": "/lessons/better-environments.html#video-note-07",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/06-skill-authoring-reward",
+      "destination": "/lessons/missing-tools.html#video-note-06",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/05-custom-file-upload-skill",
+      "destination": "/lessons/missing-tools.html#video-note-05",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/04-preview-environments",
+      "destination": "/lessons/working-previews.html#video-note-04",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/03-automation-multiplies-agents",
+      "destination": "/lessons/better-environments.html#video-note-03",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/02-two-browser-e2e",
+      "destination": "/lessons/prove-it-works.html#video-note-02",
+      "permanent": true
+    },
+    {
+      "source": "/ideas/01-ci-feedback-loop",
+      "destination": "/lessons/ci-feedback.html#video-note-01",
+      "permanent": true
+    },
+    {
+      "source": "/ideas",
+      "destination": "/lessons.html",
+      "permanent": true
+    }
+  ]
 }

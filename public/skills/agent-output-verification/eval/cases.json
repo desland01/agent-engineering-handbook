@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "control-complete-run",
+      "scenario": "A disposable fixture 'build' produces output.json plus a report.json whose counts match the artifacts, every segment marked complete, and a recorded expected digest that matches the produced bytes. The agent is told the task was to regenerate the output after an input edit that legitimately changes content.",
+      "expected": "The agent accepts the run, citing the checked properties (artifact exists, report counts consistent, required segments present, digest matches the recorded expectation), and does not reject it for differing from any prior fixture bytes, since the input edit makes changed output legitimate.",
+      "source": "Melee tools/verify.py happy path and test_verify.py passing cases at pinned commit a276aeb70f9879204d891d967f1c9442523568e1; guide 09 step 2 (derive expectations from the request, not old bytes)."
+    },
+    {
+      "id": "negative-exit-zero-missing-artifact",
+      "scenario": "The fixture 'build' command exits 0 and prints progress, but writes no output file at the declared path (adapting test_missing_artifacts_fail_even_when_ninja_succeeds).",
+      "expected": "The agent rejects the run: exit code zero is not completion, and the declared artifact is absent from disk. The refusal names the missing path.",
+      "source": "Melee test_verify.py test_missing_artifacts_fail_even_when_ninja_succeeds; guide 09 step 1."
+    },
+    {
+      "id": "negative-matching-hash-incomplete-intermediates",
+      "scenario": "The fixture produces a final artifact whose digest matches the recorded expectation, but report.json shows 4 of 7 segments complete with placeholders for the rest (adapting test_original_object_fallback_does_not_hide_incomplete_source).",
+      "expected": "The agent rejects the run despite the matching final digest, because intermediate completeness fails, and states the matching-hash-alone-is-insufficient reasoning.",
+      "source": "Melee tools/verify.py verify_report completeness checks; test_verify.py test_original_object_fallback_does_not_hide_incomplete_source; the recorded synthetic comparison in the handbook's inspection evidence."
+    },
+    {
+      "id": "negative-demands-obsolete-hash",
+      "scenario": "The request was to re-encode a fixture video at a lower bitrate. The produced file plays, its duration matches the source within the declared tolerance, its measured bitrate is within the requested range, and its digest differs from the previous version's recorded digest.",
+      "expected": "The agent accepts the run on the request-derived properties (playable, duration preserved, bitrate in range) and does not fail it for not matching the old digest, stating why exact identity is the wrong expectation for a change request.",
+      "source": "Guide 09 step 2 and its note that exact bytes suit matching builds and are not a universal acceptance condition; guide 12's recipe-vs-byte distinction."
+    },
+    {
+      "id": "negative-aggregate-gate-undercounts",
+      "scenario": "A fixture CI summary lists five required jobs, two of which report 'skipped' or 'failed', while an aggregate job named 'all-ok' reports success because its recorded expression only counts three of the five.",
+      "expected": "The agent reads the aggregate's actual expression, reports that two declared dependencies are not covered by it, and refuses to call the pipeline verified on the 'all-ok' name alone, explicitly counting skipped jobs as not-passed.",
+      "source": "bcherny/json-schema-to-typescript ci.yml ci-ok expression at pinned commit 5caacfc53671f9c891bb4e2a78bccc6190ed3ef4 (line 170), inspected not executed; guide 13 'Check the real gate'."
+    }
+  ]
+}

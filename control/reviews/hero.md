@@ -78,3 +78,49 @@ repeat every 12 s, full state (colour and chest mark) repeats exactly at 60 s, a
 differ between laps. `check.sh` green. This revision has not been re-reviewed by a second
 route; the composition, captions and 390 treatment the reviewer passed are unchanged, the
 moving element is what changed.
+
+
+## Revision after the audit — the figure is measured at the size the reader gets
+
+2026-09-11, a second revision, prompted by an audit of the session rather than by a
+reviewer. Three measured defects, all in the maker's own work, all fixed and checked.
+
+**The type was never readable and the earlier fix missed why.** Finding 1 above was
+answered by raising the cell sub-captions from 11 to 12.5 units. The figure is drawn in a
+1040-wide viewBox and rendered 593px wide, so a unit is 0.57px: 12.5 units is **7.1px on
+the page**. Every label in the figure was between 6.8 and 8.6px. The phone-width answer to
+finding 2 — "labels 24 units, agent names 18" — had the same fault: at that width a unit is
+0.375px, so those landed at 9.0 and 6.8px. Both fixes were made in the drawing's coordinate
+system and never converted. Now: every word in the hero renders at 10.3px or more at 1440,
+1024 and 390, measured; only the `≫` prompt glyph is smaller, and nobody reads a chevron as
+a word. The codebase panel grew from 300 to 330 units to give its captions the room, and the
+track's left leg moved from 318 to 404 so nothing crosses it.
+
+The same defect was site-wide, not a hero problem: the three investigation diagrams rendered
+their captions at 6.3–9.6px. Raised to the same floor, with the tile-sized copies dropping
+their captions entirely — at a few hundred pixels a diagram is a mark, and its tile title
+does the naming.
+
+**Nothing was eased.** 83 SMIL animations: 56 linear, 27 discrete, zero `keySplines`. Every
+flash rose and fell at a constant rate, which is what generated motion looks like. The four
+continuous animations — the catch ring, the dot burst, the CHECKS border, the layer
+brighten — now arrive fast and decay slow. Travel stays linear on purpose and the cursor
+stays discrete: a terminal cursor that eases is wrong.
+
+**The catch was the story's climax and the motion did not mark it.** A robot passed through
+the gate at exactly the speed it travelled everywhere else. The robots now keep 34% of their
+speed through the check and accelerate out of it, so the catch is felt rather than only
+seen. Because places on the track are distances and events are times, and those stopped
+being the same number, every event — the catch, the filing, each codebase layer — is mapped
+through the pace curve. Measured: the gate flashes when the nearest robot is **2.6px** from
+the gate centre.
+
+Re-verified: positions at t and t + 12 s identical, full state at t and t + 60 s identical,
+control frames differ, laps differ from each other. `build/check.sh` green, 72 rendered
+checks, 0 failures.
+
+**The check that would have caught it now exists.** `build/check-render.js` measures every
+`<text>` inside a `viewBox` SVG at `font-size × (rendered width ÷ viewBox width)` and fails
+below 10px, naming the scale. It found 45 failures on first run across two pages. A
+correction made twice in the same wrong coordinate system is exactly the kind the handbook
+says to encode rather than repeat.

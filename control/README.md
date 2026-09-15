@@ -9,7 +9,11 @@ last touched.
 
 | File | What it is |
 | --- | --- |
+| `lesson-standard.md` | The shared lesson and skill reading standard, its automatic checks and reviewer duties. |
 | `plan.md` | The plan of record for the design system and the handbook. Rewritten as it changes. |
+| `harness.md` | The phased restructure assignment the harness executes; each phase's deliverable, check and gate. |
+| `citation-map.md` | Which primary citations carry each of the ten lessons, and the claim each supports; the writers' only citation source. |
+| `harness-state.json` | Current phase, step status, run ids, capsule ids, costs, refusals and gate decisions for the restructure harness. |
 | `tickets.md` | The executable ticket graph derived from the plan. |
 | `patterns.md` | Composition patterns extracted from the reference sites; input to design work. |
 | `skill-evals.md` | Whether the skills are used and working, from run records; updated when an eval runs. |

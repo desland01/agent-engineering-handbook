@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Contract Consistency"
+  short_description: "Keep interfaces, vocabulary and errors in agreement"
+  default_prompt: "Use $agent-contract-consistency to trace this interface's vocabulary, shared contract, runtime validation and error mapping, then reconcile the mismatches and prove the renamed route, invalid boundary data and dropped error tag are caught."
+policy:
+  allow_implicit_invocation: true

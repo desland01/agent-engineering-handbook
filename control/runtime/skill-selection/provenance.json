@@ -1,52 +1,65 @@
 {
-  "version": 1,
+  "version": 2,
   "deliverable": "skill-selection",
   "recorded": "2026-09-11",
-  "sourceTree": "/Users/thebeast/Documents/Codex/2026-09-04/ca/outputs/nautilus",
+  "state": "applied and selected",
   "appliesTo": {
     "src/capsule-schema.mjs": "64e04a36c7500de47a79634186f8e081c2b7070709361e774d319e33e0e2509c",
     "src/capsule-admission.mjs": "bf3815e1f4a04b7bfc1366270d6e5c76f327be17ba8a07812b9118182657fe02",
     "src/capsule-runtime.mjs": "0f87327a60f0f0aa74d90ee54dd52d9df8276ad12116bb4742747cdcfdcb1a6c",
-    "src/runtime.ts": "3fe23a54fa52199b4d36d6e43bf35b03ffa7e6aa1ba51f8d9db4e85fd39b3670",
+    "src/capsule-watch.mjs": "0fa79da07e35562e932ced5d6adc5dd8d8c6bb60b53152f4c96fa87f0ae915cd",
+    "src/task-lifetime.mjs": "a85f59e6e76f2e84b721063ae6f772717c6aeced9787a6d136c80bff145b6ada",
+    "src/runtime.ts": "48e032415ae4bdd76f566633f7ba9812175daf30c5c4812ac0d3370f43719d05",
+    "src/procedure-dispatch.ts": "4fb0e8e9d0ccf7507ee980aec34e096601abd2a9ac5f1d204155a9b1d19d9e34",
     "tests/capsules/capsule-role.test.mjs": "164a6450a68f219105ffcb8ee6b5efaffd393b7721499f41c63de26e782fa96a",
     "tests/capsules/capsule.test.mjs": "2c001ccbe476bae170dd4755f48bcd906e17076c0ce11e89e26dda470cb39edb"
   },
+  "baseSource": "/Users/thebeast/.nautilus/releases/skill-selection-charts/src (the last release before the contract landed)",
   "patch": {
     "path": "skill-plan.patch",
-    "sha256": "5ac1ae0b19c9dc4f1306db427f29903f08a36989d3d32bcb3472469456ff5868"
+    "sha256": "c1aa00729507c348f8006e4ec22779098b567d2b3166afa6e8e4bd6c8fcf1453"
   },
   "test": {
     "path": "skill-plan.test.mjs",
     "installsAt": "tests/capsules/skill-plan.test.mjs",
-    "sha256": "029262a7ab1d95087ebcc7abe2169573c479e7f0037ff2e7b8a687219c30a707"
+    "sha256": "098d369a40fd682e5f62abf87854b74f112e4ff56d649a98a290edb6bfe7d8dd"
   },
+  "releases": [
+    {
+      "name": "skill-selection-charts",
+      "digest": "7138a7371a57a2d17b9fe875df1f445868578d21a5639aaf3e44d2fe3854f77b",
+      "carries": "the two Chart edits"
+    },
+    {
+      "name": "skill-plan-contract",
+      "digest": "d06f632066dc54780d6dfaff311e1fb3717d46dca15e0b9a648c68b4b8ecf4ab",
+      "carries": "the contract, with the admission Watch still capped at version 4; refused the first version 5 capsule"
+    },
+    {
+      "name": "skill-plan-admitted",
+      "digest": "d08ad808b13fcce7c0554f33a6c326e4a8b943e2809fb7b304fc8fe9a7d591b8",
+      "carries": "the contract with all three version ceilings raised; selected"
+    }
+  ],
   "evidence": {
-    "red": "unpatched copy of the source tree with the test installed: tests/capsules/skill-plan.test.mjs 4 pass / 7 fail",
-    "applies": "git apply --check -p1 clean against the digests in appliesTo",
-    "green": "the patch applied to a fresh copy and the test installed: tests/capsules/*.test.mjs 118 pass / 0 fail",
-    "runner": "tsx --test on copies of src/ vendor/ tests/ outside the dirty source tree; no run touched the source tree or the selected release",
-    "proves": "the declaration contract and the terminal verdict as functions; the blocked status is read from runtime.ts:458 and not exercised, and semantic application is measured nowhere",
-    "knownFlake": "tests/capsules/lease-contention.test.mjs intermittently fails capsule_lease_store_busy under the full parallel run on the unpatched tree as well (1 of 3 unpatched, 0 of 3 patched, 5 of 5 standalone on each); capsule-leases.mjs is untouched by this patch"
+    "toolchainFaithful": "deleting dist/ and rebuilding from the unpatched source reproduced all ten bundles byte-for-byte against the running runtime, so every later bundle difference is attributable to this patch",
+    "bundlesChanged": "6 of 10: cli, conversation, business-web, business-web-host, live-conversation, local-business-host; +2.7 to +3.1 KB each",
+    "unit": "tests/capsules/*.test.mjs 122 pass / 0 fail with the patch; section 5 red against the unpatched source",
+    "typecheck": "tsc --noEmit clean",
+    "liveBlocked": "worker run skill-plan-uninvoked, version 5, plan [nautilus-core:precise], skill never invoked: status blocked, reason capsule_skill_plan_uninvoked, uninvoked ['nautilus-core:precise']",
+    "livePermitted": "worker run skill-plan-applied, same capsule, skill invoked: status completed, allInvoked true, RESULT.md written",
+    "liveRegression": "worker run skill-plan-v4-regression, version 4, required chart never invoked: status completed \u2014 no existing run changes status",
+    "preexistingFailures": "desktop-procedure-list (needs dist/role-proof-api.mjs, which the build script does not produce) and voice-procedure-approval (installation_symlink: /var) fail identically on patched and unpatched source"
   },
-  "notApplied": "the source tree carried 5460 dirty entries on 2026-09-11; the patch is staged here until it is clean",
-  "charts": {
-    "edits": "chart-edits.json",
-    "files": [
-      "charts/operating.md",
-      "charts/core-skills/CORE.md"
-    ],
-    "published": false,
-    "note": "Chart bytes are not counted against the skill library; the library has 810 bytes of headroom and core sits at 50 of 50 skills."
-  },
-  "anchor": {
-    "constant": "N009",
-    "field": "skill_plan_applied",
-    "staged": false,
-    "note": "Travels with the release that carries the patch; measured once at termination, never per request."
+  "constructors": {
+    "procedure-dispatch.ts": "version 5 with a plan of precise, operational-sop and create-skill \u2014 the task text already ordered exactly those three invocations",
+    "project-run.ts": "unchanged at its existing versions; it names no invocation intent, so there is no plan to declare",
+    "business-conversation-execution.ts": "unchanged; customer-facing, where a blocked turn is a worse failure than an uninvoked method"
   },
   "names": {
     "verdict": "skillPlanVerdict -> {allInvoked, uninvoked, planned, reason}",
     "reason": "capsule_skill_plan_uninvoked",
-    "note": "invocation, never semantic application; the per-Chart `invoked` count in chartEvidenceTracker is a different field"
-  }
+    "note": "invocation, never semantic application"
+  },
+  "build": "/Users/thebeast/.nautilus/architect/workspace/skill-plan-kernel"
 }

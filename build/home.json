@@ -1,8 +1,21 @@
 {
-  "_comment": "Landing-page data that is not already in README.md: the title and lead, the short header attribution, the source-grouped shelves and each guide's one-line use-when. Everything else on the landing page (problem table, guide titles, investigations, skills, the 19 ideas, the attribution and what-was-checked paragraphs) is parsed from README.md; frames come from evidence/frame-manifest.json. Inline `code` spans in descriptions are rendered as <code> so long paths and revision hashes can wrap.",
-  "title": "Build a codebase agents can work in",
-  "lead": "Turn recurring agent mistakes into checks, clear instructions and usable tools. This handbook connects nineteen video ideas to thirteen guides, four portable skills and three source investigations. Each guide states what its checks can prove.",
-  "basis_short": "An independent public edition by Desmond Landry (@desland01), built from Theo's video and direct inspection of three repositories. Theo, Matt Pocock and Boris Cherny do not endorse it.",
+  "_comment": "Landing-page data that is not already in README.md: the title and lead, the short header attribution, the three lesson chapters, the source-grouped guide shelves and each guide's one-line use-when. Everything else on the landing page (problem table, guide titles, investigations, skills, the attribution and what-was-checked paragraphs) is parsed from README.md; the canonical lessons come from build/lessons.json through build/lesson_catalog.py. The opening's lesson count is derived from the validated manifest, never stored here.",
+  "title": "Fix the environment and the agent works",
+  "lead": "You have corrected the same agent mistake three times this week. You fix it by adding a check, a working preview, or one sentence to the right file. Ten short lessons show you where those fixes live, and each ends with one change you can make today.",
+  "basis_short": "An independent public edition by Desmond Landry (@desland01), built from Theo's video and three original repository investigations. Theo, Matt Pocock and Boris Cherny do not endorse it.",
+  "skill_guides": {
+    "agent-output-verification": [
+      "09",
+      "13"
+    ],
+    "agent-artifact-recovery": [
+      "12"
+    ],
+    "agent-contract-consistency": [
+      "08",
+      "11"
+    ]
+  },
   "shelves": [
     {
       "id": "guides-video",
@@ -65,12 +78,9 @@
     "12": "When slow, expensive work needs reusable outputs, recovery after crashes and checks for truncated artifacts.",
     "13": "When ordinary fixtures miss failures in a generator, parser, migration, transformation or widely used library."
   },
-  "reports_heading": "Check the sources behind the guides",
-  "reports_description": "The three reports separate inspected code, author reports, remote CI records and local runs. They link to pinned snapshots where possible and distinguish open pull requests from merged work.",
-  "skills_heading": "Choose a skill for the problem you have",
-  "skills_description": "Each skill is a folder of instructions for an agent setup that reads Markdown. Choose the one you need rather than loading all four for every task.",
-  "ideas_heading": "Start with the advice behind the methods",
-  "ideas_description": "Distinct takeaways, including qualified opinions. Each timestamp opens the video at that moment; each idea names the guide that implements it. Speaker attribution, evidence type and caveats are in the [detailed extraction](evidence/video-research.md) and the [structured ideas file](evidence/video-tips.json).",
+  "reports_heading": "See where every claim comes from",
+  "reports_description": "Nothing here rests on a post you have to take on trust. Three inspections separate what we read in the code, what the authors reported, and what we ran ourselves.",
+  "skills_description": "Your agent reads a skill file before it starts, and you pick the one that fits today's task. Read the explanation first, and treat the included evaluations as unrun.",
   "frame_guides": {
     "_comment": "Frame seconds -> the guide that applies what the frame shows; used by the gallery's 'applied in' link.",
     "164": "04",
@@ -86,8 +96,6 @@
     "884": "05",
     "1021": "07"
   },
-  "frames_heading": "See what was on screen",
-  "frames_description": "Twelve frames extracted with ffmpeg separate visible evidence from narration. Each opens the [gallery](evidence.html) for full-size images, observations and extraction hashes.",
   "_hubs_comment": "Copy for the five section pages. A band on the home page introduces a set to someone scrolling past it; a section page addresses someone who has arrived at that set, so each carries its own heading, lead, browser title and meta description rather than reusing the band's. `next` is the closing route: where a reader who has finished this set should go, as [href, label, why] rows.",
   "hubs": {
     "ideas": {
@@ -117,9 +125,9 @@
       ],
       "next": [
         [
-          "guides.html",
-          "Implementation guides",
-          "turn an idea into a method you can apply"
+          "lessons.html",
+          "Lessons",
+          "choose one change to try"
         ],
         [
           "evidence.html",
@@ -153,9 +161,9 @@
     },
     "skills": {
       "title": "Portable instructions for coding agents",
-      "h1": "Give your agent the instructions it needs",
-      "lead": "Choose the skill that fits your problem rather than loading all four for every task. Each is a Markdown folder with instructions, two reference files and OpenAI-compatible interface metadata. Use it with an agent setup that reads Markdown.",
-      "description": "Choose from four Markdown skills for agent feedback, workspace setup, project context and tool adapters. Each includes instructions, references and interface metadata.",
+      "h1": "Skills help agents apply what you learned",
+      "lead": "Choose the skill that fits your problem rather than loading all seven. Read its explanation first, then use the separate agent instructions.",
+      "description": "Seven skills help agents apply the lessons. Read each explanation, choose a fitting task, and keep unrun evaluation cases distinct from results.",
       "next": [
         [
           "adoption.html",
@@ -163,16 +171,16 @@
           "add one or combine it with a skill you already use"
         ],
         [
-          "guides.html",
-          "Implementation guides",
-          "read the methods behind the instructions"
+          "lessons.html",
+          "Lessons",
+          "choose one change to try"
         ]
       ]
     },
     "investigations": {
       "title": "Source investigations behind the handbook",
-      "h1": "Follow the guides back to the source",
-      "lead": "Three reports distinguish inspected code, author-reported results, remote CI records and local runs. Each separates open pull requests from merged work and links pinned source snapshots where possible. Work under an account is not necessarily written by that person.",
+      "h1": "Sources show what the advice rests on",
+      "lead": "Read three inspections, the validation record, and the video evidence. Each separates inspected code from reported results and work not run. An account association does not establish authorship.",
       "description": "Read three source investigations separating inspected code, author reports, remote CI records and local runs. Open pull requests are distinguished from merged work.",
       "_findings_comment": "The findings shown on each study of investigations.html, edited from the report's own takeaway section: github-inspection.md -> 'What to take away', matt-pocock-inspection.md -> 'How this changes our guides', boris-cherny-inspection.md -> 'What this adds to the implementation package'. One sentence each, at most 22 words, beginning with a noun phrase.",
       "findings": {
@@ -183,21 +191,21 @@
           "Project decisions stay beside relevant code, while evidence distinguishes local runs, remote CI, author reports and untested hardware."
         ],
         "matt-pocock-inspection.md": [
-          "Shared vocabulary, lasting decisions, bounded modules and callable agent APIs inform the guide to speaking a codebase's language.",
-          "Output identity, resumable work and recovery from malformed results inform the guide to artifacts that survive interruptions.",
+          "Shared vocabulary, lasting decisions, bounded modules and callable agent APIs inform the lesson on speaking a codebase's language.",
+          "Output identity, resumable work and recovery from malformed results inform the lesson on artifacts that survive interruptions.",
           "The report recommends making the intended outcome easy to request and hard to misreport."
         ],
         "boris-cherny-inspection.md": [
-          "Guide 13 adapts layered validation to test public output, reproduce new failures and preserve meaningful baselines.",
+          "The report discusses layered validation to test public output, reproduce new failures and preserve meaningful baselines.",
           "Before-and-after measurements compare the same work to establish whether a change improved the result.",
-          "Existing lessons on lint, adapters and native loading provide supporting references for the four skills."
+          "Existing lessons on lint, adapters and native loading provide supporting references for the skills."
         ]
       },
       "next": [
         [
-          "guides.html",
-          "Implementation guides",
-          "read the five guides adapted from the inspected repositories"
+          "lessons.html",
+          "Lessons",
+          "choose one change to try"
         ],
         [
           "validation.html",
@@ -213,9 +221,9 @@
       "description": "Inspect twelve full-size frames from Theo's video. Captions distinguish what appears on screen from what the speaker describes, with extraction commands and hashes.",
       "next": [
         [
-          "ideas.html",
-          "Video ideas",
-          "read the takeaways from these moments"
+          "lessons.html",
+          "The lessons",
+          "read the takeaways from these moments as lessons"
         ],
         [
           "validation.html",
@@ -223,15 +231,32 @@
           "inspect the extraction commands and SHA-256 hashes"
         ]
       ]
+    },
+    "lessons": {
+      "title": "Ten lessons for a codebase agents can work in",
+      "h1": "Each lesson helps you change one thing",
+      "lead": "Read in order or choose the problem you face. Follow the sources to distinguish observed results from recommendations and unresolved limits.",
+      "description": "Choose one of ten lessons, read its sources, and try one practical change to how agents work.",
+      "next": [
+        [
+          "skills.html",
+          "Portable skills",
+          "install the matching instructions"
+        ],
+        [
+          "investigations.html",
+          "Repository investigations",
+          "read the reports behind the lessons"
+        ]
+      ]
     }
   },
   "page_descriptions": {
     "_comment": "Meta descriptions for pages whose own opening prose does not describe the page well enough on its own. Every other page derives its description from its first paragraph.",
-    "index.html": "An evidence-backed handbook for building coding environments agents work well in: nineteen ideas, thirteen guides, four portable skills and three repository investigations.",
+    "index.html": "Ten lessons help you improve how agents work: reliable checks, useful instructions, working previews, shared contracts and recovery after interruptions.",
     "404.html": "That page is not in the handbook. Routes to the ideas, guides, skills, investigations and the handbook index."
   },
-  "title_em": "codebase",
-  "ideas_band": "Browse the ideas in video order, or open the full set grouped by practice, advice and opinion.",
+  "title_em": "environment",
   "ledger": {
     "_comment": "The closing ledger: what was run, what was not, and what is only a claim. Each row is [status, text]; status is one of RUN, LIMIT, NOT RUN, UNVERIFIED and must agree with README.md's What was checked and validation.md.",
     "rows": [
@@ -282,5 +307,54 @@
         "later pull requests are identified as later evidence"
       ]
     ]
+  },
+  "chapters": [
+    {
+      "id": "stop-repeat-work",
+      "label": "Stop repeat work",
+      "range": "Lessons 01–03",
+      "lead": "You corrected the same thing three times this week. These three lessons make it the last time.",
+      "k": "Checks, CI access and real verification instead of repeated corrections."
+    },
+    {
+      "id": "give-agents-what-they-need",
+      "label": "Give agents what they need",
+      "range": "Lessons 04–06",
+      "lead": "Most agent failures are something you already know and never wrote down. Give it a preview, a tool, and the instruction you keep repeating.",
+      "k": "Previews, tools, instruction files and cold-start context."
+    },
+    {
+      "id": "keep-it-understandable",
+      "label": "Keep work understandable and recoverable",
+      "range": "Lessons 07–10",
+      "lead": "A codebase only you can navigate will trip every agent and every new hire. These four lessons keep it readable and resumable.",
+      "k": "Shared contracts, navigation, recovery and contributor improvements."
+    }
+  ],
+  "skills_planned": [
+    {
+      "name": "agent-output-verification",
+      "title": "Prove the output is complete",
+      "when": "Judge the actual artifact, its intermediate completeness and the consumer-visible outcome."
+    },
+    {
+      "name": "agent-artifact-recovery",
+      "title": "Resume without repeating completed work",
+      "when": "Reconcile existing artifacts, compare actual bytes and resume the appropriate stage."
+    },
+    {
+      "name": "agent-contract-consistency",
+      "title": "Keep your interfaces in agreement",
+      "when": "Trace vocabulary, shared types, runtime validation, callers and error behavior."
+    }
+  ],
+  "lessons_heading": "Ten lessons each end in one change",
+  "lessons_description": "Read them in order, or jump to the problem that cost you an afternoon this week. Every lesson names the sources it draws on and ends with one action you can try today.",
+  "guides_heading": "Find a guide for your next change",
+  "guides_description": "Thirteen optional technical guides grouped by source, each with a method, fitting use cases and verification limits. They carry the implementation depth the lessons point to.",
+  "reports_topics": {
+    "github-inspection.md": "The inspection separates advice, inspected code and measured results.",
+    "matt-pocock-inspection.md": "The Course Video Manager inspection: shared vocabulary, one transport, durable artifacts.",
+    "boris-cherny-inspection.md": "The inspection compares several ways to check useful output."
   }
 }
