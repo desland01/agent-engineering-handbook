@@ -690,7 +690,7 @@
       "installed": "lessons/*.md (10 new + fresh-agent.md retained for merge), skills/*/README.md (7) in the real repository"
     },
     "5": {
-      "status": "awaiting-gate",
+      "status": "done",
       "route": "gpt-6-astra",
       "runs": [
         {
@@ -1261,7 +1261,7 @@
     }
   },
   "postPlan": {
-    "status": "awaiting-gate",
+    "status": "done",
     "items": {
       "C4 skill artwork": "done: owner chose generated set; all seven replaced; 14 Higgsfield credits",
       "K5 example label": "open: label comes from the approved plan; change needs a plan amendment",
@@ -1270,5 +1270,11 @@
     },
     "checks": "render.py 33 pages; check.py PASS; --layout PASS; check.test.py OK; catalog tests OK; check-render.js PASS 108/108 after all seven icons replaced",
     "spend": "Higgsfield: 14 credits of 5473"
+  },
+  "delivery": {
+    "committed": "0610681, b33f19a, b80d7aa on desks-idea-18",
+    "merged": "PR #9 -> main 71fe948 on 2026-09-15",
+    "production": "https://agent-engineering-handbook.dev serves the merged site; Vercel deployment dpl_81YehtesZAyVnWT35amveseGQfs1 READY",
+    "verified": "title, guides/01 308 redirect to its lesson, skill page GitHub link resolves 200"
   }
 }
