@@ -206,6 +206,8 @@ ROOT_ENTRIES = {
     'boris-cherny-inspection.md', 'github-inspection.md', 'matt-pocock-inspection.md',
     'build', 'control', 'evidence', 'examples', 'guides', 'lessons', 'public', 'screenshots',
     'skills',
+    # Nautilus rules floor and cloud session hook (Roman Architecture, 2026-10-08).
+    'AGENTS.md', 'CLAUDE.md', '.claude',
 }
 CONTROL_FILES = {'README.md', 'plan.md', 'tickets.md', 'patterns.md', 'skill-evals.md',
                  'design-notes.md', 'design-skill-standard.md', 'design-review-capsule.md',
