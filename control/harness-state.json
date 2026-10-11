@@ -1275,7 +1275,7 @@
     "planId": "handbook-google-owned-links",
     "plan": "plans/search-setup-and-owned-links.md",
     "requestedAt": "2026-10-10",
-    "status": "source accepted and pushed to checked previews; auth cleanup accepted, merged through runtime PR #22 and installed with exact installed bytes and integrity independently checked; host launcher remains older and the authorized private launching input is absent; three checked recovery proposals submitted pending-only, none approved or installed; Google registration, analytics, indexing and live backlinks incomplete; production approval remains separate",
+    "status": "source accepted and pushed to checked previews; preview execution records and the consent runner repair merged through handbook PR #11 with the actual Linux gate passing; auth cleanup merged through runtime PR #22 and installed with exact bytes and integrity checked; host launcher remains older and the authorized private launching input is absent; four checked recovery proposals submitted pending-only, none approved or installed; Google registration, analytics, indexing and live backlinks incomplete; production approval remains separate",
     "source": "Owner requests GSC, GTM and GA4 setup for the handbook, valuable-page indexing requests, and useful links among all owner-owned public production sites, excluding clients and vercel.app hosts.",
     "requirements": {
       "R01": {
@@ -1734,7 +1734,36 @@
         "refinementLaunchDigest": "cee2e56969d449af12de52d2543f68ce800ae130f64fa78288f376e5a06b6cb7",
         "manualPolicy": "Freshly checked before browser submission; pending state separately read back with no approval attempts. No policy change.",
         "approved": false,
-        "installed": false
+        "installed": false,
+        "ciBrowser": {
+          "run": "6353b455-db04-4957-9e99-bf769f7a7ceb",
+          "capsuleId": "handbook-ci-browser-method",
+          "runtime": "/Users/thebeast/.claude/releases/browser-xorigin",
+          "releaseDigest": "cee2e56969d449af12de52d2543f68ce800ae130f64fa78288f376e5a06b6cb7",
+          "model": "glm-5.3-flash",
+          "provider": "local-proxy",
+          "driverSha256": "62b0c8746623f1363b800ced2501888b61cb61089dfc57c78fbfdc5571d6e10b",
+          "patchSha256": "f5c38a2c83bcfe6eb0d8a19645a961eff40a265c2a93c5ba08e85aef6575f84e",
+          "candidateCorrectionRun": "9dc79334-ca94-48b6-bb70-2b6066f6ff8b",
+          "candidateSha256": "dd0e6a095d8527387658021943c108ab92d2dd334a97a433c46bd41a1a8299e3",
+          "candidateCorrection": "Exactly failed/change/skill corrected under admitted zero-model execution and a frozen two-case data contract; every other original value and all patch/test bytes retained.",
+          "proposalId": "20261011-054026-long-running-harness-458a61",
+          "proposalPath": "/Users/thebeast/.claude/var/skill-proposals/20261011-054026-long-running-harness-458a61/proposal.md",
+          "queueStatus": "pending",
+          "approvalAttempts": [],
+          "approved": false,
+          "installed": false,
+          "policyObserved": "manual",
+          "proof": "Baseline two actual assertion failures and zero skips; additions-only two-file patch applied independently with unchanged frozen test; queue-form document test passed 2/2 and both complete in-tree bundle checks passed with zero refusals/warnings. Native precise/create-skill/long-running-harness invocations observed in order. No complete loading-verifier pass claimed. Document proof establishes wording only, distinct from supplied actual Linux CI evidence.",
+          "preservation": "Previous five pending proposal states remain byte-identical; no duplicate submission or approval/install effect.",
+          "cost": {
+            "billing": "subscription",
+            "meteredUsd": null,
+            "listUsd": 0.071725,
+            "priceTableVersion": 1
+          },
+          "costMeaning": "List-price estimate, not a known billed amount. The separate deterministic correction has null cost, not a claimed zero billed amount."
+        }
       },
       "currentReadback": {
         "observedAt": "2026-10-11",
@@ -1847,6 +1876,147 @@
           "productionApprovalReceived": false
         },
         "integration": "All proposal corrections are completed and pending-only submissions are separately read back. State output is a point-in-time reconciliation. Checked record delivery remains separate from Google access, production publication and completion of R01–R05."
+      },
+      "previewRecordDelivery": {
+        "recordsRun": "09cacbde-786f-4bcf-b7cb-95cfd2947eb0",
+        "repairRun": "c2bf99bb-c296-4e15-8e6b-3601a0d6bcb6",
+        "runtime": "/Users/thebeast/.claude/releases/browser-xorigin",
+        "releaseDigest": "cee2e56969d449af12de52d2543f68ce800ae130f64fa78288f376e5a06b6cb7",
+        "pr": "https://github.com/desland01/agent-engineering-handbook/pull/11",
+        "state": "MERGED",
+        "base": "preview-handbook-search-setup",
+        "head": "5c7370dc6379842262da2f7e88655cdbb5aa6d4e",
+        "merge": "74e0375e164cec5381b692022b6bb8869c3aae94",
+        "productionMainUnchanged": "4f0724bbff28edcd02b29e2fee0b4b79dbf88b6a",
+        "sourceChange": "Only the existing consent runner launch line changed to match the sibling rendered suite; every other consent source byte was preserved.",
+        "independentAcceptance": "Receipt inputs and non-null outputs, exact committed files, unchanged state/public tree, frozen executing launch contract, merge tree/parents, attribution, remote refs, actual CI metadata and receiving logs independently reconciled.",
+        "launchContractSha256": "b2e4bd259d2844bfd38f0c2a7f81d9e88a4e2eae3cf99eb9a13086a2bfb1480c",
+        "originalFailedChecksRun": 38113073775,
+        "originalFailureRetained": true,
+        "checksRun": 38113778580,
+        "checksConclusion": "success",
+        "consent": {
+          "tests": 21,
+          "pass": 21,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "renderedChecks": {
+          "checks": 108,
+          "failures": 0
+        },
+        "advisoryReview": {
+          "run": 38113778521,
+          "conclusion": "failure",
+          "reviewProduced": false,
+          "requiredGate": false
+        },
+        "deployments": [
+          {
+            "id": "dpl_HE6S6eNFGi74St9LmqZqGPjWKSvS",
+            "sha": "74e0375e164cec5381b692022b6bb8869c3aae94",
+            "ref": "preview-handbook-search-setup",
+            "readyState": "READY",
+            "target": null,
+            "rawSha256": "95d2c08387020871dd026a30c0cf42588cbe5bc63f08d3cac3c7658bd8d7ad25"
+          },
+          {
+            "id": "dpl_9pnPsntt9qKPaUUGqX1sk8PKWCZX",
+            "sha": "5c7370dc6379842262da2f7e88655cdbb5aa6d4e",
+            "ref": "preview-handbook-search-records",
+            "readyState": "READY",
+            "target": null,
+            "rawSha256": "6279da926a0b6b56902d1a343c98db24fec0e7a57581588e5c9892231d946d03"
+          }
+        ],
+        "deploymentIdentityFields": "Actual raw projectId and ownerId, exact full SHA/ref and READY verified; target null is retained literally, not universal preview semantics.",
+        "protectedContentRead": false,
+        "publicTreeUnchanged": true,
+        "report": "/Users/thebeast/ephemera/handbook-google-execution/ci-browser-launch-worker/report.md"
+      },
+      "deliveryHandoff": {
+        "observedAt": "2026-10-11",
+        "latestHumanExecutionReply": "continue",
+        "gspCorrection": {
+          "runId": "dd3379ba-05ca-4a27-8305-7d60d66240a7",
+          "capsuleId": "handbook-gsp-pr-scope",
+          "releaseDigest": "cee2e56969d449af12de52d2543f68ce800ae130f64fa78288f376e5a06b6cb7",
+          "pr": "https://github.com/desland01/gsp-2-0/pull/56",
+          "previousBase": "preview",
+          "previousChangedFiles": 98,
+          "previousCommits": 13,
+          "previousInheritedFiles": 97,
+          "base": "main",
+          "baseRevision": "679bb9ff0c6621739f5b69eccbf5551abf95704f",
+          "head": "649dea26d5997db0b6276a2b20558d495ad62a01",
+          "changedFiles": 1,
+          "commits": 1,
+          "file": "src/app/(frontend)/about/page.tsx",
+          "additions": 7,
+          "deletions": 0,
+          "state": "OPEN",
+          "autoMergeRequest": null,
+          "sourceUnchanged": true,
+          "productionPublished": false,
+          "productionBranchObserved": "main",
+          "productionDeploymentObserved": "dpl_8sCcfCphAQKVWKL4Usq9C5ycs2et",
+          "productionRevisionObserved": "679bb9ff0c6621739f5b69eccbf5551abf95704f",
+          "acceptance": "Three frozen live server-readback cases passed, zero skips; coordinator separately fetched actual state and passed the unchanged test 3/3. All eight receipt input/output hashes matched. Baseline one pass, two assertion failures, zero skips. No source, branch, commit, push, merge, auto-merge, hosting or production action.",
+          "contractSha256": "25ba8e5a45c61c96d28b93824c34eeeacf8659e027b2a51633600aba032d5c01",
+          "report": "/Users/thebeast/ephemera/handbook-google-execution/gsp-pr-scope-worker/report.md",
+          "independentRenderedReview": "still blocked by the sealed review identity mismatch"
+        },
+        "trulineCoordination": {
+          "sessions": [
+            "ai-agency-c8",
+            "ai-agency-93"
+          ],
+          "repository": "desland01/p-0",
+          "file": "src/app/for-developers/page.tsx",
+          "acceptedUnmergedCommit": "4c0144bd30ed9c2f77ff5ecdc80a23391282475a",
+          "mainRevisionObserved": "5b807be4a1ad508f99b0db62d9cf2581656f010d",
+          "pagePreserved": true,
+          "backlinkLast": true,
+          "reportedOrder": [
+            "delivery safeguards",
+            "visual",
+            "copy",
+            "campaign",
+            "bounded backlink"
+          ],
+          "copyMayChange": "call-led CTAs become the paid self-serve offer",
+          "designMayChange": "page presentation",
+          "laterIntegration": "Use their resulting accepted main and current seam, check whether the link already exists, insert only the bounded paragraph and preserve COPY/DESIGN changes. Never restore or merge the old whole page over their work.",
+          "authority": "Peer coordination only, not human production approval or independently verified category landings. No recurring watcher or shared physical writer was started."
+        },
+        "accessReadbackBeforeCorrection": {
+          "authorizedGoogleLaunchInputPresent": false,
+          "installedMakerSupportsHostEnv": false,
+          "reviewIdentityMatchesSelectedProfile": false,
+          "reviewPlanIsPro": true,
+          "reviewDiagnosticReadOnly": true,
+          "gscPropertyVerifiedInConnectedAccount": false,
+          "expectedReviewLogin": "desmond@grovestreetpainting.com",
+          "meaning": "Point-in-time supported readback before this scope correction. No unchanged write/review retry, ancestor-environment recovery, account substitution, pin change, scope widening or protection bypass."
+        },
+        "proposal": {
+          "runId": "e8c2ac7a-c0f5-4783-9d8c-fe635189c010",
+          "proposalId": "20261011-124355-release-delivery-bb97c9",
+          "skill": "nautilus-core:release-delivery",
+          "path": "/Users/thebeast/.claude/var/skill-proposals/20261011-124355-release-delivery-bb97c9/proposal.md",
+          "queueStatus": "pending",
+          "approvalAttempts": [],
+          "approved": false,
+          "installed": false,
+          "policyObserved": "manual",
+          "patchSha256": "444bface9b7180b0f6235cfa6616dd8858fb7c4c5a3f3a57f5ab80909899af19",
+          "contractSha256": "eed0e7c599c8a4bcf7000526af5435f4c778316519a67f9a229fc1ced924f9b2",
+          "proof": "Original document: two assertion failures, zero skips. Candidate and independent exact patch replay: 2/2, zero skips. Both complete original/candidate bundles passed without refusals or warnings. Exactly seven method lines plus an unchanged frozen test; every original method byte and other bundle file retained. All thirteen receipt hashes and output manifest reconciled. Document proof is wording/preservation only, not enforcement or future semantic application. Direct admitted command, zero model requests; no native Skill-delivery claim or known zero billed cost.",
+          "preservation": "Previous six pending proposal state files remained byte-identical during submission. No approval or installation."
+        },
+        "liveOutcomes": "R01–R05 remain pending. The existing dedicated container is still unpublished/uninstalled. No Google write, indexing request, receiving analytics or live backlink is established by this correction, proposal or record update."
       }
     },
     "accountWrites": [
