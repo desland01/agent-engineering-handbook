@@ -45,6 +45,9 @@ jobs:
           cache-dependency-path: build/package-lock.json
       - name: Install locked browser test dependencies
         run: npm ci --prefix build
+
+      - name: Discovery and consent regressions
+        run: node --test build/discovery-consent.test.mjs
       - name: Rendered layout and reader journeys
         run: node build/check-render.js
       - name: Committed pages match their sources

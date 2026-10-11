@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://agent-engineering-handbook.dev/ATTRIBUTION.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/CONTRIBUTING.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/adoption.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/boris-cherny-inspection.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/evidence/video-research.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/evidence.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/examples/recurring-rule/README.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/github-inspection.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/investigations.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/better-environments.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/ci-feedback.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/codebase-navigation.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/missing-tools.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/prove-it-works.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/recurring-mistakes.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/resume-work.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/shared-contracts.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/useful-instructions.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons/working-previews.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/lessons.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/matt-pocock-inspection.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/privacy.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/prompts.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills/agent-artifact-recovery/index.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills/agent-context-calibration/index.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills/agent-contract-consistency/index.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills/agent-feedback-engineering/index.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills/agent-output-verification/index.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills/agent-ready-workspaces/index.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills/agent-tool-adapters/index.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/skills.html</loc></url>
+  <url><loc>https://agent-engineering-handbook.dev/validation.html</loc></url>
+</urlset>

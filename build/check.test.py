@@ -160,7 +160,7 @@ class ApprovedSiteTest(unittest.TestCase):
             self.assertTrue(any('lessons.html' in f and 'plain' in f for f in checker.failures))
 
     def test_public_inventory_and_permanent_dispositions(self):
-        self.assertEqual(len(list((REPO / 'public').rglob('*.html'))), 33)
+        self.assertEqual(len(list((REPO / 'public').rglob('*.html'))), 34)
         redirects = {r['source']: r for r in json.loads((REPO / 'vercel.json').read_text())['redirects']}
         self.assertEqual(redirects['/guides/12-artifact-identity-and-recovery.md']['destination'], '/lessons/resume-work.html')
         self.assertIs(redirects['/README.html']['permanent'], True)

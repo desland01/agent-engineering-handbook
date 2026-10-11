@@ -14,6 +14,10 @@ reviewed it:
 - **Boris Cherny ([@bcherny](https://github.com/bcherny))** — his public engineering
   repositories, including `json-schema-to-typescript` and the `sandbox-runtime` fork.
 
+The handbook's maintainer also owns [Grove Street Painting](https://grovestreetpainting.com/about)
+and [Constance](https://constance.digital/). These are separate projects under common
+ownership, not cited sources, endorsements or required handbook dependencies.
+
 ## Screenshots
 
 The 12 frames under `screenshots/` are short excerpts captured from the video above and

@@ -1211,3 +1211,16 @@ td:not(:first-child), th:not(:first-child) { border-left: 1px solid var(--border
 /* Reduced-motion and print parity for the new pieces: they animate nothing,
    so the only rule needed is the print palette's coverage, which handbook.css
    already supplies through the shared tokens. */
+
+/* Optional analytics: an in-flow choice, never a reading-blocking overlay. */
+[hidden] { display: none !important; }
+.analytics-choice { padding-block: 28px 40px; border-top: 1px solid var(--border); }
+.analytics-choice h2 { font-size: var(--text-xl); margin-bottom: 12px; }
+.analytics-choice p { max-width: 68ch; color: var(--muted-fg); margin-bottom: 12px; }
+.analytics-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.analytics-actions .btn { font-family: inherit; cursor: pointer; min-height: 44px; }
+.analytics-actions .btn:disabled { cursor: default; opacity: .65; }
+.site-foot button { font: inherit; color: var(--muted-fg); background: transparent;
+  border: 0; padding: 0; cursor: pointer; text-align: left; }
+.site-foot button:hover { color: var(--fg); text-decoration: underline; }
+@media print { .analytics-choice, [data-analytics-preferences] { display: none !important; } }

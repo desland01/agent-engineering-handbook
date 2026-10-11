@@ -25,6 +25,7 @@ import json
 import re
 import shutil
 import sys
+from urllib.parse import urlsplit
 
 import markdown
 
@@ -75,7 +76,7 @@ COPY_FILES = [
 # DESIGN.md and INTERACTIONS.md are deliberately absent: source-only guidance.
 RENDER_MD = [
     'adoption.md', 'prompts.md', 'validation.md',
-    'CONTRIBUTING.md', 'ATTRIBUTION.md',
+    'CONTRIBUTING.md', 'ATTRIBUTION.md', 'privacy.md',
     'github-inspection.md', 'matt-pocock-inspection.md', 'boris-cherny-inspection.md',
     'evidence/video-research.md', 'examples/recurring-rule/README.md',
 ]
@@ -222,10 +223,10 @@ def site_head(prefix, current=''):
 def site_foot(prefix, basis_short):
     links = [('index.html', 'Home'), ('lessons.html', 'Lessons'), ('skills.html', 'Skills'),
              ('investigations.html', 'Sources'), ('ATTRIBUTION.html', 'Credits and reuse'),
-             ('CONTRIBUTING.html', 'Contribute to the handbook')]
+             ('CONTRIBUTING.html', 'Contribute to the handbook'), ('privacy.html', 'Privacy')]
     return ('<footer class="site-foot"><div class="wrap">'
             f'<p>{basis_short} Frames are short excerpts from the video and remain © Theo / their original owners.</p>'
-            '<ul>' + ''.join(f'<li><a href="{prefix}{u}">{t}</a></li>' for u,t in links) + '</ul></div></footer>')
+            '<ul>' + ''.join(f'<li><a href="{prefix}{u}">{t}</a></li>' for u,t in links) + '<li><button type="button" data-analytics-preferences hidden>Analytics preferences</button></li></ul></div></footer>')
 
 
 def summarise(text, limit=158):
@@ -283,17 +284,62 @@ def social(path, full_title, description):
             + ''.join(f'<meta {k}="{n}" content="{escape(v)}">' for k, n, v in tags))
 
 
+# Only public identifiers belong here. Validation precedes output replacement.
+ANALYTICS = {}
+
+
+def analytics_settings():
+    path = REPO / 'build/analytics.json'
+    defaults = {'productionHostname': urlsplit(SITE_URL).hostname,
+                'gtmId': '', 'verificationToken': ''}
+    if not path.exists():
+        return defaults
+    values = json.loads(path.read_text())
+    if not isinstance(values, dict) or set(values) - set(defaults):
+        raise ValueError('analytics.json: expected only public configuration fields')
+    result = dict(defaults, **values)
+    if result['productionHostname'] != defaults['productionHostname']:
+        raise ValueError('analytics.json: productionHostname must match canonical hostname exactly')
+    for key in ('gtmId', 'verificationToken'):
+        if not isinstance(result[key], str):
+            raise ValueError(f'analytics.json: {key} must be a string')
+    if result['gtmId'] and not re.fullmatch(r'GTM-[A-Z0-9]+', result['gtmId']):
+        raise ValueError('analytics.json: invalid GTM container ID')
+    token = result['verificationToken']
+    if token and not re.fullmatch(r'[A-Za-z0-9_-]+', token):
+        raise ValueError('analytics.json: verificationToken must be plain meta content')
+    return result
+
+
+def analytics_head():
+    payload = json.dumps(ANALYTICS, separators=(',', ':')).replace('<', r'\u003c').replace('>', r'\u003e').replace('&', r'\u0026')
+    token = ANALYTICS.get('verificationToken', '')
+    meta = f'<meta name="google-site-verification" content="{escape(token)}">' if token else ''
+    return meta + f'<script type="application/json" id="handbook-analytics-config">{payload}</script>'
+
+
+def analytics_choice(prefix):
+    return ('<section class="analytics-choice wrap" data-analytics-panel hidden aria-labelledby="analytics-heading">'
+            '<h2 id="analytics-heading" tabindex="-1">Analytics preferences</h2>'
+            '<p data-analytics-status role="status">Analytics stays off unless you allow it.</p>'
+            '<p>Optional Google Analytics helps us understand handbook reading. Your choice lasts 180 days '
+            '(approximately six months). You can change it in the footer.</p>'
+            '<div class="analytics-actions"><button type="button" class="btn" data-analytics-choice="allow">Allow analytics</button>'
+            '<button type="button" class="btn" data-analytics-choice="decline">Decline analytics</button></div>'
+            '</section>')
+
+
 def document(title, prefix, body, description='', path=''):
     desc = (f'<meta name="description" content="{escape(description)}">' if description else '')
     full_title = f'{title} · {SITE_NAME}'
     return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<meta name="color-scheme" content="dark"><script>document.documentElement.classList.add("js")</script>{desc}'
-            f'{social(path, full_title, description)}'
+            f'{social(path, full_title, description)}{analytics_head()}'
             f'<link rel="icon" href="data:,"><title>{escape(full_title)}</title>'
             f'<link rel="stylesheet" href="{prefix}assets/handbook.css">'
             f'<script src="{prefix}assets/handbook.js" defer></script></head>'
-            f'<body><a class="skip" href="#main">Skip to content</a>{body}</body></html>\n')
+            f'<body><a class="skip" href="#main">Skip to content</a>{body}{analytics_choice(prefix)}</body></html>\n')
 
 
 # ------------------------------------------------------- README as the index
@@ -1304,6 +1350,8 @@ def main():
     # public/ output is still untouched, so a malformed input never destroys
     # the last usable preview. Only after all inputs are proven does the render
     # replace public/.
+    global ANALYTICS
+    ANALYTICS = analytics_settings()
     idx = enrich(read_index(REPO / 'README.md'))
     home = json.loads(HOME.read_text())
     frames = json.loads((REPO / 'evidence/frame-manifest.json').read_text())
@@ -1356,8 +1404,20 @@ def main():
         skill_page(sk, idx, home)
     (OUT / 'index.html').write_text(landing(idx, home, lessons, frames))
 
+    # Discovery comes from the canonical identities in the generated HTML,
+    # not the navigation specification (which also contains redirects).
+    urls = []
+    for page in sorted(OUT.rglob('*.html')):
+        canonical = re.search(r'<link rel="canonical" href="([^"]+)"', page.read_text())
+        if canonical:
+            urls.append(unescape(canonical.group(1)))
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    xml += ''.join(f'  <url><loc>{escape(url)}</loc></url>\n' for url in urls)
+    (OUT / 'sitemap.xml').write_text(xml + '</urlset>\n')
+    (OUT / 'robots.txt').write_text(f'User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n')
+
     print(f'Rendered {len(list(OUT.rglob("*.html")))} HTML pages: 10 lessons, 7 skill explanations, '
-          '4 hubs, 3 inspections, 9 supporting pages; guides and ideas use permanent redirects.')
+          '4 hubs, 3 inspections, 10 supporting pages; guides and ideas use permanent redirects.')
 
 
 def lesson_by_tip(lessons):

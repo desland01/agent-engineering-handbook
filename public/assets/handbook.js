@@ -241,6 +241,125 @@
     setTimeout(tick, 1400);
   }
 
+  // Analytics is independent of the reading enhancements and initializes once.
+  function analytics() {
+    if (window.__handbookAnalyticsInitialized) return;
+    window.__handbookAnalyticsInitialized = true;
+    var settings = {};
+    try { settings = JSON.parse(document.getElementById('handbook-analytics-config').textContent); } catch (_) {}
+    var key = 'handbook.analytics.v1';
+    var lifetime = 180 * 24 * 60 * 60 * 1000;
+    var choice = null;
+    var started = false;
+    var panel = document.querySelector('[data-analytics-panel]');
+    var prefs = document.querySelector('[data-analytics-preferences]');
+    var allow = document.querySelector('[data-analytics-choice="allow"]');
+    var decline = document.querySelector('[data-analytics-choice="decline"]');
+    var status = document.querySelector('[data-analytics-status]');
+    if (!panel || !prefs || !allow || !decline || !status) return;
+    var configured = settings.productionHostname === 'agent-engineering-handbook.dev' &&
+      typeof settings.gtmId === 'string' && /^GTM-[A-Z0-9]+$/.test(settings.gtmId);
+    function gpc() { return navigator.globalPrivacyControl === true; }
+    function eligible() {
+      return configured && window.location.hostname === settings.productionHostname &&
+        window.location.protocol === 'https:' && !gpc();
+    }
+    try {
+      var record = JSON.parse(localStorage.getItem(key));
+      var now = Date.now();
+      if (record && (record.choice === 'allow' || record.choice === 'decline') &&
+          typeof record.decidedAt === 'number' && Number.isFinite(record.decidedAt) &&
+          record.decidedAt <= now && now - record.decidedAt < lifetime) choice = record.choice;
+    } catch (_) {}
+    if (gpc()) choice = 'decline';
+    function message() {
+      if (gpc()) return 'Analytics is off because Global Privacy Control is enabled.';
+      if (!configured) return 'Analytics is not configured and stays off.';
+      if (!eligible()) return 'Analytics stays off outside the production website.';
+      if (choice === 'decline') return 'Analytics is off. You have declined.';
+      if (choice === 'allow') return 'You have allowed analytics.';
+      return 'Analytics stays off unless you allow it.';
+    }
+    function open(focus) {
+      status.textContent = message();
+      panel.hidden = false;
+      prefs.hidden = true; // one control for opening, only when the interface is closed
+      if (focus) document.getElementById('analytics-heading').focus();
+    }
+    function close() { panel.hidden = true; prefs.hidden = false; }
+    function consent(value) {
+      window.dataLayer = window.dataLayer || [];
+      // GTM consumes the standard consent command; no request is sent by this push.
+      function command() { window.dataLayer.push(arguments); }
+      command('consent', 'update', { analytics_storage: value, ad_storage: 'denied',
+        ad_user_data: 'denied', ad_personalization: 'denied' });
+    }
+    function bootstrap() {
+      if (started || choice !== 'allow' || !eligible()) return;
+      started = true;
+      window.dataLayer = window.dataLayer || [];
+      var referrer = '';
+      try {
+        var ref = new URL(document.referrer);
+        if (ref.protocol === 'http:' || ref.protocol === 'https:') referrer = ref.origin;
+      } catch (_) {}
+      window.dataLayer.push({ page_location: 'https://' + settings.productionHostname + window.location.pathname,
+        page_referrer: referrer });
+      consent('granted');
+      window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(settings.gtmId);
+      script.onerror = function () { status.textContent = 'Analytics could not load. Reading and preferences still work.'; };
+      document.head.appendChild(script);
+    }
+    function clearCookies() {
+      var names = document.cookie.split(';').map(function (part) { return part.trim().split('=')[0]; })
+        .filter(function (name) { return /^(?:_ga(?:_|$)|_gid$|_gat(?:_|$)|_gac_|_gcl_)/.test(name); });
+      var host = window.location.hostname.split('.');
+      var domains = [''];
+      for (var i = 0; i < host.length - 1; i++) {
+        domains.push(host.slice(i).join('.')); domains.push('.' + host.slice(i).join('.'));
+      }
+      var segments = window.location.pathname.split('/');
+      var paths = ['/'];
+      for (var j = 1; j < segments.length; j++) {
+        var path = segments.slice(0, j + 1).join('/');
+        paths.push(path); paths.push(path + '/');
+      }
+      names.forEach(function (name) { domains.forEach(function (domain) { paths.forEach(function (path) {
+        document.cookie = name + '=; Max-Age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=' + path +
+          (domain ? '; domain=' + domain : '');
+      }); }); });
+    }
+    function decide(value) {
+      choice = value;
+      try { localStorage.setItem(key, JSON.stringify({ choice: value, decidedAt: Date.now() })); } catch (_) {}
+      if (value === 'decline') {
+        if (started) consent('denied');
+        clearCookies();
+        close();
+        if (started) window.location.reload();
+      } else { bootstrap(); close(); }
+      prefs.focus();
+    }
+    allow.disabled = !eligible();
+    allow.addEventListener('click', function () { decide('allow'); });
+    decline.addEventListener('click', function () { decide('decline'); });
+    prefs.addEventListener('click', function () { open(true); });
+    if (choice === null && eligible()) open(false); else close();
+    bootstrap();
+    // A preference withdrawn in another tab also unloads this page's container.
+    window.addEventListener('storage', function (event) {
+      if (event.key === key && started) {
+        var saved = null;
+        try { saved = JSON.parse(event.newValue); } catch (_) {}
+        if (!saved || saved.choice !== 'allow') { consent('denied'); clearCookies(); window.location.reload(); }
+      }
+    });
+  }
+
+  analytics();
   headerMenu();
   railCurrentSection();
   rows();

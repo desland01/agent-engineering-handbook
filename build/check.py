@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Local checks for the Agent Engineering Handbook.
 
-Run after render.py. Enforces the approved 33-page inventory, ten lessons,
+Run after render.py. Enforces the approved 34-page inventory, ten lessons,
 seven skill explanations, twelve unchanged frames, permanent legacy redirects,
 complete menu, file/link confinement, source ownership, metadata, illustrations,
 progressive disclosure, semantic accessibility and no network resource loads.
@@ -201,7 +201,7 @@ ROOT = PUBLIC.parent
 # section (the pre-commit hook in build/hooks does), the full run includes it.
 DATED_NAME = re.compile(r'(?<!\d)20\d{6}(?!\d)|20\d\d-[01]\d-[0-3]\d|(?:^|[-_.])(?:v\d+|final|latest)(?:[-_.]|$)', re.I)
 ROOT_ENTRIES = {
-    '.github', '.gitignore', '.vercelignore', 'vercel.json', 'ATTRIBUTION.md', 'CONTRIBUTING.md',
+    'PLAN.md', 'plans', 'privacy.md', '.github', '.gitignore', '.vercelignore', 'vercel.json', 'ATTRIBUTION.md', 'CONTRIBUTING.md',
     'DESIGN.md', 'INTERACTIONS.md', 'README.md', 'adoption.md', 'prompts.md', 'validation.md',
     'boris-cherny-inspection.md', 'github-inspection.md', 'matt-pocock-inspection.md',
     'build', 'control', 'evidence', 'examples', 'guides', 'lessons', 'public', 'screenshots',
@@ -602,7 +602,7 @@ def sitemap_checked():
     redirects = redirects_at(REPO)
     expected = {e['path'][1:] for e in entries if e['path'].endswith('.html') and 'destination' not in e}
     actual = {p.relative_to(PUBLIC).as_posix() for p in PUBLIC.rglob('*.html')}
-    check(len(expected) == 33 and actual == expected,
+    check(len(expected) == 33 and actual == expected | {'privacy.html'},
           f'approved HTML inventory differs: missing {sorted(expected-actual)}, extra {sorted(actual-expected)}')
     planned_redirects = {e['path']: e['destination'] for e in entries if 'destination' in e}
     check(set(redirects) == set(planned_redirects), 'permanent redirect address set differs from approved sitemap')
@@ -647,6 +647,36 @@ def sitemap_checked():
               f'{page.name}: primary navigation labels differ')
 
 
+def discovery_checked():
+    """Exact generated canonical inventory; no relaxation of network scanning."""
+    from xml.etree import ElementTree
+    canonical = []
+    for page in PUBLIC.rglob('*.html'):
+        text = page.read_text()
+        values = re.findall(r'<link rel="canonical" href="([^"]+)"', text)
+        canonical.extend(unescape(value) for value in values)
+        for hook in ('data-analytics-choice="allow"', 'data-analytics-choice="decline"', 'data-analytics-preferences'):
+            check(text.count(hook) == 1, f'{page.name}: expected exactly one {hook} control')
+        check('privacy.html' in text, f'{page.name}: privacy footer link missing')
+        payload = re.search(r'<script type="application/json" id="handbook-analytics-config">(.*?)</script>', text, re.S)
+        check(payload, f'{page.name}: shared analytics settings missing')
+        if payload:
+            try:
+                settings = json.loads(payload.group(1))
+                check(settings.get('productionHostname') == SITE_URL.split('://')[1], f'{page.name}: analytics hostname mismatch')
+            except (ValueError, AttributeError):
+                check(False, f'{page.name}: invalid public analytics settings')
+    try:
+        tree = ElementTree.parse(PUBLIC / 'sitemap.xml')
+        urls = [element.text for element in tree.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
+        check(len(urls) == len(set(urls)) and sorted(urls) == sorted(canonical), 'sitemap.xml: canonical inventory mismatch')
+        check(all(url.startswith(SITE_URL + '/') and '?' not in url and '#' not in url for url in urls), 'sitemap.xml: non-production or noncanonical URL')
+    except (OSError, ElementTree.ParseError):
+        check(False, 'sitemap.xml: missing or malformed XML')
+    robots = PUBLIC / 'robots.txt'
+    check(robots.is_file() and robots.read_text() == f'User-agent: *\nAllow: /\n\nSitemap: {SITE_URL}/sitemap.xml\n', 'robots.txt: public crawl policy or sitemap mismatch')
+
+
 def main():
     # --lessons remains a compatible no-op; the full check always includes LS01–LS12.
     selftest_page_scan()
@@ -687,7 +717,7 @@ def main():
                  'adoption.html', 'prompts.html',
                  'validation.html', 'evidence.html', 'github-inspection.html',
                  'matt-pocock-inspection.html', 'boris-cherny-inspection.html',
-                 '404.html', 'assets/handbook.css', 'assets/handbook.js']:
+                 '404.html', 'privacy.html', 'sitemap.xml', 'robots.txt', 'assets/handbook.css', 'assets/handbook.js']:
         check((PUBLIC / page).is_file(), f'public/{page} missing')
 
     # 2. Resolve files and declared redirects without allowing traversal.
@@ -695,6 +725,7 @@ def main():
     pages = list(PUBLIC.rglob('*.html'))
     redirects = redirects_at(REPO)
     sitemap_checked()
+    discovery_checked()
     hub_copy_checked()
     for page in pages:
         for target in attrs.findall(page.read_text()):
