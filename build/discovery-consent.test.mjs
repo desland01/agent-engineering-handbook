@@ -168,7 +168,7 @@ async function browserCase(options, callback) {
   const root = options.root || configured;
   featurePresent(root); // Absent behavior is an assertion failure, not a browser-load error.
   const puppeteer = createRequire(path.join(process.env.HANDBOOK_PUPPETEER_ROOT || path.join(ROOT, 'build'), 'package.json'))('puppeteer');
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage();
   const google = [];
   const remote = [];
