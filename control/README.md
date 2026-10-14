@@ -13,7 +13,7 @@ last touched.
 | `plan.md` | The plan of record for the design system and the handbook. Rewritten as it changes. |
 | `harness.md` | The phased restructure assignment the harness executes; each phase's deliverable, check and gate. |
 | `citation-map.md` | Which primary citations carry each of the ten lessons, and the claim each supports; the writers' only citation source. |
-| `harness-state.json` | Current phase, step status, run ids, capsule ids, costs, refusals and gate decisions for the restructure harness. |
+| `harness-state.json` | Restructure history and current search-setup requirements, step status, run ids, capsule ids, costs, refusals and delivery evidence. |
 | `tickets.md` | The executable ticket graph derived from the plan. |
 | `patterns.md` | Composition patterns extracted from the reference sites; input to design work. |
 | `skill-evals.md` | Whether the skills are used and working, from run records; updated when an eval runs. |
@@ -39,3 +39,11 @@ Enforced: `python3 build/check.py --layout` refuses dated or versioned names, an
 "handoff" in its name, unlisted files in `control/`, and unexpected entries at the repository
 root. `build/hooks/pre-commit` runs it on every commit (install once:
 `ln -sf ../../build/hooks/pre-commit .git/hooks/pre-commit`); `build/check.sh` includes it.
+
+## Changes reach preview before production
+
+Owner ruling, 2026-09-22. This handbook follows the same preview-first rule as client sites and personal projects. The former direct-to-main exception is withdrawn. Keep parallel assignments in separate worktrees or branches, preserve unrelated dirty work, run the existing checks, and integrate tested commits into `preview`. Deploy committed code and retain a stable hosted preview branch URL under existing access controls. Promotion to `main` or production requires separate approval for that promotion.
+
+Monitor every deployment, including scheduled rebuilds, through its actual terminal state. Bind it to the intended full commit and environment. Check the live hosted pages, relevant safe interactions and errors through the current browser method before reporting success. Inspect the rendered evidence and confirm the stable alias points to that deployment. Retain the URL, revision, deployment state and check results. A push, accepted trigger or READY build alone is not live verification.
+
+Report failures and access gaps explicitly. Do not weaken authentication, bypass admission, publish unrelated dirty work or start recurring agents. A workflow staged on `preview` is not active on `main`. These are delivery instructions, not additional external-effect authority or proof of runtime enforcement.
